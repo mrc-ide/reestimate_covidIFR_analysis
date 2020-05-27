@@ -1,0 +1,12 @@
+# MAC files
+.DS_Store
+
+# History files
+.Rhistory
+.Rapp.history
+.Rproj.user
+.RData
+
+# Data files I'm generating
+sandbox/
+data/
