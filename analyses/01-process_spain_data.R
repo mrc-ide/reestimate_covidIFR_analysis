@@ -56,10 +56,11 @@ ESP.agebands.dat <- process_data(deaths = "https://www.dropbox.com/s/z42zfiyr9tr
                                                  "60-70", "70-80", "80-90", "90-999"))
 #......................
 # manual adjustment for
-# suspicious 0
+# suspicious 0 followed by very large increase
+# not sure why April 27 was an issue...a Monday? But looks like all deaths from Apr 27 got pushed to Apr 28
 #......................
 ESP.agebands.dat$deaths$Deaths[ESP.agebands.dat$deaths$ObsDay == 117] <- -1
-
+ESP.agebands.dat$deaths$Deaths[ESP.agebands.dat$deaths$ObsDay == 118] <- -1
 #......................
 # save out
 #......................

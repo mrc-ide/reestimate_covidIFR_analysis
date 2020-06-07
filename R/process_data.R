@@ -120,12 +120,13 @@ process_data <- function(deaths = NULL, population = NULL, sero_val = NULL, sero
     #......................
     # if cumulative, recast from ECDC
     #......................
-    upperlim <- unique(deaths$ObsDay)
+    #upperlim <- unique(deaths$ObsDay)
     ECDC <- ECDC %>%
       dplyr::filter(countryterritoryCode %in% ecdc_countrycode) %>%
       dplyr::mutate(ObsDay = as.numeric(lubridate::dmy(dateRep) - start_date)) %>%
-      dplyr::filter(ObsDay <= upperlim & ObsDay >= 1) %>%  # cut off days greater than study period in ECDC and before study period
+      dplyr::filter(ObsDay >= 1) %>%
       dplyr::arrange(ObsDay)
+      #dplyr::filter(ObsDay <= upperlim & ObsDay >= 1) %>%  # cut off days greater than study period in ECDC and before study period
     # now multiple proportions to get time series
 
     deaths.prop <- deaths %>%
@@ -140,7 +141,7 @@ process_data <- function(deaths = NULL, population = NULL, sero_val = NULL, sero
       dplyr::mutate(death_denom = sum(death_num),
                     death_prop = death_num/death_denom) # protect against double counting of same person in multiple groups
     # now recast proportions across days equally
-    deaths.summ <- as.data.frame(matrix(NA, nrow = nrow(deaths.prop), ncol = upperlim))
+    deaths.summ <- as.data.frame(matrix(NA, nrow = nrow(deaths.prop), ncol = max(ECDC$ObsDay)))
     for (i in 1:ncol(deaths.summ)) {
       deaths.summ[,i] <- deaths.prop$death_prop * ECDC$deaths[i]
     }

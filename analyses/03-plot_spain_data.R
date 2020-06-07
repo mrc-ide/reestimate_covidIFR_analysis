@@ -5,115 +5,118 @@
 ##
 ## Date: 27 May, 2020
 ####################################################################################
+library(drjacoby)
 library(tidyverse)
-source("R/summarize_mcmc_infxns.R")
 
 #............................................................
 # read in data
 #...........................................................
-r_mcmc_out.ageband <- readRDS("data/derived/ESP/ESP_mcmc_agebands_25rungs_5chains_2GTI.rds")
-mod1 <- readRDS("data/derived/ESP/ESP_modinf_agebands.rds")
+r_mcmc_out.ageband <- readRDS("data/derived/ESP/ESP_mcmc_agebands_fit.rds")
 
 #............................................................
 # plots
 #...........................................................
-plot_par(r_mcmc_out.ageband, "r1")
-plot_par(r_mcmc_out.ageband, "r2")
-plot_par(r_mcmc_out.ageband, "r3")
-plot_par(r_mcmc_out.ageband, "r4")
-plot_par(r_mcmc_out.ageband, "r5")
-plot_par(r_mcmc_out.ageband, "r6")
-plot_par(r_mcmc_out.ageband, "r7")
-plot_par(r_mcmc_out.ageband, "r8")
-plot_par(r_mcmc_out.ageband, "r9")
-plot_par(r_mcmc_out.ageband, "ma10")
-plot_par(r_mcmc_out.ageband, "y1")
-plot_par(r_mcmc_out.ageband, "y2")
-plot_par(r_mcmc_out.ageband, "y3")
-plot_par(r_mcmc_out.ageband, "y4")
-plot_par(r_mcmc_out.ageband, "y5")
-plot_par(r_mcmc_out.ageband, "y6")
-plot_par(r_mcmc_out.ageband, "y7")
-plot_par(r_mcmc_out.ageband, "y8")
-plot_par(r_mcmc_out.ageband, "y9")
-plot_par(r_mcmc_out.ageband, "y10")
+plot_par(r_mcmc_out.ageband$mcmcout, "ma1")
+plot_par(r_mcmc_out.ageband$mcmcout, "ma2")
+plot_par(r_mcmc_out.ageband$mcmcout, "ma3")
+plot_par(r_mcmc_out.ageband$mcmcout, "ma4")
+plot_par(r_mcmc_out.ageband$mcmcout, "ma5")
+plot_par(r_mcmc_out.ageband$mcmcout, "ma6")
+plot_par(r_mcmc_out.ageband$mcmcout, "ma7")
+plot_par(r_mcmc_out.ageband$mcmcout, "ma8")
+plot_par(r_mcmc_out.ageband$mcmcout, "ma9")
+plot_par(r_mcmc_out.ageband$mcmcout, "ma10")
+plot_par(r_mcmc_out.ageband$mcmcout, "y1")
+plot_par(r_mcmc_out.ageband$mcmcout, "y2")
+plot_par(r_mcmc_out.ageband$mcmcout, "y3")
+plot_par(r_mcmc_out.ageband$mcmcout, "y4")
+plot_par(r_mcmc_out.ageband$mcmcout, "y5")
+plot_par(r_mcmc_out.ageband$mcmcout, "y6")
+plot_par(r_mcmc_out.ageband$mcmcout, "y7")
+plot_par(r_mcmc_out.ageband$mcmcout, "y8")
+plot_par(r_mcmc_out.ageband$mcmcout, "y9")
+plot_par(r_mcmc_out.ageband$mcmcout, "y10")
+plot_par(r_mcmc_out.ageband$mcmcout, "x1")
+plot_par(r_mcmc_out.ageband$mcmcout, "x2")
+plot_par(r_mcmc_out.ageband$mcmcout, "x3")
+plot_par(r_mcmc_out.ageband$mcmcout, "x4")
+plot_par(r_mcmc_out.ageband$mcmcout, "x5")
+plot_par(r_mcmc_out.ageband$mcmcout, "x6")
+plot_par(r_mcmc_out.ageband$mcmcout, "x7")
+plot_par(r_mcmc_out.ageband$mcmcout, "x8")
+plot_par(r_mcmc_out.ageband$mcmcout, "x9")
+plot_par(r_mcmc_out.ageband$mcmcout, "x10")
 
-plot_par(r_mcmc_out.ageband, "sens")
-plot_par(r_mcmc_out.ageband, "spec")
-plot_par(r_mcmc_out.ageband, "sero_date")
+plot_par(r_mcmc_out.ageband$mcmcout, "sens")
+plot_par(r_mcmc_out.ageband$mcmcout, "spec")
+plot_par(r_mcmc_out.ageband$mcmcout, "sero_day")
 
-plot_mc_acceptance(r_mcmc_out.ageband)
-plot_rung_loglike(r_mcmc_out.ageband, y_axis_type = 1)
-plot_rung_loglike(r_mcmc_out.ageband, y_axis_type = 2)
-plot_rung_loglike(r_mcmc_out.ageband, y_axis_type = 3)
 
+# cred intervals
+(ifr <- COVIDCurve::get_cred_intervals(IFRmodel_inf = r_mcmc_out.ageband,
+                                       whichrung = paste0("rung", 1),
+                                       what = "IFRparams", by_chain = F))
 
 # infxn curve
-r_mcmc_out.ageband.infxncurve <- get_infxn_curve(rmcmcout = r_mcmc_out.ageband,
-                                                 modinf = mod1,
-                                                 CIquant = 0.9)
-r_mcmc_out.ageband.infxncurve$plotObj
+r_mcmc_out.ageband.infxncurve <- COVIDCurve::draw_posterior_infxn_points_cubic_splines(IFRmodel_inf = r_mcmc_out.ageband,
+                                                                                       CIquant = 0.95,
+                                                                                       by_chain = FALSE)
+postdat <- COVIDCurve::posterior_check_infxns_to_death(IFRmodel_inf = r_mcmc_out.ageband,
+                                                       CIquant = 0.95,
+                                                       by_chain = FALSE)
+#............................................................
+# make summary plots for curves and IFR
+#...........................................................
+# plot out
 
-plotObj <- r_mcmc_out.ageband.infxncurve$plotdata %>%
-  dplyr::filter(time < 125) %>%
-  ggplot() +
-  geom_line(mapping = aes(time, infxns, group = sim), alpha = 0.25,
-            lwd = 0.5, color = "#deebf7") +
-  geom_vline(xintercept = mod1$knots, color = "#cb181d", lwd = 0.25, linetype = "dashed", alpha = 0.8) +
-  xlab("Time") + ylab("Num. Infxns")  +
-  labs(title = "Posterior Draws of the Infection Curve", subtitle = "Red lines are position of knots") +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(family = "Helvetica", face = "bold", vjust = 0.5,  hjust = 0.5, size = 18),
-    plot.subtitle = element_text(family = "Helvetica", face = "bold", vjust = 0.5,  hjust = 0.5, size = 12),
-    axis.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, vjust = 0.5, size = 16),
-    axis.text.x = element_text(family = "Helvetica", angle = 45, hjust = 0.5, vjust = 0.5, size = 15),
-    axis.text.y = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 15),
-    panel.background = element_blank(),
-    plot.background = element_blank(),
-    axis.line = element_line(color = "#000000", size = 1.2),
-    legend.position = "none")
+liftover_table <- data.frame(ageband = c("0-10", "10-20", "20-30", "30-40", "40-50", "50-60", "60-70", "70-80", "80-90", "90-999"),
+                             param = c(paste0("ma", 1:9), "ma10"))
+jpeg("~/Desktop/SPAIN_posterior_curve_draws.jpg", width = 11, height = 8, units = "in", res = 500)
 
-# summary plots
-r_mcmc_out.ageband.summary <- get_param_summaries(rmcmcout = r_mcmc_out.ageband,
-                                                  modinf = mod1)
+infxnfatalitydataplot <- ifr %>%
+  dplyr::left_join(liftover_table, ., by = "param") %>%
+  dplyr::mutate(ageband = factor(ageband, levels =  c("0-10", "10-20", "20-30", "30-40", "40-50", "50-60", "60-70", "70-80", "80-90", "90-999")))
 
-#......................
-# make summary plots for IFR
-#......................
-liftover_table <- data.frame(agebands = c("0-10", "10-20", "20-30", "30-40", "40-50", "50-60", "60-70", "70-80", "80-90", "90-999"),
-                             param = c(paste0("r", 1:9), "ma10"))
-agebandsPlotObj <- r_mcmc_out.ageband.summary$IFRparams %>%
-  dplyr::left_join(., liftover_table, by = "param") %>%
-  ggplot() +
-  geom_pointrange(aes(x = agebands, ymin = LCI, ymax = UCI,
-                      y = median, color = chain),
-                  alpha = 0.5, size = 1.5) +
-  scale_color_viridis_d("Chain") +
-  xlab("Age Bands") + ylab("IFR") +
-  theme(axis.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 12),
-        axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 11, angle = 45),
-        axis.text.y = element_text(family = "Helvetica", hjust = 0.5, size = 11),
-        legend.position = "bottom",
-        legend.title = element_text(family = "Helvetica", face = "bold", vjust = 0.85, size = 12),
-        legend.text = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 10),
-        panel.background = element_rect(fill = "transparent"),
-        plot.background = element_rect(fill = "transparent"),
-        panel.grid.minor.y = element_line(size = 0.5, linetype = "dashed", color = "#bdbdbd"),
-        panel.border = element_blank(),
-        axis.line = element_line(color = "#000000", size = 1))
+plot1 <- ggplot() +
+  geom_pointrange(data = infxnfatalitydataplot, aes(x = ageband, ymin = LCI, ymax = UCI, y = median, color = ageband)) +
+  scale_color_viridis_d() +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust= 0.5, face = "bold"))
 
+plot2 <- r_mcmc_out.ageband.infxncurve$plotObj
 
-jpeg("~/Desktop/preliminary_esp_result.jpg", units = "in", height = 8, width = 11, res = 500)
-cowplot::plot_grid(agebandsPlotObj, plotObj,
-                   labels = c("(A)", "(B)"), nrow=2, ncol=1)
+cowplot::plot_grid(plot1, plot2, ncol = 1, nrow = 2)
+
 graphics.off()
 
 
 
-summ <- r_mcmc_out.ageband.summary$IFRparams %>%
-  dplyr::left_join(., liftover_table, by = "param")
-summ %>%
-  dplyr::mutate_if(is.numeric, round, 2) %>%
-readr::write_csv(., "~/Desktop/preliminary_esp_dat_results.csv")
+
+#......................
+# get deaths posterior pred check
+#......................
+liftover_table <- data.frame(ageband = c("0-10", "10-20", "20-30", "30-40", "40-50", "50-60", "60-70", "70-80", "80-90", "90-999"),
+                             param = c(paste0("ma", 1:9), "ma10")) %>%
+  dplyr::mutate(param = paste0("deaths_", param))
+datclean <-  r_mcmc_out.ageband$inputs$IFRmodel$data$obs_deaths %>%
+  dplyr::filter(Deaths != -1)
+
+postdat_long <- postdat %>%
+  dplyr::select(c("sim", "time", dplyr::starts_with("deaths"))) %>%
+  tidyr::gather(., key = "param", value = "deaths", 3:ncol(.)) %>%
+  dplyr::left_join(., y = liftover_table, by = "param") %>%
+  dplyr::filter(sim %in% c(1:1e3)) # downsample sims
+
+
+jpeg("~/Desktop/post_dat_spain.jpg", width = 11, height = 8, units = "in", res = 500)
+ggplot() +
+  geom_line(data = postdat_long, aes(x= time, y = deaths, group = ageband, color = ageband), size = 1.2) +
+  scale_color_viridis_d() +
+  geom_line(data = datclean, aes(x=ObsDay, y = Deaths, group = ageband), color = "#bdbdbd") +
+  facet_wrap(.~ageband) +
+  theme_bw() +
+  ggtitle("Posterior Predictive Check", subtitle = "Grey Lines are ECDC Data, Viridis Lines are Draws from Posterior") +
+  theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5, vjust = 0.5))
+graphics.off()
 
