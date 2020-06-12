@@ -197,14 +197,20 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   }
 
   # various filters for serology data
-  if(groupingvar=="region")  seroprev <- seroprev %>%
-      dplyr::filter(for_regional_analysis==1)
+  if (groupingvar == "region"){
+    seroprev <- seroprev %>%
+      dplyr::filter(for_regional_analysis == 1)
+  }
 
-  if(groupingvar=="gender")    seroprev <- seroprev %>%
-      dplyr::filter(gender_breakdown==1)
+  if (groupingvar == "gender") {
+    seroprev <- seroprev %>%
+      dplyr::filter(gender_breakdown == 1)
+  }
 
-  if(groupingvar=="ageband") seroprev <- seroprev %>%
-    dplyr::filter(age_breakdown==1)
+  if (groupingvar == "ageband") {
+    seroprev <- seroprev %>%
+    dplyr::filter(age_breakdown == 1)
+  }
 
   if (groupingvar == "ageband") {
     # handle age
@@ -219,36 +225,33 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
       )
   }
   # COMPUTE OVERALL AVERAGE SEROPREVALENCE
-  # TODO apply sampling weights?
   ### fill in gaps for studies which only have number positive, and those which only have seroprevalence.
-  seroprev$seroprevalence<-NA
-  if(!is.na(seroprev$seroprevalence_weighted[1])) {   ## check if we have weighted/adjusted data for this study.
-    seroprev$seroprevalence<-seroprev$seroprevalence_weighted
+  seroprev$seroprevalence <- NA
+  if (!is.na(seroprev$seroprevalence_weighted[1])) {   ## check if we have weighted/adjusted data for this study.
+    seroprev$seroprevalence <- seroprev$seroprevalence_weighted
   } else {
-    seroprev$seroprevalence<-seroprev$seroprevalence_unadjusted
+    seroprev$seroprevalence <- seroprev$seroprevalence_unadjusted
   }
-  inds<-which(is.na(seroprev$n_positive))
-  seroprev$n_positive[inds]<-seroprev$n_tested[inds]*seroprev$seroprevalence[inds]
-  inds<-which(is.na(seroprev$seroprevalence))
-  seroprev$seroprevalence[inds]<-seroprev$n_positive[inds]/seroprev$n_tested[inds]
+  inds <- which(is.na(seroprev$n_positive))
+  seroprev$n_positive[inds] <- seroprev$n_tested[inds]*seroprev$seroprevalence[inds]
+  inds <- which(is.na(seroprev$seroprevalence))
+  seroprev$seroprevalence[inds] <- seroprev$n_positive[inds]/seroprev$n_tested[inds]
 
+  # summary seroprevalence
+  # note, we will keep obsday grouping vars for few studies with multiple seroprevalence points
   seroprev.summ <- seroprev %>%
   dplyr::group_by_at(c("ObsDaymin", "ObsDaymax")) %>%
-  #dplyr::summarise(seroprev = mean(seroprevalence)) %>%
   dplyr::summarise(n_tested = sum(n_tested),
                    n_positive = sum(n_positive)) %>%
-  dplyr::mutate(seroprev=n_positive/n_tested) %>%
-  dplyr::select(seroprev) %>%
-  dplyr::ungroup()
+  dplyr::mutate(seroprev = n_positive/n_tested)
 
   ### summarise over grouping variable
   seroprev.summ.group <- seroprev %>%
-    dplyr::group_by_at(c("ObsDaymin", "ObsDaymax",groupingvar)) %>%
-    #dplyr::summarise(seroprev = mean(seroprevalence)) %>%
+    dplyr::group_by_at(c("ObsDaymin", "ObsDaymax", groupingvar)) %>%
     dplyr::summarise(n_tested = sum(n_tested),
                      n_positive = sum(n_positive)) %>%
-    dplyr::mutate(seroprev=n_positive/n_tested) %>%
-    dplyr::ungroup()
+    dplyr::ungroup() %>%
+    dplyr::mutate(seroprev = n_positive/n_tested)
 
 
   #...........................................................
@@ -267,28 +270,28 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   }
 
   # various filters for population data
-  if (groupingvar=="region") {
+  if (groupingvar == "region") {
     population <- population %>%
-      dplyr::filter(for_regional_analysis==1)
+      dplyr::filter(for_regional_analysis == 1)
   }
 
-  if (groupingvar=="gender") {
+  if (groupingvar == "gender") {
     population <- population %>%
-      dplyr::filter(gender_breakdown==1)
+      dplyr::filter(gender_breakdown == 1)
   }
 
-  if (groupingvar=="ageband") {
+  if (groupingvar == "ageband") {
     population <- population %>%
-      dplyr::filter(age_breakdown==1)
+      dplyr::filter(age_breakdown == 1)
   }
 
   # subset to study id
   population <- population %>%
     dplyr::filter(study_id %in% study_ids)
 
-  # get pa
+  # get pop group demographics
   popN <- sum(population$population)
-  pa <- population %>%
+  pop_prop.summ <- population %>%
     dplyr::group_by_at(groupingvar) %>%
     dplyr::summarise(
       pop_prop = sum(population)/popN
@@ -308,11 +311,11 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     ret <- list(
       deaths = deaths.summ,
       seroprev = seroprev.summ,
-      pa = pa,
+      seroprev_group = seroprev.summ.group,
+      prop_pop = pop_prop.summ,
       popN = popN,
       sero_sens = sero_val$sensitivity,
-      sero_spec = sero_val$specificity,
-      seroprev_group = seroprev.summ.group
+      sero_spec = sero_val$specificity
     )
     return(ret)
 }
