@@ -54,7 +54,7 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   # read in
   #......................
   readwrapper <- function(path) {
-    frmt <- NULL
+    frmt <- "error"
     frmt <- ifelse(grepl(".xlsx", path), "excel", frmt)
     frmt <- ifelse(grepl(".csv", path), "csv", frmt)
     switch(frmt,
@@ -65,7 +65,7 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
            "csv" = {
              out <- readr::read_csv(path)
            },
-           {
+           "error" = {
              stop("Data format input not supported")
            }
     )

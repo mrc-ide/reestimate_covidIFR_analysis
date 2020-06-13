@@ -20,7 +20,7 @@ ESP.regions.dat <- process_data2(deaths = "data/deaths.csv",
                                 ECDC = "data/daily_deaths_ECDC20200518.csv",
                                 groupingvar = "region",
                                 study_ids = "ESP1",
-                                ecdc_countrycode = "ESP",
+                                geocode = "ESP",
                                 filtRegions = NULL, # limit to mainland Spain
                                 # filtRegions = c("Andalucia", "Aragon",    "Asturias",  "Baleares",  "C Valenciana", "Canarias",
                                 #                 "Cantabria", "Castilla La Mancha", "Castilla y Leon", "Cataluna", "Extremadura",

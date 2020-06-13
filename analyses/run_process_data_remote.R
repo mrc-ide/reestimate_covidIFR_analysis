@@ -17,10 +17,11 @@ ESP.regions.dat <- process_data2(deaths = "https://www.dropbox.com/s/r4rct1rsp8e
                                  sero_val = "https://www.dropbox.com/s/nu7ek2t2bwo9gxo/seroassay_validation.csv?dl=1",
                                  seroprev = "https://www.dropbox.com/s/kc3mle86os2e6g1/seroprevalence.csv?dl=1",
                                  cumulative = TRUE,
+                                 USAdata = FALSE,
                                  ECDC = "https://www.dropbox.com/s/a2ds6orlpl5ashs/daily_deaths_ECDC20200518.csv?dl=1",
                                  groupingvar = "region",
                                  study_ids = "ESP1",
-                                 ecdc_countrycode = "ESP",
+                                 geocode = "ESP",
                                  filtRegions = NULL, # limit to mainland Spain
                                  # filtRegions = c("Andalucia", "Aragon",    "Asturias",  "Baleares",  "C Valenciana", "Canarias",
                                  #                 "Cantabria", "Castilla La Mancha", "Castilla y Leon", "Cataluna", "Extremadura",
@@ -36,16 +37,16 @@ ESP.agebands.dat <- process_data2(deaths = "https://www.dropbox.com/s/r4rct1rsp8
                                   sero_val = "https://www.dropbox.com/s/nu7ek2t2bwo9gxo/seroassay_validation.csv?dl=1",
                                   seroprev = "https://www.dropbox.com/s/kc3mle86os2e6g1/seroprevalence.csv?dl=1",
                                   cumulative = TRUE,
+                                  USAdata = FALSE,
                                   ECDC = "https://www.dropbox.com/s/a2ds6orlpl5ashs/daily_deaths_ECDC20200518.csv?dl=1",
                                   groupingvar = "ageband",
                                   study_ids = "ESP1",
-                                  ecdc_countrycode = "ESP",
+                                  geocode = "ESP",
                                   filtRegions = NULL,
                                   filtGender = NULL,
-                                  filtAgeBand = NULL)
-# filtAgeBand = c("0-10", "10-20", "20-30",
-#                 "30-40", "40-50", "50-60",
-#                 "60-70", "70-80", "80-90", "90-999"))
+                                  filtAgeBand = NULL,
+                                  death_agebreaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 999),
+                                  sero_agebreaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 999))
 #......................
 # manual adjustment for
 # suspicious 0 followed by very large increase
@@ -72,6 +73,7 @@ DNK.regions.dat <- process_data2(deaths = "https://www.dropbox.com/s/r4rct1rsp8e
                                  sero_val = "https://www.dropbox.com/s/nu7ek2t2bwo9gxo/seroassay_validation.csv?dl=1",
                                  seroprev = "https://www.dropbox.com/s/kc3mle86os2e6g1/seroprevalence.csv?dl=1",
                                  cumulative = TRUE,
+                                 USAdata = FALSE,
                                  ECDC = "https://www.dropbox.com/s/a2ds6orlpl5ashs/daily_deaths_ECDC20200518.csv?dl=1",
                                  groupingvar = "region",
                                  study_ids = "DNK1",
@@ -85,6 +87,7 @@ DNK.agebands.dat <- process_data2(deaths = "https://www.dropbox.com/s/r4rct1rsp8
                                   sero_val = "https://www.dropbox.com/s/nu7ek2t2bwo9gxo/seroassay_validation.csv?dl=1",
                                   seroprev = "https://www.dropbox.com/s/kc3mle86os2e6g1/seroprevalence.csv?dl=1",
                                   cumulative = TRUE,
+                                  USAdata = FALSE,
                                   ECDC = "https://www.dropbox.com/s/a2ds6orlpl5ashs/daily_deaths_ECDC20200518.csv?dl=1",
                                   groupingvar = "ageband",
                                   study_ids = "DNK1",
@@ -108,6 +111,7 @@ NLD.regions.dat <- process_data2(deaths = "https://www.dropbox.com/s/r4rct1rsp8e
                                  sero_val = "https://www.dropbox.com/s/nu7ek2t2bwo9gxo/seroassay_validation.csv?dl=1",
                                  seroprev = "https://www.dropbox.com/s/kc3mle86os2e6g1/seroprevalence.csv?dl=1",
                                  cumulative = TRUE,
+                                 USAdata = FALSE,
                                  ECDC = "https://www.dropbox.com/s/a2ds6orlpl5ashs/daily_deaths_ECDC20200518.csv?dl=1",
                                  groupingvar = "region",
                                  study_ids = "NLD1",
@@ -121,6 +125,7 @@ NLD.agebands.dat <- process_data2(deaths = "https://www.dropbox.com/s/r4rct1rsp8
                                   sero_val = "https://www.dropbox.com/s/nu7ek2t2bwo9gxo/seroassay_validation.csv?dl=1",
                                   seroprev = "https://www.dropbox.com/s/kc3mle86os2e6g1/seroprevalence.csv?dl=1",
                                   cumulative = TRUE,
+                                  USAdata = FALSE,
                                   ECDC = "https://www.dropbox.com/s/a2ds6orlpl5ashs/daily_deaths_ECDC20200518.csv?dl=1",
                                   groupingvar = "ageband",
                                   study_ids = "NLD1",
@@ -128,10 +133,7 @@ NLD.agebands.dat <- process_data2(deaths = "https://www.dropbox.com/s/r4rct1rsp8
                                   filtRegions = NULL, # some regions combined in serosurvey
                                   filtGender = NULL,
                                   filtAgeBand = NULL,
-                                  death_agebreaks = c("0-10", "10-20", "20-30",
-                                                      "30-40", "40-50", "50-60",
-                                                      "60-70", "70-80", "80-90", "90-999"))
-
+                                  death_agebreaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 999))
 #......................
 # save out
 #......................
@@ -145,6 +147,37 @@ saveRDS(NLD.agebands.dat, "data/derived/NLD/NLD_agebands.RDS")
 #........................................................
 # New York #####
 #........................................................
+NYC.regions.dat <- process_data2(deaths = "https://www.dropbox.com/s/r4rct1rsp8e5rne/deaths.csv?dl=1",
+                                 population = "https://www.dropbox.com/s/hv4woy1zdlveg72/population.csv?dl=1",
+                                 sero_val = "https://www.dropbox.com/s/nu7ek2t2bwo9gxo/seroassay_validation.csv?dl=1",
+                                 seroprev = "https://www.dropbox.com/s/7jsqb4l7hd5i4i2/seroprevalence_USA.xlsx?dl=1",
+                                 cumulative = TRUE,
+                                 USAdata = TRUE,
+                                 JHU = "https://www.dropbox.com/s/a2ds6orlpl5ashs/daily_deaths_ECDC20200518.csv?dl=1",
+                                 groupingvar = "region",
+                                 study_ids = "NLD1",
+                                 ecdc_countrycode = "NLD",
+                                 filtRegions = NULL, # some regions combined in serosurvey
+                                 filtGender = NULL,
+                                 filtAgeBand = NULL)
+
+NYC.agebands.dat <- process_data2(deaths = "https://www.dropbox.com/s/r4rct1rsp8e5rne/deaths.csv?dl=1",
+                                  population = "https://www.dropbox.com/s/hv4woy1zdlveg72/population.csv?dl=1",
+                                  sero_val = "https://www.dropbox.com/s/nu7ek2t2bwo9gxo/seroassay_validation.csv?dl=1",
+                                  seroprev = "https://www.dropbox.com/s/kc3mle86os2e6g1/seroprevalence.csv?dl=1",
+                                  cumulative = TRUE,
+                                  USAdata = TRUE,
+                                  JHU = "https://www.dropbox.com/s/a2ds6orlpl5ashs/daily_deaths_ECDC20200518.csv?dl=1",
+                                  groupingvar = "ageband",
+                                  study_ids = "NLD1",
+                                  ecdc_countrycode = "NLD",
+                                  filtRegions = NULL, # some regions combined in serosurvey
+                                  filtGender = NULL,
+                                  filtAgeBand = NULL,
+                                  death_agebreaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 999))
+
+
+
 
 #............................................................
 # Customization ####
