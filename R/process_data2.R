@@ -172,6 +172,7 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
       dplyr::ungroup(.) %>%
       dplyr::mutate(death_denom = sum(death_num),
                     death_prop = death_num/death_denom) # protect against double counting of same person in multiple groups
+
     # now recast proportions across days equally
     deaths.summ <- as.data.frame(matrix(NA, nrow = nrow(deaths.prop), ncol = max(ECDC$ObsDay)))
     for (i in 1:ncol(deaths.summ)) {
@@ -259,7 +260,7 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   dplyr::summarise(n_tested = sum(n_tested),
                    n_positive = sum(n_positive)) %>%
   dplyr::mutate(seroprev=n_positive/n_tested) %>%
-  dplyr::select(seroprev) %>%
+  dplyr::select(ObsDaymin, ObsDaymax, seroprev) %>%
   dplyr::ungroup()
 
   ### summarise over grouping variable
@@ -275,6 +276,13 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
       dplyr::mutate(seroprevalence=n_positive/n_tested) %>%
       dplyr::ungroup()
   }
+
+
+  ## deaths at midpoint of survey
+  ecdc_deaths_at_sero<-ECDC %>%
+    dplyr::filter(ObsDay<=(0.5*(seroprev$ObsDaymax[1] + seroprev$ObsDaymin[1])))
+  deaths.prop<-deaths.prop %>%
+    mutate(deaths_at_sero=sum(ecdc_deaths_at_sero$deaths)*death_prop)
 
   #...........................................................
   # process population
@@ -337,7 +345,8 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
       popN = popN,
       sero_sens = sero_val$sensitivity,
       sero_spec = sero_val$specificity,
-      seroprev_group = seroprev.summ.group
+      seroprev_group = seroprev.summ.group,
+      deaths_group = deaths.prop
     )
     return(ret)
 }
