@@ -98,6 +98,14 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   # save study start date for later -- this is our index time 0
   start_date <- unique(deaths$start_date)
 
+  ### Iran data processing. Need to rescale ECDC deaths as we only have one region.
+  if(study_ids=="IRN1") {
+    ### extract total deaths in Guilan for the time point where we have region specific deaths.
+    ## (the age specific deaths are not complete and wrong date so cannot use them for total deaths absolute numbers)
+    tot_deaths_iran<-deaths %>%
+      filter(study_id=="IRN1" & age_low==0 & age_high==999 & gender=="both")
+  }
+
   # various filters for death data
   if (groupingvar=="region") {
     deaths <- deaths %>%
@@ -142,6 +150,16 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
       dplyr::arrange(ObsDay)
       #dplyr::filter(ObsDay <= upperlim & ObsDay >= 1) %>%  # cut off days greater than study period in ECDC and before study period
     # now multiple proportions to get time series
+
+    ### For Iran, scale deaths down to represent Guilan region (assuming it has a similar time course)
+    if(study_ids=="IRN1") {
+      # obtain scaling factor
+      ecdc_tot_deaths_iran<-ECDC %>%
+        dplyr::filter(ObsDay<=tot_deaths_iran$ObsDay)
+      scale_iran<-tot_deaths_iran$n_deaths / sum(ecdc_tot_deaths_iran$deaths)
+      ## now scale all ECDC deaths for this region before we use them
+      ECDC$deaths<- ECDC$deaths * scale_iran
+    }
 
     deaths.prop <- deaths %>%
       dplyr::mutate(ObsDay = max(date_end_survey)) %>%
@@ -227,6 +245,9 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   } else {
     seroprev$seroprevalence<-seroprev$seroprevalence_unadjusted
   }
+  if(is.na(seroprev$seroprevalence_weighted[1]) & is.na(seroprev$seroprevalence_unadjusted[1])) {
+    seroprev$seroprevalence<-rowMeans(cbind(seroprev$range_sero_low,seroprev$range_sero_high))
+  }
   inds<-which(is.na(seroprev$n_positive))
   seroprev$n_positive[inds]<-seroprev$n_tested[inds]*seroprev$seroprevalence[inds]
   inds<-which(is.na(seroprev$seroprevalence))
@@ -242,14 +263,18 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   dplyr::ungroup()
 
   ### summarise over grouping variable
-  seroprev.summ.group <- seroprev %>%
-    dplyr::group_by_at(c("ObsDaymin", "ObsDaymax",groupingvar)) %>%
-    #dplyr::summarise(seroprev = mean(seroprevalence)) %>%
-    dplyr::summarise(n_tested = sum(n_tested),
-                     n_positive = sum(n_positive)) %>%
-    dplyr::mutate(seroprev=n_positive/n_tested) %>%
-    dplyr::ungroup()
-
+  if(all(is.na(seroprev$n_tested)) | all(is.na(seroprev$n_positive))) { ## if no information on sample size to compute weighted average, output current data.
+    seroprev.summ.group<-seroprev %>%
+            select(ObsDaymin, ObsDaymax, groupingvar,n_tested,n_positive,seroprevalence)
+  } else {
+    seroprev.summ.group <- seroprev %>%
+      dplyr::group_by_at(c("ObsDaymin", "ObsDaymax",groupingvar)) %>%
+      #dplyr::summarise(seroprev = mean(seroprevalence)) %>%
+      dplyr::summarise(n_tested = sum(n_tested),
+                       n_positive = sum(n_positive)) %>%
+      dplyr::mutate(seroprevalence=n_positive/n_tested) %>%
+      dplyr::ungroup()
+  }
 
   #...........................................................
   # process population
