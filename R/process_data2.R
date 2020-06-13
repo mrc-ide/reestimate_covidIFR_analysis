@@ -210,10 +210,6 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
                   ObsDaymax = as.numeric(date_end_survey - start_date)) %>%
     dplyr::filter(study_id %in% study_ids)
 
-  if (length(unique(seroprev$ObsDaymin)) > 1 | length(unique(seroprev$ObsDaymax)) > 1) {
-    stop("Serology data has multiple start or end dates")
-  }
-
   # various filters for serology data
   if(groupingvar=="region")  seroprev <- seroprev %>%
       dplyr::filter(for_regional_analysis==1)
@@ -223,6 +219,10 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
 
   if(groupingvar=="ageband") seroprev <- seroprev %>%
     dplyr::filter(age_breakdown==1)
+
+  if (length(unique(seroprev$ObsDaymin)) > 1 | length(unique(seroprev$ObsDaymax)) > 1) {
+    stop("Serology data has multiple start or end dates")
+  }
 
   if (groupingvar == "ageband") {
     # handle age
