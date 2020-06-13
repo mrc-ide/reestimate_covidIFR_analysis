@@ -103,7 +103,7 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     ### extract total deaths in Guilan for the time point where we have region specific deaths.
     ## (the age specific deaths are not complete and wrong date so cannot use them for total deaths absolute numbers)
     tot_deaths_iran<-deaths %>%
-      filter(study_id=="IRN1" & age_low==0 & age_high==999 & gender=="both")
+      dplyr::filter(study_id=="IRN1" & age_low==0 & age_high==999 & gender=="both")
   }
 
   # various filters for death data
