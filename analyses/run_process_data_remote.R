@@ -77,7 +77,7 @@ DNK.regions.dat <- process_data2(deaths = "https://www.dropbox.com/s/r4rct1rsp8e
                                  ECDC = "https://www.dropbox.com/s/a2ds6orlpl5ashs/daily_deaths_ECDC20200518.csv?dl=1",
                                  groupingvar = "region",
                                  study_ids = "DNK1",
-                                 ecdc_countrycode = "DNK",
+                                 geocode = "DNK",
                                  filtRegions = NULL, # some regions combined in serosurvey
                                  filtGender = NULL,
                                  filtAgeBand = NULL)
@@ -91,10 +91,17 @@ DNK.agebands.dat <- process_data2(deaths = "https://www.dropbox.com/s/r4rct1rsp8
                                   ECDC = "https://www.dropbox.com/s/a2ds6orlpl5ashs/daily_deaths_ECDC20200518.csv?dl=1",
                                   groupingvar = "ageband",
                                   study_ids = "DNK1",
-                                  ecdc_countrycode = "DNK",
+                                  geocode = "DNK",
                                   filtRegions = NULL, # some regions combined in serosurvey
                                   filtGender = NULL,
                                   filtAgeBand = NULL)
+å#......................
+# manual adjustment for
+# suspicious negative deaths
+#......................
+DNK.agebands.dat$deaths$Deaths[DNK.agebands.dat$deaths$ObsDay == 133] <- -1
+DNK.agebands.dat$deaths$Deaths[DNK.agebands.dat$deaths$ObsDay == 133] <- -1
+
 #......................
 # save out
 #......................
