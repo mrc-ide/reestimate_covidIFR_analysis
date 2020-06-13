@@ -1,15 +1,17 @@
-####################################################################################
-## Purpose: Process spanish datasets for analysis
+##....................................................................
+## Purpose: Process various datasets for analysis
 ##
-## Author: Nick Brazeau
-##
-## Date: 26 May, 2020
-####################################################################################
+## Notes: Countries are delimited with R-comment sectioning
+##....................................................................
 library(tidyverse)
 source("R/process_data2.R")
+
 #............................................................
+# Spain ####
+#............................................................
+#......................
 # from dropbox, focus on regions
-#...........................................................
+#......................
 ESP.regions.dat <- process_data2(deaths = "data/deaths.csv",
                                 population = "data/population.csv",
                                 sero_val = "data/seroassay_validation.csv",
@@ -29,7 +31,8 @@ ESP.regions.dat <- process_data2(deaths = "data/deaths.csv",
 # manual adjustment for
 # suspicious 0
 #......................
-ESP.regions.dat$deaths$Deaths[ESP.regions.dat$deaths$ObsDay == 117] <- -1
+ESP.agebands.dat$deaths$Deaths[ESP.agebands.dat$deaths$ObsDay == 117] <- -1
+ESP.agebands.dat$deaths$Deaths[ESP.agebands.dat$deaths$ObsDay == 118] <- -1
 
 #......................
 # save out
@@ -37,10 +40,9 @@ ESP.regions.dat$deaths$Deaths[ESP.regions.dat$deaths$ObsDay == 117] <- -1
 dir.create("data/derived/ESP", recursive = T)
 saveRDS(ESP.regions.dat, "data/derived/ESP/ESP_regions.RDS")
 
-
-#............................................................
+#......................
 # from dropbox, focus on age bands
-#...........................................................
+#......................
 ESP.agebands.dat <- process_data2(deaths = "data/deaths.csv",
                                  population = "data/population.csv",
                                  sero_val = "data/seroassay_validation.csv",
@@ -69,10 +71,9 @@ ESP.agebands.dat$deaths$Deaths[ESP.agebands.dat$deaths$ObsDay == 118] <- -1
 saveRDS(ESP.agebands.dat, "data/derived/ESP/ESP_agebands.RDS")
 
 
-
-#########################
-# Denmark
-
+#............................................................
+# Denmark ####
+#............................................................
 DNK.regions.dat <- process_data2(deaths = "data/deaths.csv",
                                 population = "data/population.csv",
                                 sero_val = "data/seroassay_validation.csv",
@@ -100,9 +101,9 @@ DNK.agebands.dat <- process_data2(deaths = "data/deaths.csv",
                                 filtAgeBand = NULL)
 
 
-#########################
-# Netherlands
-
+#............................................................
+# Netherlands ####
+#............................................................
 NLD.regions.dat <- process_data2(deaths = "data/deaths.csv",
                                  population = "data/population.csv",
                                  sero_val = "data/seroassay_validation.csv",
@@ -129,9 +130,25 @@ NLD.agebands.dat <- process_data2(deaths = "data/deaths.csv",
                                   filtGender = NULL,
                                   filtAgeBand = NULL)
 
-########
-# Switzerland, Iran, Sweden need customised function as they are not national surveys.
 
+#............................................................
+# Customization ####
+#............................................................
+# Switzerland, Iran, Sweden need customised function as they are not national surveys.
+#........................................................
+# Switzerland #####
+#........................................................
+
+
+
+
+
+
+
+
+#........................................................
+##### parking lot #####
+#........................................................
 
 if(length(unique(ESP.agebands.dat$seroprev_group$ObsDaymax))>1 |
    length(unique(ESP.agebands.dat$seroprev_group$ObsDaymin))>1) print("more than one unique serosurvey time window")

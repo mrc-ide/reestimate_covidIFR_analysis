@@ -9,13 +9,14 @@
 #' @param filtRegion character; region levels to keep
 #' @param filtGender character; biological sex levels to keep
 #' @param filtAgeBand character; age groups to keep -- note this will be a factor of the age_low and age_high concatenated together
+#' @param death_agebreaks character; potential to customize the break points for the factorization of ages from the death data. Default NULL will use data to set breaks
 #' @import tidyverse
 #' NB, this isn't a package, so ^^ is just a reminder to users to have tidyverse loaded in order to allow embracing and piping to work as expected
 
 source("R/assertions_v5.R")
 process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, seroprev = NULL, cumulative = FALSE, ECDC = NULL,
                          groupingvar, study_ids, ecdc_countrycode,
-                         filtRegions = NULL, filtGender = NULL, filtAgeBand = NULL) {
+                         filtRegions = NULL, filtGender = NULL, filtAgeBand = NULL, death_agebreaks = NULL) {
   #......................
   # assertions and checks
   #......................
@@ -85,7 +86,13 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
 
 
   # handle age
-  agebrks <- c(0, sort(unique(deaths$age_high)))
+  if (!is.null(death_agebreaks)) {
+    assert_vector(death_agebreaks)
+    assert_greq(length(death_agebreaks), 2)
+    agebrks <- death_agebreaks
+  } else {
+    agebrks <- c(0, sort(unique(deaths$age_high)))
+  }
   deaths <- deaths %>%
     dplyr::mutate(
       ageband = cut(age_high,
