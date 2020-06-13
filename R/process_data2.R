@@ -53,34 +53,16 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   #......................
   # read in
   #......................
-  readwrapper <- function(path) {
-    frmt <- "error"
-    frmt <- ifelse(grepl(".xlsx", path), "excel", frmt)
-    frmt <- ifelse(grepl(".csv", path), "csv", frmt)
-    switch(frmt,
-           "excel" = {
-             out <- readxl::read_excel(path, sheet = 1)
-             warning("Reading in excel file. Assuming relevant data is on sheet 1")
-           },
-           "csv" = {
-             out <- readr::read_csv(path)
-           },
-           "error" = {
-             stop("Data format input not supported")
-           }
-    )
-    return(out)
-  }
-  deaths <- readwrapper(deaths)
-  population <- readwrapper(population)
-  sero_val <- readwrapper(sero_val)
-  seroprev <- readwrapper(seroprev)
+  deaths <- readr::read_csv(deaths)
+  population <- readr::read_csv(population)
+  sero_val <- readr::read_csv(sero_val)
+  seroprev <- readr::read_csv(seroprev)
   if (cumulative & !USAdata){
-    ECDC <- readwrapper(ECDC)
+    ECDC <- readr::read_csv(ECDC)
   }
 
   if (cumulative & USAdata){
-    JHU <- readwrapper(JHU)
+    JHU <- readr::read_csv(JHU)
   }
 
   #......................
@@ -113,12 +95,48 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   #............................................................
   # process death data
   #...........................................................
-  deaths <- deaths %>%
-    dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey),
-                  date_end_survey = lubridate::dmy(date_end_survey),
-                  start_date = min(date_start_survey),
-                  ObsDay = as.numeric(date_end_survey - start_date)) %>%
-    dplyr::filter(study_id %in% study_ids)
+  if (cumulative) {
+    if (USAdata) { # protect dates
+      deaths <- deaths %>%
+        dplyr::mutate(date_start_survey = lubridate::mdy(date_start_survey),
+                      date_end_survey = lubridate::mdy(date_end_survey),
+                      start_date = min(date_start_survey),
+                      ObsDay = as.numeric(date_end_survey - start_date)) %>%
+        dplyr::filter(study_id %in% study_ids)
+      warning("Assuming you are using USA date format")
+
+    } else {
+      deaths <- deaths %>%
+        dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey),
+                      date_end_survey = lubridate::dmy(date_end_survey),
+                      start_date = min(date_start_survey),
+                      ObsDay = as.numeric(date_end_survey - start_date)) %>%
+        dplyr::filter(study_id %in% study_ids)
+      warning("Assuming you are using European date format")
+
+    }
+
+
+  } else {
+    if (USAdata) { # protect dates
+      start_date <- min(lubridate::mdy(deaths$date_start_survey))
+      deaths <- deaths %>%
+        dplyr::mutate(start_date = min(lubridate::mdy(deaths$date_start_survey)),
+                      ObsDay = as.numeric(lubridate::mdy(date_end_survey) - start_date)) %>%
+        dplyr::filter(study_id %in% study_ids)
+
+      warning("Assuming you are using USA date format")
+    } else {
+
+      deaths <- deaths %>%
+        dplyr::mutate(start_date = min(lubridate::dmy(deaths$date_start_survey)),
+                      ObsDay = as.numeric(lubridate::dmy(date_end_survey) - start_date)) %>%
+        dplyr::filter(study_id %in% study_ids)
+      warning("Assuming you are using European date format")
+    }
+
+
+  }
 
 
   # handle age
@@ -220,7 +238,7 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     # if cumulative, recast from JHU
     #......................
     JHU <- JHU %>%
-      dplyr::filter(admin2 %in% geocode) %>%
+      dplyr::filter(province_state %in% geocode) %>%
       dplyr::mutate(ObsDay = as.numeric(lubridate::dmy(date) - start_date)) %>%
       dplyr::filter(ObsDay >= 1) %>%
       dplyr::arrange(ObsDay)
@@ -254,10 +272,20 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     #......................
     # deaths summary out for time series
     #......................
-    deaths.summ <- deaths %>%
-      dplyr::mutate(ObsDay = as.numeric(lubridate::dmy(date_start_survey) - start_date)) %>%
-      dplyr::group_by_at(c(groupvar, "ObsDay")) %>%
-      dplyr::summarise( Deaths = sum(n_deaths) )
+    if (USAdata) {
+      deaths.summ <- deaths %>%
+        dplyr::mutate(ObsDay = as.numeric(lubridate::mdy(date_start_survey) - start_date)) %>%
+        dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
+        dplyr::summarise( Deaths = sum(n_deaths) )
+      warning("Assuming you are using USA date format")
+    } else {
+      deaths.summ <- deaths %>%
+        dplyr::mutate(ObsDay = as.numeric(lubridate::dmy(date_start_survey) - start_date)) %>%
+        dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
+        dplyr::summarise( Deaths = sum(n_deaths) )
+      warning("Assuming you are using European date format")
+    }
+
   }
 
 
@@ -266,12 +294,24 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   #...........................................................
 
   # handle sero dates and subset
-  seroprev <- seroprev %>%
-    dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey),
-                  date_end_survey = lubridate::dmy(date_end_survey),
-                  ObsDaymin = as.numeric(date_start_survey - start_date),
-                  ObsDaymax = as.numeric(date_end_survey - start_date)) %>%
-    dplyr::filter(study_id %in% study_ids)
+  if (USAdata) {
+    seroprev <- seroprev %>%
+      dplyr::mutate(date_start_survey = lubridate::mdy(date_start_survey),
+                    date_end_survey = lubridate::mdy(date_end_survey),
+                    ObsDaymin = as.numeric(date_start_survey - start_date),
+                    ObsDaymax = as.numeric(date_end_survey - start_date)) %>%
+      dplyr::filter(study_id %in% study_ids)
+    warning("Assuming you are using US date format")
+  } else {
+    seroprev <- seroprev %>%
+      dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey),
+                    date_end_survey = lubridate::dmy(date_end_survey),
+                    ObsDaymin = as.numeric(date_start_survey - start_date),
+                    ObsDaymax = as.numeric(date_end_survey - start_date)) %>%
+      dplyr::filter(study_id %in% study_ids)
+    warning("Assuming you are using European date format")
+  }
+
 
   if (length(unique(seroprev$ObsDaymin)) > 1 | length(unique(seroprev$ObsDaymax)) > 1) {
     stop("Serology data has multiple start or end dates")
@@ -320,9 +360,11 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     seroprev$seroprevalence <- seroprev$seroprevalence_unadjusted
   }
   inds <- which(is.na(seroprev$n_positive))
-  seroprev$n_positive[inds] <- seroprev$n_tested[inds]*seroprev$seroprevalence[inds]
-  inds <- which(is.na(seroprev$seroprevalence))
-  seroprev$seroprevalence[inds] <- seroprev$n_positive[inds]/seroprev$n_tested[inds]
+  if (length(inds) >= 1) {
+    seroprev$n_positive[inds] <- seroprev$n_tested[inds]*seroprev$seroprevalence[inds]
+    inds <- which(is.na(seroprev$seroprevalence))
+    seroprev$seroprevalence[inds] <- seroprev$n_positive[inds]/seroprev$n_tested[inds]
+  }
 
   # summary seroprevalence
   # note, we will keep obsday grouping vars for few studies with multiple seroprevalence points

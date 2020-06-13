@@ -152,36 +152,36 @@ saveRDS(NLD.agebands.dat, "data/derived/NLD/NLD_agebands.RDS")
 
 
 #........................................................
-# New York #####
+# New York City #####
 #........................................................
-NYC.regions.dat <- process_data2(deaths = "https://www.dropbox.com/s/r4rct1rsp8e5rne/deaths.csv?dl=1",
-                                 population = "https://www.dropbox.com/s/hv4woy1zdlveg72/population.csv?dl=1",
+NYC.regions.dat <- process_data2(deaths = "data/raw/jhu_long_simpleNY.csv",
+                                 population = "data/raw/tidycensus_ny_pop.csv",
                                  sero_val = "https://www.dropbox.com/s/nu7ek2t2bwo9gxo/seroassay_validation.csv?dl=1",
-                                 seroprev = "https://www.dropbox.com/s/7jsqb4l7hd5i4i2/seroprevalence_USA.xlsx?dl=1",
-                                 cumulative = TRUE,
+                                 seroprev = "data/raw/seroprevalence_USA.csv",
+                                 cumulative = FALSE,
                                  USAdata = TRUE,
-                                 JHU = "https://www.dropbox.com/s/a2ds6orlpl5ashs/daily_deaths_ECDC20200518.csv?dl=1",
                                  groupingvar = "region",
-                                 study_ids = "NLD1",
-                                 ecdc_countrycode = "NLD",
+                                 study_ids = "NY_1",
+                                 geocode = NULL,
                                  filtRegions = NULL, # some regions combined in serosurvey
                                  filtGender = NULL,
                                  filtAgeBand = NULL)
 
-NYC.agebands.dat <- process_data2(deaths = "https://www.dropbox.com/s/r4rct1rsp8e5rne/deaths.csv?dl=1",
-                                  population = "https://www.dropbox.com/s/hv4woy1zdlveg72/population.csv?dl=1",
-                                  sero_val = "https://www.dropbox.com/s/nu7ek2t2bwo9gxo/seroassay_validation.csv?dl=1",
-                                  seroprev = "https://www.dropbox.com/s/kc3mle86os2e6g1/seroprevalence.csv?dl=1",
-                                  cumulative = TRUE,
-                                  USAdata = TRUE,
-                                  JHU = "https://www.dropbox.com/s/a2ds6orlpl5ashs/daily_deaths_ECDC20200518.csv?dl=1",
-                                  groupingvar = "ageband",
-                                  study_ids = "NLD1",
-                                  ecdc_countrycode = "NLD",
-                                  filtRegions = NULL, # some regions combined in serosurvey
-                                  filtGender = NULL,
-                                  filtAgeBand = NULL,
-                                  death_agebreaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 999))
+
+#......................
+# manual adjustment for
+# suspicious negative deaths
+#......................
+NYC.regions.dat$deaths <- NYC.regions.dat$deaths %>%
+  dplyr::mutate(Deaths = ifelse(Deaths < 0, -1, Deaths)) %>%
+  dplyr::filter(ObsDay >= 1) %>%
+  dplyr::arrange(ObsDay, region)
+
+#......................
+# save out
+#......................
+dir.create("data/derived/NY", recursive = T)
+saveRDS(NYC.regions.dat, "data/derived/NY/NY_regions.RDS")
 
 
 
