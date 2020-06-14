@@ -225,7 +225,10 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     deaths.prop <- deaths %>%
       dplyr::mutate(ObsDay = max(date_end_survey)) %>%
       dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
-      dplyr::summarise(death_num = sum(n_deaths) )
+      dplyr::summarise(death_num = sum(n_deaths),
+                       age_low=mean(age_low),
+                       age_high=mean(age_high)) %>%
+      dplyr::arrange(age_low)
     # store group names
     groupvarnames <- group_keys(deaths.prop)
     # get proportion
@@ -265,7 +268,10 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     deaths.prop <- deaths %>%
       dplyr::mutate(ObsDay = max(date_end_survey)) %>%
       dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
-      dplyr::summarise(death_num = sum(n_deaths) )
+      dplyr::summarise(death_num = sum(n_deaths),
+                       age_low=mean(age_low),
+                       age_high=mean(age_high)) %>%
+      dplyr::arrange(age_low)
     # store group names
     groupvarnames <- group_keys(deaths.prop)
     # get proportion
@@ -405,14 +411,17 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   ### summarise over grouping variable
   if (all(is.na(seroprev$n_tested)) | all(is.na(seroprev$n_positive))) { ## if no information on sample size to compute weighted average, output current data.
     seroprev.summ.group<-seroprev %>%
-            select(ObsDaymin, ObsDaymax, groupingvar,n_tested,n_positive,seroprevalence)
+            select(ObsDaymin, ObsDaymax, groupingvar,age_low, age_high,n_tested,n_positive,seroprevalence)
   } else {
     seroprev.summ.group <- seroprev %>%
       dplyr::group_by_at(c("ObsDaymin", "ObsDaymax",groupingvar)) %>%
       #dplyr::summarise(seroprev = mean(seroprevalence)) %>%
-      dplyr::summarise(n_tested = sum(n_tested),
+      dplyr::summarise(age_low=mean(age_low),
+                       age_high=mean(age_high),
+                       n_tested = sum(n_tested),
                        n_positive = sum(n_positive)) %>%
       dplyr::mutate(seroprevalence = n_positive/n_tested) %>%
+      dplyr::arrange(age_low) %>%
       dplyr::ungroup()
   }
 
@@ -420,7 +429,8 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   ecdc_deaths_at_sero <- ECDC %>%
     dplyr::filter(ObsDay <= (0.5*(seroprev$ObsDaymax[1] + seroprev$ObsDaymin[1])))
   deaths.prop<-deaths.prop %>%
-    mutate(deaths_at_sero=sum(ecdc_deaths_at_sero$deaths)*death_prop)
+    mutate(deaths_at_sero=sum(ecdc_deaths_at_sero$deaths)*death_prop,
+           deaths_denom_at_sero=sum(ecdc_deaths_at_sero$deaths))
 
   #...........................................................
   # process population
@@ -462,8 +472,11 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   pop_prop.summ <- population %>%
     dplyr::group_by_at(groupingvar) %>%
     dplyr::summarise(
-      pop_prop = sum(population)/popN
-    )
+      pop_prop = sum(population)/popN,
+      age_low = mean(age_low),
+      age_high = mean(age_high)
+    ) %>%
+    dplyr::arrange(age_low)
 
   #............................................................
   # process test sens/spec
