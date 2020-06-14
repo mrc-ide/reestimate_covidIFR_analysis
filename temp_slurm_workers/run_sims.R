@@ -3,6 +3,7 @@
 ##
 ## Notes: Assumes SLURM cluster
 ####################################################################################
+setwd("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis")
 library(rslurm)
 library(tidyverse)
 library(COVIDCurve)
@@ -173,15 +174,16 @@ wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, popN) {
   mod1
 }
 
-map$IFR_model <-  purrr::pmap(map[,c("inputdata", "sens_spec_tbl", "popN")], wrap_make_IFR_model)
+map$modelobj <-  purrr::pmap(map[,c("inputdata", "sens_spec_tbl", "popN")], wrap_make_IFR_model)
 
 #............................................................
 # run covidcurve
 #...........................................................
-map <- map %>%
-  dplyr::select(c("curve", "sens", "spec", "IFR_model")) # drop extras
-wrap_run_covidcurve <- function(curve, sens, spec, IFR_Model) {
-  COVIDCurve::run_IFRmodel_agg(IFRmodel = IFR_Model,
+parammap <- map %>%
+  dplyr::select(c("curve", "sens", "spec", "modelobj")) # drop extras
+
+wrap_run_covidcurve <- function(curve, sens, spec, modelobj) {
+  COVIDCurve::run_IFRmodel_agg(IFRmodel = modelobj,
                                reparamIFR = TRUE,
                                reparamInfxn = TRUE,
                                reparamKnot = TRUE,
@@ -198,7 +200,7 @@ wrap_run_covidcurve <- function(curve, sens, spec, IFR_Model) {
 # for slurm on LL
 ntry <- 150
 sjob <- rslurm::slurm_apply(f = wrap_run_covidcurve,
-                            params = map,
+                            params = parammap,
                             jobname = 'sim_covidcurves',
                             nodes = ntry,
                             cpus_per_node = 1,
