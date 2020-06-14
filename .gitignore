@@ -9,6 +9,7 @@
 
 # Data files I'm generating
 sandbox/
+data/
 results/
 
 # knitr and R markdown default cache directories
@@ -21,6 +22,7 @@ results/
 *.knit.md
 
 # knitr outputs
-*.pdf
-*.html
-*.docx
+reports/*.pdf
+reports/*.html
+reports/*.docx
+
