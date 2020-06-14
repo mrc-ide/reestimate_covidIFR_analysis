@@ -10,3 +10,18 @@
 # Data files I'm generating
 sandbox/
 data/
+results/
+
+# knitr and R markdown default cache directories
+/*_cache/
+/cache/
+*png
+
+# Temporary files created by R markdown
+*.utf8.md
+*.knit.md
+
+# knitr outputs
+reports/*.pdf
+reports/*.html
+reports/*.docx
