@@ -198,3 +198,18 @@ saveRDS(CHE.agebands.dat, "data/derived/CHE/CHE_agebands.RDS")
 
 ### Sweden needs customised function as not national survey (similar to Iran).
 
+
+#######################
+# USA data.
+deathsFile<-"data/deaths.csv"
+populationFile<- "data/population.csv"
+sero_valFile<-"data/seroassay_validation.csv"
+seroprevFile<-"data/seroprevalence.csv"
+JHUFile<-"data/daily_deaths_ECDC20200518.csv"
+
+jhu<-read.csv("data/JHU.csv")
+
+process_data_usa <- function(deaths = NULL, population = NULL, sero_val = NULL, seroprev = NULL,
+                             cumulative = FALSE, USAdata = FALSE, JHU = NULL,
+                             groupingvar, study_ids, geocode,
+                             filtRegions = NULL, filtGender = NULL, filtAgeBand = NULL, death_agebreaks = NULL, sero_agebreaks = NULL)

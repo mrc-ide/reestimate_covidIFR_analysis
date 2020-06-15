@@ -2,12 +2,10 @@
 # Plot descriptive statistics
 ########################
 
+library(dplyr)
 #source("analyses/run_process_country_data.R")
 rogan_gladen<-function(obs_prev,sens,spec) (obs_prev + spec -1)/(spec+sens-1)
 
-studies<-c("ESP","DNK","NLD", "CHE","IRN")
-i<-studies[1]
-x<-readRDS(paste0("data/derived/",i,"/",i,"_agebands.RDS"))
 
 #####################################################
 ## Align serology and deaths by age where possible. Document assumptions where no perfect alignment
@@ -94,13 +92,52 @@ curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$popN*x$prop_pop$pop_prop
 curr_sero$ifr_age_adj_ss<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_adj_ss
 dnk_res<-curr_sero
 
+#################################
+### Switzerland. Age bands not perfectly aligned
+# Assume 5-19 seroprevalence = 0-20
+i<-"CHE"
+x<-readRDS(paste0("data/derived/",i,"/",i,"_agebands.RDS"))
+curr_sero<-x$deaths_group
+curr_sero$age_mid<-0.5*(curr_sero$age_low + curr_sero$age_high)
+curr_sero$age_mid[which(curr_sero$ageband=='80-999')]<-90 ## TODO check exact.
+## enter national average by default.
+curr_sero$seroprevalence<-x$seroprev$seroprev
+#### Enter for specific age groups
+i<-which(x$seroprev_group$ageband=='5-19')
+curr_sero$seroprevalence[which(curr_sero$ageband=='0-10' | curr_sero$ageband=='10-20')]<-
+  x$seroprev_group$seroprevalence[i]
+i<-which(x$seroprev_group$ageband=='19-49')
+curr_sero$seroprevalence[which(curr_sero$ageband=='20-30' | curr_sero$ageband=='30-40'  |
+                                 curr_sero$ageband=='40-50')]<-
+    x$seroprev_group$seroprevalence[i]
+i<-which(x$seroprev_group$ageband=='49-999')
+curr_sero$seroprevalence[which(curr_sero$age_low>=50)]<-
+  x$seroprev_group$seroprevalence[i]
 
+
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$popN*x$prop_pop$pop_prop
+curr_sero$ifr_age_crude<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_crude
+curr_sero$seroprev_adj_ss<-rogan_gladen(curr_sero$seroprevalence, x$sero_sens,x$sero_spec)
+curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$popN*x$prop_pop$pop_prop
+curr_sero$ifr_age_adj_ss<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_adj_ss
+che_res<-curr_sero
+
+
+
+#######################
+# PLOTS
+col_vec <- RColorBrewer::brewer.pal(6, "Set1")
+names(col_vec) <- c("Spain", "Sweden", "Switzerland", "Denmark","Netherlands","United Kingdom")
+par(mar=c(5,4,4,2))
 plot(esp_res$age_mid,100*esp_res$ifr_age_crude,xlab="age group (years)",ylab="Crude IFR",xlim=c(0,100),
-     ylim=c(0,17))
+     ylim=c(0,17),pch=21, col.main="black", bg=col_vec[1])
+points(che_res$age_mid,100*che_res$ifr_age_crude,pch=21, col.main="black", bg=col_vec[3])
+points(dnk_res$age_mid,100*dnk_res$ifr_age_crude,pch=21, col.main="black", bg=col_vec[4])
+points(nld_res$age_mid,100*nld_res$ifr_age_crude,pch=21, col.main="black", bg=col_vec[5])
+legend(0,23,names(col_vec)[c(1,3,4,5)],pch=rep(21,4),col=rep("black",4), bty='n',
+                                         pt.bg=col_vec[c(1,3,4,5)],xpd=T,ncol=2)
+
+
+plot(nld_res$age_mid,100*nld_res$ifr_age_adj_ss,col="blue")
 points(esp_res$age_mid,100*esp_res$ifr_age_adj_ss,col="blue")
-plot(nld_res$age_mid,100*nld_res$ifr_age_crude,xlab="age group years",ylab="Crude IFR",xlim=c(0,100),
-     ylim=c(0,17))
-points(nld_res$age_mid,100*nld_res$ifr_age_adj_ss,col="blue")
-plot(dnk_res$age_mid,100*dnk_res$ifr_age_crude,xlab="age group years",ylab="Crude IFR",xlim=c(0,100),
-     ylim=c(0,17))
 points(dnk_res$age_mid,100*dnk_res$ifr_age_adj_ss,col="blue")
