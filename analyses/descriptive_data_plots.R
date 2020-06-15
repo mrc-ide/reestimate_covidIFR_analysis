@@ -3,9 +3,10 @@
 ########################
 
 library(dplyr)
+library(pals)
 #source("analyses/run_process_country_data.R")
 rogan_gladen<-function(obs_prev,sens,spec) (obs_prev + spec -1)/(spec+sens-1)
-
+sero_sheet<-read.csv("data/seroprevalence.csv")
 
 #####################################################
 ## Align serology and deaths by age where possible. Document assumptions where no perfect alignment
@@ -125,17 +126,86 @@ che_res<-curr_sero
 
 
 #######################
+#################################
+### USA: Los Angeles county, California. Age bands not perfectly aligned
+i<-"LA_CA"
+x<-readRDS(paste0("data/derived/USA/",i,"_agebands.RDS"))
+curr_sero<-x$deaths_group
+curr_sero$age_mid<-0.5*(curr_sero$age_low + curr_sero$age_high)
+curr_sero$age_mid[which(curr_sero$ageband=='65-999')]<-73 ## TODO check exact.
+## enter average by default.
+curr_sero$seroprevalence<-x$seroprev$seroprevalence
+
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$popN*x$prop_pop$pop_prop
+curr_sero$ifr_age_crude<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_crude
+la_ca_res<-curr_sero
+
+
+#######################
+# PROCESS REGIONAL INFO
+
+
+
+#######################
 # PLOTS
-col_vec <- RColorBrewer::brewer.pal(6, "Set1")
-names(col_vec) <- c("Spain", "Sweden", "Switzerland", "Denmark","Netherlands","United Kingdom")
+sero_sheetAge<-filter(sero_sheet,age_breakdown==1)
+sero_sheetAge<-sero_sheetAge %>%
+  dplyr::mutate(n_tested=as.numeric(sero_sheetAge$n_tested)) %>%
+  dplyr::group_by(study_id,age_low,age_high) %>%
+  dplyr::summarise(n_tested=sum(n_tested),
+                   n_positive=sum(n_positive),
+                   seroprevalence_unadjusted=mean(seroprevalence_unadjusted),
+                   seroprevalence_weighted=mean(seroprevalence_weighted),
+  )
+inds<-which(sero_sheetAge$study_id=="DNK1")
+sero_sheetAge$seroprevalence_unadjusted[inds]<-sero_sheetAge$n_positive[inds]/sero_sheetAge$n_tested[inds]
+sero_sheetAge$age_high[which(sero_sheetAge$age_high==999)]<-100
+sero_sheetAge$age_mid<-0.5*(sero_sheetAge$age_low + sero_sheetAge$age_high)
+inds<-which(is.na(sero_sheetAge$seroprevalence_unadjusted) & is.na(sero_sheetAge$seroprevalence_weighted))
+sero_sheetAge$seroprevalence_unadjusted[inds]<-sero_sheetAge$n_positive[inds]/sero_sheetAge$n_tested[inds]
+studies<-unique(sero_sheetAge$study_id)
+studies<-c("ESP1","SWE1","CHE1","DNK1","NLD1","GBR2","IRN1","NYC_NY_1", "WENRO_NY_1","LI_NY_1",
+           "REST_NY_1")
+col_vec <- c(RColorBrewer::brewer.pal(7, "Set1"),cols25(25))
+names_studies <- c("Spain", "Sweden", "Switzerland", "Denmark","Netherlands","United Kingdom","Iran",
+                   "New York City","WR county, NY","Long Island, NY","Upstate NY")
+
+tiff(file="figures/sero_age.tiff", width=2200,height=1600,res=300,compression="lzw")
+par(mar=c(5,4,4,10))
+plot(sero_sheetAge$age_mid,100*sero_sheetAge$seroprevalence_unadjusted,xlab="age group (years)",ylab="Crude IFR",
+  xlim=c(0,100),col="white")
+for(i in 1:length(studies)) {
+  if(i!=6) {
+    j<-which(sero_sheetAge$study_id==studies[i])
+    points(sero_sheetAge$age_mid[j],100*sero_sheetAge$seroprevalence_unadjusted[j],pch=21, col.main="black", bg=col_vec[i])
+    lines(sero_sheetAge$age_mid[j],100*sero_sheetAge$seroprevalence_unadjusted[j],col=col_vec[i])
+  }
+}
+legend(105,28,names_studies[c(1:5,7:length(studies))],pch=rep(21,4),col=rep("black",4), bty='n',
+       pt.bg=col_vec[c(1:5,7:length(studies))],xpd=T,ncol=1)
+dev.off()
+
+
+
+
+
+
+
+
+
+
+######## IFR BY AGE
+col_vec <- RColorBrewer::brewer.pal(7, "Set1")
+names(col_vec) <- c("Spain", "Sweden", "Switzerland", "Denmark","Netherlands","United Kingdom","United States - LA")
 par(mar=c(5,4,4,2))
 plot(esp_res$age_mid,100*esp_res$ifr_age_crude,xlab="age group (years)",ylab="Crude IFR",xlim=c(0,100),
      ylim=c(0,17),pch=21, col.main="black", bg=col_vec[1])
 points(che_res$age_mid,100*che_res$ifr_age_crude,pch=21, col.main="black", bg=col_vec[3])
 points(dnk_res$age_mid,100*dnk_res$ifr_age_crude,pch=21, col.main="black", bg=col_vec[4])
 points(nld_res$age_mid,100*nld_res$ifr_age_crude,pch=21, col.main="black", bg=col_vec[5])
-legend(0,23,names(col_vec)[c(1,3,4,5)],pch=rep(21,4),col=rep("black",4), bty='n',
-                                         pt.bg=col_vec[c(1,3,4,5)],xpd=T,ncol=2)
+points(la_ca_res$age_mid,100*la_ca_res$ifr_age_crude,pch=21, col.main="black", bg=col_vec[7])
+legend(0,23,names(col_vec)[c(1,3,4,5,7)],pch=rep(21,4),col=rep("black",4), bty='n',
+                                         pt.bg=col_vec[c(1,3,4,5,7)],xpd=T,ncol=2)
 
 
 plot(nld_res$age_mid,100*nld_res$ifr_age_adj_ss,col="blue")

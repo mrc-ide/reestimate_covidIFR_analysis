@@ -201,15 +201,43 @@ saveRDS(CHE.agebands.dat, "data/derived/CHE/CHE_agebands.RDS")
 
 #######################
 # USA data.
+### For LA_CA, SC_CA,  CH_MA, MD_FL - use USA facts (?)
+
+# LA_CA - process for age and for region.
+#SC_CA
 deathsFile<-"data/deaths.csv"
-populationFile<- "data/population.csv"
+populationFile<- "data/USA_County_Demographic_Data.csv"
 sero_valFile<-"data/seroassay_validation.csv"
 seroprevFile<-"data/seroprevalence.csv"
-JHUFile<-"data/daily_deaths_ECDC20200518.csv"
+timeSeriesFile<-"data/covid_deaths_usafacts_study_countys.csv"
 
-jhu<-read.csv("data/JHU.csv")
+LA_CA.region.dat<-process_usa_basic_data_timeseries(population = populationFile,
+                                           sero_val = sero_valFile,
+                                           seroprev = seroprevFile,
+                                           timeSeriesFile=timeSeriesFile,
+                                           study_ids = "LA_CA",
+                                           state="California",
+                                           county="Los Angeles County"
+                                    )
 
-process_data_usa <- function(deaths = NULL, population = NULL, sero_val = NULL, seroprev = NULL,
-                             cumulative = FALSE, USAdata = FALSE, JHU = NULL,
-                             groupingvar, study_ids, geocode,
-                             filtRegions = NULL, filtGender = NULL, filtAgeBand = NULL, death_agebreaks = NULL, sero_agebreaks = NULL)
+
+
+LA_CA.agebands.dat<-process_data_usa_facts(deaths = deathsFile,
+                                  population = populationFile,
+                                  sero_val = sero_valFile,
+                                  seroprev = seroprevFile,
+                                  timeSeriesFile=timeSeriesFile,
+                                  cumulative = FALSE,
+                                  groupingvar = "ageband",
+                                  study_ids = "LA_CA",
+                                  state="California",
+                                  county="Los Angeles County"
+                                  )
+
+dir.create("data/derived/USA", recursive = T)
+saveRDS(LA_CA.agebands.dat, "data/derived/USA/LA_CA_agebands.RDS")
+
+
+#   JHUFile<-"data/daily_deaths_ECDC20200518.csv"
+#
+# jhu<-read.csv("data/JHU.csv")
