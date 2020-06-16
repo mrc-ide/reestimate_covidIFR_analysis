@@ -143,14 +143,80 @@ la_ca_res<-curr_sero
 
 #######################
 # PROCESS REGIONAL INFO
+### Spain.
+i<-"ESP"
+x<-readRDS(paste0("data/derived/",i,"/",i,"_regions.RDS"))
+curr_sero<-x$deaths_group
+curr_sero$seroprevalence<-x$seroprev_group$seroprevalence
+curr_sero$pop<-x$popN*x$prop_pop$pop_prop
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
+curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+esp_resr<-curr_sero
+
+### USA - Los Angeles, California
+i<-"LA_CA"
+x<-readRDS(paste0("data/derived/USA/",i,"_regions.RDS"))
+curr_sero<-x$deaths_group
+curr_sero$seroprevalence<-x$seroprev$seroprevalence
+curr_sero$pop<-x$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
+curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+la_ca_resr<-curr_sero
+
+### USA - Santa Clara, California
+i<-"SC_CA"
+x<-readRDS(paste0("data/derived/USA/",i,"_regions.RDS"))
+curr_sero<-x$deaths_group
+curr_sero$seroprevalence<-x$seroprev$seroprevalence
+curr_sero$pop<-x$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
+curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+sc_ca_resr<-curr_sero
+
+### USA - CH_MA
+i<-"CH_MA"
+x<-readRDS(paste0("data/derived/USA/",i,"_regions.RDS"))
+curr_sero<-x$deaths_group
+curr_sero$seroprevalence<-x$seroprev$seroprevalence
+curr_sero$pop<-x$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
+curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+ch_ma_resr<-curr_sero
+
+### USA - MD_FL
+i<-"MD_FL"
+x<-readRDS(paste0("data/derived/USA/",i,"_regions.RDS"))
+curr_sero<-x$deaths_group
+curr_sero$seroprevalence<-x$seroprev$seroprevalence
+curr_sero$pop<-x$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
+curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+md_fl_resr<-curr_sero
+
+### USA - NYC
+i<-"NYC_NY_1"
+x<-readRDS(paste0("data/derived/USA/",i,"_regions.RDS"))
+curr_sero<-x$deaths_group
+curr_sero$seroprevalence<-x$seroprev$seroprevalence
+curr_sero$pop<-x$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
+curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+nyc_resr<-curr_sero
 
 
 
 #######################
 # PLOTS
+######### seroprevalence by age
+sero_sheet<-sero_sheet %>%
+  dplyr::mutate(n_tested=as.numeric(n_tested))
+inds<-which(is.na(sero_sheet$seroprevalence_unadjusted) & is.na(sero_sheet$seroprevalence_weighted))
+sero_sheet$seroprevalence_unadjusted[inds]<-sero_sheet$n_positive[inds]/sero_sheet$n_tested[inds]
+inds<-which(is.na(sero_sheet$n_positive))
+sero_sheet$n_positive[inds]<-sero_sheet$seroprevalence_unadjusted[inds]*sero_sheet$n_tested[inds]
+
 sero_sheetAge<-filter(sero_sheet,age_breakdown==1)
 sero_sheetAge<-sero_sheetAge %>%
-  dplyr::mutate(n_tested=as.numeric(sero_sheetAge$n_tested)) %>%
   dplyr::group_by(study_id,age_low,age_high) %>%
   dplyr::summarise(n_tested=sum(n_tested),
                    n_positive=sum(n_positive),
@@ -161,8 +227,6 @@ inds<-which(sero_sheetAge$study_id=="DNK1")
 sero_sheetAge$seroprevalence_unadjusted[inds]<-sero_sheetAge$n_positive[inds]/sero_sheetAge$n_tested[inds]
 sero_sheetAge$age_high[which(sero_sheetAge$age_high==999)]<-100
 sero_sheetAge$age_mid<-0.5*(sero_sheetAge$age_low + sero_sheetAge$age_high)
-inds<-which(is.na(sero_sheetAge$seroprevalence_unadjusted) & is.na(sero_sheetAge$seroprevalence_weighted))
-sero_sheetAge$seroprevalence_unadjusted[inds]<-sero_sheetAge$n_positive[inds]/sero_sheetAge$n_tested[inds]
 studies<-unique(sero_sheetAge$study_id)
 studies<-c("ESP1","SWE1","CHE1","DNK1","NLD1","GBR2","IRN1","NYC_NY_1", "WENRO_NY_1","LI_NY_1",
            "REST_NY_1")
@@ -170,27 +234,49 @@ col_vec <- c(RColorBrewer::brewer.pal(7, "Set1"),cols25(25))
 names_studies <- c("Spain", "Sweden", "Switzerland", "Denmark","Netherlands","United Kingdom","Iran",
                    "New York City","WR county, NY","Long Island, NY","Upstate NY")
 
-tiff(file="figures/sero_age.tiff", width=2200,height=1600,res=300,compression="lzw")
-par(mar=c(5,4,4,10))
-plot(sero_sheetAge$age_mid,100*sero_sheetAge$seroprevalence_unadjusted,xlab="age group (years)",ylab="Crude IFR",
-  xlim=c(0,100),col="white")
-for(i in 1:length(studies)) {
-  if(i!=6) {
-    j<-which(sero_sheetAge$study_id==studies[i])
-    points(sero_sheetAge$age_mid[j],100*sero_sheetAge$seroprevalence_unadjusted[j],pch=21, col.main="black", bg=col_vec[i])
-    lines(sero_sheetAge$age_mid[j],100*sero_sheetAge$seroprevalence_unadjusted[j],col=col_vec[i])
+if(write2file) {
+  tiff(file="figures/sero_age.tiff", width=2200,height=1600,res=300,compression="lzw")
+  par(mar=c(5,4,4,10))
+  plot(sero_sheetAge$age_mid,100*sero_sheetAge$seroprevalence_unadjusted,xlab="age group (years)",ylab="Seroprevalence (%)",
+       xlim=c(0,100),col="white")
+  for(i in 1:length(studies)) {
+    if(i!=6) {
+      j<-which(sero_sheetAge$study_id==studies[i])
+      points(sero_sheetAge$age_mid[j],100*sero_sheetAge$seroprevalence_unadjusted[j],pch=21, col.main="black", bg=col_vec[i])
+      lines(sero_sheetAge$age_mid[j],100*sero_sheetAge$seroprevalence_unadjusted[j],col=col_vec[i])
+    }
   }
+  legend(105,28,names_studies[c(1:5,7:length(studies))],pch=rep(21,4),col=rep("black",4), bty='n',
+         pt.bg=col_vec[c(1:5,7:length(studies))],xpd=T,ncol=1)
+  dev.off()
 }
-legend(105,28,names_studies[c(1:5,7:length(studies))],pch=rep(21,4),col=rep("black",4), bty='n',
-       pt.bg=col_vec[c(1:5,7:length(studies))],xpd=T,ncol=1)
+
+
+######### seroprevalence by gender
+sero_sheetGender<-filter(sero_sheet,gender_breakdown==1)
+sero_sheetGender<-sero_sheetGender %>%
+  dplyr::group_by(study_id,gender) %>%
+  dplyr::summarise(n_tested=sum(n_tested),
+                   n_positive=sum(n_positive),
+                   seroprevalence_unadjusted=mean(seroprevalence_unadjusted),
+                   seroprevalence_weighted=mean(seroprevalence_weighted),
+                   unique=n()
+  )
+inds<-which(sero_sheetGender$unique>1)
+sero_sheetGender$seroprevalence_unadjusted[inds]<-sero_sheetGender$n_positive[inds]/sero_sheetGender$n_tested[inds]
+sero_sheetGender$gender2<-as.factor(sero_sheetGender$gender)
+studies<-unique(sero_sheetGender$study_id)
+studies<-c("ESP1","SWE1","CHE1","DNK1","NLD1","GBR2","IRN1","NYC_NY_1", "WENRO_NY_1","LI_NY_1",
+           "REST_NY_1")
+col_vec <- c(RColorBrewer::brewer.pal(7, "Set1"),cols25(25))
+names_studies <- c("Spain", "Sweden", "Switzerland", "Denmark","Netherlands","United Kingdom","Iran",
+                   "New York City","WR county, NY","Long Island, NY","Upstate NY")
+
+tiff(file="figures/sero_gender.tiff", width=1000,height=1600,res=300,compression="lzw")
+par(mar=c(5,4,4,2))
+plot(sero_sheetGender$gender2,100*sero_sheetGender$seroprevalence_unadjusted,xlab="gender",ylab="Seroprevalence (%)",
+     col="white")
 dev.off()
-
-
-
-
-
-
-
 
 
 
