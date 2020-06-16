@@ -28,10 +28,11 @@ ESP.regions.dat <- process_data2(deaths = deathsFile,
                                 sero_val = sero_valFile,
                                 seroprev = seroprevFile,
                                 cumulative = TRUE,
+                                USAdata = FALSE,
                                 ECDC = ECDCFile,
                                 groupingvar = "region",
                                 study_ids = "ESP1",
-                                ecdc_countrycode = "ESP",
+                                geocode = "ESP",
                                 filtRegions = c("Andalucia", "Aragon",    "Asturias",  "Baleares",  "C Valenciana", "Canarias",
                                                 "Cantabria", "Castilla La Mancha", "Castilla y Leon", "Cataluna", "Extremadura",
                                                 "Galicia",   "La Rioja",  "Madrid", "Murcia", "Navarra", "Pais Vasco"), # limit to mainland Spain
@@ -61,7 +62,7 @@ ESP.agebands.dat <- process_data2(deaths = deathsFile,
                                  ECDC = ECDCFile,
                                  groupingvar = "ageband",
                                  study_ids = "ESP1",
-                                 ecdc_countrycode = "ESP",
+                                 geocode = "ESP",
                                  filtRegions = NULL,
                                  filtGender = NULL,
                                  filtAgeBand = c("0-10", "10-20", "20-30",
@@ -92,7 +93,7 @@ DNK.regions.dat <- process_data2(deaths = deathsFile,
                                  ECDC = ECDCFile,
                                  groupingvar = "region",
                                  study_ids = "DNK1",
-                                 ecdc_countrycode = "DNK",
+                                 geocode = "DNK",
                                  filtRegions = NULL, # some regions combined in serosurvey
                                  filtGender = NULL,
                                  filtAgeBand = NULL)
@@ -106,7 +107,7 @@ DNK.agebands.dat <- process_data2(deaths = deathsFile,
                                   ECDC = ECDCFile,
                                   groupingvar = "ageband",
                                   study_ids = "DNK1",
-                                  ecdc_countrycode = "DNK",
+                                  geocode = "DNK",
                                   filtRegions = NULL, # some regions combined in serosurvey
                                   filtGender = NULL,
                                   filtAgeBand = NULL)
@@ -126,7 +127,7 @@ NLD.regions.dat <- process_data2(deaths = deathsFile,
                                  ECDC = ECDCFile,
                                  groupingvar = "region",
                                  study_ids = "NLD1",
-                                 ecdc_countrycode = "NLD",
+                                 geocode = "NLD",
                                  filtRegions = NULL, # some regions combined in serosurvey
                                  filtGender = NULL,
                                  filtAgeBand = NULL)
@@ -139,7 +140,7 @@ NLD.agebands.dat <- process_data2(deaths = deathsFile,
                                   ECDC = ECDCFile,
                                   groupingvar = "ageband",
                                   study_ids = "NLD1",
-                                  ecdc_countrycode = "NLD",
+                                  geocode = "NLD",
                                   filtRegions = NULL, # some regions combined in serosurvey
                                   filtGender = NULL,
                                   filtAgeBand = NULL)
@@ -159,7 +160,7 @@ IRN.agebands.dat<-process_data2(deaths = deathsFile,
                                 ECDC = ECDCFile,
                                 groupingvar = "ageband",
                                 study_ids = "IRN1",
-                                ecdc_countrycode = "IRN",
+                                geocode = "IRN",
                                 filtRegions = NULL, # some regions combined in serosurvey
                                 filtGender = NULL,
                                 filtAgeBand = NULL)
@@ -186,7 +187,7 @@ CHE.agebands.dat<-process_data2(deaths = deathsFile,
                                 ECDC = "data/deathsTimeSeriesR.csv",
                                 groupingvar = "ageband",
                                 study_ids = "CHE1",
-                                ecdc_countrycode = "CHE1",   ## use study id in case we get more studies later.
+                                geocode = "CHE1",   ## use study id in case we get more studies later.
                                 filtRegions = NULL, # some regions combined in serosurvey
                                 filtGender = NULL,
                                 filtAgeBand = NULL)
@@ -197,3 +198,93 @@ saveRDS(CHE.agebands.dat, "data/derived/CHE/CHE_agebands.RDS")
 
 ### Sweden needs customised function as not national survey (similar to Iran).
 
+
+#######################
+# USA data.
+### For LA_CA, SC_CA,  CH_MA, MD_FL - use USA facts (?). And process_usa_basic_data_timeseries to get overall estimates.
+
+# LA_CA - process for age and for region.
+deathsFile<-"data/deaths.csv"
+populationFile<- "data/USA_County_Demographic_Data.csv"
+sero_valFile<-"data/seroassay_validation.csv"
+seroprevFile<-"data/seroprevalence.csv"
+timeSeriesFile<-"data/covid_deaths_usafacts_study_countys.csv"
+
+LA_CA.regions.dat<-process_usa_basic_data_timeseries(population = populationFile,
+                                           sero_val = sero_valFile,
+                                           seroprev = seroprevFile,
+                                           timeSeriesFile=timeSeriesFile,
+                                           study_ids = "LA_CA",
+                                           state="California",
+                                           county="Los Angeles County"
+                                    )
+
+
+
+LA_CA.agebands.dat<-process_data_usa_facts(deaths = deathsFile,
+                                  population = populationFile,
+                                  sero_val = sero_valFile,
+                                  seroprev = seroprevFile,
+                                  timeSeriesFile=timeSeriesFile,
+                                  cumulative = FALSE,
+                                  groupingvar = "ageband",
+                                  study_ids = "LA_CA",
+                                  state="California",
+                                  county="Los Angeles County"
+                                  )
+
+dir.create("data/derived/USA", recursive = T)
+saveRDS(LA_CA.agebands.dat, "data/derived/USA/LA_CA_agebands.RDS")
+saveRDS(LA_CA.regions.dat, "data/derived/USA/LA_CA_regions.RDS")
+
+
+SC_CA.regions.dat<-process_usa_basic_data_timeseries(population = populationFile,
+                                                     sero_val = sero_valFile,
+                                                     seroprev = seroprevFile,
+                                                     timeSeriesFile=timeSeriesFile,
+                                                     study_ids = "SC_CA",
+                                                     state="California",
+                                                     county="Santa Clara County"
+                                                      )
+saveRDS(SC_CA.regions.dat, "data/derived/USA/SC_CA_regions.RDS")
+
+### NB matching to Suffolk county may not be quite right (Chelsea is a city)
+CH_MA.regions.dat<-process_usa_basic_data_timeseries(population = populationFile,
+                                                     sero_val = sero_valFile,
+                                                     seroprev = seroprevFile,
+                                                     timeSeriesFile=timeSeriesFile,
+                                                     study_ids = "CH_MA",
+                                                     state="Massachusetts",
+                                                     county="Suffolk County"
+                                                    )
+saveRDS(CH_MA.regions.dat, "data/derived/USA/CH_MA_regions.RDS")
+
+MD_FL.regions.dat<-process_usa_basic_data_timeseries(population = populationFile,
+                                                     sero_val = sero_valFile,
+                                                     seroprev = seroprevFile,
+                                                     timeSeriesFile=timeSeriesFile,
+                                                     study_ids = "MD_FL",
+                                                     state="Florida",
+                                                     county="Miami-Dade County"
+)
+saveRDS(MD_FL.regions.dat, "data/derived/USA/MD_FL_regions.RDS")
+
+
+
+NYC_NY_1.regions.dat<-process_usa_basic_data_timeseries(population = populationFile,
+                                                     sero_val = sero_valFile,
+                                                     seroprev = seroprevFile,
+                                                     timeSeriesFile=timeSeriesFile,
+                                                     study_ids = "NYC_NY_1",
+                                                     state="New York",
+                                                     county=c("New York County","Kings County","Bronx County",
+                                                              "Richmond County","Queens County")
+)
+## fix population. TODO - fix properly in code.
+NYC_NY_1.regions.dat$popN<-8399000
+saveRDS(NYC_NY_1.regions.dat, "data/derived/USA/NYC_NY_1_regions.RDS")
+
+
+#   JHUFile<-"data/daily_deaths_ECDC20200518.csv"
+#
+# jhu<-read.csv("data/JHU.csv")

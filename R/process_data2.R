@@ -225,7 +225,10 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     deaths.prop <- deaths %>%
       dplyr::mutate(ObsDay = max(date_end_survey)) %>%
       dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
-      dplyr::summarise(death_num = sum(n_deaths) )
+      dplyr::summarise(death_num = sum(n_deaths),
+                       age_low=mean(age_low),
+                       age_high=mean(age_high)) %>%
+      dplyr::arrange(age_low)
     # store group names
     groupvarnames <- group_keys(deaths.prop)
     # get proportion
@@ -265,7 +268,10 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     deaths.prop <- deaths %>%
       dplyr::mutate(ObsDay = max(date_end_survey)) %>%
       dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
-      dplyr::summarise(death_num = sum(n_deaths) )
+      dplyr::summarise(death_num = sum(n_deaths),
+                       age_low=mean(age_low),
+                       age_high=mean(age_high)) %>%
+      dplyr::arrange(age_low)
     # store group names
     groupvarnames <- group_keys(deaths.prop)
     # get proportion
@@ -405,22 +411,26 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   ### summarise over grouping variable
   if (all(is.na(seroprev$n_tested)) | all(is.na(seroprev$n_positive))) { ## if no information on sample size to compute weighted average, output current data.
     seroprev.summ.group<-seroprev %>%
-            select(ObsDaymin, ObsDaymax, groupingvar,n_tested,n_positive,seroprevalence)
+            select(ObsDaymin, ObsDaymax, groupingvar,age_low, age_high,n_tested,n_positive,seroprevalence)
   } else {
     seroprev.summ.group <- seroprev %>%
       dplyr::group_by_at(c("ObsDaymin", "ObsDaymax",groupingvar)) %>%
       #dplyr::summarise(seroprev = mean(seroprevalence)) %>%
-      dplyr::summarise(n_tested = sum(n_tested),
+      dplyr::summarise(age_low=mean(age_low),
+                       age_high=mean(age_high),
+                       n_tested = sum(n_tested),
                        n_positive = sum(n_positive)) %>%
       dplyr::mutate(seroprevalence = n_positive/n_tested) %>%
+      dplyr::arrange(age_low) %>%
       dplyr::ungroup()
   }
 
   ## deaths at midpoint of survey
   ecdc_deaths_at_sero <- ECDC %>%
-    dplyr::filter(ObsDay <= (0.5*(seroprev$ObsDaymax[1] + seroprev$ObsDaymin[1])))
+    dplyr::filter(ObsDay <= ceiling((0.5*(seroprev$ObsDaymax[1] + seroprev$ObsDaymin[1]))))
   deaths.prop<-deaths.prop %>%
-    mutate(deaths_at_sero=sum(ecdc_deaths_at_sero$deaths)*death_prop)
+    mutate(deaths_at_sero=sum(ecdc_deaths_at_sero$deaths)*death_prop,
+           deaths_denom_at_sero=sum(ecdc_deaths_at_sero$deaths))
 
   #...........................................................
   # process population
@@ -462,8 +472,11 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   pop_prop.summ <- population %>%
     dplyr::group_by_at(groupingvar) %>%
     dplyr::summarise(
-      pop_prop = sum(population)/popN
-    )
+      pop_prop = sum(population)/popN,
+      age_low = mean(age_low),
+      age_high = mean(age_high)
+    ) %>%
+    dplyr::arrange(age_low)
 
   #............................................................
   # process test sens/spec
@@ -491,3 +504,312 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
 
 
 
+###########################################
+# Separate function for US.
+process_data_usa_facts <- function(deaths = NULL, population = NULL, sero_val = NULL, seroprev = NULL,
+                          cumulative = FALSE, timeSeriesFile=NULL,
+                          groupingvar=NULL, study_ids, state, county) {
+  #......................
+  # assertions and checks
+  #......................
+  assert_string(deaths)
+  assert_string(population)
+  assert_string(sero_val)
+  assert_string(seroprev)
+  assert_logical(cumulative)
+  assert_string(groupingvar)
+  assert_in(groupingvar, c("region", "ageband", "gender"))
+  assert_string(study_ids)
+
+  #......................
+  # read in
+  #......................
+  deaths <- readr::read_csv(deaths)
+  population <- readr::read_csv(population)
+  sero_val <- readr::read_csv(sero_val)
+  seroprev <- readr::read_csv(seroprev)
+  timeSeries<-readr::read_csv(timeSeriesFile)
+
+  #............................................................
+  # process time series death data
+  #...........................................................
+  # save study start date for later -- this is our index time 0
+  start_date <- min(lubridate::mdy(timeSeries$Date))
+  timeSeries <- timeSeries %>%
+  dplyr::mutate(start_date = min(lubridate::mdy(timeSeries$Date)),
+                ObsDay = as.numeric(lubridate::mdy(Date) - start_date)) %>%
+  dplyr::select(Date,ObsDay,study_ids) %>%
+  dplyr::arrange(ObsDay) %>%
+    dplyr::rename(deaths=study_ids)
+
+  warning("Assuming you are using USA date format in time series data")
+
+  #............................................................
+  # process death data
+  #...........................................................
+  deaths<-deaths %>%
+    filter(study_id==study_ids)
+  # various filters for death data
+  if (groupingvar == "region") {
+    deaths <- deaths %>%
+      dplyr::filter(for_regional_analysis == 1)
+  }
+
+  if (groupingvar == "gender") {
+    deaths <- deaths %>%
+      dplyr::filter(gender_breakdown == 1)
+  }
+
+  if (groupingvar == "ageband") {
+    deaths <- deaths %>%
+      dplyr::filter(age_breakdown == 1)
+  }
+  ## dates
+  deaths <- deaths %>%
+    dplyr::mutate(ObsDay = as.numeric(lubridate::dmy(date_end_survey) - start_date))
+
+  # handle age
+  agebrks <- c(0, sort(unique(deaths$age_high)))
+
+  deaths <- deaths %>%
+    dplyr::mutate(
+      ageband = cut(age_high,
+                    breaks = agebrks,
+                    labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
+      ageband = as.character(ageband),
+      ageband = ifelse(age_low == 0 & age_high == 999, "all", ageband)
+    )
+
+
+  if(length(unique(deaths$ObsDay)) > 1) {
+      stop("Cumulative data has multiple end dates")
+    }
+
+  #......................
+  # recast from time series
+  #......................
+  if(!is.null(groupingvar)) {
+    deaths.prop <- deaths %>%
+      dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
+      dplyr::summarise(death_num = sum(n_deaths),
+                       age_low=mean(age_low),
+                       age_high=mean(age_high)) %>%
+      dplyr::arrange(age_low)
+    # store group names
+    groupvarnames <- group_keys(deaths.prop)
+    # get proportion
+    deaths.prop <- deaths.prop %>%
+      dplyr::ungroup(.) %>%
+      dplyr::mutate(death_denom = sum(death_num),
+                    death_prop = death_num/death_denom) # protect against double counting of same person in multiple groups
+    # now recast proportions across days equally
+    deaths.summ <- as.data.frame(matrix(NA, nrow = nrow(deaths.prop), ncol = max(timeSeries$ObsDay)))
+    for (i in 1:ncol(deaths.summ)) {
+      deaths.summ[,i] <- deaths.prop$death_prop * timeSeries$deaths[i]
+    }
+
+    # need to round to nearest person
+    deaths.summ <- round(deaths.summ)
+    # tidy out to long format
+    deaths.summ <- deaths.summ %>%
+      cbind.data.frame(groupvarnames, .)
+    first_non_group_col <- which(colnames(deaths.summ) == "V1")
+    deaths.summ <- deaths.summ %>%
+      tidyr::gather(., key = "ObsDay", value = "Deaths", first_non_group_col:ncol(.)) %>%
+      dplyr::mutate(ObsDay = as.numeric(gsub("V", "", ObsDay)))
+
+  }
+
+  #............................................................
+  # process seroprev data
+  #...........................................................
+
+  # handle sero dates and subset
+    seroprev <- seroprev %>%
+      dplyr::filter(study_id %in% study_ids) %>%
+      dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey),
+                    date_end_survey = lubridate::dmy(date_end_survey),
+                    ObsDaymin = as.numeric(date_start_survey - start_date),
+                    ObsDaymax = as.numeric(date_end_survey - start_date))
+    warning("Assuming you are using European date format for seroprevalence")
+
+
+  ## Serology data not broken down by any of these aspects, so remove filters.
+  # various filters for serology data
+
+  if (length(unique(seroprev$ObsDaymin)) > 1 | length(unique(seroprev$ObsDaymax)) > 1) {
+    stop("Serology data has multiple start or end dates")
+  }
+
+  # COMPUTE OVERALL AVERAGE SEROPREVALENCE
+  ### fill in gaps for studies which only have number positive, and those which only have seroprevalence.
+  seroprev$seroprevalence <- NA
+  if (!is.na(seroprev$seroprevalence_weighted[1])) {   ## check if we have weighted/adjusted data for this study.
+    seroprev$seroprevalence <- seroprev$seroprevalence_weighted
+  } else {
+    seroprev$seroprevalence <- seroprev$seroprevalence_unadjusted
+  }
+  inds <- which(is.na(seroprev$n_positive))
+  seroprev$n_positive[inds] <- seroprev$n_tested[inds]*seroprev$seroprevalence[inds]
+  inds <- which(is.na(seroprev$seroprevalence))
+  seroprev$seroprevalence[inds] <- seroprev$n_positive[inds]/seroprev$n_tested[inds]
+
+  seroprev.summ <- seroprev %>%
+    dplyr::select(ObsDaymin, ObsDaymax, seroprevalence)
+
+  ## deaths at midpoint of survey
+  timeSeries_deaths_at_sero <- timeSeries %>%
+    dplyr::filter(ObsDay <= ceiling((0.5*(seroprev$ObsDaymax[1] + seroprev$ObsDaymin[1]))))
+  if(!is.null(groupingvar)) {
+    deaths.prop<-deaths.prop %>%
+      mutate(deaths_at_sero=sum(timeSeries_deaths_at_sero$deaths)*death_prop,
+             deaths_denom_at_sero=sum(timeSeries_deaths_at_sero$deaths))
+  } else {
+    deaths.prop<-data.frame(deaths_at_sero=sum(timeSeries_deaths_at_sero$deaths))
+  }
+
+  #...........................................................
+  # process population
+  #...........................................................
+  # subset to study id
+  population <- population %>%
+    dplyr::filter(State==state & County==county)
+  if(nrow(population)>1) stop("more than one county population selected")
+  pop_cols<-grep("Both",names(population))
+  pop_cols<-pop_cols[which(pop_cols!=3)]
+  population<-data.frame(age_low=seq(0,85,5),age_high=seq(5,90,5),pop=as.numeric(population[1,pop_cols]))
+
+  if (groupingvar == "ageband") {  ## use same age breaks as deaths.
+    # handle age
+    population <- population %>%
+      dplyr::mutate(
+        ageband = cut(age_high,
+                      breaks = agebrks,
+                      labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
+        ageband = as.character(ageband),
+        ageband = ifelse(age_low == 0 & age_high == 999, "all", ageband)
+      )
+  }
+
+  # get pop group demographics
+  popN <- sum(population$pop)
+  if(!is.null(groupingvar)) {
+    pop_prop.summ <- population %>%
+      dplyr::group_by_at(groupingvar) %>%
+      dplyr::summarise(
+        pop_prop = sum(pop)/popN,
+        age_low = mean(age_low),
+        age_high = mean(age_high)
+      ) %>%
+      dplyr::arrange(age_low)
+  }
+
+  #............................................................
+  # process test sens/spec
+  #...........................................................
+  sero_val <- sero_val %>%
+    dplyr::filter(study_id %in% study_ids)
+
+
+  #...........................................................
+  # out
+  #...........................................................
+  ret <- list(
+    deaths = deaths.summ,
+    seroprev = seroprev.summ,
+    prop_pop = pop_prop.summ,
+    popN = popN,
+    sero_sens = sero_val$sensitivity,
+    sero_spec = sero_val$specificity,
+    #seroprev_group = seroprev.summ.group,
+    deaths_group = deaths.prop
+  )
+  return(ret)
+
+}
+
+
+### function for where we have a time series of deaths but no other info.
+process_usa_basic_data_timeseries<-function(population = NULL, sero_val = NULL, seroprev = NULL,timeSeriesFile=NULL,
+                                                  study_ids, state, county) {
+  population <- readr::read_csv(population)
+  sero_val <- readr::read_csv(sero_val)
+  seroprev <- readr::read_csv(seroprev)
+  timeSeries<-readr::read_csv(timeSeriesFile)
+
+  # save study start date for later -- this is our index time 0
+  start_date <- min(lubridate::mdy(timeSeries$Date))
+
+  #########################################
+  ### process time series
+  #########################################
+  timeSeries <- timeSeries %>%
+    dplyr::mutate(start_date = min(lubridate::mdy(timeSeries$Date)),
+                  ObsDay = as.numeric(lubridate::mdy(Date) - start_date)) %>%
+    dplyr::select(ObsDay,study_ids) %>%
+    dplyr::arrange(ObsDay) %>%
+    dplyr::rename(deaths=study_ids)
+
+  warning("Assuming you are using USA date format in time series data")
+
+  #########################################
+  ### process seroprevalence
+  #########################################
+  # handle sero dates and subset
+  seroprev <- seroprev %>%
+    dplyr::filter(study_id %in% study_ids & for_regional_analysis==1)
+  if(nrow(seroprev)>1) stop("More than one seroprevalence observation")
+
+  seroprev <- seroprev %>%
+  dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey),
+                  date_end_survey = lubridate::dmy(date_end_survey),
+                  ObsDaymin = as.numeric(date_start_survey - start_date),
+                  ObsDaymax = as.numeric(date_end_survey - start_date))
+  warning("Assuming you are using European date format for seroprevalence")
+
+  if (length(unique(seroprev$ObsDaymin)) > 1 | length(unique(seroprev$ObsDaymax)) > 1) {
+    stop("Serology data has multiple start or end dates")
+  }
+
+  # COMPUTE OVERALL AVERAGE SEROPREVALENCE
+  ### fill in gaps for studies which only have number positive, and those which only have seroprevalence.
+  seroprev$seroprevalence <- NA
+  if (!is.na(seroprev$seroprevalence_weighted[1])) {   ## check if we have weighted/adjusted data for this study.
+    seroprev$seroprevalence <- seroprev$seroprevalence_weighted
+  } else {
+    seroprev$seroprevalence <- seroprev$seroprevalence_unadjusted
+  }
+  inds <- which(is.na(seroprev$n_positive))
+  seroprev$n_positive[inds] <- seroprev$n_tested[inds]*seroprev$seroprevalence[inds]
+  inds <- which(is.na(seroprev$seroprevalence))
+  seroprev$seroprevalence[inds] <- seroprev$n_positive[inds]/seroprev$n_tested[inds]
+
+  seroprev.summ <- seroprev %>%
+    dplyr::select(ObsDaymin, ObsDaymax, seroprevalence)
+
+  ## deaths at midpoint of survey
+  timeSeries_deaths_at_sero <- timeSeries %>%
+    dplyr::filter(ObsDay <= ceiling((0.5*(seroprev$ObsDaymax[1] + seroprev$ObsDaymin[1]))))
+  deaths.prop<-data.frame(ObsDay=ceiling(0.5*(seroprev$ObsDaymax[1] + seroprev$ObsDaymin[1])),
+                            deaths_at_sero=sum(timeSeries_deaths_at_sero$deaths))
+
+  # get pop group demographics
+  # subset
+  population <- population %>%
+    dplyr::filter(State==state & County %in% county)
+  #if(nrow(population)>1) stop("more than one county population selected")
+  pop_cols<-grep("Both_Total",names(population))
+  popN<-as.numeric(population[1,pop_cols])
+
+  ret <- list(
+    deaths = timeSeries,
+    seroprev = seroprev.summ,
+    popN = popN,
+    # sero_sens = sero_val$sensitivity,
+    # sero_spec = sero_val$specificity,
+    #seroprev_group = seroprev.summ.group,
+    deaths_group = deaths.prop
+  )
+  return(ret)
+
+}
