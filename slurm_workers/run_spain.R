@@ -59,6 +59,7 @@ sero_map_df <- tibble::tibble(lvl = c("dayveryfree", "dayfree", "strongdayprior"
 
                               )
 map <- dplyr::left_join(map, sero_map_df, by = "lvl")
+saveRDS(map, "data/derived/ESP/spain_params_sensitivity_analysis.RDS")
 
 #......................
 # make IFR models

@@ -126,11 +126,11 @@ map$inputdata <- purrr::pmap(map, wrap_sim)
 #......................
 get_sens_spec <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",         "sero_rate", "sero_day"),
-                 min =   c(sens-0.02,       spec-0.02,      10,           95),
-                 init =  c(sens,            spec,           10,           100),
-                 max =   c(sens+0.02,       spec+0.02,      10,           105),
-                 dsc1 =  c(sens*1e4,        spec*1e4,       5,            95),
-                 dsc2 =  c((1e5-sens*1e4),  (1e5-spec*1e4), 15,           105))
+                 min =   c(sens-0.02,       spec-0.02,      10,           140),
+                 init =  c(sens,            spec,           10,           150),
+                 max =   c(sens+0.02,       spec+0.02,      10,           160),
+                 dsc1 =  c(sens*1e4,        spec*1e4,       5,            140),
+                 dsc2 =  c((1e4-sens*1e4),  (1e4-spec*1e4), 15,           160))
 }
 
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
