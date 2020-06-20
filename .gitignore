@@ -11,6 +11,8 @@
 sandbox/
 data/
 results/
+tables/
+figures/
 
 # knitr and R markdown default cache directories
 /*_cache/
