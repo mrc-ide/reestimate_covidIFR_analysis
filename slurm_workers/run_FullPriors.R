@@ -88,7 +88,7 @@ get_sens_spec <- function(sens, spec) {
 
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, popN) {
-  ifr_paramsdf <- make_ma_reparamdf(num_mas = 5)
+  ifr_paramsdf <- make_ma_reparamdf(num_mas = 8)
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
                                           num_xs = 4)
     infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 12, dsc1 = 0, dsc2 = 12),
