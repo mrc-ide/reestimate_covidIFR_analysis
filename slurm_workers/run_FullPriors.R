@@ -78,11 +78,11 @@ map$inputdata <- purrr::pmap(map, wrap_sim)
 #......................
 get_sens_spec <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",         "sero_rate", "sero_day"),
-                 min =   c(sens-0.02,       0,              10,           140),
+                 min =   c(sens-0.02,       0,              1,           140),
                  init =  c(sens,            spec,           10,           150),
-                 max =   c(sens+0.02,       1,              10,           160),
-                 dsc1 =  c(sens*1e4,        spec*1e2,       5,            140),
-                 dsc2 =  c((1e4-sens*1e4),  (1e2-spec*1e2), 15,           160))
+                 max =   c(sens+0.02,       1,              20,           160),
+                 dsc1 =  c(sens*1e4,        spec*1e2,       1,            140),
+                 dsc2 =  c((1e4-sens*1e4),  (1e2-spec*1e2), 20,           160))
 }
 
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
@@ -147,7 +147,7 @@ wrap_run_covidcurve <- function(curve, sens, spec, modelobj) {
 ntry <- 50
 sjob <- rslurm::slurm_apply(f = wrap_run_covidcurve,
                             params = parammap,
-                            jobname = 'sim_runFPRs',
+                            jobname = 'sim_run_fullpriors',
                             nodes = ntry,
                             cpus_per_node = 1,
                             submit = T,
