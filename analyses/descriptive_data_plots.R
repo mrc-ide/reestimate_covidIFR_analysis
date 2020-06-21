@@ -151,7 +151,45 @@ curr_sero$seroprevalence<-x$seroprev_group$seroprevalence
 curr_sero$pop<-x$popN*x$prop_pop$pop_prop
 curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
 curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
 esp_resr<-curr_sero
+
+
+### Netherlands.
+i<-"NLD"
+x<-readRDS(paste0("data/derived/",i,"/",i,"_regions.RDS"))
+curr_sero<-x$deaths_group
+curr_sero$seroprevalence<-x$seroprev_group$seroprevalence
+curr_sero$pop<-x$popN*x$prop_pop$pop_prop
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
+curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
+nld_resr<-curr_sero
+
+### Denmark
+i<-"DNK"
+x<-readRDS(paste0("data/derived/",i,"/",i,"_regions.RDS"))
+curr_sero<-x$deaths_group
+curr_sero$seroprevalence<-x$seroprev_group$seroprevalence
+curr_sero$pop<-x$popN*x$prop_pop$pop_prop
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
+curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
+dnk_resr<-curr_sero
+
+### Switzerland, to do.
+## process Geneva estimate from the age specific results
+x<-readRDS(paste0("data/derived/CHE/CHE_agebands.RDS"))
+curr_sero<-x$seroprev
+curr_sero$deaths_at_sero<-x$deaths_group$deaths_denom_at_sero[1]
+curr_sero$pop<-x$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprev * curr_sero$pop
+curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
+che_resr<-curr_sero
+
+
+## Sweden & s
 
 ### USA - Los Angeles, California
 i<-"LA_CA"
@@ -161,6 +199,7 @@ curr_sero$seroprevalence<-x$seroprev$seroprevalence
 curr_sero$pop<-x$popN
 curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
 curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
 la_ca_resr<-curr_sero
 
 ### USA - Santa Clara, California
@@ -171,6 +210,7 @@ curr_sero$seroprevalence<-x$seroprev$seroprevalence
 curr_sero$pop<-x$popN
 curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
 curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
 sc_ca_resr<-curr_sero
 
 ### USA - CH_MA
@@ -181,6 +221,7 @@ curr_sero$seroprevalence<-x$seroprev$seroprevalence
 curr_sero$pop<-x$popN
 curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
 curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
 ch_ma_resr<-curr_sero
 
 ### USA - MD_FL
@@ -191,6 +232,7 @@ curr_sero$seroprevalence<-x$seroprev$seroprevalence
 curr_sero$pop<-x$popN
 curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
 curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
 md_fl_resr<-curr_sero
 
 ### USA - NYC
@@ -201,6 +243,7 @@ curr_sero$seroprevalence<-x$seroprev$seroprevalence
 curr_sero$pop<-x$popN
 curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
 curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
+curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
 nyc_resr<-curr_sero
 
 
@@ -294,6 +337,24 @@ legend(0,23,names(col_vec)[c(1,3,4,5,7)],pch=rep(21,4),col=rep("black",4), bty='
                                          pt.bg=col_vec[c(1,3,4,5,7)],xpd=T,ncol=2)
 
 
-plot(nld_res$age_mid,100*nld_res$ifr_age_adj_ss,col="blue")
-points(esp_res$age_mid,100*esp_res$ifr_age_adj_ss,col="blue")
-points(dnk_res$age_mid,100*dnk_res$ifr_age_adj_ss,col="blue")
+######## REGION VERSUS MORTALITY
+tiff(file="figures/sero_vs_deaths_region.tiff", width=2000,height=2200,res=300,compression="lzw")
+col_vec <- c(RColorBrewer::brewer.pal(7, "Set1"),cols25(25))
+legend_text <- c("Spain", "Sweden", "Switzerland", "Denmark","Netherlands","UK","US - LA",
+                    "US - Santa Clara", "US - Massachusetts", "US - Miami-Dade", "US - NYC")
+par(mar=c(5,4,9,2))
+plot(esp_resr$seroprevalence,esp_resr$deaths_per_million,xlab="Seroprevalence (%)",ylab="deaths per million",
+     ylim=c(0,1800),xlim=c(0,0.32),pch=21, col.main="black", bg=col_vec[1])
+studies<-c("swe","che","dnk","nld","gbr","la_ca","sc_ca","ch_ma","md_fl","nyc_resr")
+points(che_resr$seroprev,che_resr$deaths_per_million,pch=21, col.main="black", bg=col_vec[3])
+points(dnk_resr$seroprevalence,dnk_resr$deaths_per_million,pch=21, col.main="black", bg=col_vec[4])
+points(nld_resr$seroprevalence,nld_resr$deaths_per_million,pch=21, col.main="black", bg=col_vec[5])
+points(la_ca_resr$seroprevalence,la_ca_resr$deaths_per_million,pch=21, col.main="black", bg=col_vec[11])
+points(sc_ca_resr$seroprevalence,sc_ca_resr$deaths_per_million,pch=21, col.main="black", bg=col_vec[12])
+points(ch_ma_resr$seroprevalence,ch_ma_resr$deaths_per_million,pch=21, col.main="black", bg=col_vec[13])
+points(md_fl_resr$seroprevalence,md_fl_resr$deaths_per_million,pch=21, col.main="black", bg=col_vec[14])
+points(nyc_resr$seroprevalence,nyc_resr$deaths_per_million,pch=21, col.main="black", bg=col_vec[15])
+incl<-c(1,3,4,5,7:11)
+legend(0,2400,legend_text[incl],pch=rep(21,4),col=rep("black",4), bty='n',
+       pt.bg=col_vec[c(1,3,4,5,11:15)],xpd=T,ncol=2)
+dev.off()
