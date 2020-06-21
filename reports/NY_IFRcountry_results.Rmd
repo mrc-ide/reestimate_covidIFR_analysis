@@ -1,0 +1,134 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# New York
+```{r}
+# remotes::install_github("mrc-ide/COVIDCurve", ref = "develop")
+library(COVIDCurve)
+library(tidyverse)
+setwd(here::here("./"))
+```
+
+!WORDS!
+
+## Results {.tabset}
+
+### Regional Estimates
+```{r}
+#...................... 
+# read in data
+#......................
+modout <- readRDS("results/temp_slurm_worker_results/_rslurm_NYCfits/results_0.RDS")[[1]]
+rgnkey <- readRDS("data/derived/NY/NY_rgn_key.RDS") %>% 
+  dplyr::rename(param = name,
+                region = rgn)
+```
+
+#### Log Plot
+```{r, results='asis', fig.width=8, fig.height=3}
+modout$mcmcout$output %>%
+  dplyr::filter(rung == "rung1") %>%
+  dplyr::filter(stage == "sampling") %>%
+  dplyr::select(c("iteration", "loglikelihood", "logprior")) %>%
+  tidyr::gather(., key = "like", value = "val", 2:3) %>%
+  ggplot() +
+  geom_line(aes(x = iteration, y = val, color = like), size = 0.1, alpha = 0.8) +
+  facet_wrap(.~like, scales = "free_y") +
+  theme_bw()
+
+```
+
+#### IFRs & Incidence Curve
+
+```{r}
+#...................... 
+# get ifrs 
+#......................
+ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
+                                       what = "IFRparams", by_chain = FALSE)
+ifrs <- dplyr::left_join(rgnkey, ifrs, by = "param")
+
+#...................... 
+# get incidence curve
+#......................
+infxncurve <- COVIDCurve::draw_posterior_infxn_points_cubic_splines(IFRmodel_inf = modout,
+                                                                    CIquant = 0.90,
+                                                                    by_chain = FALSE)
+#...................... 
+# make ifr and incidence plots
+#......................
+plot1 <- ggplot() +
+  geom_pointrange(data = ifrs, aes(x = region, ymin = LCI, ymax = UCI, y = median), color = "#252525") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold")) +
+  xlab("") + ylab("Median (95% CIs)")
+
+plot2 <- infxncurve$plotObj
+
+main_plotObj <- cowplot::plot_grid(plot1, plot2, ncol = 1, nrow = 2)
+
+
+
+```
+
+```{r, results='asis', fig.width=8, fig.height=6}
+main_plotObj
+```
+
+```{r, results='asis', fig.width=8, fig.height=6}
+ifrs %>% 
+  dplyr::mutate_if(is.numeric, round, 2) %>% 
+  knitr::kable(.)
+
+```
+
+
+
+#### Posterior Predictive Check
+```{r}
+#...................... 
+# get posterior draws
+#......................
+postdat <- COVIDCurve::posterior_check_infxns_to_death(IFRmodel_inf = modout,
+                                                       CIquant = 0.90,
+                                                       by_chain = FALSE)
+dwnsmpl <- sample(levels(factor(postdat$sim)), size = 1e3, replace = TRUE) # downsample sims, replace = TRUE just for debug
+postdat_long <- postdat %>%
+  dplyr::select(c("sim", "time", dplyr::starts_with("deaths"))) %>%
+  tidyr::gather(., key = "param", value = "deaths", 3:ncol(.)) %>%
+  dplyr::mutate(param = gsub("deaths_", "", param)) %>% 
+  dplyr::left_join(., y = rgnkey, by = "param") %>%
+  dplyr::filter(sim %in% dwnsmpl) # downsample sims
+
+#......................
+# get deaths posterior pred check
+#......................
+datclean <-  modout$inputs$IFRmodel$data$obs_deaths %>%
+  dplyr::filter(Deaths != -1)
+
+#...................... 
+# make plot
+#......................
+ppc_plot_rgn <- ggplot() +
+  geom_line(data = postdat_long, aes(x= time, y = deaths, group = region), 
+            size = 1.2, color = "#bdbdbd") +
+  geom_line(data = datclean, aes(x=ObsDay, y = Deaths, group = region), 
+            color = "#3182bd") +
+  facet_wrap(.~region) +
+  theme_bw() +
+  ggtitle("Posterior Predictive Check", subtitle = "Grey Lines are Draws from Posterior, Blue Line is Observed Data (from ECDC)") +
+  theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5, vjust = 0.5))
+
+```
+
+
+```{r, results='asis', fig.width=8, fig.height=6}
+ppc_plot_rgn
+```
+
+
+## {-}

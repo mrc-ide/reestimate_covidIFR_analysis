@@ -1,7 +1,5 @@
 simple_seir <- odin::odin({
   ## deal with time
-  dt <- user(4) # Specified timestep
-  time <- step * dt # Tracking actual time
   ## Core equations for transitions between compartments:
   update(S) <- S - n_SE
   update(E) <- E + n_SE - n_EI
@@ -9,9 +7,9 @@ simple_seir <- odin::odin({
   update(R) <- R + n_IR
 
   ## Individual probabilities of transition:
-  p_SE <- 1 - exp(-beta * (I / N) * dt)
-  p_EI <- 1 - exp(-sigma * dt)
-  p_IR <- 1 - exp(-gamma * dt)
+  p_SE <- 1 - exp(-beta * (I / N))
+  p_EI <- 1 - exp(-sigma)
+  p_IR <- 1 - exp(-gamma)
 
   ## Draws from binomial distributions for numbers changing between
   ## compartments:

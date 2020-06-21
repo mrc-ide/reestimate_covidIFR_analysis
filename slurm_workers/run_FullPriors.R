@@ -26,8 +26,7 @@ intervene <- lapply(1:nsims, function(x){
                   beta_changes = c(1, 130, 140, 150),
                   sigma = 0.2,
                   gamma = 0.2,
-                  time = 200,
-                  dt = 4)
+                  time = 200)
 })
 intervene <- intervene %>%
   dplyr::bind_rows(.) %>%
@@ -51,7 +50,7 @@ map <- tibble::as_tibble(map)
 #......................
 fatalitydata <- data.frame(strata = paste0("ma", 1:8),
                            ifr = c(0, 0, 0, 0.02, 0.03, 0.05, 0.1, 0.2),
-                           pa = 1/8)
+                           rho = 1/8)
 
 #......................
 # rung covidcurve simulator
