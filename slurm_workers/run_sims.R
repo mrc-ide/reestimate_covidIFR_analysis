@@ -9,24 +9,23 @@ library(tidyverse)
 library(COVIDCurve)
 source("R/covidcurve_helper_functions.R")
 source("R/simple_seir_model.R")
-
+set.seed(48)
 #............................................................
 # Run Various Scenarios for Incidence Curves
 #...........................................................
 nsims <- 1e2
 #......................
 # exponential growth
-#......................
+#.......... ............
 expgrowth <- lapply(1:nsims, function(x){
   run_simple_seir(N = 3e7,
                   E0 = 50,
                   R0 = 0,
-                  betas = 0.16,
+                  betas = 0.3,
                   beta_changes = 1,
                   sigma = 0.2,
                   gamma = 0.2,
-                  time = 200,
-                  dt = 4)})
+                  time = 200)})
 expgrowth <- expgrowth %>%
   dplyr::bind_rows(.) %>%
   dplyr::group_by(step) %>%
@@ -44,12 +43,11 @@ intervene <- lapply(1:nsims, function(x){
   run_simple_seir(N = 3e7,
                   E0 = 50,
                   R0 = 0,
-                  betas = c(0.25, 0.13, 0.12, 0.1),
+                  betas = c(0.33, 0.13, 0.12, 0.11),
                   beta_changes = c(1, 130, 140, 150),
                   sigma = 0.2,
                   gamma = 0.2,
-                  time = 200,
-                  dt = 4)
+                  time = 200)
 })
 intervene <- intervene %>%
   dplyr::bind_rows(.) %>%
@@ -62,7 +60,6 @@ intervene <- intervene %>%
 
 
 
-
 #......................
 # exponential growth with implementations and then second wave
 #......................
@@ -70,7 +67,7 @@ secondwave <- lapply(1:nsims, function(x){
   run_simple_seir(N = 3e7,
                   E0 = 50,
                   R0 = 0,
-                  betas = c(0.25, 0.13, 0.12, 0.1, 0.14, 0.2),
+                  betas = c(0.37, 0.13, 0.12, 0.18, 0.2, 0.21),
                   beta_changes = c(1, 100, 110, 120, 130, 140),
                   sigma = 0.2,
                   gamma = 0.2,
@@ -91,14 +88,14 @@ secondwave <- secondwave %>%
 map <- expand.grid(curve = list(expgrowth, intervene, secondwave),
                    sens = c(0.85, 0.90, 0.95),
                    spec = c(0.85, 0.90, 0.95),
-                   popN = c(8e7, 5e7, 3e7, 1e7, 5e6))
+                   popN = c(8e7, 5e7, 3e7, 1e7))
 map <- tibble::as_tibble(map)
 #......................
 # setup fatality data
 #......................
-fatalitydata <- data.frame(strata = paste0("ma", 1:5),
-                           ifr = c(0.02, 0.03, 0.05, 0.1, 0.2),
-                           pa = 1/5)
+fatalitydata <- data.frame(strata = paste0("ma", 1:8),
+                           ifr = c(0, 0, 0, 0.02, 0.03, 0.05, 0.1, 0.2),
+                           rho = 1/8)
 
 #......................
 # rung covidcurve simulator
@@ -125,16 +122,16 @@ map$inputdata <- purrr::pmap(map, wrap_sim)
 #......................
 get_sens_spec <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",         "sero_rate", "sero_day"),
-                 min =   c(sens-0.02,       spec-0.02,      10,           140),
+                 min =   c(sens-0.02,       0,              5,            140),
                  init =  c(sens,            spec,           10,           150),
-                 max =   c(sens+0.02,       spec+0.02,      10,           160),
-                 dsc1 =  c(sens*1e4,        spec*1e4,       5,            140),
-                 dsc2 =  c((1e4-sens*1e4),  (1e4-spec*1e4), 15,           160))
+                 max =   c(sens+0.02,       1,              15,           160),
+                 dsc1 =  c(sens*1e4,        spec*1e2,       5,            140),
+                 dsc2 =  c((1e4-sens*1e4),  (1e2-spec*1e2), 15,           160))
 }
 
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, popN) {
-  ifr_paramsdf <- make_ma_reparamdf(num_mas = 5)
+  ifr_paramsdf <- make_ma_reparamdf(num_mas = 8)
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
                                           num_xs = 4)
   # find exp growth
@@ -158,8 +155,8 @@ wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, popN) {
   mod1$set_CoefVarOnset(0.45)
   mod1$set_level("Time-Series")
   mod1$set_data(inputdata)
-  mod1$set_IFRparams(paste0("ma", 1:5))
-  mod1$set_maxMa("ma5")
+  mod1$set_IFRparams(paste0("ma", 1:8))
+  mod1$set_maxMa("ma8")
   mod1$set_Knotparams(paste0("x", 1:4))
   mod1$set_relKnot("x4")
   mod1$set_Infxnparams(paste0("y", 1:5))
@@ -167,7 +164,7 @@ wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, popN) {
   mod1$set_Seroparams(c("sens", "spec", "sero_rate", "sero_day"))
   mod1$set_popN(popN)
   mod1$set_paramdf(df_params)
-  mod1$set_pa(rep(1/5,5))
+  mod1$set_pa(rep(1/8,8))
   mod1$set_rcensor_day(.Machine$integer.max)
   # out
   mod1
@@ -189,7 +186,7 @@ wrap_run_covidcurve <- function(curve, sens, spec, modelobj) {
                                burnin = 1e4,
                                samples = 1e4,
                                chains = 10,
-                               GTI_pow = 2.5,
+                               GTI_pow = 4,
                                rungs = 25)
 }
 
@@ -197,14 +194,14 @@ wrap_run_covidcurve <- function(curve, sens, spec, modelobj) {
 # slurm
 #...........................................................
 # for slurm on LL
-ntry <- 150
+ntry <- 110
 sjob <- rslurm::slurm_apply(f = wrap_run_covidcurve,
                             params = parammap,
                             jobname = 'sim_covidcurves',
                             nodes = ntry,
                             cpus_per_node = 1,
                             submit = T,
-                            slurm_options = list(mem = "24g",
+                            slurm_options = list(mem = "8g",
                                                  'cpus-per-task' = 1,
                                                  error =  "%A_%a.err",
                                                  output = "%A_%a.out",
