@@ -44,7 +44,7 @@ intervene <- lapply(1:nsims, function(x){
   run_simple_seir(N = 3e7,
                   E0 = 50,
                   R0 = 0,
-                  betas = c(0.17, 0.13, 0.12, 0.1),
+                  betas = c(0.25, 0.13, 0.12, 0.1),
                   beta_changes = c(1, 130, 140, 150),
                   sigma = 0.2,
                   gamma = 0.2,
@@ -70,12 +70,11 @@ secondwave <- lapply(1:nsims, function(x){
   run_simple_seir(N = 3e7,
                   E0 = 50,
                   R0 = 0,
-                  betas = c(0.17, 0.13, 0.12, 0.1, 0.14, 0.16),
-                  beta_changes = c(1, 130, 140, 150, 160, 170),
+                  betas = c(0.25, 0.13, 0.12, 0.1, 0.14, 0.2),
+                  beta_changes = c(1, 100, 110, 120, 130, 140),
                   sigma = 0.2,
                   gamma = 0.2,
-                  time = 200,
-                  dt = 4)
+                  time = 200)
 })
 secondwave <- secondwave %>%
   dplyr::bind_rows(.) %>%

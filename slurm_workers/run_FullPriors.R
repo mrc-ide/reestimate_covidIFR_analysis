@@ -20,9 +20,9 @@ nsims <- 1e2
 #......................
 intervene <- lapply(1:nsims, function(x){
   run_simple_seir(N = 3e7,
-                  E0 = 50,
+                  E0 = 5,
                   R0 = 0,
-                  betas = c(0.17, 0.13, 0.12, 0.1),
+                  betas = c(0.25, 0.13, 0.12, 0.1),
                   beta_changes = c(1, 130, 140, 150),
                   sigma = 0.2,
                   gamma = 0.2,
@@ -37,10 +37,12 @@ intervene <- intervene %>%
   dplyr::mutate_if(is.numeric, round, 0) %>%
   dplyr::rename(time = step)
 
+# plot(intervene$infxns)
+
 #............................................................
 # Simulate Under Model
 #...........................................................
-map <- expand.grid(curve = intervene,
+map <- expand.grid(curve = list(intervene),
                    sens = c(0.85, 0.90, 0.95),
                    spec = c(0.85, 0.90, 0.95),
                    popN = c(8e7, 5e7, 3e7, 1e7, 5e6))
