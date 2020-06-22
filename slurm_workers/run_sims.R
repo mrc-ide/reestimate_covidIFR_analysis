@@ -165,7 +165,7 @@ wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, popN) {
   mod1$set_Serodayparams("sero_day")
   mod1$set_popN(popN)
   mod1$set_paramdf(df_params)
-  mod1$set_pa(rep(1/8,8))
+  mod1$set_rho(rep(1/8,8))
   mod1$set_rcensor_day(.Machine$integer.max)
   # out
   mod1
