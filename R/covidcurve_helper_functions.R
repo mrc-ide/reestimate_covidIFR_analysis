@@ -2,6 +2,16 @@ source("R/assertions_v5.R")
 library(tidyverse)
 library(stringr)
 
+#' @title Make Simple Data Dictionary Key for IFR age-bands, regions, etc. to simple
+#' @param strata string vector; Names of stata to simplify
+
+make_ma_dict_key <- function(strata_names) {
+  assert_string(strata_names)
+  tibble::tibble(strata_name = strata_names,
+                 param_name  = paste0("ma", 1:length(strata_name)))
+}
+
+
 #' @title Make IFR Uniform Distributed Reparameterized Param Df
 #' @param num_mas positive interger; Number of IFR strata to infer
 
