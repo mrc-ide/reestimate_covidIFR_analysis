@@ -16,7 +16,7 @@ dir.create("out/tables", recursive = T)
 dir.create("out/tables", recursive = T)
 
 #### Make Drake Plan ####
-ortrta <- drake::drake_plan(
+plan <- drake::drake_plan(
   #............................................................
   # assertions that files exist
   #...........................................................
