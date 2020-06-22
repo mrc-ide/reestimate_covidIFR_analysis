@@ -1,0 +1,53 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Analyzing FPR
+```{r}
+# remotes::install_github("mrc-ide/COVIDCurve", ref = "develop")
+library(COVIDCurve)
+library(drjacoby)
+library(tidyverse)
+source("R/extra_MCMC_plotting_functions.R")
+```
+
+```{r}
+#...................... 
+# truth from sims
+#......................
+fatalitydata <- data.frame(strata = paste0("ma", 1:8),
+                           ifr = c(0, 0, 0, 0.02, 0.03, 0.05, 0.1, 0.2),
+                           rho = 1/8)
+
+#...................... 
+# read in sims
+#......................
+param_map <- readRDS("results/temp_slurm_worker_results/_rslurm_sim_run_fullpriors/params.RDS")
+fprmod_paths <- list.files("results/temp_slurm_worker_results/_rslurm_sim_run_fullpriors/", full.names = TRUE,
+                           pattern = "results_[0-9]+.RDS")
+#fprmods <- purrr::map(fprmod_paths)
+
+temp <- readRDS(fprmod_paths[[1]])[[1]]
+
+plot_par(temp$mcmcout, "ma7")
+plot_par(temp$mcmcout, "ma8")
+plot_par(temp$mcmcout, "spec")
+
+infxncurve <- COVIDCurve::draw_posterior_infxn_points_cubic_splines(IFRmodel_inf = temp,
+                                                                    dwnsmpl = 1e3,
+                                                                    whichrung = "rung1")
+
+```
+```{r}
+truth <- param_map$curve[[1]]
+truth$infxns <- truth$infxns*0.15
+
+
+infxncurve$plotObj +
+  geom_line(data = truth, aes(x = time, y = infxns), color = "#3182bd", size = 1.1) + 
+  theme_minimal()
+param_map[1,]
+
+```

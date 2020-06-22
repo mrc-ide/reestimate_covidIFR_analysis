@@ -9,7 +9,7 @@ library(tidyverse)
 library(COVIDCurve)
 source("R/covidcurve_helper_functions.R")
 source("R/simple_seir_model.R")
-
+set.seed(48)
 #............................................................
 # Basic Incidence Curve
 #...........................................................
@@ -20,9 +20,9 @@ nsims <- 1e2
 #......................
 intervene <- lapply(1:nsims, function(x){
   run_simple_seir(N = 3e7,
-                  E0 = 5,
+                  E0 = 50,
                   R0 = 0,
-                  betas = c(0.25, 0.13, 0.12, 0.1),
+                  betas = c(0.36, 0.13, 0.12, 0.11),
                   beta_changes = c(1, 130, 140, 150),
                   sigma = 0.2,
                   gamma = 0.2,
