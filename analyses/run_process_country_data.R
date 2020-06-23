@@ -202,7 +202,22 @@ saveRDS(CHE.agebands.dat, "data/derived/CHE/CHE_agebands.RDS")
 #............................................................
 # Sweden
 #...........................................................
-#TODO needs customised function as not national survey (similar to Iran).
+### For age analysis, assume data from the 9 regions, about 70% of the regions, is representative.
+SWE.agebands.dat<-process_data2(deaths = deathsFile,
+                                population = populationFile,
+                                sero_val = sero_valFile,
+                                seroprev = seroprevFile,
+                                cumulative = TRUE,
+                                ECDC = ECDCFile,
+                                groupingvar = "ageband",
+                                study_ids = "SWE1",
+                                geocode = "SWE",
+                                filtRegions = NULL, # some regions combined in serosurvey
+                                filtGender = NULL,
+                                filtAgeBand = NULL)
+
+dir.create("data/derived/SWE", recursive = T)
+saveRDS(SWE.agebands.dat, "data/derived/SWE/SWE_agebands.RDS")
 
 
 #..................................................................................
