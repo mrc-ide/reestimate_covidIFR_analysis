@@ -157,7 +157,7 @@ wrap_make_IFR_model <- function(x) {
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf)
   # format data
-  dictkey <- data.frame(Strata = rgn$obs_serology$Strata, key = paste0("ma", 1:17))
+  dictkey <- tibble::tibble(Strata = rgn$obs_serology$Strata, key = paste0("ma", 1:17))
   rgn$obs_serology <- dplyr::left_join(rgn$obs_serology, dictkey) %>%
     dplyr::select(-c("Strata")) %>%
     dplyr::rename(Strata = key) %>%
