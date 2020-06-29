@@ -66,10 +66,10 @@ wrap_make_IFR_model <- function(x) {
 #......................
 # make maps
 #......................
-map <- tibble::as_tibble(expand.grid(rungs = c(10, 20, 25, 30, 40, 50),
+map <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
                          GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                         burnin = c(1e3, 1e4, 1e5),
-                         samples = c(1e3, 1e4, 1e5)))
+                         burnin = 1e4,
+                         samples = 1e4))
 
 
 map$modelobj <- purrr::map(map$rungs, wrap_make_IFR_model)
@@ -98,10 +98,10 @@ run_wrapper <- function(modelobj, rungs, GTI_pow, burnin, samples) {
 #......................
 # send out on slurm
 #......................
-ntry <- 360
+ntry <- 30
 sjob <- rslurm::slurm_apply(f = run_wrapper,
                             params = map,
-                            jobname = 'tuneMCMC_ESPage',
+                            jobname = 'newtuneMCMC_ESPage',
                             nodes = ntry,
                             cpus_per_node = 1,
                             submit = T,

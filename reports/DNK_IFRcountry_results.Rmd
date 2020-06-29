@@ -5,12 +5,13 @@ editor_options:
 ---
 
 # Denmark
-Serology from blood donors. Serology age bands slightly misaligned from cumulative deaths age bands -- _pa_ only account for population demographics. 
+Serology from blood donors. Serology age bands slightly misaligned from cumulative deaths age bands -- _pa_ only account for population demographics.
+
 ```{r}
 # remotes::install_github("mrc-ide/COVIDCurve", ref = "develop")
 library(COVIDCurve)
 library(tidyverse)
-source("~/Documents/GitHub/reestimate_covidIFR_analysis/R/extra_MCMC_plotting_functions.R")
+source("R/extra_MCMC_plotting_functions.R")
 ```
 
 
@@ -21,7 +22,7 @@ source("~/Documents/GitHub/reestimate_covidIFR_analysis/R/extra_MCMC_plotting_fu
 #...................... 
 # read in data
 #......................
-modout <- readRDS("~/Documents/GitHub/reestimate_covidIFR_analysis/results/temp_slurm_worker_results/_rslurm_DNKfits/results_0.RDS")[[1]]
+modout <- readRDS("results/temp_slurm_worker_results/_rslurm_DNKfits/results_0.RDS")[[1]]
 # TODO make this more consistent
 # 
 agekey <- tibble::tibble(ageband = c("0-59", "59-69", "69-79", "79-89", "89-999"),
@@ -79,6 +80,10 @@ plot2 <- infxncurve$plotObj
 
 main_plotObj <- cowplot::plot_grid(plot1, plot2, ncol = 1, nrow = 2)
 
+jpeg("figures/DNK_ifr_plot_age.jpg", width = 11, height = 8, units = "in", res = 500)
+main_plotObj
+graphics.off()
+
 ```
 
 ```{r, results='asis', fig.width=8, fig.height=6}
@@ -131,6 +136,10 @@ ppc_plot_age <- ggplot() +
   theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5, vjust = 0.5))
 
+jpeg("figures/DNK_ppc_plot_age.jpg", width = 11, height = 8, units = "in", res = 500)
+ppc_plot_age
+graphics.off()
+
 ```
 
 ```{r, results='asis'}
@@ -142,8 +151,8 @@ ppc_plot_age
 #......................
 # read in data
 #......................
-modout <- readRDS("~/Documents/GitHub/reestimate_covidIFR_analysis/results/temp_slurm_worker_results/_rslurm_DNKfits/results_1.RDS")[[1]]
-rgnkey <- readRDS("~/Documents/GitHub/reestimate_covidIFR_analysis/data/derived/DNK/DNK_rgn_key.RDS") %>%
+modout <- readRDS("results/temp_slurm_worker_results/_rslurm_DNKfits/results_1.RDS")[[1]]
+rgnkey <- readRDS("data/derived/DNK/DNK_rgn_key.RDS") %>%
   dplyr::rename(param = name,
                 region = rgn)
 ```
@@ -198,6 +207,10 @@ plot2 <- infxncurve$plotObj
 
 main_plotObj <- cowplot::plot_grid(plot1, plot2, ncol = 1, nrow = 2)
 
+jpeg("figures/DNK_ifr_plot_rgn.jpg", width = 11, height = 8, units = "in", res = 500)
+main_plotObj
+graphics.off()
+
 ```
 
 ```{r, results='asis', fig.width=8, fig.height=6}
@@ -248,6 +261,10 @@ ppc_plot_rgn <- ggplot() +
   ggtitle("Posterior Predictive Check", subtitle = "Grey Lines are Draws from Posterior, Blue Line is Observed Data (from ECDC)") +
   theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5, vjust = 0.5))
+
+jpeg("figures/DNK_ppc_plot_rgn.jpg", width = 11, height = 8, units = "in", res = 500)
+ppc_plot_rgn
+graphics.off()
 
 ```
 

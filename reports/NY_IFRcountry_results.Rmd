@@ -9,6 +9,7 @@ editor_options:
 # remotes::install_github("mrc-ide/COVIDCurve", ref = "develop")
 library(COVIDCurve)
 library(tidyverse)
+setwd(here::here("./"))
 ```
 
 !WORDS!
@@ -20,8 +21,8 @@ library(tidyverse)
 #...................... 
 # read in data
 #......................
-modout <- readRDS("~/Documents/GitHub/reestimate_covidIFR_analysis/results/temp_slurm_worker_results/_rslurm_NYCfits/results_0.RDS")[[1]]
-rgnkey <- readRDS("~/Documents/GitHub/reestimate_covidIFR_analysis/data/derived/NY/NY_rgn_key.RDS") %>% 
+modout <- readRDS("results/temp_slurm_worker_results/_rslurm_NYCfits/results_0.RDS")[[1]]
+rgnkey <- readRDS("data/derived/NY/NY_rgn_key.RDS") %>% 
   dplyr::rename(param = name,
                 region = rgn)
 ```
@@ -68,6 +69,8 @@ plot1 <- ggplot() +
 plot2 <- infxncurve$plotObj
 
 main_plotObj <- cowplot::plot_grid(plot1, plot2, ncol = 1, nrow = 2)
+
+
 
 ```
 
