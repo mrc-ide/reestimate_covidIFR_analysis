@@ -33,7 +33,7 @@ wrap_make_IFR_model <- function(x) {
                                   max =   c(0.87,     1.00,   10,         131),
                                   dsc1 =  c(850,      10,     5,         117),
                                   dsc2 =  c(150,      3,      15,        131))
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 9, min = 0, init = 5, max = 10)
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 10, min = 0, init = 5, max = 10)
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf)
@@ -68,11 +68,11 @@ wrap_make_IFR_model <- function(x) {
   mod1$set_relInfxn("y5")
   mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
   mod1$set_Serodayparams(c("sero_day1"))
-  mod1$set_Noiseparams(paste0("Ne", 1:9))
+  mod1$set_Noiseparams(paste0("Ne", 1:10))
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rho(rep(1/10, 10))
+  mod1$set_rho(rep(1, 10))
   mod1$set_rcensor_day(.Machine$integer.max)
   # out
   mod1
@@ -152,7 +152,7 @@ wrap_make_IFR_model <- function(x) {
                                   max =   c(0.87,     1.00,   10,         131),
                                   dsc1 =  c(850,      10,     5,         117),
                                   dsc2 =  c(150,      3,      15,        131))
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 16, min = 0, init = 5, max = 10)
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 17, min = 0, init = 5, max = 10)
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf)
@@ -187,11 +187,11 @@ wrap_make_IFR_model <- function(x) {
   mod1$set_relInfxn("y5")
   mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
   mod1$set_Serodayparams(c("sero_day1"))
-  mod1$set_Noiseparams(paste0("Ne", 1:16))
+  mod1$set_Noiseparams(paste0("Ne", 1:17))
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rho(rep(1/17, 17))
+  mod1$set_rho(rep(1, 17))
   mod1$set_rcensor_day(.Machine$integer.max)
   # out
   mod1
