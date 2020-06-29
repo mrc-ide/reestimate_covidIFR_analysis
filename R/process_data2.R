@@ -567,8 +567,35 @@ process_data_usa_facts <- function(deaths = NULL, population = NULL, sero_val = 
             message = "There was a mismatch in filtering seroprevalence observations. Returned no observations")
 
 
-  ## Serology data not broken down by any of these aspects, so remove filters.
   # various filters for serology data
+  if (groupingvar == "region"){
+    seroprev <- seroprev %>%
+      dplyr::filter(for_regional_analysis == 1)
+  }
+
+  if (groupingvar == "gender") {
+    seroprev <- seroprev %>%
+      dplyr::filter(gender_breakdown == 1)
+  }
+
+  if (groupingvar == "ageband") {
+    seroprev <- seroprev %>%
+      dplyr::filter(age_breakdown == 1)
+  }
+
+  if (groupingvar == "ageband") {
+    # handle age
+
+    agebrks_sero <- c(min(seroprev$age_low), sort(unique(seroprev$age_high)))
+    seroprev <- seroprev %>%
+      dplyr::mutate(
+        ageband = cut(age_high,
+                      breaks = agebrks_sero,
+                      labels = c(paste0(agebrks_sero[1:(length(agebrks_sero)-1)], "-", lead(agebrks_sero)[1:(length(agebrks_sero)-1)]))),
+        ageband = as.character(ageband),
+        ageband = ifelse(age_low == 0 & age_high == 999, "all", ageband)
+      )
+  }
 
   if (length(unique(seroprev$ObsDaymin)) > 1 | length(unique(seroprev$ObsDaymax)) > 1) {
     stop("Serology data has multiple start or end dates")
@@ -588,7 +615,12 @@ process_data_usa_facts <- function(deaths = NULL, population = NULL, sero_val = 
   seroprev$seroprevalence[inds] <- seroprev$n_positive[inds]/seroprev$n_tested[inds]
 
   seroprev.summ <- seroprev %>%
-    dplyr::select(ObsDaymin, ObsDaymax, seroprevalence)
+    dplyr::group_by_at(c("ObsDaymin", "ObsDaymax")) %>%
+    dplyr::summarise(n_tested = sum(n_tested),
+                     n_positive = sum(n_positive)) %>%
+    dplyr::mutate(seroprev = n_positive/n_tested) %>%
+    dplyr::select(ObsDaymin, ObsDaymax, seroprev) %>%
+    dplyr::ungroup()
 
   ## deaths at midpoint of survey
   timeSeries_deaths_at_sero <- timeSeries %>%
@@ -601,20 +633,42 @@ process_data_usa_facts <- function(deaths = NULL, population = NULL, sero_val = 
     deaths.prop<-data.frame(deaths_at_sero=sum(timeSeries_deaths_at_sero$deaths))
   }
 
+
+  ### summarise over grouping variable
+  if (all(is.na(seroprev$n_tested)) | all(is.na(seroprev$n_positive))) { ## if no information on sample size to compute weighted average, output current data.
+    seroprev.summ.group <- seroprev %>%
+      select(c("ObsDaymin", "ObsDaymax", groupingvar, "age_low", "age_high", "n_tested", "n_positive", "seroprevalence"))
+  } else {
+    seroprev.summ.group <- seroprev %>%
+      dplyr::group_by_at(c("ObsDaymin", "ObsDaymax",groupingvar)) %>%
+      #dplyr::summarise(seroprev = mean(seroprevalence)) %>%
+      dplyr::summarise(age_low = mean(age_low),
+                       age_high = mean(age_high),
+                       n_tested = sum(n_tested),
+                       n_positive = sum(n_positive)) %>%
+      dplyr::mutate(seroprevalence = n_positive/n_tested) %>%
+      dplyr::arrange(age_low) %>%
+      dplyr::ungroup()
+  }
+
   #...........................................................
   # process population
   #...........................................................
   # subset to study id
   population <- population %>%
-    dplyr::filter(State == state & County == county)
+    dplyr::filter(State == state & County %in% county)
   # check filtering
-  assert_leq(nrow(population), 1,
-             message = "Cannot select more than one county population")
+  # assert_leq(nrow(population), 1,    ### allow more than one county - for NYC
+  #            message = "Cannot select more than one county population")
   assert_gr(nrow(population), 0,
             message = "There was a mismatch in filtering population observations. Returned no observations")
   pop_cols <- grep("Both",names(population))
   pop_cols <- pop_cols[which(pop_cols!=3)]
-  population <- data.frame(age_low=seq(0,85,5),age_high=seq(5,90,5),pop=as.numeric(population[1,pop_cols]))
+  population<-population[,pop_cols]
+  ## usually only one column but sum over rows in case (e.g. New York City)
+  population <- data.frame(age_low=seq(0,85,5),age_high=seq(5,90,5),pop=colSums(population[,1:ncol(population)]))
+
+
 
   if (groupingvar == "ageband") {  ## use same age breaks as deaths.
     # handle age
@@ -657,7 +711,7 @@ process_data_usa_facts <- function(deaths = NULL, population = NULL, sero_val = 
     popN = popN,
     sero_sens = sero_val$sensitivity,
     sero_spec = sero_val$specificity,
-    #seroprev_group = seroprev.summ.group,
+    seroprev_group = seroprev.summ.group,
     deaths_group = deaths.prop
   )
   return(ret)
