@@ -20,7 +20,8 @@ source("R/assertions_v5.R")
 process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, seroprev = NULL,
                           cumulative = FALSE, ECDC = NULL,
                           groupingvar, study_ids, geocode,
-                          filtRegions = NULL, filtGender = NULL, filtAgeBand = NULL, death_agebreaks = NULL, sero_agebreaks = NULL) {
+                          filtRegions = NULL, filtGender = NULL, filtAgeBand = NULL, death_agebreaks = NULL,
+                          sero_agebreaks = NULL) {
   #......................
   # assertions and checks
   #......................
@@ -320,7 +321,7 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   ### summarise over grouping variable
   if (all(is.na(seroprev$n_tested)) | all(is.na(seroprev$n_positive))) { ## if no information on sample size to compute weighted average, output current data.
     seroprev.summ.group <- seroprev %>%
-      select(c("ObsDaymin", "ObsDaymax", "groupingvar", "age_low", "age_high", "n_tested", "n_positive", "seroprevalence"))
+      select(c("ObsDaymin", "ObsDaymax", groupingvar, "age_low", "age_high", "n_tested", "n_positive", "seroprevalence"))
   } else {
     seroprev.summ.group <- seroprev %>%
       dplyr::group_by_at(c("ObsDaymin", "ObsDaymax",groupingvar)) %>%

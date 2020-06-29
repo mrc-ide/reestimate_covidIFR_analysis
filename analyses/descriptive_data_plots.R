@@ -6,7 +6,9 @@ library(dplyr)
 library(pals)
 #source("analyses/run_process_country_data.R")
 rogan_gladen<-function(obs_prev,sens,spec) (obs_prev + spec -1)/(spec+sens-1)
-sero_sheet<-read.csv("data/seroprevalence.csv")
+sero_sheet<-read.csv("data/raw/seroprevalence.csv")
+
+write2file<-F
 
 #####################################################
 ## Align serology and deaths by age where possible. Document assumptions where no perfect alignment
@@ -189,7 +191,7 @@ curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
 che_resr<-curr_sero
 
 
-## Sweden & s
+## Sweden
 
 ### USA - Los Angeles, California
 i<-"LA_CA"
