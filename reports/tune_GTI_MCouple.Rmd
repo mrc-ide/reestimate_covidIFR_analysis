@@ -1,0 +1,83 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Tuning GTI for MC
+Here we will use the Spain data. 
+```{r}
+library(COVIDCurve)
+library(drjacoby)
+library(tidyverse)
+source("R/extra_MCMC_plotting_functions.R")
+```
+
+## Age Estimates 
+```{r, echo=TRUE}
+#...................... 
+# read in param map
+#......................
+age_param_map <- readRDS("results/_rslurm_newRandomNetuneMCMC_ESPage/params.RDS") %>% 
+  dplyr::mutate(param_set = paste0("results_", 0:(nrow(.)-1))) %>% 
+  dplyr::select(-c("modelobj")) %>% 
+  dplyr::mutate(
+    path = paste0("results/_rslurm_newRandomNetuneMCMC_ESPage/", param_set, ".RDS")
+  )
+
+#...................... 
+# read in results and downsize for mem
+#......................
+
+read_process <- function(path) {
+  ret <- readRDS(path)[[1]]
+  # out
+  quick_mc_diagnostics(ret$fit)
+}
+
+age_param_map <- age_param_map %>% 
+  dplyr::mutate(results = purrr::map(path, read_process))
+
+
+```
+
+### Age Estimates Plot
+```{r, results='asis'}
+age_param_map$results
+```
+
+
+## Region Estimates 
+```{r, echo=TRUE}
+#...................... 
+# read in param map
+#......................
+rgn_param_map <- readRDS("results/_rslurm_newRandomNetuneMCMC_ESPRGN/params.RDS") %>% 
+  dplyr::mutate(param_set = paste0("results_", 0:(nrow(.)-1))) %>% 
+  dplyr::select(-c("modelobj")) %>% 
+  dplyr::mutate(
+    path = paste0("results/_rslurm_newRandomNetuneMCMC_ESPRGN/", param_set, ".RDS")
+  )
+
+#...................... 
+# read in results and downsize for mem
+#......................
+
+read_process <- function(path) {
+  ret <- readRDS(path)[[1]]
+  # out
+  quick_mc_diagnostics(ret$fit)
+}
+
+rgn_param_map <- rgn_param_map %>% 
+  dplyr::mutate(results = purrr::map(path, read_process))
+
+
+```
+
+### Region Estimates Plot
+```{r, results='asis'}
+rgn_param_map$results
+```
+
+
