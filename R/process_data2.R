@@ -391,11 +391,12 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
             message = "There was a mismatch in filtering population observations. Returned no observations")
 
   # get pop group demographics
-  popN <- sum(population$population)
+  totalpop <- sum(population$population)
   pop_prop.summ <- population %>%
     dplyr::group_by_at(groupingvar) %>%
     dplyr::summarise(
-      pop_prop = sum(population)/popN
+      popN = sum(population),
+      pop_prop = sum(population)/totalpop
     ) %>%
     dplyr::arrange(groupingvar)
 
