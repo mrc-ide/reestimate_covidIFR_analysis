@@ -29,8 +29,8 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   assert_dataframe(population)
   assert_dataframe(sero_val)
   assert_dataframe(seroprev)
-  assert_dataframe(cumulative)
-  assert_dataframe(groupingvar)
+  assert_logical(cumulative)
+  assert_string(groupingvar)
   assert_in(groupingvar, c("region", "ageband", "gender"))
   assert_string(study_ids)
   if (cumulative){
@@ -53,12 +53,11 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   # check columns for deaths df and dates
   assert_in(c("country", "study_id", "age_low", "age_high", "region", "gender", "n_deaths", "date_start_survey", "date_end_survey"),
             colnames(deaths))
-  deaths %>%
-    dplyr::filter(study_id %in% study_ids) %>%
-    assert_date(.$date_start_survey, message = "Seroprevalence date_start_survey is not in lubridate format \n")
-  deaths %>%
-    dplyr::filter(study_id %in% study_ids) %>%
-    assert_date(.$date_end_survey, message = "Seroprevalence date_start_survey is not in lubridate format \n")
+  chckdf <- deaths %>%
+    dplyr::filter(study_id %in% study_ids)
+  assert_date(chckdf$date_start_survey, message = "Deaths date_start_survey is not in lubridate format \n")
+  assert_date(chckdf$date_end_survey, message = "Deaths date_start_survey is not in lubridate format \n")
+
   # check columns for seroval
   assert_in(c("study_id", "sensitivity", "specificity"),
             colnames(sero_val))
@@ -66,12 +65,10 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   assert_in(c("country", "study_id", "age_low", "age_high", "region", "gender", "seroprevalence_unadjusted",
               "seroprevalence_weighted", "n_tested", "date_start_survey", "date_end_survey"),
             colnames(seroprev))
-  sero_prev %>%
-    dplyr::filter(study_id %in% study_ids) %>%
-    assert_date(.$date_start_survey, message = "Seroprevalence date_start_survey is not in lubridate format \n")
-  sero_prev %>%
-    dplyr::filter(study_id %in% study_ids) %>%
-    assert_date(.$date_end_survey, message = "Seroprevalence date_end_survey is not in lubridate format \n")
+  chckdf <- seroprev %>%
+    dplyr::filter(study_id %in% study_ids)
+  assert_date(chckdf$date_start_survey, message = "Seroprevalence date_start_survey is not in lubridate format \n")
+  assert_date(chckdf$date_end_survey, message = "Seroprevalence date_end_survey is not in lubridate format \n")
 
   # check ecdc
   if (cumulative){
@@ -172,7 +169,7 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     # if cumulative, recast from recast_deaths_df
     #......................
     recast_deaths_df <- recast_deaths_df %>%
-      dplyr::filter(georegion %in% geocode) %>%
+      dplyr::filter(georegion %in% recast_deaths_geocode) %>%
       dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date) - start_date)) %>%
       dplyr::filter(ObsDay >= 1) %>% # consistent origin
       dplyr::arrange(ObsDay)
@@ -339,11 +336,11 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   #......................
   seromidpt <- ceiling((0.5*(seroprev$ObsDaymax[1] + seroprev$ObsDaymin[1])))
   if (cumulative){
-  recast_deaths_at_sero <- recast_deaths_df %>%
-    dplyr::filter(ObsDay <= seromidpt)
-  deaths.prop <- deaths.prop %>%
-    mutate(deaths_at_sero = sum(recast_deaths_at_sero$deaths)*death_prop,
-           deaths_denom_at_sero = sum(recast_deaths_at_sero$deaths))
+    recast_deaths_at_sero <- recast_deaths_df %>%
+      dplyr::filter(ObsDay <= seromidpt)
+    deaths.prop <- deaths.prop %>%
+      mutate(deaths_at_sero = sum(recast_deaths_at_sero$deaths)*death_prop,
+             deaths_denom_at_sero = sum(recast_deaths_at_sero$deaths))
   } else {
     deaths.prop <- deaths %>%
       dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date_start_survey) - start_date)) %>%
@@ -394,11 +391,12 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
             message = "There was a mismatch in filtering population observations. Returned no observations")
 
   # get pop group demographics
-  popN <- sum(population$population)
+  totalpop <- sum(population$population)
   pop_prop.summ <- population %>%
     dplyr::group_by_at(groupingvar) %>%
     dplyr::summarise(
-      pop_prop = sum(population)/popN
+      popN = sum(population),
+      pop_prop = sum(population)/totalpop
     ) %>%
     dplyr::arrange(groupingvar)
 
