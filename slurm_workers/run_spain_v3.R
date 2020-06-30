@@ -12,7 +12,7 @@ source("R/covidcurve_helper_functions.R")
 #............................................................
 # read in AGE DATA and experiment
 #...........................................................
-age <- readRDS("data/derived/ESP/ESP_agebands_new.RDS")
+age <- readRDS("data/derived/ESP/ESP_agebands.RDS")
 
 
 #......................
@@ -37,20 +37,25 @@ wrap_make_IFR_model <- function(x) {
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf)
+  #......................
   # format data
-  dictkey <- tibble::tibble(Strata = age$obs_serology$Strata, key = paste0("ma", 1:10))
-  age$obs_serology <- dplyr::left_join(age$obs_serology, dictkey) %>%
-    dplyr::select(-c("Strata")) %>%
-    dplyr::rename(Strata = key) %>%
+  #......................
+  dictkey <- tibble::tibble(ageband = age$seroprev_group$ageband, Strata = paste0("ma", 1:10))
+  # deaths
+  age$deaths <- age$deaths %>%
+    dlyr::left_join(., dictkey) %>%
+    dplyr::select(c("ObsDay", "Strata", "Deaths"))
+  # seroprev
+  age$obs_serology <- dplyr::left_join(age$seroprev_group, dictkey) %>%
+    dplyr::mutate(SeroDay = "sero_day1") %>%
+    dplyr::rename(SeroPrev = seroprevalence) %>%
     dplyr::select(c("SeroDay", "Strata", "SeroPrev"))
 
   inputdata <- list(obs_deaths = age$deaths,
                     obs_serology = age$obs_serology)
 
-  demog <- age$demog %>%
+  demog <- age$prop_pop %>%
     dplyr::left_join(., dictkey) %>%
-    dplyr::select(-c("Strata")) %>%
-    dplyr::rename(Strata = key) %>%
     dplyr::select(c("Strata", "popN")) %>%
     dplyr::mutate(popN = round(popN))
 
@@ -83,8 +88,8 @@ wrap_make_IFR_model <- function(x) {
 #......................
 map <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
                          GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                         burnin = 1e4,
-                         samples = 1e4))
+                         burnin = 1e3,
+                         samples = 1e3))
 
 
 map$modelobj <- purrr::map(map$rungs, wrap_make_IFR_model)
@@ -131,7 +136,7 @@ sjob <- rslurm::slurm_apply(f = run_wrapper,
 #............................................................
 # read in REGION DATA and experiment
 #...........................................................
-rgn <- readRDS("data/derived/ESP/ESP_regions_new.RDS")
+rgn <- readRDS("data/derived/ESP/ESP_regions.RDS")
 
 
 #......................
@@ -156,22 +161,28 @@ wrap_make_IFR_model <- function(x) {
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf)
+  #......................
   # format data
-  dictkey <- tibble::tibble(Strata = rgn$obs_serology$Strata, key = paste0("ma", 1:17))
-  rgn$obs_serology <- dplyr::left_join(rgn$obs_serology, dictkey) %>%
-    dplyr::select(-c("Strata")) %>%
-    dplyr::rename(Strata = key) %>%
+  #......................
+  dictkey <- tibble::tibble(region = rgn$seroprev_group$region, Strata = paste0("ma", 1:10))
+  # deaths
+  rgn$deaths <- rgn$deaths %>%
+    dlyr::left_join(., dictkey) %>%
+    dplyr::select(c("ObsDay", "Strata", "Deaths"))
+  # seroprev
+  rgn$obs_serology <- dplyr::left_join(rgn$seroprev_group, dictkey) %>%
+    dplyr::mutate(SeroDay = "sero_day1") %>%
+    dplyr::rename(SeroPrev = seroprevalence) %>%
     dplyr::select(c("SeroDay", "Strata", "SeroPrev"))
 
   inputdata <- list(obs_deaths = rgn$deaths,
                     obs_serology = rgn$obs_serology)
 
-  demog <- rgn$demog %>%
+  demog <- rgn$prop_pop %>%
     dplyr::left_join(., dictkey) %>%
-    dplyr::select(-c("Strata")) %>%
-    dplyr::rename(Strata = key) %>%
     dplyr::select(c("Strata", "popN")) %>%
     dplyr::mutate(popN = round(popN))
+
 
 
   # make mod
