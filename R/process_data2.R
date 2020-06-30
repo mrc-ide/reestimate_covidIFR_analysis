@@ -1,11 +1,11 @@
 #' @title Process Data for IFR Inference
-#' @param deaths character path; path to death counts by strata
-#' @param population character path; path to population counts by strata
-#' @param sero_val character path; path to serovalidation file
-#' @param seroprev character path; path to seroprevalence file
+#' @param deaths dataframe; death counts by strata
+#' @param population dataframe; population counts by strata
+#' @param seroval dataframe; serovalidation data read from the serovalidation file
+#' @param seroprev ddataframe; seroprevalence data read from the seroprevalence file
 #' @param cumulative logical; Are the deaths cumulative to a given data or time-series
-#' @param ECDC character path; path to ECDC aggregate death counts file -- only evaluated if \code{cumulative} is TRUE
-#' @param geocode character; ECDC geocode to be considered (aligns with countryterritoryCode)
+#' @param recast_deaths_df ddataframe; Daily deaths counts used for recasting cumulative death proportions -- only evaluated if \code{cumulative} is TRUE. Columns names are date, georegion, and deaths, where deaths are an incident count and not a cumulative count
+#' @param recast_deaths_geocode character;Geocode to be subset the recast_deaths_df (filtered on the georegion column in the recast data dataframe)
 #' @param groupingvar character; name of strata(s) being considered
 #' @param study_ids character; Study id to be considered
 #' @param filtRegion character; region levels to keep
@@ -18,24 +18,24 @@
 
 source("R/assertions_v5.R")
 process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, seroprev = NULL,
-                          cumulative = FALSE, ECDC = NULL,
-                          groupingvar, study_ids, geocode,
+                          cumulative = FALSE, recast_deaths_df = NULL,
+                          groupingvar, study_ids, recast_deaths_geocode,
                           filtRegions = NULL, filtGender = NULL, filtAgeBand = NULL, death_agebreaks = NULL,
                           sero_agebreaks = NULL) {
   #......................
   # assertions and checks
   #......................
-  assert_string(deaths)
-  assert_string(population)
-  assert_string(sero_val)
-  assert_string(seroprev)
-  assert_logical(cumulative)
-  assert_string(groupingvar)
+  assert_dataframe(deaths)
+  assert_dataframe(population)
+  assert_dataframe(sero_val)
+  assert_dataframe(seroprev)
+  assert_dataframe(cumulative)
+  assert_dataframe(groupingvar)
   assert_in(groupingvar, c("region", "ageband", "gender"))
   assert_string(study_ids)
   if (cumulative){
-    assert_string(ECDC)
-    assert_string(geocode)
+    assert_dataframe(recast_deaths_df)
+    assert_string(recast_deaths_geocode)
   }
   if(!is.null(filtRegions)){
     assert_string(filtRegions)
@@ -47,32 +47,36 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     assert_string(filtAgeBand)
   }
 
-  #......................
-  # read in
-  #......................
-  deaths <- readr::read_csv(deaths)
-  population <- readr::read_csv(population)
-  sero_val <- readr::read_csv(sero_val)
-  seroprev <- readr::read_csv(seroprev)
-  if (cumulative){
-    ECDC <- readr::read_csv(ECDC)
-  }
-
-  #......................
-  # more assertions and checks
-  #......................
+  # check columns for population df
+  assert_in(c("country", "study_id", "age_low", "age_high", "region", "gender", "population"),
+            colnames(population))
+  # check columns for deaths df and dates
   assert_in(c("country", "study_id", "age_low", "age_high", "region", "gender", "n_deaths", "date_start_survey", "date_end_survey"),
             colnames(deaths))
-  assert_in(c("country", "study_id", "age_low", "age_high", "region", "gender", "population", "date"),
-            colnames(population))
+  deaths %>%
+    dplyr::filter(study_id %in% study_ids) %>%
+    assert_date(.$date_start_survey, message = "Seroprevalence date_start_survey is not in lubridate format \n")
+  deaths %>%
+    dplyr::filter(study_id %in% study_ids) %>%
+    assert_date(.$date_end_survey, message = "Seroprevalence date_start_survey is not in lubridate format \n")
+  # check columns for seroval
   assert_in(c("study_id", "sensitivity", "specificity"),
             colnames(sero_val))
-  assert_in(c("country", "study_id", "age_low", "age_high", "region", "gender", "seroprevalence_unadjusted", "date_start_survey", "date_end_survey"),
+  # check columns for seroprev df and dates
+  assert_in(c("country", "study_id", "age_low", "age_high", "region", "gender", "seroprevalence_unadjusted",
+              "seroprevalence_weighted", "n_tested", "date_start_survey", "date_end_survey"),
             colnames(seroprev))
+  sero_prev %>%
+    dplyr::filter(study_id %in% study_ids) %>%
+    assert_date(.$date_start_survey, message = "Seroprevalence date_start_survey is not in lubridate format \n")
+  sero_prev %>%
+    dplyr::filter(study_id %in% study_ids) %>%
+    assert_date(.$date_end_survey, message = "Seroprevalence date_end_survey is not in lubridate format \n")
+
   # check ecdc
   if (cumulative){
-    assert_in(c("dateRep", "deaths", "countryterritoryCode"),
-              colnames(ECDC))
+    assert_in(c("date", "georegion", "deaths"),
+              colnames(recast_deaths_df))
   }
 
   # check daily time steps are daily
@@ -85,17 +89,16 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   #...........................................................
   if (cumulative) {
     deaths <- deaths %>%
-      dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey),
-                    date_end_survey = lubridate::dmy(date_end_survey),
+      dplyr::mutate(date_start_survey = lubridate::ymd(date_start_survey),
+                    date_end_survey = lubridate::ymd(date_end_survey),
                     start_date = min(date_start_survey),
                     ObsDay = as.numeric(date_end_survey - start_date)) %>%
       dplyr::filter(study_id %in% study_ids)
-    warning("Assuming you are using European date format")
 
   } else {
     deaths <- deaths %>%
-      dplyr::mutate(start_date = min(lubridate::dmy(deaths$date_start_survey)),
-                    ObsDay = as.numeric(lubridate::dmy(date_end_survey) - start_date)) %>%
+      dplyr::mutate(start_date = min(lubridate::ymd(deaths$date_start_survey)),
+                    ObsDay = as.numeric(lubridate::ymd(date_end_survey) - start_date)) %>%
       dplyr::filter(study_id %in% study_ids)
     warning("Assuming you are using European date format")
   }
@@ -121,8 +124,8 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   # save study start date for later -- this is our index time 0
   start_date <- unique(deaths$start_date)
 
-  ### Iran data processing. Need to rescale ECDC deaths as we only have one region.
-  if(study_ids == "IRN1") {
+  ### Iran data processing. Need to rescale recast_deaths_df as we only have one region.
+  if (study_ids == "IRN1") {
     ### extract total deaths in Guilan for the time point where we have region specific deaths.
     ## (the age specific deaths are not complete and wrong date so cannot use them for total deaths absolute numbers)
     tot_deaths_iran<-deaths %>%
@@ -133,7 +136,7 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   if (groupingvar == "region") {
     deaths <- deaths %>%
       dplyr::filter(for_regional_analysis == 1)
-    if(!is.null(filtRegions)) {
+    if (!is.null(filtRegions)) {
       deaths <- deaths %>%
         dplyr::filter(region %in% filtRegions)
     }
@@ -166,23 +169,22 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
       stop("Cumulative data has multiple end dates")
     }
     #......................
-    # if cumulative, recast from ECDC
+    # if cumulative, recast from recast_deaths_df
     #......................
-    #upperlim <- unique(deaths$ObsDay)
-    ECDC <- ECDC %>%
-      dplyr::filter(countryterritoryCode %in% geocode) %>%
-      dplyr::mutate(ObsDay = as.numeric(lubridate::dmy(dateRep) - start_date)) %>%
-      dplyr::filter(ObsDay >= 1) %>%
+    recast_deaths_df <- recast_deaths_df %>%
+      dplyr::filter(georegion %in% geocode) %>%
+      dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date) - start_date)) %>%
+      dplyr::filter(ObsDay >= 1) %>% # consistent origin
       dplyr::arrange(ObsDay)
 
     ### For Iran, scale deaths down to represent Guilan region (assuming it has a similar time course)
-    if(study_ids == "IRN1") {
+    if (study_ids == "IRN1") {
       # obtain scaling factor
-      ecdc_tot_deaths_iran <- ECDC %>%
+      recast_tot_deaths_iran <- recast_deaths_df %>%
         dplyr::filter(ObsDay <= tot_deaths_iran$ObsDay)
-      scale_iran <- tot_deaths_iran$n_deaths / sum(ecdc_tot_deaths_iran$deaths)
-      ## now scale all ECDC deaths for this region before we use them
-      ECDC$deaths<- ECDC$deaths * scale_iran
+      scale_iran <- tot_deaths_iran$n_deaths / sum(recast_tot_deaths_iran$deaths)
+      ## now scale all recast_deaths_df deaths for this region before we use them
+      recast_deaths_df$deaths<- recast_deaths_df$deaths * scale_iran
     }
 
     # now multiple proportions to get time series
@@ -190,8 +192,8 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
       dplyr::mutate(ObsDay = max(date_end_survey)) %>%
       dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
       dplyr::summarise(death_num = sum(n_deaths),
-                       age_low=mean(age_low),
-                       age_high=mean(age_high)) %>%
+                       age_low = mean(age_low),
+                       age_high = mean(age_high)) %>%
       dplyr::arrange(age_low)
     # store group names
     groupvarnames <- group_keys(deaths.prop)
@@ -202,9 +204,9 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
                     death_prop = death_num/death_denom) # protect against double counting of same person in multiple groups
 
     # now recast proportions across days equally
-    deaths.summ <- as.data.frame(matrix(NA, nrow = nrow(deaths.prop), ncol = max(ECDC$ObsDay)))
+    deaths.summ <- as.data.frame(matrix(NA, nrow = nrow(deaths.prop), ncol = max(recast_deaths_df$ObsDay)))
     for (i in 1:ncol(deaths.summ)) {
-      deaths.summ[,i] <- deaths.prop$death_prop * ECDC$deaths[i]
+      deaths.summ[,i] <- deaths.prop$death_prop * recast_deaths_df$deaths[i]
     }
     # need to round to nearest person
     deaths.summ <- round(deaths.summ)
@@ -223,10 +225,9 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     #......................
 
     deaths.summ <- deaths %>%
-      dplyr::mutate(ObsDay = as.numeric(lubridate::dmy(date_start_survey) - start_date)) %>%
+      dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date_start_survey) - start_date)) %>%
       dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
       dplyr::summarise( Deaths = sum(n_deaths) )
-    warning("Assuming you are using European date format")
   }
 
 
@@ -235,13 +236,11 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   # process seroprev data
   #...........................................................
   seroprev <- seroprev %>%
-    dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey),
-                  date_end_survey = lubridate::dmy(date_end_survey),
+    dplyr::mutate(date_start_survey = lubridate::ymd(date_start_survey),
+                  date_end_survey = lubridate::ymd(date_end_survey),
                   ObsDaymin = as.numeric(date_start_survey - start_date),
                   ObsDaymax = as.numeric(date_end_survey - start_date)) %>%
     dplyr::filter(study_id %in% study_ids)
-  warning("Assuming you are using European date format")
-
 
   # various filters for serology data
   if (groupingvar == "region"){
@@ -338,11 +337,22 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   #......................
   # get deaths at midpoint of survey
   #......................
-  ecdc_deaths_at_sero <- ECDC %>%
-    dplyr::filter(ObsDay <= ceiling((0.5*(seroprev$ObsDaymax[1] + seroprev$ObsDaymin[1]))))
+  seromidpt <- ceiling((0.5*(seroprev$ObsDaymax[1] + seroprev$ObsDaymin[1])))
+  if (cumulative){
+  recast_deaths_at_sero <- recast_deaths_df %>%
+    dplyr::filter(ObsDay <= seromidpt)
   deaths.prop <- deaths.prop %>%
-    mutate(deaths_at_sero = sum(ecdc_deaths_at_sero$deaths)*death_prop,
-           deaths_denom_at_sero = sum(ecdc_deaths_at_sero$deaths))
+    mutate(deaths_at_sero = sum(recast_deaths_at_sero$deaths)*death_prop,
+           deaths_denom_at_sero = sum(recast_deaths_at_sero$deaths))
+  } else {
+    deaths.prop <- deaths %>%
+      dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date_start_survey) - start_date)) %>%
+      dplyr::group_by_at(c(groupingvar)) %>%
+      dplyr::summarise( deaths_at_sero = sum(n_deaths) ) %>%
+      dplyr::filter(ObsDay <= seromidpt) %>%
+      dplyr::mutate(deaths_denom_at_sero = sum(deaths_at_sero))
+
+  }
 
   #...........................................................
   # process population
@@ -388,11 +398,9 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   pop_prop.summ <- population %>%
     dplyr::group_by_at(groupingvar) %>%
     dplyr::summarise(
-      pop_prop = sum(population)/popN,
-      age_low = mean(age_low),
-      age_high = mean(age_high)
+      pop_prop = sum(population)/popN
     ) %>%
-    dplyr::arrange(age_low)
+    dplyr::arrange(groupingvar)
 
   #............................................................
   # process test sens/spec
@@ -407,7 +415,6 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     deaths = deaths.summ,
     seroprev = seroprev.summ,
     prop_pop = pop_prop.summ,
-    popN = popN,
     sero_sens = sero_val$sensitivity,
     sero_spec = sero_val$specificity,
     seroprev_group = seroprev.summ.group,
@@ -416,6 +423,7 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   return(ret)
 
 }
+
 
 
 #............................................................
@@ -463,8 +471,8 @@ process_data_usa_facts <- function(deaths = NULL, population = NULL, sero_val = 
   # save study start date for later -- this is our index time 0
   start_date <- min(lubridate::mdy(timeSeries$Date))
   timeSeries <- timeSeries %>%
-    dplyr::mutate(start_date = min(lubridate::mdy(timeSeries$Date)),
-                  ObsDay = as.numeric(lubridate::mdy(Date) - start_date)) %>%
+    dplyr::mutate(start_date = min(lubridate::ymd(timeSeries$Date)),
+                  ObsDay = as.numeric(lubridate::ymd(Date) - start_date)) %>%
     dplyr::select(Date,ObsDay,study_ids) %>%
     dplyr::arrange(ObsDay) %>%
     dplyr::rename(deaths=study_ids)
@@ -496,7 +504,7 @@ process_data_usa_facts <- function(deaths = NULL, population = NULL, sero_val = 
 
   ## dates
   deaths <- deaths %>%
-    dplyr::mutate(ObsDay = as.numeric(lubridate::dmy(date_end_survey) - start_date))
+    dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date_end_survey) - start_date))
 
   # handle age
   agebrks <- c(0, sort(unique(deaths$age_high)))
@@ -557,8 +565,8 @@ process_data_usa_facts <- function(deaths = NULL, population = NULL, sero_val = 
   # handle sero dates and subset
   seroprev <- seroprev %>%
     dplyr::filter(study_id %in% study_ids) %>%
-    dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey),
-                  date_end_survey = lubridate::dmy(date_end_survey),
+    dplyr::mutate(date_start_survey = lubridate::ymd(date_start_survey),
+                  date_end_survey = lubridate::ymd(date_end_survey),
                   ObsDaymin = as.numeric(date_start_survey - start_date),
                   ObsDaymax = as.numeric(date_end_survey - start_date))
   warning("Assuming you are using European date format for seroprevalence")
@@ -718,6 +726,7 @@ process_data_usa_facts <- function(deaths = NULL, population = NULL, sero_val = 
 
 }
 
+
 #...........................................................
 #' @title Separate Process Data function for US where we have a time series of deaths but no other info
 #' @param population character path; path to population counts by strata
@@ -730,9 +739,9 @@ process_data_usa_facts <- function(deaths = NULL, population = NULL, sero_val = 
 #' @import tidyverse
 #' NB, this isn't a package, so ^^ is just a reminder to users to have tidyverse loaded in order to allow embracing and piping to work as expected
 
-process_usa_basic_data_timeseries<-function(population = NULL, sero_val = NULL, seroprev = NULL,
-                                            timeSeriesFile = NULL,
-                                            study_ids, state, county) {
+process_usa_basic_data_timeseries <- function(population = NULL, sero_val = NULL, seroprev = NULL,
+                                              timeSeriesFile = NULL,
+                                              study_ids, state, county) {
   population <- readr::read_csv(population)
   sero_val <- readr::read_csv(sero_val)
   seroprev <- readr::read_csv(seroprev)
@@ -767,8 +776,8 @@ process_usa_basic_data_timeseries<-function(population = NULL, sero_val = NULL, 
             message = "There was a mismatch in filtering seroprevalence observations. Returned no observations")
   # fix dates
   seroprev <- seroprev %>%
-    dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey),
-                  date_end_survey = lubridate::dmy(date_end_survey),
+    dplyr::mutate(date_start_survey = lubridate::ymd(date_start_survey),
+                  date_end_survey = lubridate::ymd(date_end_survey),
                   ObsDaymin = as.numeric(date_start_survey - start_date),
                   ObsDaymax = as.numeric(date_end_survey - start_date))
   warning("Assuming you are using European date format for seroprevalence")
@@ -863,3 +872,6 @@ process_jhu_timeseries_long <- function(jhufile, county, state) {
   # out
   return(jhu.filt)
 }
+
+
+
