@@ -164,7 +164,7 @@ wrap_make_IFR_model <- function(x) {
   #......................
   # format data
   #......................
-  dictkey <- tibble::tibble(region = rgn$seroprev_group$region, Strata = paste0("ma", 1:10))
+  dictkey <- tibble::tibble(region = rgn$seroprev_group$region, Strata = paste0("ma", 1:17))
   # deaths
   rgn$deaths <- rgn$deaths %>%
     dplyr::left_join(., dictkey) %>%
