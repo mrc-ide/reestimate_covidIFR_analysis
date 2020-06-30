@@ -43,7 +43,7 @@ wrap_make_IFR_model <- function(x) {
   dictkey <- tibble::tibble(ageband = age$seroprev_group$ageband, Strata = paste0("ma", 1:10))
   # deaths
   age$deaths <- age$deaths %>%
-    dlyr::left_join(., dictkey) %>%
+    dplyr::left_join(., dictkey) %>%
     dplyr::select(c("ObsDay", "Strata", "Deaths"))
   # seroprev
   age$obs_serology <- dplyr::left_join(age$seroprev_group, dictkey) %>%
@@ -167,7 +167,7 @@ wrap_make_IFR_model <- function(x) {
   dictkey <- tibble::tibble(region = rgn$seroprev_group$region, Strata = paste0("ma", 1:10))
   # deaths
   rgn$deaths <- rgn$deaths %>%
-    dlyr::left_join(., dictkey) %>%
+    dplyr::left_join(., dictkey) %>%
     dplyr::select(c("ObsDay", "Strata", "Deaths"))
   # seroprev
   rgn$obs_serology <- dplyr::left_join(rgn$seroprev_group, dictkey) %>%
