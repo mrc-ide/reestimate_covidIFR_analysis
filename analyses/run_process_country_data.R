@@ -313,10 +313,30 @@ NYC_NY_1.regions.dat<-process_usa_basic_data_timeseries(population = populationF
                                                         state = "New York",
                                                         county = c("New York County","Kings County","Bronx County",
                                                                    "Richmond County","Queens County"))
-## fix population. TODO - fix properly in code.
+## fix population. TODO - fix properly in code. (copy from usafacts function)
 NYC_NY_1.regions.dat$popN <- 8399000
 saveRDS(NYC_NY_1.regions.dat, "data/derived/USA/NYC_NY_1_regions.RDS")
 
+deathsFile <- "data/raw/deaths.csv"
+populationFile <- "data/raw/USA_County_Demographic_Data.csv"
+sero_valFile <- "data/raw/seroassay_validation.csv"
+seroprevFile <- "data/raw/seroprevalence.csv"
+timeSeriesFile <- "data/raw/covid_deaths_usafacts_study_countys.csv"
+
+NYC_NY_1.agebands.dat<-process_data_usa_facts(deaths = deathsFile, population = populationFile,
+                                              sero_val = sero_valFile, seroprev = seroprevFile,
+                                   timeSeriesFile = timeSeriesFile,
+                                   groupingvar = "ageband", study_ids = "NYC_NY_1",
+                                   state = "New York",
+                                   county = c("New York County","Kings County","Bronx County",
+                                              "Richmond County","Queens County"))
+# US demographic data is by 5 year age bands, but covid deaths have 0-17, so adjust manually.
+## using https://www.census.gov/quickfacts/newyorkcitynewyork
+NYC_NY_1.agebands.dat$prop_pop$pop_prop[2]<-NYC_NY_1.agebands.dat$prop_pop$pop_prop[1] +
+  NYC_NY_1.agebands.dat$prop_pop$pop_prop[2] - 0.209
+NYC_NY_1.agebands.dat$prop_pop$pop_prop[1]<-0.209
+
+saveRDS(NYC_NY_1.agebands.dat, "data/derived/USA/NYC_NY_1_agebands.RDS")
 
 #..................................................................................
 # Latin America Data
