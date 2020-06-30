@@ -1,13 +1,13 @@
-####################################################################################
+#................................................................................................
 ## Purpose: Process Country datasets for analysis
 ##
 ## Notes: Process data functions and files are specific to regions
-####################################################################################
+#................................................................................................
 library(tidyverse)
 source("R/process_data2.R")
 
 #..................................................................................
-# Preprocess Data for numerous Eurasia studies
+#---- Preprocess Eurasia Data #----
 #..................................................................................
 # deaths
 deathsdf <- readr::read_csv("data/raw/deaths.csv") %>%
@@ -27,10 +27,15 @@ populationdf <- readr::read_csv("data/raw/population.csv") %>%
 # seroprev
 sero_valdf <- readr::read_csv("data/raw/seroassay_validation.csv")
 sero_prevdf <- readr::read_csv("data/raw/seroprevalence.csv") %>%
-  dplyr::select(-c("ref", "notes", "X22", "X23")) # extra note cols
+  dplyr::select(-c("ref", "notes")) %>%
+  dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+                date_end_survey = lubridate::dmy(date_end_survey))
 
 
 
+#..................................................................................
+#----- Process Eurasia Data #-----
+#..................................................................................
 #............................................................
 # Spain
 #...........................................................
@@ -60,7 +65,7 @@ ESP.regions.dat$deaths$Deaths[ESP.regions.dat$deaths$ObsDay == 118] <- -1
 # save out
 #......................
 dir.create("data/derived/ESP", recursive = T)
-saveRDS(ESP.regions.dat, "data/derived/ESP/ESP_regions.RDS")
+saveRDS(ESP.regions.dat, "data/derived/ESP/ESP_regions_new.RDS")
 
 
 #............................................................
@@ -238,34 +243,27 @@ saveRDS(SWE.agebands.dat, "data/derived/SWE/SWE_agebands.RDS")
 
 
 #..................................................................................
-# USA Data
+#---- Preprocess USA Data  #-----
 #..................................................................................
-source("R/misc_USA.R")
-#######################
-# USA data.
-### For LA_CA, SC_CA,  CH_MA, MD_FL - use USA facts (?). And process_usa_basic_data_timeseries to get overall estimates.
-
-deathsdf <- "data/raw/deaths.csv"
-populationdf <- "data/raw/USA_County_Demographic_Data.csv"
-sero_valdf <- "data/raw/seroassay_validation.csv"
-sero_prevdf <- "data/raw/seroprevalence.csv"
-timeSeriesFile <- "data/raw/covid_deaths_usafacts_study_countys.csv"
+deathsdf <- readr::read_csv("data/raw/deaths.csv")
+populationdf <-  readr::read_csv("data/raw/USA_County_Demographic_Data.csv")
+sero_valdf <-  readr::read_csv("data/raw/seroassay_validation.csv")
+sero_prevdf <-  readr::read_csv("data/raw/seroprevalence.csv")
+timeSeriesFile <-  readr::read_csv("data/raw/covid_deaths_usafacts_study_countys.csv")
 
 
+#..................................................................................
+#---- Process USA Data #-----
+#..................................................................................
+
+
+#..................................................................................
+#---- _BASIC_ USA data  #----
+# For LA_CA, SC_CA,  CH_MA, MD_FL - use USA facts (?). And process_usa_basic_data_timeseries to get overall estimates.
+#..................................................................................
 #............................................................
 # Los Angeles, CA
 #...........................................................
-# LA_CA - process for age and for region.
-LA_CA.regions.dat <- process_usa_basic_data_timeseries(population = populationdf,
-                                                       sero_val = sero_valdf,
-                                                       seroprev = sero_prevdf,
-                                                       timeSeriesFile = timeSeriesFile,
-                                                       study_ids = "LA_CA",
-                                                       state = "California",
-                                                       county = "Los Angeles County")
-
-
-
 LA_CA.agebands.dat <- process_data_usa_facts(deaths = deathsdf,
                                              population = populationdf,
                                              sero_val = sero_valdf,
@@ -279,7 +277,50 @@ LA_CA.agebands.dat <- process_data_usa_facts(deaths = deathsdf,
 
 dir.create("data/derived/USA", recursive = T)
 saveRDS(LA_CA.agebands.dat, "data/derived/USA/LA_CA_agebands.RDS")
+
+
+## fix population. TODO - fix properly in code. (copy from usafacts function)
+NYC_NY_1.regions.dat$popN <- 8399000
+saveRDS(NYC_NY_1.regions.dat, "data/derived/USA/NYC_NY_1_regions.RDS")
+
+deathsFile <- "data/raw/deaths.csv"
+populationFile <- "data/raw/USA_County_Demographic_Data.csv"
+sero_valFile <- "data/raw/seroassay_validation.csv"
+seroprevFile <- "data/raw/seroprevalence.csv"
+timeSeriesFile <- "data/raw/covid_deaths_usafacts_study_countys.csv"
+
+#............................................................
+# New York City, NY
+#...........................................................
+NYC_NY_1.agebands.dat<-process_data_usa_facts(deaths = deathsFile, population = populationFile,
+                                              sero_val = sero_valFile, seroprev = seroprevFile,
+                                              timeSeriesFile = timeSeriesFile,
+                                              groupingvar = "ageband", study_ids = "NYC_NY_1",
+                                              state = "New York",
+                                              county = c("New York County","Kings County","Bronx County",
+                                                         "Richmond County","Queens County"))
+# US demographic data is by 5 year age bands, but covid deaths have 0-17, so adjust manually.
+## using https://www.census.gov/quickfacts/newyorkcitynewyork
+NYC_NY_1.agebands.dat$prop_pop$pop_prop[2]<-NYC_NY_1.agebands.dat$prop_pop$pop_prop[1] +
+  NYC_NY_1.agebands.dat$prop_pop$pop_prop[2] - 0.209
+NYC_NY_1.agebands.dat$prop_pop$pop_prop[1]<-0.209
+
+saveRDS(NYC_NY_1.agebands.dat, "data/derived/USA/NYC_NY_1_agebands.RDS")
+
+
+#............................................................
+# Los Angeles, CA
+#...........................................................
+# LA_CA - process for age and for region.
+LA_CA.regions.dat <- process_usa_basic_data_timeseries(population = populationdf,
+                                                       sero_val = sero_valdf,
+                                                       seroprev = sero_prevdf,
+                                                       timeSeriesFile = timeSeriesFile,
+                                                       study_ids = "LA_CA",
+                                                       state = "California",
+                                                       county = "Los Angeles County")
 saveRDS(LA_CA.regions.dat, "data/derived/USA/LA_CA_regions.RDS")
+
 
 #............................................................
 # Santa Clara, CA
@@ -332,33 +373,9 @@ NYC_NY_1.regions.dat<-process_usa_basic_data_timeseries(population = populationd
                                                         state = "New York",
                                                         county = c("New York County","Kings County","Bronx County",
                                                                    "Richmond County","Queens County"))
-## fix population. TODO - fix properly in code. (copy from usafacts function)
-NYC_NY_1.regions.dat$popN <- 8399000
-saveRDS(NYC_NY_1.regions.dat, "data/derived/USA/NYC_NY_1_regions.RDS")
-
-deathsFile <- "data/raw/deaths.csv"
-populationFile <- "data/raw/USA_County_Demographic_Data.csv"
-sero_valFile <- "data/raw/seroassay_validation.csv"
-seroprevFile <- "data/raw/seroprevalence.csv"
-timeSeriesFile <- "data/raw/covid_deaths_usafacts_study_countys.csv"
-
-NYC_NY_1.agebands.dat<-process_data_usa_facts(deaths = deathsFile, population = populationFile,
-                                              sero_val = sero_valFile, seroprev = seroprevFile,
-                                   timeSeriesFile = timeSeriesFile,
-                                   groupingvar = "ageband", study_ids = "NYC_NY_1",
-                                   state = "New York",
-                                   county = c("New York County","Kings County","Bronx County",
-                                              "Richmond County","Queens County"))
-# US demographic data is by 5 year age bands, but covid deaths have 0-17, so adjust manually.
-## using https://www.census.gov/quickfacts/newyorkcitynewyork
-NYC_NY_1.agebands.dat$prop_pop$pop_prop[2]<-NYC_NY_1.agebands.dat$prop_pop$pop_prop[1] +
-  NYC_NY_1.agebands.dat$prop_pop$pop_prop[2] - 0.209
-NYC_NY_1.agebands.dat$prop_pop$pop_prop[1]<-0.209
-
-saveRDS(NYC_NY_1.agebands.dat, "data/derived/USA/NYC_NY_1_agebands.RDS")
 
 #..................................................................................
-# Latin America Data
+#----- Process Latin America Data #-----
 #..................................................................................
 #............................................................
 # Brazil
