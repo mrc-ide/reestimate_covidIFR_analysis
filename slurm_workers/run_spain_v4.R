@@ -185,4 +185,10 @@ plan <- drake::drake_plan(
 #......................
 options(clustermq.scheduler = "slurm",
         clustermq.template = "slurm_workers/slurm_clustermq_LL.tmpl")
-make(plan)
+make(plan, parallelism = "clustermq", jobs = nrow(file_param_map))
+
+
+
+
+
+
