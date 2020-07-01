@@ -7,11 +7,48 @@ editor_options:
 # Tuning GTI for MC
 Here we will use the Spain data. 
 ```{r}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, 
+                      message = FALSE, eval = TRUE, 
+                      results = 'hide', fig.align = 'center')
+knitr::opts_knit$set(root.dir = here::here())
+```
+```{r}
 library(COVIDCurve)
 library(drjacoby)
 library(tidyverse)
+library(cowplot)
 source("R/extra_MCMC_plotting_functions.R")
 ```
+
+```{r}
+
+read_process <- function(path) {
+  ret <- readRDS(path)[[1]]
+  # look at likelihoods
+  logplot <- ret$fit$mcmcout$output %>%
+    dplyr::filter(rung == "rung1") %>%
+    dplyr::filter(stage == "sampling") %>%
+    dplyr::select(c("iteration", "loglikelihood", "logprior")) %>%
+    tidyr::gather(., key = "like", value = "val", 2:3) %>%
+    ggplot() +
+    geom_line(aes(x = iteration, y = val, color = like), size = 0.1, alpha = 0.8) +
+    facet_wrap(.~like, scales = "free_y") +
+    theme_bw()
+  
+  # mcmc diagn
+  plotObj <- quick_mc_diagnostics(ret$fit)
+  title_gg <- ggplot() + 
+    labs(title = paste0("GTI power: ", ret$fit$inputs$GTI_pow, "; ", 
+                        "Rungs: ", ret$fit$inputs$rungs, "; ", 
+                        "Burnin: ", ret$fit$inputs$burnin, "; ", 
+                        "Sample: ", ret$fit$inputs$samples
+    ))
+  # out
+  cowplot::plot_grid(title_gg, logplot, plotObj, ncol = 1, rel_heights = c(0.15, 0.25, 1))
+}
+
+```
+
 
 ## Age Estimates 
 ```{r, echo=TRUE}
@@ -25,16 +62,16 @@ age_param_map <- readRDS("results/_rslurm_newRandomNetuneMCMC_ESPage/params.RDS"
     path = paste0("results/_rslurm_newRandomNetuneMCMC_ESPage/", param_set, ".RDS")
   )
 
+# temp
+filelist <- list.files(path = "results/_rslurm_newRandomNetuneMCMC_ESPage/",
+                       pattern = "results_[0-9].RDS")
+age_param_map <- age_param_map %>% 
+  dplyr::filter(basename(path) %in% filelist)
+
+
 #...................... 
 # read in results and downsize for mem
 #......................
-
-read_process <- function(path) {
-  ret <- readRDS(path)[[1]]
-  # out
-  quick_mc_diagnostics(ret$fit)
-}
-
 age_param_map <- age_param_map %>% 
   dplyr::mutate(results = purrr::map(path, read_process))
 
@@ -42,7 +79,7 @@ age_param_map <- age_param_map %>%
 ```
 
 ### Age Estimates Plot
-```{r, results='asis'}
+```{r, results='asis', fig.height=10}
 age_param_map$results
 ```
 
@@ -59,16 +96,16 @@ rgn_param_map <- readRDS("results/_rslurm_newRandomNetuneMCMC_ESPRGN/params.RDS"
     path = paste0("results/_rslurm_newRandomNetuneMCMC_ESPRGN/", param_set, ".RDS")
   )
 
+# temp
+filelist <- list.files(path = "results/_rslurm_newRandomNetuneMCMC_ESPRGN/",
+                       pattern = "results_[0-9].RDS")
+rgn_param_map <- rgn_param_map %>% 
+  dplyr::filter(basename(path) %in% filelist)
+
+
 #...................... 
 # read in results and downsize for mem
 #......................
-
-read_process <- function(path) {
-  ret <- readRDS(path)[[1]]
-  # out
-  quick_mc_diagnostics(ret$fit)
-}
-
 rgn_param_map <- rgn_param_map %>% 
   dplyr::mutate(results = purrr::map(path, read_process))
 
@@ -76,7 +113,7 @@ rgn_param_map <- rgn_param_map %>%
 ```
 
 ### Region Estimates Plot
-```{r, results='asis'}
+```{r, results='asis', fig.height = 10}
 rgn_param_map$results
 ```
 

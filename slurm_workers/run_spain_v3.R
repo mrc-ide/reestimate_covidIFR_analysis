@@ -1,24 +1,31 @@
 ####################################################################################
-## Purpose: run spain on LL
+## Purpose: This is a script that will wrap a DRAKE make process to
+##          run multiple ESP data iterations to fine to the MCoupling
+##          params
 ##
 ## Notes:
 ####################################################################################
 setwd("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis")
-library(rslurm)
+library(drake)
+library(parallel)
 library(COVIDCurve)
 library(tidyverse)
 source("R/covidcurve_helper_functions.R")
 
+
 #............................................................
-# read in AGE DATA and experiment
+# Read in Data and Make Model Objects
 #...........................................................
+#......................
+# read in AGE DATA and experiment
+#......................
 age <- readRDS("data/derived/ESP/ESP_agebands.RDS")
 
 
 #......................
-# make IFR models
+# make IFR models for AGE
 #......................
-wrap_make_IFR_model <- function(x) {
+wrap_make_IFR_model_age <- function(x) {
   # make dfs
   ifr_paramsdf <- make_ma_reparamdf(num_mas = 10)
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 125, init = 131, max = 137, dsc1 = 125, dsc2 = 137),
@@ -83,66 +90,19 @@ wrap_make_IFR_model <- function(x) {
   mod1
 }
 
-#......................
-# make maps
-#......................
-map <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
-                         GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                         burnin = 1e3,
-                         samples = 1e3))
 
 
-map$modelobj <- purrr::map(map$rungs, wrap_make_IFR_model)
 
 #......................
-# wrapper for run
-#......................
-run_wrapper <- function(modelobj, rungs, GTI_pow, burnin, samples) {
-  fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = modelobj,
-                                      reparamIFR = TRUE,
-                                      reparamInfxn = TRUE,
-                                      reparamKnots = TRUE,
-                                      chains = 10,
-                                      burnin = burnin,
-                                      samples = samples,
-                                      rungs = rungs,
-                                      GTI_pow = GTI_pow)
-  mc_accept_mean <- mean(fit$mcmcout$diagnostics$mc_accept$value)
-  mc_accept_min <- min(fit$mcmcout$diagnostics$mc_accept$value)
-  out <- list(fit = fit,
-              mc_accept_mean = mc_accept_mean,
-              mc_accept_min = mc_accept_min)
-  return(out)
-}
-
-#......................
-# send out on slurm
-#......................
-ntry <- 30
-sjob <- rslurm::slurm_apply(f = run_wrapper,
-                            params = map,
-                            jobname = 'newRandomNetuneMCMC_ESPage',
-                            nodes = ntry,
-                            cpus_per_node = 1,
-                            submit = T,
-                            slurm_options = list(mem = "24g",
-                                                 'cpus-per-task' = 1,
-                                                 error =  "%A_%a.err",
-                                                 output = "%A_%a.out",
-                                                 time = "2-00:00:00"))
-
-
-
-#............................................................
 # read in REGION DATA and experiment
-#...........................................................
+#......................
 rgn <- readRDS("data/derived/ESP/ESP_regions.RDS")
 
 
 #......................
 # make IFR models
 #......................
-wrap_make_IFR_model <- function(x) {
+wrap_make_IFR_model_region <- function(x) {
   # make dfs
   ifr_paramsdf <- make_ma_reparamdf(num_mas = 17)
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 125, init = 131, max = 137, dsc1 = 125, dsc2 = 137),
@@ -183,8 +143,6 @@ wrap_make_IFR_model <- function(x) {
     dplyr::select(c("Strata", "popN")) %>%
     dplyr::mutate(popN = round(popN))
 
-
-
   # make mod
   mod1 <- make_IFRmodel_agg$new()
   mod1$set_MeanOnset(18.8)
@@ -207,6 +165,100 @@ wrap_make_IFR_model <- function(x) {
   # out
   mod1
 }
+
+
+#............................................................
+# Set up maps and functions to put out on slurm
+#...........................................................
+
+
+#......................
+# make maps
+#......................
+agemap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
+                                        GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
+                                        burnin = 1e4,
+                                        samples = 1e4)) %>%
+  dplyr::mutate(lvl = "age")
+
+agemap$modelobj <- purrr::map(1:nrow(agemap), wrap_make_IFR_model_age)
+
+rgnmap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
+                                        GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
+                                        burnin = 1e4,
+                                        samples = 1e4)) %>%
+  dplyr::mutate(lvl = "region")
+
+rgnmap$modelobj <- purrr::map(1:nrow(rgnmap), wrap_make_IFR_model_region)
+
+# bring together
+map <- dplyr::bind_rows(agemap, rgnmap)
+
+
+#......................
+# make MCMC wrapper
+#......................
+run_wrapper <- function(modelobj, rungs, GTI_pow, burnin, samples) {
+  modelobj <- rlang::env_get(modelobj)
+  #......................
+  # make cluster object to parallelize chains
+  #......................
+  #n_chains <- 10
+  #cl <- parallel::makeCluster(n_chains)
+  fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = modelobj,
+                                      reparamIFR = TRUE,
+                                      reparamInfxn = TRUE,
+                                      reparamKnots = TRUE,
+                                      chains = n_chains,
+                                      burnin = burnin,
+                                      samples = samples,
+                                      rungs = rungs,
+                                      GTI_pow = GTI_pow,
+                                      cluster = NULL,
+                                      silent = FALSE)
+  mc_accept_mean <- mean(fit$mcmcout$diagnostics$mc_accept$value)
+  mc_accept_min <- min(fit$mcmcout$diagnostics$mc_accept$value)
+  out <- list(fit = fit,
+              mc_accept_mean = mc_accept_mean,
+              mc_accept_min = mc_accept_min)
+  return(out)
+}
+
+#............................................................
+# Make Drake Plan
+#...........................................................
+
+
+plan <- drake::drake_plan(
+  model = target(
+    run_wrapper(modelobj, rungs, GTI_pow, burnin, samples),
+    transform = map(
+      .data = !!map,
+      .id = c(rungs, GTI_pow)
+    )
+  ), max_expand = 2
+)
+make(plan)
+
+plan <- drake::map_plan(map, run_wrapper)
+
+#......................
+# call drake to send out to slurm
+#......................
+options(clustermq.scheduler = "slurm",
+        clustermq.template = "slurm_clustermq.tmpl")
+
+
+
+
+
+
+
+
+
+
+
+
 
 #......................
 # make maps
@@ -231,7 +283,8 @@ run_wrapper <- function(modelobj, rungs, GTI_pow, burnin, samples) {
                                       burnin = burnin,
                                       samples = samples,
                                       rungs = rungs,
-                                      GTI_pow = GTI_pow)
+                                      GTI_pow = GTI_pow,
+                                      silent = FALSE)
   mc_accept_mean <- mean(fit$mcmcout$diagnostics$mc_accept$value)
   mc_accept_min <- min(fit$mcmcout$diagnostics$mc_accept$value)
   out <- list(fit = fit,

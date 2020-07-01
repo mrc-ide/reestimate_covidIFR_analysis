@@ -17,6 +17,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, 
                       message = FALSE, eval = TRUE, 
                       results = 'hide', fig.align = 'center')
+knitr::opts_knit$set(root.dir = here::here())
 
 ```
 
