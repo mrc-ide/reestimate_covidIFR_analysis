@@ -176,7 +176,7 @@ plan <- drake::drake_plan(
     transform = map(
       .data = !!file_param_map
     )
-  ), max_expand = 4
+  )
 )
 
 
