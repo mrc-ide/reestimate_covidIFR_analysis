@@ -114,6 +114,15 @@ lapply(split(param_map.fit, 1:nrow(param_map.fit)), function(x){
                     x$lvl, "_GTI", x$GTI_pow, "_rung", x$rungs, "_burn", x$burnin, "_smpl", x$samples, ".RDS"))
 })
 
+#......................
+# for snake
+#......................
+param_map_snake <- gsub(".RDS", "", list.files(path = "data/param_map/", pattern = ".RDS"))
+param_map_snake <- data.frame(parampath = param_map_snake)
+colnames(param_map_snake) <- c("#parampath")
+write.table(x = param_map_snake,
+            file = "data/param_map/snake_map.txt",
+            quote = F, sep = "\t", col.names = T, row.names = F)
 
 
 #............................................................
