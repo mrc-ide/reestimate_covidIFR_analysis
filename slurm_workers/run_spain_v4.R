@@ -85,8 +85,8 @@ rawage <- readRDS("data/derived/ESP/ESP_agebands.RDS")
 rawrgn <- readRDS("data/derived/ESP/ESP_regions.RDS")
 agemap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
                                         GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                                        burnin = 1e4,
-                                        samples = 1e4)) %>%
+                                        burnin = 1e3,
+                                        samples = 1e3)) %>%
   dplyr::mutate(lvl = "age",
                 num_mas = 10,
                 maxMa = "ma10",
@@ -95,8 +95,8 @@ agemap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
 
 rgnmap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
                                         GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                                        burnin = 1e4,
-                                        samples = 1e4)) %>%
+                                        burnin = 1e3,
+                                        samples = 1e3)) %>%
   dplyr::mutate(lvl = "region",
                 num_mas = 17,
                 maxMa = "ma14",
