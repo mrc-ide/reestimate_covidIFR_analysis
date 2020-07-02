@@ -135,7 +135,7 @@ run_MCMC <- function(path) {
                                       samples = mod$samples,
                                       rungs = mod$rungs,
                                       GTI_pow = mod$GTI_pow,
-                                      cluster = NULL,
+                                      cluster = cl,
                                       silent = FALSE)
   mc_accept_mean <- mean(fit$mcmcout$diagnostics$mc_accept$value)
   mc_accept_min <- min(fit$mcmcout$diagnostics$mc_accept$value)
@@ -185,7 +185,7 @@ plan <- drake::drake_plan(
 #......................
 options(clustermq.scheduler = "slurm",
         clustermq.template = "slurm_workers/slurm_clustermq_LL.tmpl")
-make(plan, parallelism = "clustermq", jobs = nrow(file_param_map))
+make(plan, parallelism = "clustermq", jobs = nrow(file_param_map), console_log_file = "drake.log")
 
 
 
