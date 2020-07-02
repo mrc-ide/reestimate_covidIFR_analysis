@@ -85,8 +85,8 @@ rawage <- readRDS("data/derived/ESP/ESP_agebands.RDS")
 rawrgn <- readRDS("data/derived/ESP/ESP_regions.RDS")
 agemap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
                                         GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                                        burnin = 1e1,
-                                        samples = 1e1)) %>%
+                                        burnin = 1e2,
+                                        samples = 1e2)) %>%
   dplyr::mutate(lvl = "age",
                 num_mas = 10,
                 maxMa = "ma10",
@@ -95,8 +95,8 @@ agemap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
 
 rgnmap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
                                         GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                                        burnin = 1e1,
-                                        samples = 1e1)) %>%
+                                        burnin = 1e2,
+                                        samples = 1e2)) %>%
   dplyr::mutate(lvl = "region",
                 num_mas = 17,
                 maxMa = "ma14",
@@ -105,57 +105,102 @@ rgnmap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
 
 param_map <- dplyr::bind_rows(agemap, rgnmap)
 param_map$modelobj <- purrr::pmap(param_map[, c("num_mas", "maxMa", "groupvar", "dat")], make_IFR_model_spain)
-
+# select what we need for fits and make outpaths
+dir.create("data/param_map/parallel/")
+param_map.fit <- param_map %>%
+  dplyr::select(c("lvl", "modelobj", "rungs", "GTI_pow", "burnin", "samples"))
+lapply(split(param_map.fit, 1:nrow(param_map.fit)), function(x){
+  saveRDS(x, paste0("data/param_map/parallel/",
+                    x$lvl, "_GTI", x$GTI_pow, "_rung", x$rungs, "_burn", x$burnin, "_smpl", x$samples, ".RDS"))
+})
 
 
 #............................................................
 # MCMC Object
 #...........................................................
-run_MCMC <- function(modelobj, rungs, GTI_pow, burnin, samples) {
-  start <- Sys.time()
-  n_chains <- 10
+run_MCMC <- function(path) {
+  mod <- readRDS(path)
   #......................
   # make cluster object to parallelize chains
   #......................
-  n_chains <- 10
-  cl <- parallel::makeCluster(n_chains)
-  fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel =modelobj,
+  start <- Sys.time()
+  n_chains <- 5
+  n_cores <- parallel::detectCores()
+
+  if (n_cores < n_chains) {
+    mkcores <- n_cores/2
+  } else {
+    mkcores <- n_chains/2
+  }
+
+  cl <- parallel::makeCluster(mkcores)
+  fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
                                       chains = n_chains,
-                                      burnin = burnin,
-                                      samples = samples,
-                                      rungs = rungs,
-                                      GTI_pow = GTI_pow,
+                                      burnin = mod$burnin,
+                                      samples = mod$samples,
+                                      rungs = mod$rungs,
+                                      GTI_pow = mod$GTI_pow,
                                       cluster = cl)
   mc_accept_mean <- mean(fit$mcmcout$diagnostics$mc_accept$value)
   mc_accept_min <- min(fit$mcmcout$diagnostics$mc_accept$value)
   time_elapse <- Sys.time() - start
   # out
+  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/drake_parallel_test/", recursive = TRUE)
+  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/drake_parallel_test/", lvl, "_GTI", GTI_pow, "_rung", rungs, "_burn", burnin, "_smpl", samples, ".RDS")
   out <- list(fit = fit,
               mc_accept_mean = mc_accept_mean,
               mc_accept_min = mc_accept_min,
               time_elapse = time_elapse)
 
-  return(out)
+  saveRDS(out, file = outpath)
+
+  return(0)
 }
 
-#......................
-# send out on slurm
-#......................
-clstparam_map <- param_map %>%
-  dplyr::select(c("modelobj", "rungs", "GTI_pow", "burnin", "samples"))
 
-ntry <- 60
-sjob <- rslurm::slurm_apply(f = run_MCMC,
-                            params = clstparam_map,
-                            jobname = 'test',
-                            nodes = ntry,
-                            cpus_per_node = 1,
-                            preschedule_cores = FALSE,
-                            submit = TRUE,
-                            slurm_options = list(mem = "24g",
-                                                 error =  "%A_%a.err",
-                                                 output = "%A_%a.out",
-                                                 time = "36:00:00"))
+#............................................................
+# Make Drake Plan
+#...........................................................
+# due to R6 classes being stored in environment https://github.com/ropensci/drake/issues/961
+# Drake can't find <environment> in memory (obviously).
+# Need to either wrap out of figure out how to nest better
+
+# read files in after sleeping to account for file lag
+Sys.sleep(60)
+file_param_map <- list.files(path = "data/param_map/parallel/",
+                             pattern = "*.RDS",
+                             full.names = TRUE)
+file_param_map <- tibble::tibble(path = file_param_map)
+
+
+#............................................................
+# Make Drake Plan
+#...........................................................
+plan <- drake::drake_plan(
+  fits = target(
+    run_MCMC(path),
+    transform = map(
+      .data = !!file_param_map
+    )
+  )
+)
+
+
+#......................
+# call drake to send out to slurm
+#......................
+options(clustermq.scheduler = "slurm",
+        clustermq.template = "slurm_workers/slurm_clustermq_LL.tmpl")
+make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
+     console_log_file = "drake.log", verbose = 2,
+     log_progress = FALSE,
+     log_build_times = FALSE,
+     recoverable = FALSE,
+     history = FALSE,
+     session_info = FALSE,
+     lock_envir = FALSE)
+
+

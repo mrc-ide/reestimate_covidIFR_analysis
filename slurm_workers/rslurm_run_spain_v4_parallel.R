@@ -85,8 +85,8 @@ rawage <- readRDS("data/derived/ESP/ESP_agebands.RDS")
 rawrgn <- readRDS("data/derived/ESP/ESP_regions.RDS")
 agemap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
                                         GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                                        burnin = 1e1,
-                                        samples = 1e1)) %>%
+                                        burnin = 1e2,
+                                        samples = 1e2)) %>%
   dplyr::mutate(lvl = "age",
                 num_mas = 10,
                 maxMa = "ma10",
@@ -95,8 +95,8 @@ agemap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
 
 rgnmap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
                                         GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                                        burnin = 1e1,
-                                        samples = 1e1)) %>%
+                                        burnin = 1e2,
+                                        samples = 1e2)) %>%
   dplyr::mutate(lvl = "region",
                 num_mas = 17,
                 maxMa = "ma14",
@@ -113,12 +113,18 @@ param_map$modelobj <- purrr::pmap(param_map[, c("num_mas", "maxMa", "groupvar", 
 #...........................................................
 run_MCMC <- function(modelobj, rungs, GTI_pow, burnin, samples) {
   start <- Sys.time()
-  n_chains <- 10
+  n_chains <- 5
+  n_cores <- parallel::detectCores()
+
+  if (n_cores < n_chains) {
+    mkcores <- n_cores/2
+  } else {
+    mkcores <- n_chains/2
+  }
   #......................
   # make cluster object to parallelize chains
   #......................
-  n_chains <- 10
-  cl <- parallel::makeCluster(n_chains)
+  cl <- parallel::makeCluster(mkcores)
   fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel =modelobj,
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
@@ -150,7 +156,7 @@ clstparam_map <- param_map %>%
 ntry <- 60
 sjob <- rslurm::slurm_apply(f = run_MCMC,
                             params = clstparam_map,
-                            jobname = 'test',
+                            jobname = 'rslurm_parallel_test',
                             nodes = ntry,
                             cpus_per_node = 1,
                             preschedule_cores = FALSE,
@@ -158,4 +164,6 @@ sjob <- rslurm::slurm_apply(f = run_MCMC,
                             slurm_options = list(mem = "24g",
                                                  error =  "%A_%a.err",
                                                  output = "%A_%a.out",
+                                                 mail-type = "END",
+                                                 mail-user = "nbrazeau@med.unc.edu",
                                                  time = "36:00:00"))
