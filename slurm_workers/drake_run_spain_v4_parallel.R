@@ -106,7 +106,7 @@ rgnmap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
 param_map <- dplyr::bind_rows(agemap, rgnmap)
 param_map$modelobj <- purrr::pmap(param_map[, c("num_mas", "maxMa", "groupvar", "dat")], make_IFR_model_spain)
 # select what we need for fits and make outpaths
-dir.create("data/param_map/parallel/")
+dir.create("data/param_map/parallel/", recursive = T)
 param_map.fit <- param_map %>%
   dplyr::select(c("lvl", "modelobj", "rungs", "GTI_pow", "burnin", "samples"))
 lapply(split(param_map.fit, 1:nrow(param_map.fit)), function(x){
