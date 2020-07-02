@@ -98,16 +98,18 @@ map$modelobj <- purrr::map(map$rungs, wrap_make_IFR_model)
 # wrapper for run
 #......................
 run_wrapper <- function(modelobj, rungs, GTI_pow, burnin, samples) {
+  n_chains <- 10
+  cl <- parallel::makeCluster(n_chains)
   fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = modelobj,
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      chains = 10,
+                                      chains = n_chains,
                                       burnin = burnin,
                                       samples = samples,
                                       rungs = rungs,
                                       GTI_pow = GTI_pow,
-                                      silent = FALSE)
+                                      cluster = cl)
   mc_accept_mean <- mean(fit$mcmcout$diagnostics$mc_accept$value)
   mc_accept_min <- min(fit$mcmcout$diagnostics$mc_accept$value)
   out <- list(fit = fit,
@@ -224,16 +226,18 @@ map$modelobj <- purrr::map(map$rungs, wrap_make_IFR_model)
 # wrapper for run
 #......................
 run_wrapper <- function(modelobj, rungs, GTI_pow, burnin, samples) {
+  n_chains <- 10
+  cl <- parallel::makeCluster(n_chains)
   fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = modelobj,
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      chains = 10,
+                                      chains = n_chains,
                                       burnin = burnin,
                                       samples = samples,
                                       rungs = rungs,
                                       GTI_pow = GTI_pow,
-                                      silent = FALSE)
+                                      cluster = cl)
   mc_accept_mean <- mean(fit$mcmcout$diagnostics$mc_accept$value)
   mc_accept_min <- min(fit$mcmcout$diagnostics$mc_accept$value)
   out <- list(fit = fit,

@@ -30,7 +30,7 @@ make_IFR_model_spain <- function(num_mas, maxMa, groupvar, dat) {
                                   max =   c(0.87,     1.00,   10,         131),
                                   dsc1 =  c(850,      10,     5,         117),
                                   dsc2 =  c(150,      3,      15,        131))
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 10, min = 0, init = 5, max = 10)
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0, init = 5, max = 10)
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf)
@@ -185,7 +185,14 @@ plan <- drake::drake_plan(
 #......................
 options(clustermq.scheduler = "slurm",
         clustermq.template = "slurm_workers/slurm_clustermq_LL.tmpl")
-make(plan, parallelism = "clustermq", jobs = nrow(file_param_map), console_log_file = "drake.log")
+make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
+     console_log_file = "drake.log", verbose = 2,
+     log_progress = FALSE,
+     log_build_times = FALSE,
+     recoverable = FALSE,
+     history = FALSE,
+     session_info = FALSE,
+     lock_envir = FALSE)
 
 
 
