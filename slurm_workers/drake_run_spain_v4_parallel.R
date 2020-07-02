@@ -149,7 +149,8 @@ run_MCMC <- function(path) {
   time_elapse <- Sys.time() - start
   # out
   dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/drake_parallel_test/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/drake_parallel_test/", lvl, "_GTI", GTI_pow, "_rung", rungs, "_burn", burnin, "_smpl", samples, ".RDS")
+  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/drake_seq_test/",
+                   mod$lvl, "_GTI", mod$GTI_pow, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, ".RDS")
   out <- list(fit = fit,
               mc_accept_mean = mc_accept_mean,
               mc_accept_min = mc_accept_min,
