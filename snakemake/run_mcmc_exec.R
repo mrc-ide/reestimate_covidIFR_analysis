@@ -14,7 +14,7 @@ option_list=list(
               type = "character",
               default = NULL,
               help = paste("out results path"),
-              metavar = "character"),
+              metavar = "character")
 )
 
 opt_parser <- OptionParser(option_list = option_list)
