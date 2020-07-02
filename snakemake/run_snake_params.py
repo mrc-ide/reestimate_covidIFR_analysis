@@ -30,7 +30,7 @@ param_out_dir = config["outdir"]
 
 final_target = []
 for i in parampath:
-	final_target.append( os.path.join(param_out_dir, "{}.RDS".format(i)) )
+	final_target.append( os.path.join(param_out_dir, "{}_results.RDS".format(i)) )
 
 
 rule all:
