@@ -1,4 +1,0 @@
-# configuration for alignment pipeline
-manifest: /proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/data/param_map/snake_map.txt
-outdir: /proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/snakemake_ESP/
-paramindir: /proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/data/param_map/

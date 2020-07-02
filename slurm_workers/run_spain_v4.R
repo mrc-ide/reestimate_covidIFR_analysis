@@ -104,107 +104,53 @@ rgnmap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
                 dat = list(rawrgn))
 
 param_map <- dplyr::bind_rows(agemap, rgnmap)
-param_map$modelobj <- purrr::pmap(param_map[, c("num_mas", "maxMa", "groupvar", "dat")], make_IFR_model_spain)
-# select what we need for fits and make outpaths
-dir.create("data/param_map")
-param_map.fit <- param_map %>%
-  dplyr::select(c("lvl", "modelobj", "rungs", "GTI_pow", "burnin", "samples"))
-lapply(split(param_map.fit, 1:nrow(param_map.fit)), function(x){
-  saveRDS(x, paste0("data/param_map/",
-                    x$lvl, "_GTI", x$GTI_pow, "_rung", x$rungs, "_burn", x$burnin, "_smpl", x$samples, ".RDS"))
-})
+param_map$modelobj <- purrr::pmap(param_map[, c("num_mas", "maxMa", "groupvar", "dat")],
+                                  make_IFR_model_spain)
 
-#......................
-# for snake
-#......................
-param_map_snake <- gsub(".RDS", "", list.files(path = "data/param_map/", pattern = ".RDS"))
-param_map_snake <- data.frame(parampath = param_map_snake)
-colnames(param_map_snake) <- c("#parampath")
-write.table(x = param_map_snake,
-            file = "data/param_map/snake_map.txt",
-            quote = F, sep = "\t", col.names = T, row.names = F)
 
 
 #............................................................
 # MCMC Object
 #...........................................................
-run_MCMC <- function(path) {
-  mod <- readRDS(path)
+run_MCMC <- function(modelobj, rungs, GTI_pow, burnin, samples) {
+  n_chains <- 10
   #......................
   # make cluster object to parallelize chains
   #......................
   n_chains <- 10
   cl <- parallel::makeCluster(n_chains)
-  fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod$modelobj[[1]],
+  fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel =modelobj,
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
                                       chains = n_chains,
-                                      burnin = mod$burnin,
-                                      samples = mod$samples,
-                                      rungs = mod$rungs,
-                                      GTI_pow = mod$GTI_pow,
-                                      cluster = cl,
-                                      silent = FALSE)
+                                      burnin = burnin,
+                                      samples = samples,
+                                      rungs = rungs,
+                                      GTI_pow = GTI_pow,
+                                      cluster = cl)
   mc_accept_mean <- mean(fit$mcmcout$diagnostics$mc_accept$value)
   mc_accept_min <- min(fit$mcmcout$diagnostics$mc_accept$value)
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/", lvl, "_GTI", GTI_pow, "_rung", rungs, "_burn", burnin, "_smpl", samples, ".RDS")
   out <- list(fit = fit,
               mc_accept_mean = mc_accept_mean,
               mc_accept_min = mc_accept_min)
 
-  saveRDS(out, file = outpath)
-
-  return(0)
+  return(out)
 }
 
-
-#............................................................
-# Make Drake Plan
-#...........................................................
-# due to R6 classes being stored in environment https://github.com/ropensci/drake/issues/961
-# Drake can't find <environment> in memory (obviously).
-# Need to either wrap out of figure out how to nest better
-
-# read files in after sleeping to account for file lag
-Sys.sleep(60)
-file_param_map <- list.files(path = "data/param_map/",
-                             pattern = "*.RDS",
-                             full.names = TRUE)
-file_param_map <- tibble::tibble(path = file_param_map)
-
-
-#............................................................
-# Make Drake Plan
-#...........................................................
-plan <- drake::drake_plan(
-  fits = target(
-    run_MCMC(path),
-    transform = map(
-      .data = !!file_param_map
-    )
-  )
-)
-
-
 #......................
-# call drake to send out to slurm
+# send out on slurm
 #......................
-options(clustermq.scheduler = "slurm",
-        clustermq.template = "slurm_workers/slurm_clustermq_LL.tmpl")
-make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
-     console_log_file = "drake.log", verbose = 2,
-     log_progress = FALSE,
-     log_build_times = FALSE,
-     recoverable = FALSE,
-     history = FALSE,
-     session_info = FALSE,
-     lock_envir = FALSE)
-
-
-
-
-
-
+ntry <- 60
+sjob <- rslurm::slurm_apply(f = run_MCMC,
+                            params = param_map,
+                            jobname = 'ESP_MCMCfits',
+                            nodes = ntry,
+                            cpus_per_node = 11,
+                            preschedule_cores = FALSE,
+                            submit = TRUE,
+                            slurm_options = list(mem = "24g",
+                                                 error =  "%A_%a.err",
+                                                 output = "%A_%a.out",
+                                                 time = "36:00:00"))
