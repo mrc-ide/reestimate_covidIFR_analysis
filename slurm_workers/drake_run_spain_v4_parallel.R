@@ -31,9 +31,15 @@ make_IFR_model_spain <- function(num_mas, maxMa, groupvar, dat) {
                                   dsc1 =  c(886,     99,     2.15,        117),
                                   dsc2 =  c(114,     1,      0.05,        131))
   noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0, init = 5, max = 10)
+  tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
+                                 min  = c(10,    0.01),
+                                 init = c(18,    0.45),
+                                 max =  c(25,    1.00),
+                                 dsc1 = c(2.9,   -0.78),
+                                 dsc2 = c(0.05,   0.05))
 
   # bring together
-  df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf)
+  df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
   #......................
   # format data
   #......................
@@ -59,9 +65,8 @@ make_IFR_model_spain <- function(num_mas, maxMa, groupvar, dat) {
 
   # make mod
   mod1 <- make_IFRmodel_agg$new()
-  mod1$set_MeanOnset(18.8)
-  mod1$set_CoefVarOnset(0.45)
-  mod1$set_level("Time-Series")
+  mod1$set_MeanTODparam("mod")
+  mod1$set_CoefVarOnsetTODparam("sod")
   mod1$set_IFRparams(paste0("ma", 1:num_mas))
   mod1$set_maxMa(maxMa)
   mod1$set_Knotparams(paste0("x", 1:4))
@@ -129,7 +134,7 @@ run_MCMC <- function(path) {
   n_cores <- parallel::detectCores()
 
   if (n_cores < n_chains) {
-    mkcores <- n_cores/2
+    mkcores <- n_cores - 1
   } else {
     mkcores <- n_chains/2
   }
@@ -197,12 +202,12 @@ plan <- drake::drake_plan(
 options(clustermq.scheduler = "slurm",
         clustermq.template = "slurm_workers/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
-     console_log_file = "drake.log", verbose = 2,
+     log_make = "ESP_PowerFits_drake.log", verbose = 2,
      log_progress = FALSE,
      log_build_times = FALSE,
      recoverable = FALSE,
      history = FALSE,
      session_info = FALSE,
-     lock_envir = FALSE)
+     lock_envir = FALSE) # unlock environment so parallel::clusterApplyLB in drjacoby can work
 
 
