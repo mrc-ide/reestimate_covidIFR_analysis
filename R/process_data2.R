@@ -354,20 +354,23 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   #...........................................................
   # process population
   #...........................................................
-  if (groupingvar == "ageband") {  ## use same age breaks as deaths.
-    # handle age
+  # NB, we always consider age stratification - use same age breaks as deaths.
+  population <- population %>%
+    dplyr::mutate(
+      ageband = cut(age_high,
+                    breaks = agebrks,
+                    labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
+      ageband = as.character(ageband),
+      ageband = ifelse(age_low == 0 & age_high == 999, "all", ageband)
+    )
+
+  if (groupingvar == "ageband") {
     population <- population %>%
-      dplyr::mutate(
-        ageband = cut(age_high,
-                      breaks = agebrks,
-                      labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
-        ageband = as.character(ageband),
-        ageband = ifelse(age_low == 0 & age_high == 999, "all", ageband)
-      )
+      dplyr::filter(age_breakdown == 1)
   }
 
   # various filters for population data
-  if (groupingvar == "region") {
+  if (groupingvar == "region") { # but always account age stratification
     population <- population %>%
       dplyr::filter(for_regional_analysis == 1)
   }
@@ -375,11 +378,6 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   if (groupingvar == "gender") {
     population <- population %>%
       dplyr::filter(gender_breakdown == 1)
-  }
-
-  if (groupingvar == "ageband") {
-    population <- population %>%
-      dplyr::filter(age_breakdown == 1)
   }
 
   # subset to study id
@@ -392,19 +390,40 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
 
   # get pop group demographics
   totalpop <- sum(population$population)
-  pop_prop.summ <- population %>%
-    dplyr::group_by_at(groupingvar) %>%
-    dplyr::summarise(
-      popN = sum(population),
-      pop_prop = sum(population)/totalpop
-    ) %>%
-    dplyr::arrange(groupingvar)
+  if (groupingvar == "ageband") {
+    pop_prop.summ <- population %>%
+      dplyr::group_by_at(groupingvar) %>%
+      dplyr::summarise(
+        popN = sum(population),
+        pop_prop = sum(population)/totalpop
+      ) %>%
+      dplyr::arrange_at(groupingvar) %>%
+      dplyr::ungroup()
+  } else {
+    pop_prop.summ <- population %>%
+      dplyr::group_by_at(c(groupingvar, "ageband")) %>%
+      dplyr::summarise(
+        popN = sum(population),
+        pop_prop = sum(population)/totalpop
+      ) %>%
+      dplyr::arrange_at(c(groupingvar, "ageband")) %>%
+      dplyr::ungroup()
+  }
+
 
   #............................................................
   # process test sens/spec
   #...........................................................
   sero_val <- sero_val %>%
     dplyr::filter(study_id %in% study_ids)
+  sensitivity <- sero_val %>%
+    dplyr::select(c("n_test_pos_out_of_true_pos", "n_samples_true_pos", "sensitivity")) %>%
+    magrittr::set_colnames(c("npos", "ntest", "sensitivity"))
+  specificity <- sero_val %>%
+    dplyr::select(c("n_test_neg_out_of_true_neg", "n_samples_true_neg", "specificity")) %>%
+    magrittr::set_colnames(c("npos", "ntest", "specificity"))
+
+
 
   #...........................................................
   # out
@@ -413,8 +432,8 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     deaths = deaths.summ,
     seroprev = seroprev.summ,
     prop_pop = pop_prop.summ,
-    sero_sens = sero_val$sensitivity,
-    sero_spec = sero_val$specificity,
+    sero_sens = sensitivity,
+    sero_spec = specificity,
     seroprev_group = seroprev.summ.group,
     deaths_group = deaths.prop
   )
