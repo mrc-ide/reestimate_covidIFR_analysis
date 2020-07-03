@@ -23,7 +23,7 @@ source("R/extra_MCMC_plotting_functions.R")
 ```{r}
 
 read_process <- function(path) {
-  ret <- readRDS(path)[[1]]
+  ret <- readRDS(path)
   # look at likelihoods
   logplot <- ret$fit$mcmcout$output %>%
     dplyr::filter(rung == "rung1") %>%
@@ -53,68 +53,35 @@ read_process <- function(path) {
 ## Age Estimates 
 ```{r, echo=TRUE}
 #...................... 
-# read in param map
+# read in age results and downsize for mem
 #......................
-age_param_map <- readRDS("results/_rslurm_newRandomNetuneMCMC_ESPage/params.RDS") %>% 
-  dplyr::mutate(param_set = paste0("results_", 0:(nrow(.)-1))) %>% 
-  dplyr::select(-c("modelobj")) %>% 
-  dplyr::mutate(
-    path = paste0("results/_rslurm_newRandomNetuneMCMC_ESPage/", param_set, ".RDS")
-  )
-
-# temp
-filelist <- list.files(path = "results/_rslurm_newRandomNetuneMCMC_ESPage/",
-                       pattern = "results_[0-9].RDS")
-age_param_map <- age_param_map %>% 
-  dplyr::filter(basename(path) %in% filelist)
-
-
-#...................... 
-# read in results and downsize for mem
-#......................
-age_param_map <- age_param_map %>% 
-  dplyr::mutate(results = purrr::map(path, read_process))
-
+filelist <- list.files(path = "results/ESP_MixPower_Fits/", full.names = T)
+agefilelist <- filelist[grepl("age", filelist)]
+age_ret <- purrr::map(agefilelist, read_process)
 
 ```
 
 ### Age Estimates Plot
 ```{r, results='asis', fig.height=10}
-age_param_map$results
+age_ret
 ```
 
 
 ## Region Estimates 
 ```{r, echo=TRUE}
 #...................... 
-# read in param map
+# read in age results and downsize for mem
 #......................
-rgn_param_map <- readRDS("results/_rslurm_newRandomNetuneMCMC_ESPRGN/params.RDS") %>% 
-  dplyr::mutate(param_set = paste0("results_", 0:(nrow(.)-1))) %>% 
-  dplyr::select(-c("modelobj")) %>% 
-  dplyr::mutate(
-    path = paste0("results/_rslurm_newRandomNetuneMCMC_ESPRGN/", param_set, ".RDS")
-  )
-
-# temp
-filelist <- list.files(path = "results/_rslurm_newRandomNetuneMCMC_ESPRGN/",
-                       pattern = "results_[0-9].RDS")
-rgn_param_map <- rgn_param_map %>% 
-  dplyr::filter(basename(path) %in% filelist)
-
-
-#...................... 
-# read in results and downsize for mem
-#......................
-rgn_param_map <- rgn_param_map %>% 
-  dplyr::mutate(results = purrr::map(path, read_process))
+filelist <- list.files(path = "results/ESP_MixPower_Fits/", full.names = T)
+rgnfilelist <- filelist[grepl("region", filelist)]
+rgn_ret <- purrr::map(rgnfilelist, read_process)
 
 
 ```
 
 ### Region Estimates Plot
 ```{r, results='asis', fig.height = 10}
-rgn_param_map$results
+rgn_ret
 ```
 
 
