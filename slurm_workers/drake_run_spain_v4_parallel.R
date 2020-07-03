@@ -1,6 +1,6 @@
 ####################################################################################
 ## Purpose: This is a script that will wrap a DRAKE make process to
-##          run multiple ESP data iterations to fine to the MCoupling
+##          run multiple ESP data iterations to fine tune the MCoupling
 ##          params
 ##
 ## Notes:
@@ -25,11 +25,11 @@ make_IFR_model_spain <- function(num_mas, maxMa, groupvar, dat) {
                                            num_ys = 5)
 
   sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                  min =   c(0.83,     0.50,   10,         117),
-                                  init =  c(0.85,     0.99,   10,         125),
-                                  max =   c(0.87,     1.00,   10,         131),
-                                  dsc1 =  c(850,      10,     5,         117),
-                                  dsc2 =  c(150,      3,      15,        131))
+                                  min =   c(0.83,    0.50,   5,           117),
+                                  init =  c(0.85,    0.99,   10,          125),
+                                  max =   c(0.87,    1.00,   15,          131),
+                                  dsc1 =  c(886,     99,     2.15,        117),
+                                  dsc2 =  c(114,     1,      0.05,        131))
   noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0, init = 5, max = 10)
 
   # bring together
@@ -76,6 +76,7 @@ make_IFR_model_spain <- function(num_mas, maxMa, groupvar, dat) {
   mod1$set_paramdf(df_params)
   mod1$set_rho(rep(1, num_mas))
   mod1$set_rcensor_day(.Machine$integer.max)
+  mod1$set_IFRdictkey(dictkey)
   # out
   mod1
 }
@@ -85,8 +86,8 @@ rawage <- readRDS("data/derived/ESP/ESP_agebands.RDS")
 rawrgn <- readRDS("data/derived/ESP/ESP_regions.RDS")
 agemap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
                                         GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                                        burnin = 1e2,
-                                        samples = 1e2)) %>%
+                                        burnin = 1e4,
+                                        samples = 1e4)) %>%
   dplyr::mutate(lvl = "age",
                 num_mas = 10,
                 maxMa = "ma10",
@@ -95,8 +96,8 @@ agemap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
 
 rgnmap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
                                         GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                                        burnin = 1e2,
-                                        samples = 1e2)) %>%
+                                        burnin = 1e4,
+                                        samples = 1e4)) %>%
   dplyr::mutate(lvl = "region",
                 num_mas = 17,
                 maxMa = "ma14",
@@ -106,11 +107,11 @@ rgnmap <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
 param_map <- dplyr::bind_rows(agemap, rgnmap)
 param_map$modelobj <- purrr::pmap(param_map[, c("num_mas", "maxMa", "groupvar", "dat")], make_IFR_model_spain)
 # select what we need for fits and make outpaths
-dir.create("data/param_map/parallel/", recursive = T)
+dir.create("data/param_map/ESP_MixPower_Fits/", recursive = T)
 param_map.fit <- param_map %>%
   dplyr::select(c("lvl", "modelobj", "rungs", "GTI_pow", "burnin", "samples"))
 lapply(split(param_map.fit, 1:nrow(param_map.fit)), function(x){
-  saveRDS(x, paste0("data/param_map/parallel/",
+  saveRDS(x, paste0("data/param_map/ESP_MixPower_Fits/",
                     x$lvl, "_GTI", x$GTI_pow, "_rung", x$rungs, "_burn", x$burnin, "_smpl", x$samples, ".RDS"))
 })
 
@@ -124,7 +125,7 @@ run_MCMC <- function(path) {
   # make cluster object to parallelize chains
   #......................
   start <- Sys.time()
-  n_chains <- 5
+  n_chains <- 10
   n_cores <- parallel::detectCores()
 
   if (n_cores < n_chains) {
@@ -148,8 +149,8 @@ run_MCMC <- function(path) {
   mc_accept_min <- min(fit$mcmcout$diagnostics$mc_accept$value)
   time_elapse <- Sys.time() - start
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/drake_parallel_test/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/drake_seq_test/",
+  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ESP_MixPower_Fits/", recursive = TRUE)
+  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ESP_MixPower_Fits/",
                    mod$lvl, "_GTI", mod$GTI_pow, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, ".RDS")
   out <- list(fit = fit,
               mc_accept_mean = mc_accept_mean,
@@ -171,7 +172,7 @@ run_MCMC <- function(path) {
 
 # read files in after sleeping to account for file lag
 Sys.sleep(60)
-file_param_map <- list.files(path = "data/param_map/parallel/",
+file_param_map <- list.files(path = "data/param_map/ESP_MixPower_Fits/",
                              pattern = "*.RDS",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)
