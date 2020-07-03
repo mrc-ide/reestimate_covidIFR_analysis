@@ -1,14 +1,22 @@
-########################
-# Plot descriptive statistics
-########################
-
-library(dplyr)
+#................................................................................................
+## Purpose: Plot descriptive statistics
+##
+## Notes:
+#................................................................................................
+#......................
+# setup
+#......................
+library(tidyverse)
 library(pals)
-#source("analyses/run_process_country_data.R")
-rogan_gladen<-function(obs_prev,sens,spec) (obs_prev + spec -1)/(spec+sens-1)
-sero_sheet<-read.csv("data/raw/seroprevalence.csv")
+rogan_gladen <- function(obs_prev,sens,spec){(obs_prev + spec -1)/(spec+sens-1)}
+sero_sheet <- readr::read_csv("data/raw/seroprevalence.csv")
+write2file <- F
 
-write2file<-F
+#............................................................
+# Age Bands
+#...........................................................
+# read in age bands data
+
 
 #####################################################
 ## Align serology and deaths by age where possible. Document assumptions where no perfect alignment
