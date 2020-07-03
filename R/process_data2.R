@@ -1,3 +1,21 @@
+#' @title Utility function for matching age groups that aren't "exact"
+#' @param x query age band
+#' @param y target age band
+#' @param wiggle how much "wiggle" room on matching
+wiggle_age_matchfun <- function(x, y, wiggle = 2) {
+  mtchlow <- c(as.numeric(x["age_low"]) + wiggle >= y$age_low | as.numeric(x["age_low"]) - wiggle >= y$age_low)
+  mtchhigh <- c(as.numeric(x["age_high"]) + wiggle <= y$age_high | as.numeric(x["age_high"]) - wiggle <= y$age_high)
+  # rows
+  mtchrows <- mtchlow &  mtchhigh
+  if (sum(mtchrows) == 0) {
+    return(as.numeric(x["seroprevalence"]))
+  } else if (sum(mtchrows) == 1) {
+    return(as.numeric(y[mtchrows, "seroprevalence"]))
+  } else {
+    stop("Error")
+  }
+}
+
 #' @title Process Data for IFR Inference
 #' @param deaths dataframe; death counts by strata
 #' @param population dataframe; population counts by strata
