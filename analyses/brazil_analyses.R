@@ -3,21 +3,21 @@ library(tidyverse)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # Loading Data Dictionary Interconverting Between Regions and States
-data_dictionary <- read.csv("Brazil_State_Region_Data_Dictionary.csv") %>%
+data_dictionary <- read.csv("C:/Users/cw1716/Documents/COVID_2019/IFR_Update/reestimate_covidIFR_analysis/data/raw/Brazil_State_Region_Data_Dictionary.csv") %>%
   select(-State_Name)
 
 # Loading Brazillian 2020 Population by Age, Sex and State
-population <- read.csv("Brazil_2020_Population_Data.csv")
+population <- read.csv("C:/Users/cw1716/Documents/COVID_2019/IFR_Update/reestimate_covidIFR_analysis/data/raw/Brazil_2020_Population_Data.csv")
 
-# Loading Seroprevalence Data 
-seroprevalence <- read.csv("Brazil_1st_Seroprevalence_Survey_Results.csv") %>%
+# Loading Seroprevalence Data
+seroprevalence <- read.csv("C:/Users/cw1716/Documents/COVID_2019/IFR_Update/reestimate_covidIFR_analysis/data/raw/Brazil_1st_Seroprevalence_Survey_Results.csv") %>%
   mutate(Positive = case_when(is.na(Positive) ~ Inferred_Positive,
                               TRUE ~ Positive)) %>%
   select(Region, State_Code, Tested, Positive)
 
 # Loading Deaths Data
-deaths_data <- readRDS("Brazil_state_age_sex_deaths.rds") %>%
-  left_join(data_dictionary, by = c("state" = "State")) 
+deaths_data <- readRDS("C:/Users/cw1716/Documents/COVID_2019/IFR_Update/reestimate_covidIFR_analysis/data/derived/BRA/Brazil_state_age_sex_deaths.rds") %>%
+  left_join(data_dictionary, by = c("state" = "State"))
 
 # Test Characteristics and Adjustment Function
 sens <- 0.864
@@ -33,9 +33,9 @@ overall_deaths <- sum(deaths_data$count[deaths_data$date <= "2020-05-21"], na.rm
 tested <- sum(seroprevalence$Tested)
 positive <- sum(seroprevalence$Positive)
 overall_seroprevalence <- positive/tested
-overall_IFR <- 100 * overall_deaths/(overall_population * overall_seroprevalence) 
+overall_IFR <- 100 * overall_deaths/(overall_population * overall_seroprevalence)
 adj_overall_seroprevalence <- rogan_gladen(overall_seroprevalence, sens, spec)
-adj_overall_IFR <- 100 * overall_deaths/(overall_population * adj_overall_seroprevalence) 
+adj_overall_IFR <- 100 * overall_deaths/(overall_population * adj_overall_seroprevalence)
 
 # 2. Calculating Regional Level IFR
 regional_population <- population %>%
@@ -75,19 +75,19 @@ age_population <- population %>%
   select(`0-5`, `5-10`, `10-20`, `20-30`, `30-40`, `40-50`, `50-60`, `60-70`, `70-80`, `80+`) %>%
   gather(Age_Group, Population)
 
-# check age bounds are exactly identical to seroprevalence age bounds used 
-age_deaths_data <- readRDS("Brazil_state_age_sex_deaths.rds") %>%
+# check age bounds are exactly identical to seroprevalence age bounds used
+age_deaths_data <- readRDS("C:/Users/cw1716/Documents/COVID_2019/IFR_Update/reestimate_covidIFR_analysis/data/derived/BRA/Brazil_state_age_sex_deaths.rds") %>%
   filter(date <= "2020-05-21") %>%
   mutate(age_category = case_when(
     age >= 0 & age < 5 ~ "0-5",
     age >= 5 & age < 10 ~ "5-10",
     age >= 10 & age < 20 ~ "10-20",
-    age >= 20 & age < 30 ~ "20-30", 
-    age >= 30 & age < 40 ~ "30-40", 
-    age >= 40 & age < 50 ~ "40-50", 
+    age >= 20 & age < 30 ~ "20-30",
+    age >= 30 & age < 40 ~ "30-40",
+    age >= 40 & age < 50 ~ "40-50",
     age >= 50 & age < 60 ~ "50-60",
     age >= 60 & age < 70 ~ "60-70",
-    age >= 70 & age < 80 ~ "70-80", 
+    age >= 70 & age < 80 ~ "70-80",
     age >= 80 ~ "80+")) %>%
   group_by(age_category) %>%
   summarise(count = sum(count))
@@ -100,7 +100,7 @@ overall_age <- age_population %>%
 overall_age$seroprevalence <- age_seroprevalence
 overall_age <- overall_age %>%
   mutate(IFR = 100 * count/(seroprevalence * Population)) %>%
-  mutate(Age_Group = factor(Age_Group, levels = c("0-5", "5-10", "10-20", "20-30", "30-40", 
+  mutate(Age_Group = factor(Age_Group, levels = c("0-5", "5-10", "10-20", "20-30", "30-40",
                                                   "40-50", "50-60", "60-70", "70-80", "80+"))) %>%
   mutate(adj_seroprevalence = rogan_gladen(seroprevalence, sens, spec)) %>%
   mutate(adj_IFR = 100 * count/(adj_seroprevalence * Population))
@@ -108,9 +108,8 @@ overall_age <- overall_age %>%
 ggplot(overall_age, aes(x = Age_Group, y = IFR)) +
   geom_bar(stat = "identity") +
   lims(y = c(0, 30))
-  
+
 ggplot(overall_age, aes(x = Age_Group, y = adj_IFR)) +
   geom_bar(stat = "identity") +
   lims(y = c(0, 120))
 
-  
