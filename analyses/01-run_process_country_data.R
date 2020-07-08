@@ -432,17 +432,17 @@ saveRDS(IRN.agebands.dat, "data/derived/IRN/IRN_agebands.RDS")
 # regions
 #......................
 SWE.regions.dat <- process_data2(deaths = deathsdf,
-                                population = populationdf,
-                                sero_val = sero_valdf,
-                                seroprev = sero_prevdf,
-                                cumulative = TRUE,
-                                recast_deaths_df = ECDCdf,
-                                groupingvar = "region",
-                                study_ids = "SWE1",
-                                recast_deaths_geocode = "SWE",
-                                filtRegions = NULL, # some regions combined in serosurvey
-                                filtGender = NULL,
-                                filtAgeBand = NULL)
+                                 population = populationdf,
+                                 sero_val = sero_valdf,
+                                 seroprev = sero_prevdf,
+                                 cumulative = TRUE,
+                                 recast_deaths_df = ECDCdf,
+                                 groupingvar = "region",
+                                 study_ids = "SWE1",
+                                 recast_deaths_geocode = "SWE",
+                                 filtRegions = NULL, # some regions combined in serosurvey
+                                 filtGender = NULL,
+                                 filtAgeBand = NULL)
 #......................
 # age bands
 #......................
@@ -802,29 +802,33 @@ saveRDS(MD_FL.regions.dat, "data/derived/USA/MD_FL_regions.RDS")
 #......................
 # pre-process Brazil
 #......................
-# note, only have regional seroprevalence
-bradeaths_regional <- readRDS("data/raw/Brazil_state_age_sex_deaths.rds") %>%
-  dplyr::group_by(date, state) %>%
+bradeaths <- readRDS("data/raw/Brazil_state_age_sex_deaths.rds") %>%
+  dplyr::filter(!is.na(date)) %>%
+  dplyr::rename(gender = sex,
+                region = state) %>%
+  dplyr::group_by(date, region, age, gender) %>%
   dplyr::summarise(
     deaths = sum(count)
   ) %>%
   dplyr::mutate(
     country = "BRA",
     study_id = "BRA1",
-    age_low = 0,
-    age_high = 999,
-    region = "BRA-States",
-    gender = "both",
-    age_breakdown = 0,
-    gender_breakdown = 0,
+    age_low = age,
+    age_high = age + 1, # make 1-based for cuts
+    age_breakdown = 1,
+    gender_breakdown = 1,
     for_regional_analysis = 1) %>%
+  dplyr::select(-c("age")) %>%
   dplyr::rename(date_start_survey = date,
                 n_deaths = deaths) %>%
-  dplyr::mutate(date_end_survey = date_start_survey)
+  dplyr::mutate(date_end_survey = date_start_survey) %>%
+  dplyr::ungroup(.)
 
 # seroprevalence
 sero_valdf <-  readr::read_csv("data/raw/seroassay_validation.csv")
-sero_prevdf <- readr::read_csv("data/raw/Brazil_seroprevalence_first_survey.csv") %>%
+
+#TODO eventually put regional seroprev in our seroprev csv
+rgnsero_prevdf <- readr::read_csv("data/raw/Brazil_seroprevalence_first_survey.csv") %>%
   dplyr::select(-c(dplyr::starts_with("X"))) %>%
   magrittr::set_colnames(tolower(colnames(.))) %>%
   dplyr::filter(!is.na(positive)) %>% # CHARLIE, note this drop
@@ -848,36 +852,63 @@ sero_prevdf <- readr::read_csv("data/raw/Brazil_seroprevalence_first_survey.csv"
     for_regional_analysis = 1,
     gender_breakdown = 0)
 
+agesero_prevdf <- readr::read_csv("data/raw/seroprevalence.csv") %>%
+  dplyr::select(-c("ref", "notes")) %>%
+  dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+                date_end_survey = lubridate::dmy(date_end_survey))
 
 bra_populationdf <- readr::read_csv("data/raw/Brazil_2020_Population_Data.csv") %>%
   magrittr::set_colnames(tolower(colnames(.))) %>%
-  dplyr::group_by(state) %>%
+  dplyr::mutate(
+    age_group = stringr::str_replace(age_group, "\\+", "-1000"),
+    age_low = as.numeric(stringr::str_split_fixed(age_group, "-[0-9]+", n = 2)[,1]),
+    age_high = as.numeric(stringr::str_split_fixed(age_group, "[0-9]-", n = 2)[,2]) - 1 # make 0-based like seroprev
+  ) %>%
+  dplyr::group_by(state, age_low, age_high, sex) %>%
   dplyr::summarise(population = sum(population)) %>%
-  dplyr::rename(region = state) %>%
+  dplyr::rename(region = state,
+                gender =sex) %>%
   dplyr::mutate(
     country = "BRA",
     study_id = "BRA1",
-    age_low = 0,
-    age_high = 999,
-    gender = "both",
-    age_breakdown = 0,
+    age_breakdown = 1,
     for_regional_analysis = 1,
-    gender_breakdown = 0)
+    gender_breakdown = 1)
 
 #......................
 # regions
 #......................
-
-BRA.regions.dat <- process_data2(deaths = bradeaths_regional,
+BRA.regions.dat <- process_data2(deaths = bradeaths,
                                  population = bra_populationdf,
                                  sero_val = sero_valdf,
-                                 seroprev = sero_prevdf,
+                                 seroprev = rgnsero_prevdf,
                                  cumulative = FALSE,
                                  groupingvar = "region",
                                  study_ids = "BRA1",
-                                 filtRegions = NULL, # some regions combined in serosurvey
+                                 filtRegions = NULL,
                                  filtGender = NULL,
                                  filtAgeBand = NULL)
+
+
+#......................
+# ages
+#......................
+BRA.agebands.dat <- process_data2(deaths = bradeaths,
+                                  population = bra_populationdf,
+                                  sero_val = sero_valdf,
+                                  seroprev = agesero_prevdf,
+                                  cumulative = FALSE,
+                                  groupingvar = "ageband",
+                                  study_ids = "BRA1",
+                                  filtRegions = NULL,
+                                  filtGender = NULL,
+                                  filtAgeBand = NULL,
+                                  death_agebreaks = c(0, 4, 9,
+                                                      19, 29, 39,
+                                                      49, 59, 69,
+                                                      79, 999))
+
+
 
 #......................
 # MANUAL ADJUSTMENTS
@@ -894,6 +925,7 @@ BRA.regions.dat <- process_data2(deaths = bradeaths_regional,
 #......................
 dir.create("data/derived/BRA/", recursive = T)
 saveRDS(BRA.regions.dat, "data/derived/BRA/BRA_regions.RDS")
+saveRDS(BRA.agebands.dat, "data/derived/BRA/BRA_agebands.RDS")
 
 
 
