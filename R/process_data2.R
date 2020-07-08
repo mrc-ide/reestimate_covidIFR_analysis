@@ -106,7 +106,7 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
   deaths <- deaths %>%
     dplyr::mutate(date_start_survey = lubridate::ymd(date_start_survey),
                   date_end_survey = lubridate::ymd(date_end_survey),
-                  start_date = min(lubridate::ymd(deaths$date_start_survey)),
+                  start_date = min(lubridate::ymd(date_start_survey)),
                   ObsDay = as.numeric(date_end_survey - start_date))  %>%
     dplyr::filter(study_id %in% study_ids)
 
