@@ -290,3 +290,13 @@ China,CHN1,NA,NA,"Chengdu, Sichuan",,9442,55,0.005825037,,,,,30/03/2020,10/4/20,
 China,CHN1,NA,NA,"Guangzhou, Guangdong",,442,6,0.013574661,,,,,30/03/2020,10/4/20,,,,,https://www.nature.com/articles/s41591-020-0949-6#Sec11,factory worker,age IQR available
 China,CHN1,NA,NA,"Jinzhou/Honghu, Hubei",,979,35,0.035750766,,,,,30/03/2020,10/4/20,,,,,https://www.nature.com/articles/s41591-020-0949-6#Sec11,Hemodialysis patient,age IQR available
 China,CHN1,NA,NA,"Guangzhou/Foshan, Guangdong",,563,16,0.028419183,,,,,30/03/2020,10/4/20,,,,,https://www.nature.com/articles/s41591-020-0949-6#Sec11,Hemodialysis patient,age IQR available
+Brazil,BRA1,0,4,all,,430,,0.014,0.005,0.03,,brazil.RDS,15/05/2020,22/05/2020,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf,,
+Brazil,BRA1,5,9,all,,682,,0.012,0.005,0.023,,brazil.RDS,15/05/2020,22/05/2020,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf,,
+Brazil,BRA1,10,19,all,,2287,,0.014,0.009,0.019,,brazil.RDS,15/05/2020,22/05/2020,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf,,
+Brazil,BRA1,20,29,all,,3866,,0.014,0.011,0.018,,brazil.RDS,15/05/2020,22/05/2020,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf,,
+Brazil,BRA1,30,39,all,,3834,,0.015,0.012,0.02,,brazil.RDS,15/05/2020,22/05/2020,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf,,
+Brazil,BRA1,40,49,all,,3975,,0.016,0.012,0.02,,brazil.RDS,15/05/2020,22/05/2020,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf,,
+Brazil,BRA1,50,59,all,,4015,,0.017,0.013,0.021,,brazil.RDS,15/05/2020,22/05/2020,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf,,
+Brazil,BRA1,60,69,all,,3381,,0.01,0.007,0.014,,brazil.RDS,15/05/2020,22/05/2020,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf,,
+Brazil,BRA1,70,79,all,,1797,,0.012,0.008,0.018,,brazil.RDS,15/05/2020,22/05/2020,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf,,
+Brazil,BRA1,80,999,all,,728,,0.005,0.001,0.014,,brazil.RDS,15/05/2020,22/05/2020,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf,,
