@@ -1,0 +1,86 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Model Fit Diagnostic Plots
+```{r}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, 
+                      message = FALSE, eval = TRUE, 
+                      results = 'hide', fig.align = 'center')
+knitr::opts_knit$set(root.dir = here::here())
+```
+```{r}
+library(COVIDCurve)
+library(drjacoby)
+library(tidyverse)
+library(cowplot)
+source("R/extra_MCMC_plotting_functions.R")
+```
+
+```{r}
+
+read_process <- function(path) {
+  ret <- readRDS(path)
+  # look at likelihoods
+  logplot <- ret$fit$mcmcout$output %>%
+    dplyr::filter(rung == "rung1") %>%
+    dplyr::filter(stage == "sampling") %>%
+    dplyr::select(c("iteration", "loglikelihood", "logprior")) %>%
+    tidyr::gather(., key = "like", value = "val", 2:3) %>%
+    ggplot() +
+    geom_line(aes(x = iteration, y = val, color = like), size = 0.1, alpha = 0.8) +
+    facet_wrap(.~like, scales = "free_y") +
+    theme_bw()
+  
+  # mcmc diagn
+  plotObj <- quick_mc_diagnostics(ret$fit)
+  title_gg <- ggplot() + 
+    labs(title = paste0("GTI power: ", ret$fit$inputs$GTI_pow, "; ", 
+                        "Rungs: ", ret$fit$inputs$rungs, "; ", 
+                        "Burnin: ", ret$fit$inputs$burnin, "; ", 
+                        "Sample: ", ret$fit$inputs$samples
+    ))
+  # out
+  cowplot::plot_grid(title_gg, logplot, plotObj, ncol = 1, rel_heights = c(0.15, 0.25, 1))
+}
+
+```
+
+
+## Age Estimates 
+```{r, echo=TRUE}
+#...................... 
+# read in age results and downsize for mem
+#......................
+filelist <- list.files(path = "results/ESP_MixPower_Fits/", full.names = T)
+agefilelist <- filelist[grepl("age", filelist)]
+age_ret <- purrr::map(agefilelist, read_process)
+
+```
+
+### Age Estimates Plot
+```{r, results='asis', fig.height=10}
+age_ret
+```
+
+
+## Region Estimates 
+```{r, echo=TRUE}
+#...................... 
+# read in age results and downsize for mem
+#......................
+filelist <- list.files(path = "results/ESP_MixPower_Fits/", full.names = T)
+rgnfilelist <- filelist[grepl("region", filelist)]
+rgn_ret <- purrr::map(rgnfilelist, read_process)
+
+
+```
+
+### Region Estimates Plot
+```{r, results='asis', fig.height = 10}
+rgn_ret
+```
+
+
