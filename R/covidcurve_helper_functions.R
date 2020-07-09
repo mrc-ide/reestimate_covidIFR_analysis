@@ -2,6 +2,94 @@ source("R/assertions_v5.R")
 library(tidyverse)
 library(stringr)
 
+#' @title Make IFR Model for MCMC Fitting
+make_IFR_model_fit <- function(num_mas, maxMa,
+                               groupvar, dat,
+                               num_xs, max_xveclist,
+                               num_ys, max_yveclist,
+                               sens_spec_tbl, tod_paramsdf,
+                               serodayparams, sero_adj = FALSE) {
+
+  # make dfs
+  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas)
+  knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
+                                          num_xs = num_xs)
+  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
+                                           num_ys = num_ys)
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0, init = 5, max = 10)
+
+
+  # bring together
+  df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
+  #......................
+  # format data
+  #......................
+  if (sero_adj) {
+    dictkey <- tibble::tibble(groupvar = unlist(dat$seroprev_group_adj[, groupvar]), "Strata" = paste0("ma", 1:num_mas))
+    colnames(dictkey) <- c(paste(groupvar), "Strata")
+    # deaths
+    dat$deaths <- dplyr::left_join(dat$deaths, dictkey) %>%
+      dplyr::select(c("ObsDay", "Strata", "Deaths"))
+    # seroprev
+    dat$obs_serology <- dplyr::left_join(dat$seroprev_group_adj, dictkey) %>%
+      dplyr::mutate(SeroDay = "sero_day1") %>%
+      dplyr::rename(SeroPrev = seroprevalence_adj) %>%
+      dplyr::select(c("SeroDay", "Strata", "SeroPrev"))
+
+    inputdata <- list(obs_deaths = dat$deaths,
+                      obs_serology = dat$obs_serology)
+  } else {
+
+  dictkey <- tibble::tibble(groupvar = unlist(dat$seroprev_group[, groupvar]), "Strata" = paste0("ma", 1:num_mas))
+  colnames(dictkey) <- c(paste(groupvar), "Strata")
+  # deaths
+  dat$deaths <- dplyr::left_join(dat$deaths, dictkey) %>%
+    dplyr::select(c("ObsDay", "Strata", "Deaths"))
+  # seroprev
+  dat$obs_serology <- dplyr::left_join(dat$seroprev_group, dictkey) %>%
+    dplyr::mutate(SeroDay = "sero_day1") %>%
+    dplyr::rename(SeroPrev = seroprevalence) %>%
+    dplyr::select(c("SeroDay", "Strata", "SeroPrev"))
+
+  inputdata <- list(obs_deaths = dat$deaths,
+                    obs_serology = dat$obs_serology)
+  }
+
+  demog <- dat$prop_pop %>%
+    dplyr::left_join(., dictkey) %>%
+    dplyr::select(c("Strata", "popN")) %>%
+    dplyr::group_by(Strata) %>%
+    dplyr::summarise(popN = round(sum(popN))) %>%
+    dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
+    dplyr::arrange(Strata) %>%
+    dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
+
+
+  # make mod
+  mod1 <- make_IFRmodel_agg$new()
+  mod1$set_MeanTODparam("mod")
+  mod1$set_CoefVarOnsetTODparam("sod")
+  mod1$set_IFRparams(paste0("ma", 1:num_mas))
+  mod1$set_maxMa(maxMa)
+  mod1$set_Knotparams(paste0("x", 1:num_xs))
+  mod1$set_relKnot(max_xveclist[["name"]])
+  mod1$set_Infxnparams(paste0("y", 1:num_ys))
+  mod1$set_relInfxn(max_yveclist[["name"]])
+  mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
+  mod1$set_Serodayparams(serodayparams)
+  mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
+  mod1$set_data(inputdata)
+  mod1$set_demog(demog)
+  mod1$set_paramdf(df_params)
+  mod1$set_rho(rep(1, num_mas))
+  mod1$set_rcensor_day(.Machine$integer.max)
+  mod1$set_IFRdictkey(dictkey)
+  # out
+  mod1
+}
+
+
+
 #' @title Make Simple Data Dictionary Key for IFR age-bands, regions, etc. to simple
 #' @param strata string vector; Names of stata to simplify
 
