@@ -29,12 +29,20 @@ make_IFR_model_fit <- function(num_mas, maxMa,
     colnames(dictkey) <- c(paste(groupvar), "Strata")
     # deaths
     dat$deaths <- dplyr::left_join(dat$deaths, dictkey) %>%
-      dplyr::select(c("ObsDay", "Strata", "Deaths"))
+      dplyr::select(c("ObsDay", "Strata", "Deaths")) %>%
+      dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
+      dplyr::arrange(ObsDay, Strata) %>%
+      dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
+
     # seroprev
     dat$obs_serology <- dplyr::left_join(dat$seroprev_group_adj, dictkey) %>%
       dplyr::mutate(SeroDay = "sero_day1") %>%
       dplyr::rename(SeroPrev = seroprevalence_adj) %>%
-      dplyr::select(c("SeroDay", "Strata", "SeroPrev"))
+      dplyr::select(c("SeroDay", "Strata", "SeroPrev")) %>%
+      dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
+      dplyr::arrange(SeroDay, Strata) %>%
+      dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
+
 
     inputdata <- list(obs_deaths = dat$deaths,
                       obs_serology = dat$obs_serology)
@@ -44,12 +52,20 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   colnames(dictkey) <- c(paste(groupvar), "Strata")
   # deaths
   dat$deaths <- dplyr::left_join(dat$deaths, dictkey) %>%
-    dplyr::select(c("ObsDay", "Strata", "Deaths"))
+    dplyr::select(c("ObsDay", "Strata", "Deaths"))  %>%
+    dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
+    dplyr::arrange(ObsDay, Strata) %>%
+    dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
+
   # seroprev
   dat$obs_serology <- dplyr::left_join(dat$seroprev_group, dictkey) %>%
     dplyr::mutate(SeroDay = "sero_day1") %>%
     dplyr::rename(SeroPrev = seroprevalence) %>%
-    dplyr::select(c("SeroDay", "Strata", "SeroPrev"))
+    dplyr::select(c("SeroDay", "Strata", "SeroPrev")) %>%
+    dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
+    dplyr::arrange(SeroDay, Strata) %>%
+    dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
+
 
   inputdata <- list(obs_deaths = dat$deaths,
                     obs_serology = dat$obs_serology)
