@@ -36,6 +36,11 @@ swe_orig <- get_orig_seroprev(IFRmodinput = readRDS("data/derived/SWE/SWE_ageban
                               groupingvar = "ageband") %>%
   dplyr::mutate(country = "SWE")
 
+# Brazil
+bra_orig <- get_orig_seroprev(IFRmodinput = readRDS("data/derived/BRA/BRA_agebands.RDS"),
+                              groupingvar = "ageband") %>%
+  dplyr::mutate(country = "BRA")
+
 #......................
 # more in depth
 #......................
@@ -61,6 +66,11 @@ che_res <- get_crude_summarydf(IFRmodinput = readRDS("data/derived/CHE/CHE_ageba
 swe_res <- get_crude_summarydf(IFRmodinput = readRDS("data/derived/SWE/SWE_agebands.RDS"),
                         groupingvar = "ageband") %>%
   dplyr::mutate(country = "SWE")
+
+# Brazil
+bra_res <- get_crude_summarydf(IFRmodinput = readRDS("data/derived/BRA/BRA_agebands.RDS"),
+                              groupingvar = "ageband") %>%
+  dplyr::mutate(country = "BRA")
 
 #............................................................
 # Regional
@@ -105,19 +115,24 @@ md_fl_resr <- get_crude_summarydf(IFRmodinput = readRDS("data/derived/USA/MD_FL_
                            groupingvar = "region") %>%
   dplyr::mutate(country = "MD_FL")
 
+# Brazil
+bra_resr <- get_crude_summarydf(IFRmodinput = readRDS("data/derived/BRA/BRA_regions.RDS"),
+                               groupingvar = "region") %>%
+  dplyr::mutate(country = "BRA")
+
 #............................................................
 # plots
 #...........................................................
 #......................
 # seroprevalence by age
 #......................
-agedat <- rbind.data.frame(esp_orig, nld_orig, dnk_orig, che_orig, swe_orig)
+agedat <- rbind.data.frame(esp_orig, nld_orig, dnk_orig, che_orig, swe_orig, bra_orig)
 
 agedat %>%
   ggplot() +
   geom_line(aes(x = age_mid, y = seroprev, color = country), alpha = 0.8) +
   geom_point(aes(x = age_mid, y = seroprev, color = country)) +
-  scale_color_manual(values = wesanderson::wes_palette("Darjeeling1")) +
+  scale_color_manual(values = c(wesanderson::wes_palette("Darjeeling1"), "purple")) +
   xlab("Age (yrs.)") + ylab("Seroprevalnce") +
   theme(plot.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 14),
         axis.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 12),
@@ -130,10 +145,6 @@ agedat %>%
         panel.grid = element_blank(),
         panel.border = element_blank(),
         axis.line = element_line(color = "#000000", size = 1))
-
-
-
-
 
 #......................
 # DEATHS BY AGE
@@ -154,12 +165,12 @@ levels(deaths$cols)<-cols25(25)
 
 
 par(mar=c(5,4,4,5))
-plot(deaths$age_mid,deaths$deaths.prop.age,col=deaths$cols,xlab="age",ylab="proportion of deaths")
+plot(deaths$age_mid,deaths$deaths.prop.age,col=deaths$cols,xlab="age",ylab="proportion of deaths", pch = 20)
 legend(102,0.7,unique(deaths$study_id),xpd=T,pch=1,col=unique(deaths$cols))
 
 ### Deaths per population by age
-col_vec <- RColorBrewer::brewer.pal(7, "Set1")
-names(col_vec) <- c("Spain", "Sweden", "Switzerland", "Denmark","Netherlands","United Kingdom","United States - LA")
+col_vec <- RColorBrewer::brewer.pal(8, "Set1")
+names(col_vec) <- c("Spain", "Sweden", "Switzerland", "Denmark","Netherlands","United Kingdom","United States - LA", "Brazil")
 par(mar=c(5,4,4,2))
 scale<-1
 plot(esp_res$age_mid,scale*esp_res$prop_deaths_per_pop,xlab="age group (years)",ylab="deaths per capita",xlim=c(0,100),
@@ -167,23 +178,24 @@ plot(esp_res$age_mid,scale*esp_res$prop_deaths_per_pop,xlab="age group (years)",
 points(che_res$age_mid,scale*che_res$prop_deaths_per_pop,pch=21, col.main="black", bg=col_vec[3])
 points(dnk_res$age_mid,scale*dnk_res$prop_deaths_per_pop,pch=21, col.main="black", bg=col_vec[4])
 points(nld_res$age_mid,scale*nld_res$prop_deaths_per_pop,pch=21, col.main="black", bg=col_vec[5])
-legend(0,1.4,names(col_vec)[c(1,3,4,5,7)],pch=rep(21,4),col=rep("black",4), bty='n',
-       pt.bg=col_vec[c(1,3,4,5,7)],xpd=T,ncol=2)
-
+points(bra_res$age_mid, scale*bra_res$prop_deaths_per_pop, pch=21, col.main="black", bg=col_vec[6])
+legend(0,1.3,names(col_vec)[c(1,3,4,5,8)],pch=rep(21,4),col=rep("black",4), bty='n',
+       pt.bg=col_vec[c(1,3,4,5,6)],xpd=T,ncol=2)
 
 
 ######## IFR BY AGE
-col_vec <- RColorBrewer::brewer.pal(7, "Set1")
-names(col_vec) <- c("Spain", "Sweden", "Switzerland", "Denmark","Netherlands","United Kingdom","United States - LA")
+col_vec <- RColorBrewer::brewer.pal(8, "Set1")
+names(col_vec) <- c("Spain", "Sweden", "Switzerland", "Denmark","Netherlands","United Kingdom","United States - LA", "Brazil")
 par(mar=c(5,4,4,2))
 plot(esp_res$age_mid,100*esp_res$ifr_age_crude,xlab="age group (years)",ylab="Crude IFR",xlim=c(0,100),
-     ylim=c(0,17),pch=21, col.main="black", bg=col_vec[1])
+     ylim=c(0,30),pch=21, col.main="black", bg=col_vec[1])
 points(che_res$age_mid,100*che_res$ifr_age_crude,pch=21, col.main="black", bg=col_vec[3])
 points(dnk_res$age_mid,100*dnk_res$ifr_age_crude,pch=21, col.main="black", bg=col_vec[4])
 points(nld_res$age_mid,100*nld_res$ifr_age_crude,pch=21, col.main="black", bg=col_vec[5])
+points(bra_res$age_mid,100*bra_res$ifr_age_crude,pch=21, col.main="black", bg=col_vec[6])
 points(la_ca_res$age_mid,100*la_ca_res$ifr_age_crude,pch=21, col.main="black", bg=col_vec[7])
-legend(0,23,names(col_vec)[c(1,3,4,5,7)],pch=rep(21,4),col=rep("black",4), bty='n',
-       pt.bg=col_vec[c(1,3,4,5,7)],xpd=T,ncol=2)
+legend(0,23,names(col_vec)[c(1,3,4,5,8)],pch=rep(21,4),col=rep("black",4), bty='n',
+       pt.bg=col_vec[c(1,3,4,5,6)],xpd=T,ncol=2)
 
 
 ######## REGION VERSUS MORTALITY
