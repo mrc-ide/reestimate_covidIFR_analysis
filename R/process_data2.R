@@ -180,7 +180,7 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     #......................
     recast_deaths_df <- recast_deaths_df %>%
       dplyr::filter(georegion %in% recast_deaths_geocode) %>%
-      dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date) - start_date)) %>%
+      dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date) - start_date) + 1) %>%
       dplyr::filter(ObsDay >= 1) %>% # consistent origin
       dplyr::arrange(ObsDay)
 
@@ -232,9 +232,10 @@ process_data2 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
     #......................
 
     deaths.summ <- deaths %>%
-      dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date_start_survey) - start_date)) %>%
+      dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date_start_survey) - start_date) + 1) %>%
       dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
-      dplyr::summarise( Deaths = sum(n_deaths) )
+      dplyr::summarise( Deaths = sum(n_deaths) ) %>%
+      dplyr::arrange_at(c("ObsDay", groupingvar))
   }
 
 
