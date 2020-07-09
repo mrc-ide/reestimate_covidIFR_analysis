@@ -29,11 +29,11 @@ curr_sero<-curr_sero %>%
 
 curr_sero$age_mid<-0.5*(x$deaths_group$age_low + x$deaths_group$age_high)
 curr_sero$age_mid[nrow(curr_sero)]<-95
-curr_sero$pop<-x$popN*x$prop_pop$pop_prop
-curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$popN*x$prop_pop$pop_prop
+curr_sero$pop<- x$prop_pop$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$prop_pop$popN
 curr_sero$ifr_age_crude<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$seroprev_adj_ss<-rogan_gladen(curr_sero$seroprevalence, x$sero_sens,x$sero_spec)
-curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$popN*x$prop_pop$pop_prop
+curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$prop_pop$popN
 curr_sero$ifr_age_adj_ss<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_adj_ss
 curr_sero$deaths_per_pop<-x$deaths_group$deaths_at_sero / curr_sero$pop
 curr_sero$prop_deaths_per_pop<-curr_sero$deaths_per_pop/sum(curr_sero$deaths_per_pop)
@@ -72,11 +72,11 @@ curr_sero$seroprevalence[which(curr_sero$ageband=='59-64' | curr_sero$ageband=='
 
 x$prop_pop<-x$prop_pop[which(!is.na(x$prop_pop$ageband)),]
 
-curr_sero$pop<-x$popN*x$prop_pop$pop_prop
-curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$prop_pop$popN
 curr_sero$ifr_age_crude<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$seroprev_adj_ss<-rogan_gladen(curr_sero$seroprevalence, x$sero_sens,x$sero_spec)
-curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$popN*x$prop_pop$pop_prop
+curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$prop_pop$popN
 curr_sero$ifr_age_adj_ss<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_adj_ss
 curr_sero$deaths_per_pop<-x$deaths_group$deaths_at_sero / curr_sero$pop
 curr_sero$prop_deaths_per_pop<-curr_sero$deaths_per_pop/sum(curr_sero$deaths_per_pop)
@@ -94,11 +94,11 @@ curr_sero$seroprevalence<-x$seroprev$seroprev
 curr_sero$seroprevalence[which(curr_sero$ageband=='59-69')]<-
   x$seroprev_group$seroprevalence[which(x$seroprev_group$ageband=='59-69')]
 
-curr_sero$pop<-x$popN*x$prop_pop$pop_prop
-curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$prop_pop$popN
 curr_sero$ifr_age_crude<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$seroprev_adj_ss<-rogan_gladen(curr_sero$seroprevalence, x$sero_sens,x$sero_spec)
-curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$popN*x$prop_pop$pop_prop
+curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$prop_pop$popN
 curr_sero$ifr_age_adj_ss<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_adj_ss
 curr_sero$deaths_per_pop<-x$deaths_group$deaths_at_sero / curr_sero$pop
 curr_sero$prop_deaths_per_pop<-curr_sero$deaths_per_pop/sum(curr_sero$deaths_per_pop)
@@ -127,11 +127,11 @@ curr_sero$seroprevalence[which(curr_sero$age_low>=50)]<-
   x$seroprev_group$seroprevalence[i]
 
 
-curr_sero$pop<-x$popN*x$prop_pop$pop_prop
-curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$prop_pop$popN
 curr_sero$ifr_age_crude<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$seroprev_adj_ss<-rogan_gladen(curr_sero$seroprevalence, x$sero_sens,x$sero_spec)
-curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$popN*x$prop_pop$pop_prop
+curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$prop_pop$popN
 curr_sero$ifr_age_adj_ss<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_adj_ss
 curr_sero$deaths_per_pop<-x$deaths_group$deaths_at_sero / curr_sero$pop
 curr_sero$prop_deaths_per_pop<-curr_sero$deaths_per_pop/sum(curr_sero$deaths_per_pop)
@@ -150,8 +150,8 @@ curr_sero$age_mid[which(curr_sero$ageband=='65-999')]<-73 ## TODO check exact.
 ## enter average by default.
 curr_sero$seroprevalence<-x$seroprev$seroprevalence
 
-curr_sero$pop<-x$popN*x$prop_pop$pop_prop
-curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$prop_pop$popN
 curr_sero$ifr_age_crude<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$deaths_per_pop<-x$deaths_group$deaths_at_sero / curr_sero$pop
 curr_sero$prop_deaths_per_pop<-curr_sero$deaths_per_pop/sum(curr_sero$deaths_per_pop)
@@ -165,7 +165,7 @@ i<-"ESP"
 x<-readRDS(paste0("data/derived/",i,"/",i,"_regions.RDS"))
 curr_sero<-x$deaths_group
 curr_sero$seroprevalence<-x$seroprev_group$seroprevalence
-curr_sero$pop<-x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
 curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
 curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
@@ -177,7 +177,7 @@ i<-"NLD"
 x<-readRDS(paste0("data/derived/",i,"/",i,"_regions.RDS"))
 curr_sero<-x$deaths_group
 curr_sero$seroprevalence<-x$seroprev_group$seroprevalence
-curr_sero$pop<-x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
 curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
 curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
@@ -188,7 +188,7 @@ i<-"DNK"
 x<-readRDS(paste0("data/derived/",i,"/",i,"_regions.RDS"))
 curr_sero<-x$deaths_group
 curr_sero$seroprevalence<-x$seroprev_group$seroprevalence
-curr_sero$pop<-x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
 curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
 curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
