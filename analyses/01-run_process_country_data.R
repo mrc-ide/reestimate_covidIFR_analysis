@@ -22,7 +22,9 @@ ECDCdf <- readr::read_csv("data/raw/daily_deaths_ECDC20200518.csv") %>%
 
 # demography
 populationdf <- readr::read_csv("data/raw/population.csv") %>%
-  dplyr::select(-c("reference"))
+  dplyr::select(-c("reference")) %>%
+  dplyr::mutate(age_low = ifelse(age_low == 0 & age_high == 0, 1, age_low),
+                age_high = ifelse(age_low == 1 & age_high == 0, 1, age_high))  # liftover "zero" year olds to be 1, 1 as well
 
 # seroprev
 sero_valdf <- readr::read_csv("data/raw/seroassay_validation.csv")
@@ -155,7 +157,9 @@ NLD.agebands.dat <- process_data2(deaths = deathsdf,
                                   recast_deaths_geocode = "NLD",
                                   filtRegions = NULL, # some regions combined in serosurvey
                                   filtGender = NULL,
-                                  filtAgeBand = NULL)
+                                  filtAgeBand = NULL,
+                                  death_agebreaks = c(0, 9, 19, 29, 39, 49, 59, 69, 79, 89, 999),
+                                  sero_agebreaks = c(0, 9, 19, 29, 39, 49, 59, 69, 79, 89, 999))
 
 
 #......................
@@ -183,6 +187,13 @@ nld_org_seroprev <- NLD.agebands.dat$seroprev_group %>%
 nld_adj_seroprev$seroprevalence <- apply(nld_adj_seroprev, 1, wiggle_age_matchfun, wiggle = 2, y = nld_org_seroprev)
 # write new serology df
 NLD.agebands.dat$seroprev_group_adj <- nld_adj_seroprev
+
+# Netherlands seroprevalence missing in some regions
+# assume that this missing values can be imputed as the mean of the other regions
+NLD.regions.dat$seroprev_group_adj <- NLD.regions.dat$seroprev_group
+NLD.regions.dat$seroprev_group_adj$seroprevalence_adj <- NLD.regions.dat$seroprev_group_adj$seroprevalence
+NLD.regions.dat$seroprev_group_adj$seroprevalence_adj[is.na(NLD.regions.dat$seroprev_group_adj$seroprevalence_adj)] <- mean(NLD.regions.dat$seroprev_group_adj$seroprevalence_adj, na.rm = T)
+
 
 #......................
 # get rho
@@ -802,10 +813,14 @@ saveRDS(MD_FL.regions.dat, "data/derived/USA/MD_FL_regions.RDS")
 #......................
 # pre-process Brazil
 #......................
+rgn_key <- readr::read_csv("data/raw/BRA_state_region_key.csv") %>%
+  dplyr::select(-c("state")) %>%
+  dplyr::rename(state = state_abbr)
 bradeaths <- readRDS("data/raw/Brazil_state_age_sex_deaths.rds") %>%
+  dplyr::left_join(., rgn_key, by = "state") %>%
+  dplyr::select(-c("state")) %>%
   dplyr::filter(!is.na(date)) %>%
-  dplyr::rename(gender = sex,
-                region = state) %>%
+  dplyr::rename(gender = sex) %>%
   dplyr::group_by(date, region, age, gender) %>%
   dplyr::summarise(
     deaths = sum(count)
@@ -822,7 +837,8 @@ bradeaths <- readRDS("data/raw/Brazil_state_age_sex_deaths.rds") %>%
   dplyr::rename(date_start_survey = date,
                 n_deaths = deaths) %>%
   dplyr::mutate(date_end_survey = date_start_survey) %>%
-  dplyr::ungroup(.)
+  dplyr::ungroup(.) %>%
+  dplyr::arrange(date_start_survey, region)
 
 # seroprevalence
 sero_valdf <-  readr::read_csv("data/raw/seroassay_validation.csv")
@@ -832,12 +848,11 @@ rgnsero_prevdf <- readr::read_csv("data/raw/Brazil_seroprevalence_first_survey.c
   dplyr::select(-c(dplyr::starts_with("X"))) %>%
   magrittr::set_colnames(tolower(colnames(.))) %>%
   dplyr::filter(!is.na(positive)) %>% # CHARLIE, note this drop
-  dplyr::group_by(state_code) %>%
+  dplyr::group_by(region) %>%
   dplyr::summarise(
     n_tested = sum(tested),
     n_positive = sum(positive)
   ) %>%
-  dplyr::rename(region = state_code) %>%
   dplyr::mutate(
     seroprevalence_unadjusted = n_positive/n_tested,
     country = "BRA",
@@ -864,10 +879,9 @@ bra_populationdf <- readr::read_csv("data/raw/Brazil_2020_Population_Data.csv") 
     age_low = as.numeric(stringr::str_split_fixed(age_group, "-[0-9]+", n = 2)[,1]),
     age_high = as.numeric(stringr::str_split_fixed(age_group, "[0-9]-", n = 2)[,2]) - 1 # make 0-based like seroprev
   ) %>%
-  dplyr::group_by(state, age_low, age_high, sex) %>%
+  dplyr::group_by(region, age_low, age_high, sex) %>%
   dplyr::summarise(population = sum(population)) %>%
-  dplyr::rename(region = state,
-                gender =sex) %>%
+  dplyr::rename(gender =sex) %>%
   dplyr::mutate(
     country = "BRA",
     study_id = "BRA1",
@@ -918,6 +932,8 @@ BRA.agebands.dat <- process_data2(deaths = bradeaths,
 #......................
 # get rho
 #......................
+BRA.regions.dat$rho <- rep(1, length(unique(BRA.regions.dat$deaths$region)))
+BRA.agebands.dat$rho <- rep(1, length(unique(BRA.agebands.dat$deaths$ageband)))
 # TODO talk to Brazil team if we use contact mats
 
 #......................
