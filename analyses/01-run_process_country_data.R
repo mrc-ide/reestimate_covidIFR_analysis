@@ -4,8 +4,7 @@
 ## Notes: Process data functions and files are specific to regions
 #................................................................................................
 library(tidyverse)
-source("R/process_data2.R")
-source("R/contact_mat_helpers.R")
+source("R/process_data3.R")
 #..................................................................................
 #---- Preprocess Eurasia Data #----
 #..................................................................................
@@ -18,8 +17,8 @@ ECDCdf <- readr::read_csv("data/raw/daily_deaths_ECDC20200518.csv") %>%
   dplyr::select(c("dateRep", "countryterritoryCode", "deaths")) %>%
   dplyr::rename(date = dateRep,
                 georegion = countryterritoryCode) %>%
-  dplyr::mutate(date = lubridate::dmy(date)) # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-
+  dplyr::mutate(date = lubridate::dmy(date), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+                deaths = ifelse(deaths < 0, 0, deaths)) # remove deaths typos
 # demography
 populationdf <- readr::read_csv("data/raw/population.csv") %>%
   dplyr::select(-c("reference")) %>%
@@ -44,7 +43,7 @@ sero_prevdf <- readr::read_csv("data/raw/seroprevalence.csv") %>%
 #......................
 # regions
 #......................
-ESP.regions.dat <- process_data2(deaths = deathsdf,
+ESP.regions.dat <- process_data3(deaths = deathsdf,
                                  population = populationdf,
                                  sero_val = sero_valdf,
                                  seroprev = sero_prevdf,
@@ -63,7 +62,7 @@ ESP.regions.dat <- process_data2(deaths = deathsdf,
 #......................
 # agebands
 #......................
-ESP.agebands.dat <- process_data2(deaths = deathsdf,
+ESP.agebands.dat <- process_data3(deaths = deathsdf,
                                   population = populationdf,
                                   sero_val = sero_valdf,
                                   seroprev = sero_prevdf,
@@ -74,9 +73,8 @@ ESP.agebands.dat <- process_data2(deaths = deathsdf,
                                   recast_deaths_geocode = "ESP",
                                   filtRegions = NULL,
                                   filtGender = NULL,
-                                  filtAgeBand = c("0-10", "10-20", "20-30",
-                                                  "30-40", "40-50", "50-60",
-                                                  "60-70", "70-80", "80-90", "90-999"),
+                                  death_agebreaks = c(0, 10, 20, 30, 40,
+                                                      50, 60, 70, 80, 90, 999),
                                   sero_agebreaks = c(0, 10, 20, 30, 40,
                                                      50, 60, 70, 80, 90, 999))
 #......................
@@ -94,26 +92,9 @@ ESP.regions.dat$deaths$Deaths[ESP.regions.dat$deaths$ObsDay == 118] <- -1
 #......................
 # get rho
 #......................
-ESPcontact <- get_contact_mat(country = "Spain",
-                              strict = FALSE,
-                              nboots_extrapolate = 5,
-                              surveyDOI = "https://doi.org/10.5281/zenodo.1043437",
-                              agebands = c(seq(from = 0, to = 80, by = 10), 999))
-# assume mixing matrix for 90+ (missing data) is same as 80-90
-ESPcontact <- rbind.data.frame(ESPcontact, ESPcontact[nrow(ESPcontact), ])
-ESPcontact <- cbind.data.frame(ESPcontact, ESPcontact[, ncol(ESPcontact)])
-colnames(ESPcontact)[(length(ESPcontact)-1):length(ESPcontact)] <- c("[80, 90)", "90+")
-
-# multiple through demog for age -- these essentially are age standardized "contact counts"
-ESPrho.age <- ESP.agebands.dat$prop_pop$popN %*% as.matrix(ESPcontact)
-# standardize for model stability
-ESP.agebands.dat$rho <- ESPrho.age/sd(ESPrho.age)
-
+ESP.agebands.dat$rho <- rep(1, length(unique(ESP.agebands.dat$deaths$ageband)))
 # multiple through demog and age-standardize for region
-ESPrho.region <- get_rgnal_contacts(rgndemog = ESP.regions.dat$prop_pop,
-                                    contactmat = as.matrix(ESPcontact))
-# standardize for model stability
-ESP.regions.dat$rho <- ESPrho.region/sd(ESPrho.region)
+ESP.regions.dat$rho <- rep(1, length(unique(ESP.regions.dat$deaths$region)))
 
 
 #......................
@@ -130,7 +111,7 @@ saveRDS(ESP.regions.dat, "data/derived/ESP/ESP_regions.RDS")
 # regions
 #......................
 ## NB one or two regions have missing seroprevalence, as map regions did not match to current regions.
-NLD.regions.dat <- process_data2(deaths = deathsdf,
+NLD.regions.dat <- process_data3(deaths = deathsdf,
                                  population = populationdf,
                                  sero_val = sero_valdf,
                                  seroprev = sero_prevdf,
@@ -146,7 +127,7 @@ NLD.regions.dat <- process_data2(deaths = deathsdf,
 #......................
 # ages
 #......................
-NLD.agebands.dat <- process_data2(deaths = deathsdf,
+NLD.agebands.dat <- process_data3(deaths = deathsdf,
                                   population = populationdf,
                                   sero_val = sero_valdf,
                                   seroprev = sero_prevdf,
@@ -171,57 +152,45 @@ NLD.agebands.dat <- process_data2(deaths = deathsdf,
 # 2) 18-30 seroprevalence = 20-29 seroprevalence
 # 3) 60-72 seroprevalence = 60-69 seroprevalence
 # 4) all other seroprevalence = national average.
-agebands <- unique(NLD.agebands.dat$deaths$ageband)
+agebands <- unique(NLD.agebands.dat$deathsMCMC$ageband)
 nld_adj_seroprev <- tibble::tibble(
-  ObsDaymin = NLD.agebands.dat$seroprev$ObsDaymin,
-  ObsDaymax = NLD.agebands.dat$seroprev$ObsDaymax,
+  ObsDaymin = unique(NLD.agebands.dat$seroprevMCMC$ObsDaymin),
+  ObsDaymax = unique(NLD.agebands.dat$seroprevMCMC$ObsDaymax),
   ageband = agebands,
   age_low = as.numeric(stringr::str_split_fixed(agebands, "-[0-9]+", n=2)[,1]),
   age_high= as.numeric(stringr::str_split_fixed(agebands, "[0-9]+-", n=2)[,2]),
-  seroprevalence_adj = NLD.agebands.dat$seroprev$seroprev) %>%
+  seroprevalence = NA) %>%
   dplyr::arrange(age_low)
 
 nld_org_seroprev <- NLD.agebands.dat$seroprev_group %>%
   dplyr::select(c("age_low", "age_high", "seroprevalence"))
 
 nld_adj_seroprev$seroprevalence <- apply(nld_adj_seroprev, 1, wiggle_age_matchfun, wiggle = 2, y = nld_org_seroprev)
+# assuming missing is mean
+nldmean <- mean(nld_adj_seroprev$seroprevalence, na.rm = T)
+nld_adj_seroprev <- nld_adj_seroprev %>%
+  dplyr::mutate(seroprevalence = ifelse(is.na(seroprevalence), nldmean, seroprevalence)) %>%
+  dplyr::rename(SeroPrev = seroprevalence) %>%
+  dplyr::select(c("ObsDaymin", "ObsDaymax", "ageband", "SeroPrev"))
+
 # write new serology df
-NLD.agebands.dat$seroprev_group_adj <- nld_adj_seroprev
+NLD.agebands.dat$seroprevMCMC <- nld_adj_seroprev
 
 # Netherlands seroprevalence missing in some regions
 # assume that this missing values can be imputed as the mean of the other regions
-NLD.regions.dat$seroprev_group_adj <- NLD.regions.dat$seroprev_group
-NLD.regions.dat$seroprev_group_adj$seroprevalence_adj <- NLD.regions.dat$seroprev_group_adj$seroprevalence
-NLD.regions.dat$seroprev_group_adj$seroprevalence_adj[is.na(NLD.regions.dat$seroprev_group_adj$seroprevalence_adj)] <- mean(NLD.regions.dat$seroprev_group_adj$seroprevalence_adj, na.rm = T)
+NLD.regions.dat$seroprevMCMC$SeroPrev <- NLD.regions.dat$seroprev_group$seroprevalence
+nldmean <- mean(NLD.regions.dat$seroprev_group$seroprevalence, na.rm = T)
+NLD.regions.dat$seroprevMCMC <- NLD.regions.dat$seroprevMCMC %>%
+  dplyr::mutate(SeroPrev = ifelse(is.na(SeroPrev), nldmean, SeroPrev))
+
 
 
 #......................
 # get rho
 #......................
-nld_contact_agebands <- unique(c(0, NLD.agebands.dat$deaths_group$age_high))
-# don' have ends, so shorten
-nld_contact_agebands <- nld_contact_agebands[1:(length(nld_contact_agebands)-4)]
-NLDcontact <- get_contact_mat(country = "Netherlands",
-                              strict = TRUE,
-                              surveyDOI = "https://doi.org/10.5281/zenodo.1043437",
-                              agebands = nld_contact_agebands)$matrix
-# assume mixing matrix for 89-94, and 94+ (missing data) is same as 84-94
-NLDcontact <- rbind.data.frame(NLDcontact, NLDcontact[nrow(NLDcontact), ], NLDcontact[nrow(NLDcontact), ], NLDcontact[nrow(NLDcontact), ], NLDcontact[nrow(NLDcontact), ])
-NLDcontact <- cbind.data.frame(NLDcontact, NLDcontact[, ncol(NLDcontact)], NLDcontact[, ncol(NLDcontact)], NLDcontact[, ncol(NLDcontact)], NLDcontact[, ncol(NLDcontact)])
-colnames(NLDcontact)[(length(NLDcontact)-3):length(NLDcontact)] <- c("[79, 84)", "[84, 89)", "[89, 94)", "94+")
-
-# multiple through demog for age -- these essentially are age standardized "contact counts"
-NLDrho.age <- NLD.agebands.dat$prop_pop$popN %*% as.matrix(NLDcontact)
-# standardize for model stability
-NLD.agebands.dat$rho <- NLDrho.age/sd(NLDrho.age)
-
-#TODO FIX NLD MISSING ISSUE
+NLD.agebands.dat$rho <- rep(1, length(unique(NLD.agebands.dat$deathsMCMC$ageband)))
 # multiple through demog and age-standardize for region
-NLDrho.region <- get_rgnal_contacts(rgndemog = NLD.regions.dat$prop_pop,
-                                    contactmat = mean(unlist(as.matrix(NLDcontact))))
-# standardize for model stability
-NLD.regions.dat$rho <- NLDrho.region/sd(NLDrho.region)
-
+NLD.regions.dat$rho <- rep(1, length(unique(NLD.regions.dat$deathsMCMC$region)))
 
 #......................
 # save out
@@ -238,7 +207,7 @@ saveRDS(NLD.agebands.dat, "data/derived/NLD/NLD_agebands.RDS")
 #......................
 # regions
 #......................
-DNK.regions.dat <- process_data2(deaths = deathsdf,
+DNK.regions.dat <- process_data3(deaths = deathsdf,
                                  population = populationdf,
                                  sero_val = sero_valdf,
                                  seroprev = sero_prevdf,
@@ -254,7 +223,7 @@ DNK.regions.dat <- process_data2(deaths = deathsdf,
 #......................
 # ages
 #......................
-DNK.agebands.dat <- process_data2(deaths = deathsdf,
+DNK.agebands.dat <- process_data3(deaths = deathsdf,
                                   population = populationdf,
                                   sero_val = sero_valdf,
                                   seroprev = sero_prevdf,
@@ -273,44 +242,20 @@ DNK.agebands.dat <- process_data2(deaths = deathsdf,
 #......................
 # Denmark deaths agebands do not overlap well -- potentially have one age group in 59-69
 #  but instead assume ALL national average
-agebands <- unique(DNK.agebands.dat$deaths$ageband)
+agebands <- unique(DNK.agebands.dat$deathsMCMC$ageband)
 dnk_adj_seroprev <- tibble::tibble(
-  ObsDaymin = DNK.agebands.dat$seroprev$ObsDaymin,
-  ObsDaymax = DNK.agebands.dat$seroprev$ObsDaymax,
+  ObsDaymin = unique(DNK.agebands.dat$seroprevMCMC$ObsDaymin),
+  ObsDaymax = unique(DNK.agebands.dat$seroprevMCMC$ObsDaymax),
   ageband = agebands,
-  age_low = as.numeric(stringr::str_split_fixed(agebands, "-[0-9]+", n=2)[,1]),
-  age_high= as.numeric(stringr::str_split_fixed(agebands, "[0-9]+-", n=2)[,2]),
-  seroprevalence_adj = DNK.agebands.dat$seroprev$seroprev) %>%
-  dplyr::arrange(age_low)
-DNK.agebands.dat$seroprev_group_adj <- dnk_adj_seroprev
+  SeroPrev = mean(DNK.agebands.dat$seroprev_group$seroprevalence))
+DNK.agebands.dat$seroprevMCMC <- dnk_adj_seroprev
 
 #......................
 # get rho
 #......................
-dnk_contact_agebands <- unique(c(0, DNK.agebands.dat$deaths_group$age_high))
-dnk_contact_agebands <- dnk_contact_agebands[1:(length(dnk_contact_agebands)-2)]
-DNKcontact <- get_contact_mat(country = "Denmark",
-                              strict = FALSE,
-                              nboots_extrapolate = 5,
-                              surveyDOI = "https://doi.org/10.5281/zenodo.1043437",
-                              agebands = dnk_contact_agebands)
-
-# assume mixing matrix for 79-89, and 89+ (missing data) is same as 79+
-DNKcontact <- rbind.data.frame(DNKcontact, DNKcontact[nrow(DNKcontact), ])
-DNKcontact <- cbind.data.frame(DNKcontact, DNKcontact[, ncol(DNKcontact)])
-colnames(DNKcontact)[(length(DNKcontact)-3):length(DNKcontact)] <- c("[79, 89)", "89+")
-
-# multiple through demog for age -- these essentially are age standardized "contact counts"
-DNKrho.age <- DNK.agebands.dat$prop_pop$popN %*% as.matrix(DNKcontact)
-# standardize for model stability
-DNK.agebands.dat$rho <- DNKrho.age/sd(DNKrho.age)
-
+DNK.agebands.dat$rho <- rep(1, length(unique(DNK.agebands.dat$deathsMCMC$ageband)))
 # multiple through demog and age-standardize for region
-DNKrho.region <- get_rgnal_contacts(rgndemog = DNK.regions.dat$prop_pop,
-                                    contactmat = as.matrix(DNKcontact))
-# standardize for model stability
-DNK.regions.dat$rho <- DNKrho.region/sd(DNKrho.region)
-
+DNK.regions.dat$rho <- rep(1, length(unique(DNK.regions.dat$deathsMCMC$region)))
 
 #......................
 # save out
@@ -341,7 +286,7 @@ CHE1TimeSeries <- CHE1TimeSeries %>%
 #......................
 # ages
 #......................
-CHE.agebands.dat <- process_data2(deaths = deathsdf,
+CHE.agebands.dat <- process_data3(deaths = deathsdf,
                                   population = populationdf,
                                   sero_val = sero_valdf,
                                   seroprev = sero_prevdf,
@@ -361,14 +306,14 @@ CHE.agebands.dat <- process_data2(deaths = deathsdf,
 # (1) seroprevalence 5-19 is representative of deaths for 0-10 and 10-20, respectively
 # (1) seroprevalence 19-49 is representative of deaths for 20-30, 30-40, and 40-50, respectively
 # (1) seroprevalence 49+ is representative of deaths for 49+ age bands
-agebands <- unique(CHE.agebands.dat$deaths$ageband)
+agebands <- unique(CHE.agebands.dat$deathsMCMC$ageband)
 che_adj_seroprev <- tibble::tibble(
-  ObsDaymin = CHE.agebands.dat$seroprev$ObsDaymin,
-  ObsDaymax = CHE.agebands.dat$seroprev$ObsDaymax,
+  ObsDaymin = unique(CHE.agebands.dat$seroprevMCMC$ObsDaymin),
+  ObsDaymax = unique(CHE.agebands.dat$seroprevMCMC$ObsDaymax),
   ageband = agebands,
   age_low = as.numeric(stringr::str_split_fixed(agebands, "-[0-9]+", n=2)[,1]),
   age_high= as.numeric(stringr::str_split_fixed(agebands, "[0-9]+-", n=2)[,2]),
-  seroprevalence_adj = CHE.agebands.dat$seroprev$seroprev) %>%
+  seroprevalence = NA) %>%
   dplyr::arrange(age_low)
 
 che_org_seroprev <- CHE.agebands.dat$seroprev_group %>%
@@ -376,22 +321,18 @@ che_org_seroprev <- CHE.agebands.dat$seroprev_group %>%
 
 che_adj_seroprev$seroprevalence <- apply(che_adj_seroprev, 1, wiggle_age_matchfun, wiggle = 2,
                                          y = che_org_seroprev)
-# write new serology df
-CHE.agebands.dat$seroprev_group_adj <- che_adj_seroprev
+# imputer missing age group write new serology df
+meanche <- mean(che_adj_seroprev$seroprevalence, na.rm = T)
+che_adj_seroprev <- che_adj_seroprev %>%
+  dplyr::mutate(seroprevalence = ifelse(is.na(seroprevalence), meanche, seroprevalence)) %>%
+  dplyr::rename(SeroPrev = seroprevalence) %>%
+  dplyr::select(-c("age_low", "age_high"))
+CHE.agebands.dat$seroprevMCMC <- che_adj_seroprev
 
 #......................
 # get rho
 #......................
-CHEcontact <- get_contact_mat(country = "Switzerland",
-                              strict = FALSE,
-                              nboots_extrapolate = 5,
-                              surveyDOI = "https://doi.org/10.5281/zenodo.1043437",
-                              agebands = c(seq(from = 0, to = 80, by = 10), 999))
-
-# multiple through demog for age -- these essentially are age standardized "contact counts"
-CHErho.age <- CHE.agebands.dat$prop_pop$popN %*% as.matrix(CHEcontact)
-# standardize for model stability
-CHE.agebands.dat$rho <- CHErho.age/sd(CHErho.age)
+CHE.agebands.dat$rho <- rep(1, length(unique(che_adj_seroprev$ageband)))
 
 #......................
 # save out
@@ -400,6 +341,7 @@ dir.create("data/derived/CHE", recursive = T)
 saveRDS(CHE.agebands.dat, "data/derived/CHE/CHE_agebands.RDS")
 
 
+# TODO from here
 #............................................................
 # Iran
 #...........................................................
