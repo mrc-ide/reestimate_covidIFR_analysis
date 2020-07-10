@@ -341,29 +341,44 @@ dir.create("data/derived/CHE", recursive = T)
 saveRDS(CHE.agebands.dat, "data/derived/CHE/CHE_agebands.RDS")
 
 
-# TODO from here
 #............................................................
 # Iran
 #...........................................................
-## Dealt with specially within data processing function to study region of interest
-## Do not have info for more than region.
-IRN.agebands.dat<-process_data2(deaths = deathsdf,
-                                population = populationdf,
-                                sero_val = sero_valdf,
-                                seroprev = sero_prevdf,
-                                cumulative = TRUE,
-                                recast_deaths_df = ECDCdf,
-                                groupingvar = "ageband",
-                                study_ids = "IRN1",
-                                recast_deaths_geocode = "IRN",
-                                filtRegions = NULL, # some regions combined in serosurvey
-                                filtGender = NULL,
-                                filtAgeBand = NULL)
+# extract total deaths in Guilan for the time point where we have region specific deaths.
+# (the age specific deaths are not complete and wrong date so cannot use them for total deaths absolute
+IRNdeaths <- deathsdf %>%
+  dplyr::filter(study_id == "IRN1") %>%
+  dplyr::filter(study_id == "IRN1" & age_low == 0 & age_high == 999 & gender == "both") %>%
+  dplyr::mutate(age_breakdown = 1)
+
+IRN_recast_df <- ECDCdf %>%
+  dplyr::filter(georegion == "IRN") %>%
+  dplyr::filter(date <= IRNdeaths$date_end_survey)
+# now scale all recast_deaths_df deaths for this region before we use them
+scale_iran <- IRNdeaths %>%
+  dplyr::mutate(n_deaths = n_deaths/sum(IRN_recast_df$deaths)) %>%
+  .$n_deaths
+IRN_recast_df <- IRN_recast_df %>%
+  dplyr::mutate(deaths = round(deaths * scale_iran))
+
+
+IRN.agebands.dat <- process_data3(deaths = IRNdeaths,
+                                  population = populationdf,
+                                  sero_val = sero_valdf,
+                                  seroprev = sero_prevdf,
+                                  cumulative = TRUE,
+                                  recast_deaths_df = IRN_recast_df,
+                                  groupingvar = "ageband",
+                                  study_ids = "IRN1",
+                                  recast_deaths_geocode = "IRN",
+                                  filtRegions = NULL, # some regions combined in serosurvey
+                                  filtGender = NULL,
+                                  filtAgeBand = NULL)
 
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-# none, taken care of in script
+# see above
 
 
 #......................
@@ -384,7 +399,7 @@ saveRDS(IRN.agebands.dat, "data/derived/IRN/IRN_agebands.RDS")
 #......................
 # regions
 #......................
-SWE.regions.dat <- process_data2(deaths = deathsdf,
+SWE.regions.dat <- process_data3(deaths = deathsdf,
                                  population = populationdf,
                                  sero_val = sero_valdf,
                                  seroprev = sero_prevdf,
@@ -400,7 +415,7 @@ SWE.regions.dat <- process_data2(deaths = deathsdf,
 # age bands
 #......................
 ### For age analysis, assume data from the 9 regions, about 70% of the regions, is representative.
-SWE.agebands.dat <- process_data2(deaths = deathsdf,
+SWE.agebands.dat <- process_data3(deaths = deathsdf,
                                   population = populationdf,
                                   sero_val = sero_valdf,
                                   seroprev = sero_prevdf,
@@ -423,29 +438,9 @@ SWE.agebands.dat <- process_data2(deaths = deathsdf,
 #......................
 # get rho
 #......................
-swe_contact_agebands <- unique(c(0, SWE.agebands.dat$deaths_group$age_high))
-swe_contact_agebands <- swe_contact_agebands[1:(length(swe_contact_agebands)-2)]
-SWEcontact <- get_contact_mat(country = "Sweden",
-                              strict = FALSE,
-                              nboots_extrapolate = 5,
-                              surveyDOI = "https://doi.org/10.5281/zenodo.1043437",
-                              agebands = swe_contact_agebands)
-
-# assume mixing matrix for 79-89, and 89+ (missing data) is same as 79+
-SWEcontact <- rbind.data.frame(SWEcontact, SWEcontact[nrow(SWEcontact), ])
-SWEcontact <- cbind.data.frame(SWEcontact, SWEcontact[, ncol(SWEcontact)])
-colnames(SWEcontact)[(length(SWEcontact)-1):length(SWEcontact)] <- c("[79, 89)", "89+")
-
-# multiple through demog for age -- these essentially are age standardized "contact counts"
-SWErho.age <- SWE.agebands.dat$prop_pop$popN %*% as.matrix(SWEcontact)
-# standardize for model stability
-SWE.agebands.dat$rho <- SWErho.age/sd(SWErho.age)
-
-# multiple through demog and age-standardize for region
-SWErho.region <- get_rgnal_contacts(rgndemog = SWE.regions.dat$prop_pop,
-                                    contactmat = mean(unlist(as.matrix(SWEcontact))))
-# standardize for model stability
-SWE.regions.dat$rho <- SWErho.region/sd(SWErho.region)
+SWE.agebands.dat$rho <- rep(1, length(unique(SWE.agebands.dat$deathsMCMC$region)))
+# standarize for age
+SWE.regions.dat$rho <-  rep(1, length(unique(SWE.regions.dat$deathsMCMC$region)))
 
 
 #......................
@@ -522,7 +517,7 @@ JHUdf <- readr::read_csv("data/raw/JHU_time_series_covid19_deaths_US_july72020.c
 #......................
 # agebands
 #......................
-NYC_NY_1.agebands.dat <- process_data2(deaths = deathsdf,
+NYC_NY_1.agebands.dat <- process_data3(deaths = deathsdf,
                                        population = populationdf,
                                        sero_val = sero_valdf,
                                        seroprev = sero_prevdf,
@@ -542,7 +537,7 @@ NYC_NY_1.agebands.dat <- process_data2(deaths = deathsdf,
 #......................
 # get rho
 #......................
-# TODO -- assume same as UK?
+NYC_NY_1.agebands.dat$rho <- rep(1, length(unique(NYC_NY_1.agebands.dat$deathsMCMC$ageband)))
 
 #......................
 # save out
@@ -579,7 +574,7 @@ LACAdeathsdf <- JHUdf %>%
 
 
 
-LA_CA.regions.dat <- process_data2(deaths = LACAdeathsdf,
+LA_CA.regions.dat <- process_data3(deaths = LACAdeathsdf,
                                    population = populationdf,
                                    sero_val = sero_valdf,
                                    seroprev = sero_prevdf,
@@ -597,7 +592,8 @@ LA_CA.regions.dat$seroprev_group$region <- "California_Los-Angeles"
 #......................
 # get rho
 #......................
-# none because basic
+# one because basic
+LA_CA.regions.dat$rho <- 1
 
 #......................
 # save out
@@ -626,7 +622,7 @@ SCCAdeathsdf <- JHUdf %>%
 
 
 
-SC_CA.regions.dat <- process_data2(deaths = SCCAdeathsdf,
+SC_CA.regions.dat <- process_data3(deaths = SCCAdeathsdf,
                                    population = populationdf,
                                    sero_val = sero_valdf,
                                    seroprev = sero_prevdf,
@@ -643,8 +639,8 @@ SC_CA.regions.dat$seroprev_group$region <- "California_Santa-Clara"
 #......................
 # get rho
 #......................
-# none because basic
-
+# one because basic
+SC_CA.regions.dat$rho <- 1
 #......................
 # save out
 #......................
@@ -672,7 +668,7 @@ CHMAdeathsdf <- JHUdf %>%
 
 
 
-CH_MA.regions.dat <- process_data2(deaths = CHMAdeathsdf,
+CH_MA.regions.dat <- process_data3(deaths = CHMAdeathsdf,
                                    population = populationdf,
                                    sero_val = sero_valdf,
                                    seroprev = sero_prevdf,
@@ -690,7 +686,8 @@ CH_MA.regions.dat$seroprev_group$region <- "Massachusetts_Suffolk"
 #......................
 # get rho
 #......................
-# none because basic
+# one because basic
+CH_MA.regions.dat$rho <- 1
 
 #......................
 # save out
@@ -719,7 +716,7 @@ MDFLdeathsdf <- JHUdf %>%
 
 
 
-MD_FL.regions.dat <- process_data2(deaths = MDFLdeathsdf,
+MD_FL.regions.dat <- process_data3(deaths = MDFLdeathsdf,
                                    population = populationdf,
                                    sero_val = sero_valdf,
                                    seroprev = sero_prevdf,
@@ -738,7 +735,8 @@ MD_FL.regions.dat$seroprev_group$region <- "Florida_Miami-Dade"
 #......................
 # get rho
 #......................
-# none because basic
+# one because basic
+MD_FL.regions.dat$rho <- 1
 
 #......................
 # save out
@@ -834,7 +832,7 @@ bra_populationdf <- readr::read_csv("data/raw/Brazil_2020_Population_Data.csv") 
 #......................
 # regions
 #......................
-BRA.regions.dat <- process_data2(deaths = bradeaths,
+BRA.regions.dat <- process_data3(deaths = bradeaths,
                                  population = bra_populationdf,
                                  sero_val = sero_valdf,
                                  seroprev = rgnsero_prevdf,
@@ -849,7 +847,7 @@ BRA.regions.dat <- process_data2(deaths = bradeaths,
 #......................
 # ages
 #......................
-BRA.agebands.dat <- process_data2(deaths = bradeaths,
+BRA.agebands.dat <- process_data3(deaths = bradeaths,
                                   population = bra_populationdf,
                                   sero_val = sero_valdf,
                                   seroprev = agesero_prevdf,
@@ -876,7 +874,6 @@ BRA.agebands.dat <- process_data2(deaths = bradeaths,
 #......................
 BRA.regions.dat$rho <- rep(1, length(unique(BRA.regions.dat$deaths$region)))
 BRA.agebands.dat$rho <- rep(1, length(unique(BRA.agebands.dat$deaths$ageband)))
-# TODO talk to Brazil team if we use contact mats
 
 #......................
 # save out

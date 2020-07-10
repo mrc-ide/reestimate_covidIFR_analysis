@@ -150,14 +150,8 @@ process_data3 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
 #'
 analyze_seroprev_data <- function(seroprev, deaths, death_agebreaks, study_ids, groupingvar, cumulative,
                                   recast_deaths_df, recast_deaths_geocode, start_date) {
-  #......................
-  # downsize recast deaths df
-  #.....................
-  recast_deaths_df <- recast_deaths_df %>%
-    dplyr::filter(georegion %in% recast_deaths_geocode) %>%
-    dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date) - start_date) + 1) %>%
-    dplyr::filter(ObsDay >= 1) %>% # consistent origin
-    dplyr::arrange(ObsDay)
+
+
   #......................
   # tidy up death data
   #......................
@@ -259,6 +253,17 @@ analyze_seroprev_data <- function(seroprev, deaths, death_agebreaks, study_ids, 
   #......................
   seromidpt <- ceiling((0.5*(seroprev$ObsDaymax[1] + seroprev$ObsDaymin[1])))
   if (cumulative){
+    #......................
+    # downsize recast deaths df
+    #.....................
+    recast_deaths_df <- recast_deaths_df %>%
+      dplyr::filter(georegion %in% recast_deaths_geocode) %>%
+      dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date) - start_date) + 1) %>%
+      dplyr::filter(ObsDay >= 1) %>% # consistent origin
+      dplyr::arrange(ObsDay)
+    #......................
+    # deaths at serology pt
+    #.....................
     recast_deaths_at_sero <- recast_deaths_df %>%
       dplyr::filter(ObsDay <= seromidpt)
     deaths.prop <- deaths.prop %>%
