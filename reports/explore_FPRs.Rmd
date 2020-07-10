@@ -1,0 +1,281 @@
+---
+title: "Simulation Work"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: 
+  html_document:
+    highlight: textmate
+    theme: lumen
+    toc: yes
+    toc_float: yes
+    toc_depth: 3
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+# Exploring FPR
+Simulating under the model. Incidence curves are generated from a simple SEIR framework with an interventions for 200 days (betas are adjusted accordingly for shapes).
+
+```{r}
+library(tidyverse)
+library(COVIDCurve)
+library(drjacoby)
+#...................... 
+# store truth
+#......................
+fatalitydata <- data.frame(strata = paste0("ma", 1:8),
+                           ifr = c(0, 0, 0, 0.02, 0.03, 0.05, 0.1, 0.2),
+                           rho = 1/8)
+# tidy up so we can use it below
+fatdat <- fatalitydata %>% 
+  dplyr::select(-c("rho")) %>% 
+  tidyr::spread(., key = "strata", value = "ifr")
+
+
+```
+
+```{r}
+#...................... 
+# read in simulation parameter map
+#......................
+parammap <- readRDS("~/Documents/GitHub/reestimate_covidIFR_analysis/results/_rslurm_sim_runFPRs/params.RDS") %>% 
+  dplyr::mutate(paramset = paste0("results_", (1:nrow(.) - 1)),
+                infxns = purrr::map_dbl(curve, function(x){cumsum(x$infxns)[150]}),
+                pop = purrr::map_dbl(modelobj, "popN"),
+                trueprevSeroDay = infxns/pop,
+                FPR = 1 - spec) %>% 
+  dplyr::select(-c("modelobj")) %>% 
+  dplyr::bind_cols(., fatdat)
+
+
+#...................... 
+# read in simulations and extract necessary pieces
+#......................
+ret.list <- list.files("~/Documents/GitHub/reestimate_covidIFR_analysis/results/_rslurm_sim_runFPRs/", 
+                       pattern = "results_[0-9]+.RDS", 
+                       full.names = TRUE) 
+extract_rets <- function(path) {
+  ret <- readRDS(path)[[1]]
+  ifrs <- COVIDCurve::get_cred_intervals(ret, what = "IFRparams", by_chain = F)
+  serotest <- COVIDCurve::get_cred_intervals(ret, what = "Serotestparams", by_chain = F)
+  # out
+  tibble::tibble(paramset = sub(".RDS", "", basename(path)),
+                 paramest = list(dplyr::bind_rows(ifrs, serotest))
+                 )
+}
+
+rets <- purrr::map(ret.list, extract_rets) %>% 
+  dplyr::bind_rows() %>% 
+  tidyr::unnest(cols = "paramest")
+
+#...................... 
+# bring together with parammap
+#......................
+parammap.long <- parammap %>% 
+  dplyr::select(c("curve", "trueprevSeroDay", "FPR", "paramset", dplyr::starts_with("ma"), "sens", "spec")) %>% 
+  tidyr::gather(., key = "param", value = "truth", 5:ncol(.))
+
+rets.params <- dplyr::left_join(parammap.long, rets, by = c("paramset", "param"))
+
+#...................... 
+# look if true value contained in 95% CrI
+#......................
+rets.params <- rets.params %>% 
+  dplyr::mutate(truval95cri = ifelse(param %in% c("ma1", "ma2", "ma3") & LCI <= (truth + 1e-5) & truth <= UCI, 1,
+                                            ifelse(LCI <= truth & truth <= UCI, 1, 0)))  # error factor for MCMC not giving it a value of zero -- fair
+
+sum(rets.params$truval95cri)
+
+
+#...................... 
+# make plot
+#......................
+plotdat_ifrs <- rets.params %>% 
+  dplyr::filter(trueprevSeroDay < 1) %>% # issue in sims -- FIX
+  dplyr::group_by(trueprevSeroDay, FPR, paramset) %>% 
+  dplyr::filter(param %in% paste0("ma", 1:8)) %>% 
+  dplyr::summarise(
+    IFRcap = sum(truval95cri)
+  )
+
+plotObj <- plotdat_ifrs %>% 
+  ggplot() + 
+  geom_jitter(aes(x= FPR, y = trueprevSeroDay, color = IFRcap, paramset = paramset), size = 2) + 
+  scale_color_viridis_c("IFRs Captured")
+
+plotly::ggplotly(plotObj)
+
+
+
+
+```
+
+
+```{r}
+#............................................................
+# look at inds
+#...........................................................
+temp <- readRDS("~/Documents/GitHub/reestimate_covidIFR_analysis/results/_rslurm_sim_runFPRs/results_32.RDS")[[1]]
+
+
+temp$inputs$IFRmodel$data$obs_serologyrate
+#plot_par(temp$mcmcout, "ma1")
+#plot_par(temp$mcmcout, "ma2")
+#plot_par(temp$mcmcout, "ma3")
+#plot_par(temp$mcmcout, "ma4")
+#plot_par(temp$mcmcout, "ma5")
+#plot_par(temp$mcmcout, "ma6")
+plot_par(temp$mcmcout, "ma7")
+plot_par(temp$mcmcout, "ma8")
+plot_par(temp$mcmcout, "sens")
+plot_par(temp$mcmcout, "spec")
+plot_par(temp$mcmcout, "sero_day")
+plot_par(temp$mcmcout, "sero_rate")
+plot_mc_acceptance(temp$mcmcout)
+
+
+infxncurve <- COVIDCurve::draw_posterior_infxn_points_cubic_splines(IFRmodel_inf = temp,
+                                                                    dwnsmpl = 1e3,
+                                                                    whichrung = "rung1")
+
+```
+```{r}
+parammap[1,]
+truth <- parammap$curve[[1]]
+
+
+infxncurve$plotObj +
+  geom_line(data = truth, aes(x = time, y = infxns), color = "#3182bd", size = 1.1) + 
+  theme_minimal()
+
+parammap[1,]$modelobj[[1]]$data
+
+
+```
+
+
+
+## IFR and Serological Test Specificity and Sensitivity 
+
+```{r}
+
+
+ifrplot_obj <- ifrplot_dat %>% 
+  dplyr::filter(param == "ma5") %>% 
+  dplyr::left_join(., fatalitydata, by = "param") %>% 
+  ggplot() +
+  geom_hline(aes(yintercept = truth), color = "#3182bd", linetype = "dashed", size = 1.25, alpha = 0.8) +
+  geom_pointrange(aes(x = obs_sero, y = median, 
+                      ymin = LCI, ymax = UCI, color = curvename), position = position_dodge(width = 0.5)) + 
+  facet_grid(sens ~ spec) + 
+  scale_color_viridis_d("Curve Pattern") +
+  xlab("") + ylab("IFR Median (95% CI)") +
+  theme(plot.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 14),
+        axis.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 12),
+        axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 11, angle = 45),
+        axis.text.y = element_text(family = "Helvetica", hjust = 0.5, size = 11),
+        legend.position = "right",
+        legend.title = element_text(family = "Helvetica", face = "bold", vjust = 0.85, size = 12),
+        legend.text = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 10),
+        strip.text = element_text(family = "Helvetica", face = "bold", vjust = 0.85, size = 12),
+        panel.background = element_rect(fill = "transparent"),
+        plot.background = element_rect(fill = "transparent"),
+        panel.grid = element_blank(),
+        panel.border = element_blank(),
+        axis.line = element_line(color = "#000000", size = 1))
+
+
+```
+```{r, results='asis', fig.width=8, fig.height=8}
+ifrplot_obj
+```
+
+
+<!-- ## IFR and Serological Test Specificity and Sensitivity  -->
+
+<!-- ```{r} -->
+<!-- dwnsmpl <- 1e2 -->
+
+<!-- #......................  -->
+<!-- # process IFR results -->
+<!-- #...................... -->
+<!-- inf_infxnplot_dat <- retmap %>%  -->
+<!--   dplyr::select(c("curvename", "sens", "spec", "IncidenceCurve", "obs_sero")) %>%  -->
+<!--   dplyr::mutate( -->
+<!--     obsprev = factor(obs_sero, levels = sort(unique(retmap$obs_sero)),  -->
+<!--                      labels = paste0("Prev: ", round(sort(unique(retmap$obs_sero)), 2))), -->
+<!--     spec = factor(spec, levels = c(0.85, 0.90, 0.95),  -->
+<!--                   labels = c("Spec: 0.85", "spec: 0.90", "spec: 0.95")), -->
+<!--     sens = factor(sens, levels = c(0.85, 0.90, 0.95),  -->
+<!--                   labels = c("Sens: 0.85", "sens: 0.90", "sens: 0.95")), -->
+<!--     sensspec = paste0(sens, "; ", spec), -->
+<!--     IncidenceCurve = purrr::map(IncidenceCurve, "plotdata"), -->
+<!--     IncidenceCurve = purrr::map(IncidenceCurve, function(x){x[sample(1:nrow(x), size = dwnsmpl), c("time", "infxns", "sim")]}) -->
+<!--     ) %>%  -->
+<!--   tidyr::unnest(cols = IncidenceCurve) -->
+
+<!-- inf_infxnplot_dat <- retmap %>%  -->
+<!--   dplyr::select(c("curvename", "sens", "spec", "curve", "obs_sero")) %>%  -->
+<!--   dplyr::mutate( -->
+<!--     obsprev = factor(obs_sero, levels = sort(unique(retmap$obs_sero)),  -->
+<!--                      labels = paste0("Prev: ", round(sort(unique(retmap$obs_sero)), 2))), -->
+<!--     spec = factor(spec, levels = c(0.85, 0.90, 0.95),  -->
+<!--                   labels = c("Spec: 0.85", "spec: 0.90", "spec: 0.95")), -->
+<!--     sens = factor(sens, levels = c(0.85, 0.90, 0.95),  -->
+<!--                   labels = c("Sens: 0.85", "sens: 0.90", "sens: 0.95")), -->
+<!--     sensspec = paste0(sens, "; ", spec)) %>%  -->
+<!--   tidyr::unnest(cols = curve) -->
+
+
+
+<!-- infxnplot_obj <- ggplot() + -->
+<!--   geom_line(data = inf_infxnplot_dat, aes(x = time, y = infxns, color = sensspec), size = 0.25, alpha = 0.5) + -->
+<!--   geom_line(data = true_infxnplot_dat, aes(x = time, y = infxns), color = "#3182bd", size = 1.1, alpha = 0.9) + -->
+<!--   scale_color_viridis_d() + -->
+<!--   facet_grid(curvename ~ obsprev) +  -->
+<!--   xlab("Time") + ylab("Num. Infxns") + -->
+<!--   theme(plot.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 14), -->
+<!--         axis.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 12), -->
+<!--         axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 11, angle = 45), -->
+<!--         axis.text.y = element_text(family = "Helvetica", hjust = 0.5, size = 11), -->
+<!--         strip.text = element_text(family = "Helvetica", face = "bold", vjust = 0.85, size = 12), -->
+<!--         panel.background = element_rect(fill = "transparent"), -->
+<!--         plot.background = element_rect(fill = "transparent"), -->
+<!--         panel.grid = element_blank(), -->
+<!--         panel.border = element_blank(), -->
+<!--         axis.line = element_line(color = "#000000", size = 1.1), -->
+<!--         legend.position = "none") -->
+
+<!-- ``` -->
+<!-- ```{r, results = 'asis', fig.width=10, fig.height=8} -->
+<!-- infxnplot_obj -->
+<!-- ``` -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ```{r} -->
+<!-- sessionInfo() -->
+<!-- ``` -->

@@ -105,6 +105,15 @@ assert_numeric <- function(x, message = "%s must be numeric", name = deparse(sub
   }
   return(TRUE)
 }
+#------------------------------------------------
+# x is a date
+#' @noRd
+assert_date <- function(x, name = deparse(substitute(x)), message = "%s must be a date that can be recognized by lubridate") {
+  if (!lubridate::is.Date(x)) {
+    stop(sprintf(message, name), call. = FALSE)
+  }
+  return(TRUE)
+}
 
 #------------------------------------------------
 # x is numeric
@@ -149,6 +158,7 @@ assert_int <- function(x, message = "%s must be integer valued", name = deparse(
   return(TRUE)
 }
 
+
 #------------------------------------------------
 # x is single integer
 #' @noRd
@@ -174,6 +184,8 @@ assert_pos <- function(x, zero_allowed = TRUE, message1 = "%s must be greater th
   }
   return(TRUE)
 }
+
+
 
 #------------------------------------------------
 # x is single positive (with or without zero allowed)
@@ -210,6 +222,8 @@ assert_single_bounded <- function(x, left = 0, right = 1, inclusive_left = TRUE,
   assert_bounded(x, left = left, right = right, inclusive_left = inclusive_left, inclusive_right = inclusive_right, name = name)
   return(TRUE)
 }
+
+
 
 #------------------------------------------------
 # x is a vector (and is not a list or another recursive type)

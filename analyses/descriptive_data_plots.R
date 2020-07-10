@@ -6,7 +6,9 @@ library(dplyr)
 library(pals)
 #source("analyses/run_process_country_data.R")
 rogan_gladen<-function(obs_prev,sens,spec) (obs_prev + spec -1)/(spec+sens-1)
-sero_sheet<-read.csv("data/seroprevalence.csv")
+sero_sheet<-read.csv("data/raw/seroprevalence.csv")
+
+write2file<-F
 
 #####################################################
 ## Align serology and deaths by age where possible. Document assumptions where no perfect alignment
@@ -27,11 +29,14 @@ curr_sero<-curr_sero %>%
 
 curr_sero$age_mid<-0.5*(x$deaths_group$age_low + x$deaths_group$age_high)
 curr_sero$age_mid[nrow(curr_sero)]<-95
-curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$popN*x$prop_pop$pop_prop
+curr_sero$pop<- x$prop_pop$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$prop_pop$popN
 curr_sero$ifr_age_crude<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$seroprev_adj_ss<-rogan_gladen(curr_sero$seroprevalence, x$sero_sens,x$sero_spec)
-curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$popN*x$prop_pop$pop_prop
+curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$prop_pop$popN
 curr_sero$ifr_age_adj_ss<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_adj_ss
+curr_sero$deaths_per_pop<-x$deaths_group$deaths_at_sero / curr_sero$pop
+curr_sero$prop_deaths_per_pop<-curr_sero$deaths_per_pop/sum(curr_sero$deaths_per_pop)
 esp_res<-curr_sero
 
 ### Netherlands. Not perfectly aligned.
@@ -67,11 +72,14 @@ curr_sero$seroprevalence[which(curr_sero$ageband=='59-64' | curr_sero$ageband=='
 
 x$prop_pop<-x$prop_pop[which(!is.na(x$prop_pop$ageband)),]
 
-curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$prop_pop$popN
 curr_sero$ifr_age_crude<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$seroprev_adj_ss<-rogan_gladen(curr_sero$seroprevalence, x$sero_sens,x$sero_spec)
-curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$popN*x$prop_pop$pop_prop
+curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$prop_pop$popN
 curr_sero$ifr_age_adj_ss<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_adj_ss
+curr_sero$deaths_per_pop<-x$deaths_group$deaths_at_sero / curr_sero$pop
+curr_sero$prop_deaths_per_pop<-curr_sero$deaths_per_pop/sum(curr_sero$deaths_per_pop)
 nld_res<-curr_sero
 
 
@@ -86,11 +94,14 @@ curr_sero$seroprevalence<-x$seroprev$seroprev
 curr_sero$seroprevalence[which(curr_sero$ageband=='59-69')]<-
   x$seroprev_group$seroprevalence[which(x$seroprev_group$ageband=='59-69')]
 
-curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$prop_pop$popN
 curr_sero$ifr_age_crude<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$seroprev_adj_ss<-rogan_gladen(curr_sero$seroprevalence, x$sero_sens,x$sero_spec)
-curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$popN*x$prop_pop$pop_prop
+curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$prop_pop$popN
 curr_sero$ifr_age_adj_ss<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_adj_ss
+curr_sero$deaths_per_pop<-x$deaths_group$deaths_at_sero / curr_sero$pop
+curr_sero$prop_deaths_per_pop<-curr_sero$deaths_per_pop/sum(curr_sero$deaths_per_pop)
 dnk_res<-curr_sero
 
 #################################
@@ -116,11 +127,14 @@ curr_sero$seroprevalence[which(curr_sero$age_low>=50)]<-
   x$seroprev_group$seroprevalence[i]
 
 
-curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$prop_pop$popN
 curr_sero$ifr_age_crude<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$seroprev_adj_ss<-rogan_gladen(curr_sero$seroprevalence, x$sero_sens,x$sero_spec)
-curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$popN*x$prop_pop$pop_prop
+curr_sero$inf_pop_adj_ss<-curr_sero$seroprev_adj_ss * x$prop_pop$popN
 curr_sero$ifr_age_adj_ss<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_adj_ss
+curr_sero$deaths_per_pop<-x$deaths_group$deaths_at_sero / curr_sero$pop
+curr_sero$prop_deaths_per_pop<-curr_sero$deaths_per_pop/sum(curr_sero$deaths_per_pop)
 che_res<-curr_sero
 
 
@@ -136,8 +150,11 @@ curr_sero$age_mid[which(curr_sero$ageband=='65-999')]<-73 ## TODO check exact.
 ## enter average by default.
 curr_sero$seroprevalence<-x$seroprev$seroprevalence
 
-curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
+curr_sero$inf_pop_crude<-curr_sero$seroprevalence * x$prop_pop$popN
 curr_sero$ifr_age_crude<-x$deaths_group$deaths_at_sero/curr_sero$inf_pop_crude
+curr_sero$deaths_per_pop<-x$deaths_group$deaths_at_sero / curr_sero$pop
+curr_sero$prop_deaths_per_pop<-curr_sero$deaths_per_pop/sum(curr_sero$deaths_per_pop)
 la_ca_res<-curr_sero
 
 
@@ -148,7 +165,7 @@ i<-"ESP"
 x<-readRDS(paste0("data/derived/",i,"/",i,"_regions.RDS"))
 curr_sero<-x$deaths_group
 curr_sero$seroprevalence<-x$seroprev_group$seroprevalence
-curr_sero$pop<-x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
 curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
 curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
@@ -160,7 +177,7 @@ i<-"NLD"
 x<-readRDS(paste0("data/derived/",i,"/",i,"_regions.RDS"))
 curr_sero<-x$deaths_group
 curr_sero$seroprevalence<-x$seroprev_group$seroprevalence
-curr_sero$pop<-x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
 curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
 curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
@@ -171,13 +188,13 @@ i<-"DNK"
 x<-readRDS(paste0("data/derived/",i,"/",i,"_regions.RDS"))
 curr_sero<-x$deaths_group
 curr_sero$seroprevalence<-x$seroprev_group$seroprevalence
-curr_sero$pop<-x$popN*x$prop_pop$pop_prop
+curr_sero$pop<-x$prop_pop$popN
 curr_sero$inf_pop_crude<-curr_sero$seroprevalence * curr_sero$pop
 curr_sero$ifr_crude<-curr_sero$deaths_at_sero/curr_sero$inf_pop_crude
 curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
 dnk_resr<-curr_sero
 
-### Switzerland, to do.
+### Switzerland
 ## process Geneva estimate from the age specific results
 x<-readRDS(paste0("data/derived/CHE/CHE_agebands.RDS"))
 curr_sero<-x$seroprev
@@ -189,7 +206,7 @@ curr_sero$deaths_per_million<-1000000*curr_sero$deaths_at_sero/curr_sero$pop
 che_resr<-curr_sero
 
 
-## Sweden & s
+## Sweden - to do.
 
 ### USA - Los Angeles, California
 i<-"LA_CA"
@@ -320,6 +337,41 @@ par(mar=c(5,4,4,2))
 plot(sero_sheetGender$gender2,100*sero_sheetGender$seroprevalence_unadjusted,xlab="gender",ylab="Seroprevalence (%)",
      col="white")
 dev.off()
+
+
+############# DEATHS BY AGE
+deaths<-read.csv("data/raw/deaths.csv")
+deaths<- deaths %>%
+  dplyr::filter(age_breakdown==1) %>%
+  dplyr::mutate(age_high=recode(age_high,`999`=99L),
+    age_mid=0.5*(age_low+age_high)) %>%
+  dplyr::group_by(study_id,age_mid) %>%
+  dplyr::summarise(n_deaths=sum(n_deaths)) %>%
+  dplyr::ungroup() %>%
+  dplyr::group_by(study_id) %>% ### add tot deaths per study.
+  dplyr::mutate(deaths_denom=sum(n_deaths),
+                deaths.prop.age=n_deaths/deaths_denom,
+                cols=as.factor(study_id))
+levels(deaths$cols)<-cols25(25)
+
+
+par(mar=c(5,4,4,5))
+plot(deaths$age_mid,deaths$deaths.prop.age,col=deaths$cols,xlab="age",ylab="proportion of deaths")
+legend(102,0.7,unique(deaths$study_id),xpd=T,pch=1,col=unique(deaths$cols))
+
+### Deaths per population by age
+col_vec <- RColorBrewer::brewer.pal(7, "Set1")
+names(col_vec) <- c("Spain", "Sweden", "Switzerland", "Denmark","Netherlands","United Kingdom","United States - LA")
+par(mar=c(5,4,4,2))
+scale<-1
+plot(esp_res$age_mid,scale*esp_res$prop_deaths_per_pop,xlab="age group (years)",ylab="deaths per capita",xlim=c(0,100),
+     pch=21, col.main="black", bg=col_vec[1],ylim=c(0,1))
+points(che_res$age_mid,scale*che_res$prop_deaths_per_pop,pch=21, col.main="black", bg=col_vec[3])
+points(dnk_res$age_mid,scale*dnk_res$prop_deaths_per_pop,pch=21, col.main="black", bg=col_vec[4])
+points(nld_res$age_mid,scale*nld_res$prop_deaths_per_pop,pch=21, col.main="black", bg=col_vec[5])
+points(la_ca_res$age_mid,scale*la_ca_res$prop_deaths_per_pop,pch=21, col.main="black", bg=col_vec[7])
+legend(0,1.4,names(col_vec)[c(1,3,4,5,7)],pch=rep(21,4),col=rep("black",4), bty='n',
+       pt.bg=col_vec[c(1,3,4,5,7)],xpd=T,ncol=2)
 
 
 
