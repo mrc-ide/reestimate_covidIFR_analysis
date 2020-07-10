@@ -1,0 +1,64 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Model Fit Summary Plots
+```{r}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, 
+                      message = FALSE, eval = TRUE, 
+                      results = 'hide', fig.align = 'center')
+knitr::opts_knit$set(root.dir = here::here())
+```
+```{r}
+library(COVIDCurve)
+library(drjacoby)
+library(tidyverse)
+library(cowplot)
+source("R/extra_MCMC_plotting_functions.R")
+```
+```{r}
+espage <- readRDS("results/ModFits/ESP_age_GTI2.5_rung50_burn10000_smpl10000.RDS")
+esprgn <- readRDS("results/ModFits/")
+
+read_process <- function(path) {
+  tibble::tibble(
+    country = stringr::str_split_fixed(basename(path), "_", n=3)[,1],
+    lvl = stringr::str_split_fixed(basename(path), "_", n=3)[,2],
+    fit = list(readRDS(path)))
+}
+
+plot_par(espage$mcmcout, "spec")
+plot_par(espage$mcmcout, "ma10")
+
+COVIDCurve::get_cred_intervals(espage, what = "IFRparams", by_chain = F)
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+
+```
