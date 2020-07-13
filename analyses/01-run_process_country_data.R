@@ -82,19 +82,19 @@ ESP.agebands.dat <- process_data3(deaths = deathsdf,
 #......................
 # suspicious 0 followed by very large increase
 # Monday, April 27 appears suspicious, such that all deaths from Apr 27 got pushed to Apr 28
-ESP.agebands.dat$deaths$Deaths[ESP.agebands.dat$deaths$ObsDay == 117] <- -1
-ESP.agebands.dat$deaths$Deaths[ESP.agebands.dat$deaths$ObsDay == 118] <- -1
-ESP.regions.dat$deaths$Deaths[ESP.regions.dat$deaths$ObsDay == 117] <- -1
-ESP.regions.dat$deaths$Deaths[ESP.regions.dat$deaths$ObsDay == 118] <- -1
+ESP.agebands.dat$deathsMCMC$Deaths[ESP.agebands.dat$deathsMCMC$ObsDay == 117] <- -1
+ESP.agebands.dat$deathsMCMC$Deaths[ESP.agebands.dat$deathsMCMC$ObsDay == 118] <- -1
+ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 117] <- -1
+ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 118] <- -1
 
 # No adjustments to serology as there is alignment of deaths and seroprevalence age groups.
 
 #......................
 # get rho
 #......................
-ESP.agebands.dat$rho <- rep(1, length(unique(ESP.agebands.dat$deaths$ageband)))
+ESP.agebands.dat$rho <- rep(1, length(unique(ESP.agebands.dat$deathsMCMC$ageband)))
 # multiple through demog and age-standardize for region
-ESP.regions.dat$rho <- rep(1, length(unique(ESP.regions.dat$deaths$region)))
+ESP.regions.dat$rho <- rep(1, length(unique(ESP.regions.dat$deathsMCMC$region)))
 
 
 #......................
