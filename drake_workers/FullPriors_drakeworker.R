@@ -14,30 +14,27 @@ set.seed(48)
 #............................................................
 # setup fatality data
 #............................................................
-fatalitydata <- data.frame(Strata = paste0("ma", 1:8),
-                           IFR = c(0, 0, 0, 0.02, 0.03, 0.05, 0.1, 0.2),
-                           Rho = 1,
-                           Ne = 1/8)
+fatalitydata <- tibble::tibble(Strata = paste0("ma", 1:8),
+                               IFR = c(0, 0, 0, 0.02, 0.03, 0.05, 0.1, 0.2),
+                               Rho = 1,
+                               Ne = 1/8)
 
 #............................................................
 # Basic Incidence Curve
 #...........................................................
-nsims <- 1e2
-
-#......................
-# exponential growth with intervetions
-#......................
-intervene <- lapply(1:nsims, function(x){
-  run_simple_seir(N = 3e7,
+nsims <- 100
+popN <- 3e6
+infxns <- lapply(1:nsims, function(x){
+  run_simple_seir(N = popN,
                   E0 = 50,
                   R0 = 0,
-                  betas = c(0.36, 0.13, 0.12, 0.11),
+                  betas = c(0.25, 0.13, 0.12, 0.11),
                   beta_changes = c(1, 130, 140, 150),
                   sigma = 0.2,
                   gamma = 0.2,
                   time = 200)
 })
-intervene <- intervene %>%
+intervene <- infxns %>%
   dplyr::bind_rows(.) %>%
   dplyr::group_by(step) %>%
   dplyr::summarise(
@@ -84,7 +81,7 @@ wrap_sim <- function(curve, sens, spec, demog, sero_day) {
     sero_delay_rate = 10,
     demog = demog)
 
-  # tidy up
+  # sero tidy up
   obs_serology <- dat$seroprev %>%
     dplyr::group_by(Strata) %>%
     dplyr::filter(event_obs_day == sero_day) %>%
@@ -93,6 +90,11 @@ wrap_sim <- function(curve, sens, spec, demog, sero_day) {
       SeroPrev = ObsPrev) %>%
     dplyr::select(c("SeroDay", "Strata", "SeroPrev")) %>%
     dplyr::mutate(SeroDay = "sero_day")
+
+  # death dat
+  dat$AggDat <- dat$AggDat %>%
+    dplyr::mutate(Strata = as.character(Strata))
+
 
   datinput <- list(obs_deaths = dat$AggDat,
                    obs_serology = obs_serology)
