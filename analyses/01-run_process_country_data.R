@@ -30,7 +30,9 @@ sero_valdf <- readr::read_csv("data/raw/seroassay_validation.csv")
 sero_prevdf <- readr::read_csv("data/raw/seroprevalence.csv") %>%
   dplyr::select(-c("ref", "notes")) %>%
   dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-                date_end_survey = lubridate::dmy(date_end_survey))
+                date_end_survey = lubridate::dmy(date_end_survey),
+                seroprevalence_unadjusted = ifelse(is.na(seroprevalence_unadjusted), n_positive/n_tested, seroprevalence_unadjusted)
+                )
 
 
 
@@ -71,8 +73,6 @@ ESP.agebands.dat <- process_data3(deaths = deathsdf,
                                   groupingvar = "ageband",
                                   study_ids = "ESP1",
                                   recast_deaths_geocode = "ESP",
-                                  filtRegions = NULL,
-                                  filtGender = NULL,
                                   death_agebreaks = c(0, 10, 20, 30, 40,
                                                       50, 60, 70, 80, 90, 999),
                                   sero_agebreaks = c(0, 10, 20, 30, 40,
@@ -119,10 +119,7 @@ NLD.regions.dat <- process_data3(deaths = deathsdf,
                                  recast_deaths_df = ECDCdf,
                                  groupingvar = "region",
                                  study_ids = "NLD1",
-                                 recast_deaths_geocode = "NLD",
-                                 filtRegions = NULL, # some regions combined in serosurvey
-                                 filtGender = NULL,
-                                 filtAgeBand = NULL)
+                                 recast_deaths_geocode = "NLD")
 
 #......................
 # ages
@@ -136,9 +133,6 @@ NLD.agebands.dat <- process_data3(deaths = deathsdf,
                                   groupingvar = "ageband",
                                   study_ids = "NLD1",
                                   recast_deaths_geocode = "NLD",
-                                  filtRegions = NULL, # some regions combined in serosurvey
-                                  filtGender = NULL,
-                                  filtAgeBand = NULL,
                                   death_agebreaks = c(0, 9, 19, 29, 39, 49, 59, 69, 79, 89, 999),
                                   sero_agebreaks = c(0, 9, 19, 29, 39, 49, 59, 69, 79, 89, 999))
 
@@ -215,10 +209,7 @@ DNK.regions.dat <- process_data3(deaths = deathsdf,
                                  recast_deaths_df = ECDCdf,
                                  groupingvar = "region",
                                  study_ids = "DNK1",
-                                 recast_deaths_geocode = "DNK",
-                                 filtRegions = NULL, # some regions combined in serosurvey
-                                 filtGender = NULL,
-                                 filtAgeBand = NULL)
+                                 recast_deaths_geocode = "DNK")
 
 #......................
 # ages
@@ -232,9 +223,9 @@ DNK.agebands.dat <- process_data3(deaths = deathsdf,
                                   groupingvar = "ageband",
                                   study_ids = "DNK1",
                                   recast_deaths_geocode = "DNK",
-                                  filtRegions = NULL, # some regions combined in serosurvey
-                                  filtGender = NULL,
-                                  filtAgeBand = NULL)
+                                  death_agebreaks = c(0, 59, 69, 79, 89, 999),
+                                  sero_agebreaks = c(0, 59, 69, 79, 89, 999),
+                                  filtGender = "both")
 
 
 #......................
@@ -294,10 +285,7 @@ CHE.agebands.dat <- process_data3(deaths = deathsdf,
                                   recast_deaths_df = CHE1TimeSeries,
                                   groupingvar = "ageband",
                                   study_ids = "CHE1",
-                                  recast_deaths_geocode = "Geneva",   ## use study id in case we get more studies later.
-                                  filtRegions = NULL, # some regions combined in serosurvey
-                                  filtGender = NULL,
-                                  filtAgeBand = NULL)
+                                  recast_deaths_geocode = "Geneva")   ## use study id in case we get more studies later.
 
 #......................
 # MANUAL ADJUSTMENTS
@@ -370,10 +358,7 @@ IRN.agebands.dat <- process_data3(deaths = IRNdeaths,
                                   recast_deaths_df = IRN_recast_df,
                                   groupingvar = "ageband",
                                   study_ids = "IRN1",
-                                  recast_deaths_geocode = "IRN",
-                                  filtRegions = NULL, # some regions combined in serosurvey
-                                  filtGender = NULL,
-                                  filtAgeBand = NULL)
+                                  recast_deaths_geocode = "IRN")
 
 #......................
 # MANUAL ADJUSTMENTS
@@ -407,10 +392,7 @@ SWE.regions.dat <- process_data3(deaths = deathsdf,
                                  recast_deaths_df = ECDCdf,
                                  groupingvar = "region",
                                  study_ids = "SWE1",
-                                 recast_deaths_geocode = "SWE",
-                                 filtRegions = NULL, # some regions combined in serosurvey
-                                 filtGender = NULL,
-                                 filtAgeBand = NULL)
+                                 recast_deaths_geocode = "SWE")
 #......................
 # age bands
 #......................
@@ -423,10 +405,7 @@ SWE.agebands.dat <- process_data3(deaths = deathsdf,
                                   recast_deaths_df = ECDCdf,
                                   groupingvar = "ageband",
                                   study_ids = "SWE1",
-                                  recast_deaths_geocode = "SWE",
-                                  filtRegions = NULL, # some regions combined in serosurvey
-                                  filtGender = NULL,
-                                  filtAgeBand = NULL)
+                                  recast_deaths_geocode = "SWE")
 
 #......................
 # MANUAL ADJUSTMENTS
@@ -450,9 +429,34 @@ dir.create("data/derived/SWE", recursive = T)
 saveRDS(SWE.regions.dat, "data/derived/SWE/SWE_regions.RDS")
 saveRDS(SWE.agebands.dat, "data/derived/SWE/SWE_agebands.RDS")
 
+#............................................................
+# Great Britian
+#...........................................................
+#......................
+# regions
+#......................
+GRB.agebands.dat <- readRDS("data/raw/GBR_agebands.rds")
+#......................
+# agebands
+#......................
+
+#......................
+# MANUAL ADJUSTMENTS
+#......................
+# none
 
 
+#......................
+# get rho
+#......................
+GRB.agebands.dat$rho <- rep(1, length(unique(GRB.agebands.dat$deathsMCMC$region)))
+# standarize for age
+GRB.regions.dat$rho <-  rep(1, length(unique(GRB.regions.dat$deathsMCMC$region)))
 
+
+#......................
+# save out
+#......................
 
 
 #..................................................................................
@@ -753,13 +757,8 @@ saveRDS(MD_FL.regions.dat, "data/derived/USA/MD_FL_regions.RDS")
 #......................
 # pre-process Brazil
 #......................
-rgn_key <- readr::read_csv("data/raw/BRA_state_region_key.csv") %>%
-  dplyr::select(-c("state")) %>%
-  dplyr::rename(state = state_abbr)
 bradeaths <- readRDS("data/raw/Brazil_state_age_sex_deaths.rds") %>%
-  dplyr::left_join(., rgn_key, by = "state") %>%
-  dplyr::select(-c("state")) %>%
-  dplyr::filter(!is.na(date)) %>%
+  magrittr::set_colnames(tolower(colnames(.))) %>%
   dplyr::rename(gender = sex) %>%
   dplyr::group_by(date, region, age, gender) %>%
   dplyr::summarise(
@@ -872,8 +871,8 @@ BRA.agebands.dat <- process_data3(deaths = bradeaths,
 #......................
 # get rho
 #......................
-BRA.regions.dat$rho <- rep(1, length(unique(BRA.regions.dat$deaths$region)))
-BRA.agebands.dat$rho <- rep(1, length(unique(BRA.agebands.dat$deaths$ageband)))
+BRA.regions.dat$rho <- rep(1, length(unique(BRA.regions.dat$deathsMCMC$region)))
+BRA.agebands.dat$rho <- rep(1, length(unique(BRA.agebands.dat$deathsMCMC$ageband)))
 
 #......................
 # save out
