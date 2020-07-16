@@ -235,8 +235,8 @@ Sys.sleep(60)
 file_param_map <- list.files(path = "data/param_map/full_prior_sims/",
                              pattern = "*.RDS",
                              full.names = TRUE)
-file_param_map <- file_param_map[!grepl("small_param_map.RDS", file_param_map$path),]
 file_param_map <- tibble::tibble(path = file_param_map)
+file_param_map <- file_param_map[!grepl("small_param_map.RDS", file_param_map$path),]
 
 
 #............................................................
