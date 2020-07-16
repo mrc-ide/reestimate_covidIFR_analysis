@@ -283,9 +283,10 @@ run_MCMC <- function(path) {
 
 # read files in after sleeping to account for file lag
 Sys.sleep(60)
-file_param_map <- list.files(path = "data/param_map/compare_modtype/",
+file_param_map <- list.files(path = "data/param_map/full_prior_sims/",
                              pattern = "*.RDS",
                              full.names = TRUE)
+file_param_map <- file_param_map[!grepl("small_param_map.RDS", file_param_map$path),]
 file_param_map <- tibble::tibble(path = file_param_map)
 
 

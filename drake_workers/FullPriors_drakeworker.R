@@ -180,7 +180,7 @@ lapply(split(fit_map, 1:nrow(fit_map)), function(x){
   saveRDS(x, paste0("data/param_map/full_prior_sims/",
                     x$sim, ".RDS"))
 })
-saveRDS(fit_map, "data/param_map/full_prior_sims/small_param_map.RDS")
+saveRDS(fit_map_sm, "data/param_map/full_prior_sims/small_param_map.RDS")
 
 
 
@@ -235,6 +235,7 @@ Sys.sleep(60)
 file_param_map <- list.files(path = "data/param_map/full_prior_sims/",
                              pattern = "*.RDS",
                              full.names = TRUE)
+file_param_map <- file_param_map[!grepl("small_param_map.RDS", file_param_map$path),]
 file_param_map <- tibble::tibble(path = file_param_map)
 
 
