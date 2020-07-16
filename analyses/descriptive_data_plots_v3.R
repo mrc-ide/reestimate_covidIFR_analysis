@@ -106,8 +106,7 @@ age_IFRraw_plot <- ageplotdat %>%
   geom_point(aes(x = age_mid, y = crudeIFR, fill = seroprev), color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
   scale_color_manual("Study ID", values = c(wesanderson::wes_palette("FantasticFox1"), "purple")) +
   scale_fill_gradientn("Adj. Seroprev.",
-                       colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous")),
-                       limits = c(0, 11)) +
+                       colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
   xlab("Age (yrs).") + ylab("Crude Infection Fatality Rate") +
   xyaxis_plot_theme
 jpgsnapshot(outpath = "results/descriptive_figures/age_IFRraw_plot.jpg",
@@ -125,8 +124,7 @@ age_IFRadj_plot <- ageplotdat %>%
   geom_point(aes(x = age_mid, y = crudeIFR, fill = seroprevadj), color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
   scale_color_manual("Study ID", values = c(wesanderson::wes_palette("FantasticFox1"), "purple")) +
   scale_fill_gradientn("Adj. Seroprev.",
-                       colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous")),
-                       limits = c(0, 11)) +
+                       colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
   xlab("Age (yrs).") + ylab("Crude Infection Fatality Rate") +
   xyaxis_plot_theme
 jpgsnapshot(outpath = "results/descriptive_figures/age_IFRadj_plot.jpg",
@@ -161,8 +159,7 @@ age_std_cum_deaths_plot <- ageplotdat %>%
   geom_point(aes(x = age_mid, y = std_cum_deaths, fill = seroprevadj), color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
   scale_color_manual("Study ID", values = c(wesanderson::wes_palette("FantasticFox1"), "purple")) +
   scale_fill_gradientn("Adj. Seroprev.",
-                       colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous")),
-                       limits = c(0, 11)) +
+                       colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
   xlab("Age (yrs).") + ylab("Cum. Deaths per Million") +
   labs(caption = "Cumulative Deaths per Million at midpoint of Seroprevalence Study") +
   xyaxis_plot_theme
@@ -232,14 +229,15 @@ jpgsnapshot(outpath = "results/descriptive_figures/rgn_adj_seroplot.jpg",
 rgn_IFR_plot <- rgnplotdat %>%
   dplyr::filter(seromidpt == obsday) %>%
   dplyr::select(c("study_id", "region", "cumdeaths", "popn", "seroprev")) %>%
-  dplyr::mutate(seroprev = seroprev * 100) %>%
-  dplyr::mutate(crudeIFR = cumdeaths/popn) %>%
+  dplyr::mutate(infxns = popn * seroprev,
+                crudeIFR =  cumdeaths/infxns,
+                seroprev = seroprev * 100 ) %>%
+  dplyr::filter(infxns > 0) %>%
   ggplot() +
   geom_point(aes(x = region, y = crudeIFR, color = seroprev)) +
   facet_wrap(.~study_id, scales = "free_x") +
   scale_color_gradientn("Raw Seroprev.",
-                        colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous")),
-                        limits = c(0, 11)) +
+                        colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
   xlab("Region") + ylab("Crude Infection Fatality Rate") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 8, angle = 45))
@@ -253,14 +251,15 @@ jpgsnapshot(outpath = "results/descriptive_figures/rgn_IFR_raw_plot.jpg",
 rgn_IFR_plot <- rgnplotdat %>%
   dplyr::filter(seromidpt == obsday) %>%
   dplyr::select(c("study_id", "region", "cumdeaths", "popn", "seroprevadj")) %>%
-  dplyr::mutate(seroprevadj = seroprevadj * 100) %>%
-  dplyr::mutate(crudeIFR = cumdeaths/popn) %>%
+  dplyr::mutate(infxns = popn * seroprevadj,
+                crudeIFR =  cumdeaths/infxns,
+                seroprevadj = seroprevadj * 100 ) %>%
+  dplyr::filter(infxns > 0) %>%
   ggplot() +
   geom_point(aes(x = region, y = crudeIFR, color = seroprevadj)) +
   facet_wrap(.~study_id, scales = "free_x") +
   scale_color_gradientn("Adj. Seroprev.",
-                        colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous")),
-                        limits = c(0, 11)) +
+                        colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
   xlab("Region") + ylab("Crude Infection Fatality Rate") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 8, angle = 45))
@@ -314,8 +313,7 @@ rgn_std_cum_deaths_plot <- rgnplotdat %>%
   facet_wrap(.~study_id, scales = "free_x") +
   scale_color_manual("Study ID", values = c(wesanderson::wes_palette("FantasticFox1"), "purple")) +
   scale_fill_gradientn("Adj. Seroprev.",
-                       colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous")),
-                       limits = c(0, 15)) +
+                       colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
   xlab("Region") + ylab("Cum. Deaths per Million") +
   labs(caption = "Cumulative Deaths per Million at midpoint of Seroprevalence Study") +
   xyaxis_plot_theme +

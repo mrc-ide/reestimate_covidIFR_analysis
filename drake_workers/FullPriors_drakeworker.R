@@ -62,7 +62,6 @@ map <- expand.grid(curve = list(intervene),
                    demog = poplist)
 map <- tibble::as_tibble(map)
 
-
 #......................
 # rung covidcurve simulator
 #......................
@@ -113,8 +112,8 @@ get_sens_spec <- function(sens, spec) {
                  min =   c(0.5,              0.5,            1,            140),
                  init =  c(0.8,              0.8,            10,           150),
                  max =   c(1,       1,                       20,           160),
-                 dsc1 =  c(sens*1e3,        spec*1e2,        1,            140),
-                 dsc2 =  c((1e3-sens*1e3),  (1e2-spec*1e2),  20,           160))
+                 dsc1 =  c(sens*1e3,        spec*1e2,        2.15,         140),
+                 dsc2 =  c((1e3-sens*1e3),  (1e2-spec*1e2),  0.05,         160))
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 
@@ -169,6 +168,9 @@ fit_map <- map %>%
   dplyr::mutate(sim = paste0("sim", 1:nrow(.))) %>%
   dplyr::select(c("sim", dplyr::everything()))
 
+fit_map_sm <- fit_map %>%
+  dplyr::select(c("sim", "sens", "spec", "demog"))
+
 #............................................................
 # Come Together
 #...........................................................
@@ -179,7 +181,7 @@ lapply(split(fit_map, 1:nrow(fit_map)), function(x){
   saveRDS(x, paste0("data/param_map/full_prior_sims/",
                     x$sim, ".RDS"))
 })
-
+saveRDS(fit_map, "data/param_map/full_prior_sims/small_param_map.RDS")
 
 
 

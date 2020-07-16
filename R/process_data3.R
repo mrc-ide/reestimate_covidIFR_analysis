@@ -99,16 +99,6 @@ process_data3 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
                                          study_ids, sero_agebreaks, groupingvar,
                                          filtRegions, filtGender, filtAgeBand)
 
-  #......................
-  # Analyze seroprev data
-  #......................
-  seroprev_ret <- analyze_seroprev_data(seroprev = seroprev_list$seroprevFull,
-                                        deaths, death_agebreaks, study_ids,
-                                        groupingvar, cumulative,
-                                        recast_deaths_df, recast_deaths_geocode,
-                                        start_date = deaths_summ_list$start_date)
-
-
   #...........................................................
   # process population
   #...........................................................
@@ -146,151 +136,13 @@ process_data3 <- function(deaths = NULL, population = NULL, sero_val = NULL, ser
 }
 
 
-#' @title Analyze Crude Seroprevalence Results
-#'
-analyze_seroprev_data <- function(seroprev, deaths, death_agebreaks, study_ids, groupingvar, cumulative,
-                                  recast_deaths_df, recast_deaths_geocode, start_date) {
 
-
-  #......................
-  # tidy up death data
-  #......................
-  deaths <- deaths %>%
-    dplyr::mutate(date_start_survey = lubridate::ymd(date_start_survey),
-                  date_end_survey = lubridate::ymd(date_end_survey),
-                  start_date = min(lubridate::ymd(date_start_survey)),
-                  ObsDay = as.numeric(date_end_survey - start_date))  %>%
-    dplyr::filter(study_id %in% study_ids)
-
-  #......................
-  # Age Process
-  #......................
-  if (!is.null(death_agebreaks)) {
-    # user provided age breaks
-    assert_vector(death_agebreaks)
-    assert_greq(length(death_agebreaks), 2)
-    agebrks <- death_agebreaks
-  } else {
-    # if none are provided, factor age to one level
-    agebrks <- c(0, sort(unique(deaths$age_high)))
-  }
-
-  # make new age band categories
-  deaths <- deaths %>%
-    dplyr::mutate(
-      ageband = cut(age_high,
-                    breaks = agebrks,
-                    labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
-      ageband = as.character(ageband),
-      ageband = ifelse(age_low == 0 & age_high == 999, "all", ageband),
-      ageband = forcats::fct_reorder(.f = ageband, .x = age_low)
-    )
-  deaths.prop <- deaths %>%
-    dplyr::mutate(ObsDay = max(date_end_survey)) %>%
-    dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
-    dplyr::summarise(death_num = sum(n_deaths),
-                     age_low = mean(age_low),
-                     age_high = mean(age_high)) %>%
-    dplyr::arrange(age_low)
-
-  # get proportion
-  deaths.prop <- deaths.prop %>%
-    dplyr::ungroup(.) %>%
-    dplyr::mutate(death_denom = sum(death_num),
-                  death_prop = death_num/death_denom) # protect against double counting of same person in multiple groups
-
-  # COMPUTE OVERALL AVERAGE SEROPREVALENCE
-  ### fill in gaps for studies which only have number positive, and those which only have seroprevalence.
-  seroprev$seroprevalence <- NA
-  if (!is.na(seroprev$seroprevalence_weighted[1])) {   ## check if we have weighted/adjusted data for this study.
-    seroprev$seroprevalence <- seroprev$seroprevalence_weighted
-  } else {
-    seroprev$seroprevalence <- seroprev$seroprevalence_unadjusted
-  }
-  inds <- which(is.na(seroprev$n_positive))
-  if (length(inds) >= 1) {
-    seroprev$n_positive[inds] <- seroprev$n_tested[inds]*seroprev$seroprevalence[inds]
-    inds <- which(is.na(seroprev$seroprevalence))
-    seroprev$seroprevalence[inds] <- seroprev$n_positive[inds]/seroprev$n_tested[inds]
-  }
-
-  if (is.na(seroprev$seroprevalence_weighted[1]) & is.na(seroprev$seroprevalence_unadjusted[1])) {
-    seroprev$seroprevalence <- rowMeans(cbind(seroprev$range_sero_low,seroprev$range_sero_high))
-  }
-  inds <- which(is.na(seroprev$n_positive))
-  seroprev$n_positive[inds] <- seroprev$n_tested[inds]*seroprev$seroprevalence[inds]
-  inds <- which(is.na(seroprev$seroprevalence))
-  seroprev$seroprevalence[inds] <- seroprev$n_positive[inds]/seroprev$n_tested[inds]
-
-
-  seroprev.summ <- seroprev %>%
-    dplyr::group_by_at(c("ObsDaymin", "ObsDaymax")) %>%
-    dplyr::summarise(n_tested = sum(n_tested),
-                     n_positive = sum(n_positive)) %>%
-    dplyr::mutate(seroprev = n_positive/n_tested) %>%
-    dplyr::select(ObsDaymin, ObsDaymax, seroprev) %>%
-    dplyr::ungroup()
-
-  ### summarise over grouping variable
-  if (all(is.na(seroprev$n_tested)) | all(is.na(seroprev$n_positive))) { ## if no information on sample size to compute weighted average, output current data.
-    seroprev.summ.group <- seroprev %>%
-      select(c("ObsDaymin", "ObsDaymax", groupingvar, "age_low", "age_high", "n_tested", "n_positive", "seroprevalence"))
-  } else {
-    seroprev.summ.group <- seroprev %>%
-      dplyr::group_by_at(c("ObsDaymin", "ObsDaymax",groupingvar)) %>%
-      #dplyr::summarise(seroprev = mean(seroprevalence)) %>%
-      dplyr::summarise(age_low = mean(age_low),
-                       age_high = mean(age_high),
-                       n_tested = sum(n_tested),
-                       n_positive = sum(n_positive)) %>%
-      dplyr::mutate(seroprevalence = n_positive/n_tested) %>%
-      dplyr::arrange(age_low) %>%
-      dplyr::ungroup()
-  }
-
-  #......................
-  # get deaths at midpoint of survey
-  #......................
-  seromidpt <- ceiling((0.5*(seroprev$ObsDaymax[1] + seroprev$ObsDaymin[1])))
-  if (cumulative){
-    #......................
-    # downsize recast deaths df
-    #.....................
-    recast_deaths_df <- recast_deaths_df %>%
-      dplyr::filter(georegion %in% recast_deaths_geocode) %>%
-      dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date) - start_date) + 1) %>%
-      dplyr::filter(ObsDay >= 1) %>% # consistent origin
-      dplyr::arrange(ObsDay)
-    #......................
-    # deaths at serology pt
-    #.....................
-    recast_deaths_at_sero <- recast_deaths_df %>%
-      dplyr::filter(ObsDay <= seromidpt)
-    deaths.prop <- deaths.prop %>%
-      mutate(deaths_at_sero = sum(recast_deaths_at_sero$deaths)*death_prop,
-             deaths_denom_at_sero = sum(recast_deaths_at_sero$deaths))
-  } else {
-    deaths.prop <- deaths %>%
-      dplyr::filter(ObsDay <= seromidpt) %>%
-      dplyr::group_by_at(c(groupingvar)) %>%
-      dplyr::summarise( deaths_at_sero = sum(n_deaths) ) %>%
-      dplyr::mutate(deaths_denom_at_sero = sum(deaths_at_sero))
-
-  }
-
-  # out
-  out <- list(
-    deaths.prop = deaths.prop,
-    seroprev.summ.group = seroprev.summ.group
-  )
-  return(out)
-}
 
 #' @title Internal Function for Processing Seroprevalence Data from our Systematic review
 process_seroprev_data <- function(seroprev, start_date, study_ids, sero_agebreaks, groupingvar,
                                   filtRegions, filtGender, filtAgeBand) {
   #......................
-  # tidy up eroprev a
+  # tidy up seropred data
   #......................
   seroprev <- seroprev %>%
     dplyr::mutate(date_start_survey = lubridate::ymd(date_start_survey),
