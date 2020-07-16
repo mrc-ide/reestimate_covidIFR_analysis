@@ -14,11 +14,20 @@ set.seed(48)
 #............................................................
 # setup fatality data
 #............................................................
-fatalitydata <- tibble::tibble(Strata = paste0("ma", 1:8),
-                               IFR = c(0, 0, 0, 0.02, 0.03, 0.05, 0.1, 0.2),
-                               Rho = 1,
-                               Ne = 1/8)
+# make up fatality data
+rgnfatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
+                                  IFR = c(0.1, 0.15, 0.2, 0.2, 0.6),
+                                  Rho = 1,
+                                  Ne = 0.2)
+rgndemog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
+                           popN = c(5e5, 5e5, 5e5, 2250000, 1250000))
 
+agefatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
+                                  IFR = c(0.05, 0.2, 0.5),
+                                  Rho = 1,
+                                  Ne = 1/3)
+agedemog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
+                           popN = c(1500000, 2250000, 1250000))
 #............................................................
 # Basic Incidence Curve
 #...........................................................
@@ -43,29 +52,28 @@ intervene <- infxns %>%
   dplyr::mutate_if(is.numeric, round, 0) %>%
   dplyr::rename(time = step)
 
-# plot(intervene$infxns)
-popNvec <- c(1.5, 2.5, 5, 10, 50, 100)
-poplist <- lapply(popNvec, function(x){
-  totN <- round( sum(intervene$infxns) * x )
-  popvec <- totN * fatalitydata$Ne
-  demog <- tibble::tibble(Strata = paste0("ma", 1:8),
-                          popN = as.integer(popvec))
-  return(demog)
-})
 
 #............................................................
 # Simulate Under Model
 #...........................................................
 map <- expand.grid(curve = list(intervene),
-                   sens = c(0.85, 0.90, 0.95, 0.99),
-                   spec = c(0.85, 0.90, 0.95, 0.99),
-                   demog = poplist)
+                   sens = c(0.85, 0.90),
+                   spec = c(0.95, 0.99))
 map <- tibble::as_tibble(map)
+
+# make both maps
+maprgn <- mapage <- map
+maprgn <- maprgn %>%
+  dplyr::mutate(fatalitydata = list(rgnfatalitydata),
+                demog = list(rgndemog))
+mapage <- mapage %>%
+  dplyr::mutate(fatalitydata = list(agefatalitydata),
+                demog = list(agedemog))
 
 #......................
 # rung covidcurve simulator
 #......................
-wrap_sim <- function(curve, sens, spec, demog, sero_day) {
+wrap_sim <- function(curve, sens, spec, fatalitydata, demog, sero_day) {
 
   dat <- COVIDCurve::Aggsim_infxn_2_death(
     fatalitydata = fatalitydata,
@@ -100,7 +108,8 @@ wrap_sim <- function(curve, sens, spec, demog, sero_day) {
 
 }
 
-map$inputdata <- purrr::pmap(map, wrap_sim, sero_day = 150)
+maprgn$inputdata <- purrr::pmap(maprgn, wrap_sim, sero_day = 150)
+mapage$inputdata <- purrr::pmap(mapage, wrap_sim, sero_day = 150)
 
 #......................
 # make IFR model
@@ -114,7 +123,8 @@ get_sens_spec <- function(sens, spec) {
                  dsc1 =  c(sens*1e3,        spec*1e2,        50,           140),
                  dsc2 =  c((1e3-sens*1e3),  (1e2-spec*1e2),  50,           160))
 }
-map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
+maprgn$sens_spec_tbl <- purrr::map2(maprgn$sens, maprgn$spec, get_sens_spec)
+mapage$sens_spec_tbl <- purrr::map2(mapage$sens, mapage$spec, get_sens_spec)
 
 # onset to deaths
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
@@ -124,14 +134,14 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
                                dsc1 = c(2.7,   -0.23),
                                dsc2 = c(0.05,   0.05))
 
-# everything else
-wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
-  ifr_paramsdf <- make_ma_reparamdf(num_mas = 8)
+# everything else for region
+wrap_rgn_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
+  ifr_paramsdf <- make_ma_reparamdf(num_mas = 5)
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
                                           num_xs = 4)
   infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 12, dsc1 = 0, dsc2 = 12),
                                            num_ys = 5)
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 8, min = 0, init = 5, max = 10)
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 0, init = 5, max = 10)
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
@@ -140,25 +150,66 @@ wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
   mod1 <- COVIDCurve::make_IFRmodel_agg$new()
   mod1$set_MeanTODparam("mod")
   mod1$set_CoefVarOnsetTODparam("sod")
-  mod1$set_IFRparams(paste0("ma", 1:8))
-  mod1$set_maxMa("ma8")
+  mod1$set_IFRparams(paste0("ma", 1:5))
+  mod1$set_maxMa("ma5")
   mod1$set_Knotparams(paste0("x", 1:4))
   mod1$set_relKnot("x4")
   mod1$set_Infxnparams(paste0("y", 1:5))
   mod1$set_relInfxn("y3")
-  mod1$set_Noiseparams(c(paste0("Ne", 1:8)))
+  mod1$set_Noiseparams(c(paste0("Ne", 1:5)))
   mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
   mod1$set_Serodayparams("sero_day")
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rho(rep(1, 8))
+  mod1$set_rho(rep(1, 5))
   mod1$set_rcensor_day(.Machine$integer.max)
   # out
   mod1
 }
 
-map$modelobj <-  purrr::pmap(map[,c("inputdata", "sens_spec_tbl", "demog")], wrap_make_IFR_model)
+
+# everything else for region
+wrap_age_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
+  ifr_paramsdf <- make_ma_reparamdf(num_mas = 3)
+  knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
+                                          num_xs = 4)
+  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 12, dsc1 = 0, dsc2 = 12),
+                                           num_ys = 5)
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 3, min = 0, init = 5, max = 10)
+
+  # bring together
+  df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
+
+  # make mod
+  mod1 <- COVIDCurve::make_IFRmodel_agg$new()
+  mod1$set_MeanTODparam("mod")
+  mod1$set_CoefVarOnsetTODparam("sod")
+  mod1$set_IFRparams(paste0("ma", 1:3))
+  mod1$set_maxMa("ma3")
+  mod1$set_Knotparams(paste0("x", 1:4))
+  mod1$set_relKnot("x4")
+  mod1$set_Infxnparams(paste0("y", 1:5))
+  mod1$set_relInfxn("y3")
+  mod1$set_Noiseparams(c(paste0("Ne", 1:3)))
+  mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
+  mod1$set_Serodayparams("sero_day")
+  mod1$set_data(inputdata)
+  mod1$set_demog(demog)
+  mod1$set_paramdf(df_params)
+  mod1$set_rho(rep(1, 3))
+  mod1$set_rcensor_day(.Machine$integer.max)
+  # out
+  mod1
+}
+
+#......................
+# make both maps
+#......................
+maprgn$modelobj <-  purrr::pmap(maprgn[,c("inputdata", "sens_spec_tbl", "demog")], wrap_rgn_make_IFR_model)
+mapage$modelobj <-  purrr::pmap(mapage[,c("inputdata", "sens_spec_tbl", "demog")], wrap_age_make_IFR_model)
+# combine
+map <- dplyr::bind_rows(maprgn, mapage)
 
 #......................
 # names
@@ -175,12 +226,12 @@ fit_map_sm <- fit_map %>%
 #...........................................................
 
 # select what we need for fits and make outpaths
-dir.create("data/param_map/full_prior_sims/", recursive = T)
+dir.create("data/param_map/compare_modtype/", recursive = T)
 lapply(split(fit_map, 1:nrow(fit_map)), function(x){
-  saveRDS(x, paste0("data/param_map/full_prior_sims/",
+  saveRDS(x, paste0("data/param_map/compare_modtype/",
                     x$sim, ".RDS"))
 })
-saveRDS(fit_map, "data/param_map/full_prior_sims/small_param_map.RDS")
+saveRDS(fit_map, "data/param_map/compare_modtype/small_param_map.RDS")
 
 
 
@@ -214,8 +265,8 @@ run_MCMC <- function(path) {
                                       GTI_pow = 3,
                                       cluster = cl)
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/full_prior_sims/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/full_prior_sims/",
+  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/compare_modtype/", recursive = TRUE)
+  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/compare_modtype/",
                    mod$sim, ".RDS")
   saveRDS(fit, file = outpath)
 
@@ -232,7 +283,7 @@ run_MCMC <- function(path) {
 
 # read files in after sleeping to account for file lag
 Sys.sleep(60)
-file_param_map <- list.files(path = "data/param_map/full_prior_sims/",
+file_param_map <- list.files(path = "data/param_map/compare_modtype/",
                              pattern = "*.RDS",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)
@@ -257,7 +308,7 @@ plan <- drake::drake_plan(
 options(clustermq.scheduler = "slurm",
         clustermq.template = "drake_workers/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
-     log_make = "FullPriorSims_drake.log", verbose = 2,
+     log_make = "CompareModTypes_drake.log", verbose = 2,
      log_progress = FALSE,
      log_build_times = FALSE,
      recoverable = FALSE,
