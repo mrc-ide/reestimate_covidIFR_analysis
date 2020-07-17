@@ -163,12 +163,14 @@ options(clustermq.scheduler = "slurm",
         clustermq.template = "drake_workers/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
      log_make = "ESP_PowerFits_drake.log", verbose = 2,
-     log_progress = FALSE,
+     log_progress = TRUE,
      log_build_times = FALSE,
      recoverable = FALSE,
      history = FALSE,
      session_info = FALSE,
      lock_envir = FALSE, # unlock environment so parallel::clusterApplyLB in drjacoby can work
      lock_cache = FALSE)
+
+cat("************** Drake Finished **************************")
 
 

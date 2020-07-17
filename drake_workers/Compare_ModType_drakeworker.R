@@ -265,7 +265,7 @@ run_MCMC <- function(path) {
                                       chains = n_chains,
                                       burnin = 1e3,
                                       samples = 1e3,
-                                      rungs = 10,
+                                      rungs = 50,
                                       GTI_pow = 3,
                                       cluster = cl)
   parallel::stopCluster(cl)
@@ -315,15 +315,21 @@ plan <- drake::drake_plan(
 #......................
 options(clustermq.scheduler = "slurm",
         clustermq.template = "drake_workers/slurm_clustermq_LL.tmpl")
-make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
+make(plan, parallelism = "clustermq",
+     jobs = nrow(file_param_map),
      log_make = "CompareModTypes_drake.log", verbose = 2,
-     log_progress = FALSE,
+     log_progress = TRUE,
      log_build_times = FALSE,
      recoverable = FALSE,
      history = FALSE,
      session_info = FALSE,
      lock_envir = FALSE, # unlock environment so parallel::clusterApplyLB in drjacoby can work
      lock_cache = FALSE)
+
+
+
+cat("************** Drake Finished **************************")
+
 
 
 
