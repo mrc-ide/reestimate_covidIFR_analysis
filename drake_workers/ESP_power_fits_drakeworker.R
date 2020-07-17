@@ -17,16 +17,16 @@ source("R/covidcurve_helper_functions.R")
 #...........................................................
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
                                min  = c(10,    0.01),
-                               init = c(18,    0.45),
-                               max =  c(25,    1.00),
-                               dsc1 = c(2.9,   -0.78),
+                               init = c(14,    0.7),
+                               max =  c(20,    1.00),
+                               dsc1 = c(2.7,   -0.23),
                                dsc2 = c(0.05,   0.05))
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.83,    0.50,     5,           117),
-                                init =  c(0.85,    0.99,     10,          125),
-                                max =   c(0.87,    1.00,     15,          131),
-                                dsc1 =  c(886.5,   52.5,     2.15,        117),
-                                dsc2 =  c(114.5,   1.5,      0.05,        131))
+                                min =   c(0.83,    0.50,     0,           117),
+                                init =  c(0.85,    0.99,     0.1,          125),
+                                max =   c(0.87,    1.00,     1,          131),
+                                dsc1 =  c(886.5,   520.5,     70,        117),
+                                dsc2 =  c(114.5,   10.5,      30,        131))
 #......................
 # regions
 #......................
@@ -93,7 +93,7 @@ run_MCMC <- function(path) {
   if (n_cores < n_chains) {
     mkcores <- n_cores - 1
   } else {
-    mkcores <- n_chains/2
+    mkcores <- n_chains
   }
 
   cl <- parallel::makeCluster(mkcores)
@@ -107,6 +107,9 @@ run_MCMC <- function(path) {
                                       rungs = mod$rungs,
                                       GTI_pow = mod$GTI_pow,
                                       cluster = cl)
+  stopCluster(cl)
+  gc()
+
   mc_accept_mean <- mean(fit$mcmcout$diagnostics$mc_accept$value)
   mc_accept_min <- min(fit$mcmcout$diagnostics$mc_accept$value)
   time_elapse <- Sys.time() - start
