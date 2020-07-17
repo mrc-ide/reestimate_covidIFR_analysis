@@ -16,16 +16,16 @@ set.seed(48)
 #............................................................
 # make up fatality data
 rgnfatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
-                                  IFR = c(0.1, 0.15, 0.2, 0.2, 0.6),
+                                  IFR = c(1e-3, 0.15, 0.2, 0.299, 0.6),
                                   Rho = 1,
-                                  Ne = 0.2)
+                                  Ne = 1)
 rgndemog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
                            popN = c(5e5, 5e5, 5e5, 2250000, 1250000))
 
 agefatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
                                   IFR = c(0.05, 0.2, 0.5),
                                   Rho = 1,
-                                  Ne = 1/3)
+                                  Ne = 1)
 agedemog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
                            popN = c(1500000, 2250000, 1250000))
 #............................................................
@@ -263,7 +263,7 @@ run_MCMC <- function(path) {
                                       chains = n_chains,
                                       burnin = 1e3,
                                       samples = 1e3,
-                                      rungs = 25,
+                                      rungs = 10,
                                       GTI_pow = 3,
                                       cluster = cl)
   parallel::stopCluster(cl)
