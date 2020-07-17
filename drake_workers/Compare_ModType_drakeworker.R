@@ -264,7 +264,7 @@ run_MCMC <- function(path) {
                                       rungs = 25,
                                       GTI_pow = 3,
                                       cluster = cl)
-  stopCluster(cl)
+  parallel::stopCluster(cl)
   gc()
 
   # out

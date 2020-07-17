@@ -107,7 +107,7 @@ run_MCMC <- function(path) {
                                       rungs = mod$rungs,
                                       GTI_pow = mod$GTI_pow,
                                       cluster = cl)
-  stopCluster(cl)
+  parallel::stopCluster(cl)
   gc()
 
   mc_accept_mean <- mean(fit$mcmcout$diagnostics$mc_accept$value)

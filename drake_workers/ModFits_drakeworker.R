@@ -198,7 +198,7 @@ run_MCMC <- function(path) {
                                       GTI_pow = mod$GTI_pow,
                                       cluster = cl)
 
-  stopCluster(cl)
+  parallel::stopCluster(cl)
   gc()
 
   # out

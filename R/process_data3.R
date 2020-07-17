@@ -367,14 +367,16 @@ process_seroprev_data <- function(seroprev, start_date, study_ids, sero_agebreak
     seroprevMCMC <- seroprev %>%
       dplyr::group_by_at(c("ObsDaymin", "ObsDaymax", groupingvar)) %>%
       dplyr::summarise(seroprevalence_unadjusted = mean(seroprevalence_unadjusted)) %>%
-      dplyr::rename(SeroPrev = seroprevalence_unadjusted)
+      dplyr::rename(SeroPrev = seroprevalence_unadjusted) %>%
+      dplyr::ungroup()
   } else {
     seroprevMCMC <- seroprev %>%
       dplyr::group_by_at(c("ObsDaymin", "ObsDaymax", groupingvar)) %>%
       dplyr::summarise(n_positive = sum(n_positive),
                        n_tested = sum(n_tested),
                        seroprevalence_unadjusted = n_positive/n_tested) %>%
-      dplyr::rename(SeroPrev = seroprevalence_unadjusted)
+      dplyr::rename(SeroPrev = seroprevalence_unadjusted) %>%
+      dplyr::ungroup()
   }
 
   # out
