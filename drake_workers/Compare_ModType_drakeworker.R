@@ -64,12 +64,10 @@ map <- tibble::as_tibble(map)
 # make both maps
 maprgn <- mapage <- map
 maprgn <- maprgn %>%
-  dplyr::mutate(lvl = "region",
-                fatalitydata = list(rgnfatalitydata),
+  dplyr::mutate(fatalitydata = list(rgnfatalitydata),
                 demog = list(rgndemog))
 mapage <- mapage %>%
-  dplyr::mutate(lvl = "age",
-                fatalitydata = list(agefatalitydata),
+  dplyr::mutate(fatalitydata = list(agefatalitydata),
                 demog = list(agedemog))
 
 #......................
@@ -211,6 +209,10 @@ wrap_age_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
 maprgn$modelobj <-  purrr::pmap(maprgn[,c("inputdata", "sens_spec_tbl", "demog")], wrap_rgn_make_IFR_model)
 mapage$modelobj <-  purrr::pmap(mapage[,c("inputdata", "sens_spec_tbl", "demog")], wrap_age_make_IFR_model)
 # combine
+maprgn <- maprgn %>%
+  dplyr::mutate(lvl = "region")
+mapage <- mapage %>%
+  dplyr::mutate(lvl = "ageband")
 map <- dplyr::bind_rows(maprgn, mapage)
 
 #......................
@@ -221,7 +223,7 @@ fit_map <- map %>%
   dplyr::select(c("sim", dplyr::everything()))
 
 fit_map_sm <- fit_map %>%
-  dplyr::select(c("sim", "sens", "spec", "demog"))
+  dplyr::select(c("sim", "lvl", "sens", "spec", "demog"))
 
 #............................................................
 # Come Together
