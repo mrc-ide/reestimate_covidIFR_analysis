@@ -64,10 +64,12 @@ map <- tibble::as_tibble(map)
 # make both maps
 maprgn <- mapage <- map
 maprgn <- maprgn %>%
-  dplyr::mutate(fatalitydata = list(rgnfatalitydata),
+  dplyr::mutate(lvl = "region",
+                fatalitydata = list(rgnfatalitydata),
                 demog = list(rgndemog))
 mapage <- mapage %>%
-  dplyr::mutate(fatalitydata = list(agefatalitydata),
+  dplyr::mutate(lvl = "age",
+                fatalitydata = list(agefatalitydata),
                 demog = list(agedemog))
 
 #......................
@@ -118,10 +120,10 @@ mapage$inputdata <- purrr::pmap(mapage, wrap_sim, sero_day = 150)
 get_sens_spec <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",         "sero_rate",  "sero_day"),
                  min =   c(0.5,              0.5,            0,            140),
-                 init =  c(0.8,              0.8,            0.5,          150),
+                 init =  c(0.8,              0.8,            0.7,          150),
                  max =   c(1,       1,                       1,            160),
-                 dsc1 =  c(sens*1e3,        spec*1e2,        50,           140),
-                 dsc2 =  c((1e3-sens*1e3),  (1e2-spec*1e2),  50,           160))
+                 dsc1 =  c(sens*1e3,        spec*1e3,        70,           140),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  30,           160))
 }
 maprgn$sens_spec_tbl <- purrr::map2(maprgn$sens, maprgn$spec, get_sens_spec)
 mapage$sens_spec_tbl <- purrr::map2(mapage$sens, mapage$spec, get_sens_spec)
