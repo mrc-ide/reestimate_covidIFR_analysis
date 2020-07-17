@@ -53,9 +53,9 @@ ESP_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
 # make param maps
 #......................
 param_map <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
-                                        GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                                        burnin = 1e4,
-                                        samples = 1e4))
+                                           GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
+                                           burnin = 1e4,
+                                           samples = 1e4))
 # age bands
 age_mod_map <- tibble::tibble(name = c("ESP_agebands"),
                               modelobj = list(ESP_age_mod))
@@ -168,6 +168,7 @@ make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
      recoverable = FALSE,
      history = FALSE,
      session_info = FALSE,
-     lock_envir = FALSE) # unlock environment so parallel::clusterApplyLB in drjacoby can work
+     lock_envir = FALSE, # unlock environment so parallel::clusterApplyLB in drjacoby can work
+     lock_cache = FALSE)
 
 

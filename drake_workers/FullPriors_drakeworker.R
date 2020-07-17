@@ -267,8 +267,8 @@ make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
      recoverable = FALSE,
      history = FALSE,
      session_info = FALSE,
-     lock_envir = FALSE) # unlock environment so parallel::clusterApplyLB in drjacoby can work
-
+     lock_envir = FALSE, # unlock environment so parallel::clusterApplyLB in drjacoby can work
+     lock_cache = FALSE)
 
 
 
