@@ -213,6 +213,9 @@ run_MCMC <- function(path) {
                                       rungs = 25,
                                       GTI_pow = 3,
                                       cluster = cl)
+  stopCluster(cl)
+  gc()
+
   # out
   dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/full_prior_sims/", recursive = TRUE)
   outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/full_prior_sims/",

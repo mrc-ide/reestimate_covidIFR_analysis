@@ -40,8 +40,7 @@ ESP_rgn_mod <- make_IFR_model_fit(num_mas = 17, maxMa = "ma14",
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 125, init = 131, max = 137, dsc1 = 125, dsc2 = 137),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1",
-                                  sero_adj = FALSE)
+                                  serodayparams = "sero_day1")
 
 #......................
 # agebands
@@ -52,8 +51,7 @@ ESP_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 125, init = 131, max = 137, dsc1 = 125, dsc2 = 137),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1",
-                                  sero_adj = FALSE)
+                                  serodayparams = "sero_day1")
 
 
 #............................................................
@@ -74,8 +72,7 @@ DNK_rgn_mod <- make_IFR_model_fit(num_mas = 3, maxMa = "ma1",
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 125, init = 131, max = 138, dsc1 = 125, dsc2 = 138),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1",
-                                  sero_adj = FALSE)
+                                  serodayparams = "sero_day1")
 #......................
 # agebands
 #......................
@@ -85,8 +82,7 @@ DNK_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 125, init = 131, max = 138, dsc1 = 125, dsc2 = 138),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1",
-                                  sero_adj = TRUE)
+                                  serodayparams = "sero_day1")
 
 #............................................................
 # Netherlands
@@ -106,8 +102,7 @@ NLD_rgn_mod <- make_IFR_model_fit(num_mas = 25, maxMa = "ma1",
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 125, init = 131, max = 138, dsc1 = 125, dsc2 = 138),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1",
-                                  sero_adj = TRUE)
+                                  serodayparams = "sero_day1")
 
 #......................
 # agebands
@@ -118,8 +113,7 @@ NLD_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 125, init = 131, max = 138, dsc1 = 125, dsc2 = 138),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1",
-                                  sero_adj = TRUE)
+                                  serodayparams = "sero_day1")
 
 #............................................................
 # Brazil
@@ -139,8 +133,7 @@ BRA_rgn_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 78, init = 85, max = 88, dsc1 = 78, dsc2 = 88),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1",
-                                  sero_adj = FALSE)
+                                  serodayparams = "sero_day1")
 #......................
 # agebands
 #......................
@@ -150,8 +143,7 @@ BRA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 78, init = 85, max = 88, dsc1 = 78, dsc2 = 88),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1",
-                                  sero_adj = FALSE)
+                                  serodayparams = "sero_day1")
 
 #............................................................
 # Come Together
@@ -205,6 +197,10 @@ run_MCMC <- function(path) {
                                       rungs = mod$rungs,
                                       GTI_pow = mod$GTI_pow,
                                       cluster = cl)
+
+  stopCluster(cl)
+  gc()
+
   # out
   dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ModFits/", recursive = TRUE)
   outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ModFits/",
