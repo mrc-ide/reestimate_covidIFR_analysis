@@ -15,18 +15,20 @@ source("R/covidcurve_helper_functions.R")
 #............................................................
 # Make Paramset and write to disk for input into MCMC
 #...........................................................
+# onset to deaths
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
-                               min  = c(10,    0.01),
-                               init = c(14,    0.7),
-                               max =  c(20,    1.00),
-                               dsc1 = c(2.7,   -0.23),
-                               dsc2 = c(0.05,   0.05))
+                               min  = c(10,     0.01),
+                               init = c(14,     0.7),
+                               max =  c(20,     1.00),
+                               dsc1 = c(2.657,  -0.236),
+                               dsc2 = c(0.01,   0.01))
+
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.83,    0.50,     0,           117),
-                                init =  c(0.85,    0.99,     0.1,          125),
-                                max =   c(0.87,    1.00,     1,          131),
-                                dsc1 =  c(886.5,   520.5,     70,        117),
-                                dsc2 =  c(114.5,   10.5,      30,        131))
+                                min =   c(0.83,    0.50,    0,          117),
+                                init =  c(0.85,    0.99,    0.7,        125),
+                                max =   c(0.87,    1.00,    1,          131),
+                                dsc1 =  c(886.5,   520.5,   700,        117),
+                                dsc2 =  c(114.5,   10.5,    300,        131))
 #......................
 # regions
 #......................

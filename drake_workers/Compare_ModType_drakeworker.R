@@ -120,19 +120,19 @@ get_sens_spec <- function(sens, spec) {
                  min =   c(0.5,              0.5,            0,            140),
                  init =  c(0.8,              0.8,            0.7,          150),
                  max =   c(1,       1,                       1,            160),
-                 dsc1 =  c(sens*1e3,        spec*1e3,        70,           140),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  30,           160))
+                 dsc1 =  c(sens*1e3,        spec*1e3,        700,          140),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  300,          160))
 }
 maprgn$sens_spec_tbl <- purrr::map2(maprgn$sens, maprgn$spec, get_sens_spec)
 mapage$sens_spec_tbl <- purrr::map2(mapage$sens, mapage$spec, get_sens_spec)
 
 # onset to deaths
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
-                               min  = c(10,    0.01),
-                               init = c(14,    0.7),
-                               max =  c(20,    1.00),
-                               dsc1 = c(2.7,   -0.23),
-                               dsc2 = c(0.05,   0.05))
+                               min  = c(10,     0.01),
+                               init = c(14,     0.7),
+                               max =  c(20,     1.00),
+                               dsc1 = c(2.657,  -0.236),
+                               dsc2 = c(0.01,   0.01))
 
 # everything else for region
 wrap_rgn_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
