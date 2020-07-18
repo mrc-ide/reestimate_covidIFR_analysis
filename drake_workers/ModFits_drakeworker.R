@@ -193,7 +193,7 @@ GBR_rgn_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma1",
 #......................
 # agebands
 #......................
-rawage <- readRDS("data/derived/UK/GBR_agebands.rds")
+rawage <- readRDS("data/derived/UK/GBR_agebands.RDS")
 GBR_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 174, init = 181, max = 188, dsc1 = 174, dsc2 = 188),
