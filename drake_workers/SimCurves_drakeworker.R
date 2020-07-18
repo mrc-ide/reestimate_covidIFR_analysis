@@ -102,7 +102,7 @@ demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
 #............................................................
 # Simulate Under Model
 #...........................................................
-map <- expand.grid(curve = list(expgrowth, intervene, ssecondwave),
+map <- expand.grid(curve = list(expgrowth, intervene, secondwave),
                    sens = c(0.85, 0.90),
                    spec = c(0.95, 0.99))
 map <- tibble::as_tibble(map) %>%
@@ -253,6 +253,7 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
+                                      reparamSpec = TRUE,
                                       chains = n_chains,
                                       burnin = 1e3,
                                       samples = 1e3,
