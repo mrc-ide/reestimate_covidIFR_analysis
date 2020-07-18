@@ -1,17 +1,4 @@
 source("R/assertions_v5.R")
-#' @title Quick Jpeg
-jpgsnapshot <- function(outpath, plot, type = "wide") {
-  assert_in(type, c("long", "wide"))
-  if (type == "long") {
-    jpeg(outpath, width = 8, height = 11, units = "in", res = 500)
-    plot(plot)
-    graphics.off()
-  } else if (type == "wide") {
-    jpeg(filename = outpath, width = 11, height = 8, units = "in", res = 500)
-    plot(plot)
-    graphics.off()
-  }
-}
 
 #' @title Rogan-Gladen Estimator for Correct Prevalence Obersvations
 rogan_gladen <- function(obs_prev, sens, spec){
