@@ -215,8 +215,8 @@ fit_map <- tibble::tibble(
                   NYC_age_mod, GBR_age_mod, GBR_rgn_mod),
   rungs = 50,
   GTI_pow = c(2.5, 4.5, 3, 3, 3, 3, 3, 3, 3, 3, 3),
-  burnin = 1e4,
-  samples = 1e4
+  burnin = 1e3,
+  samples = 1e3
 )
 
 
@@ -265,8 +265,8 @@ run_MCMC <- function(path) {
   gc()
 
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ModFits/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ModFits/",
+  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ModFits2/", recursive = TRUE)
+  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ModFits2/",
                    mod$name, "_GTI", mod$GTI_pow, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, ".RDS")
   saveRDS(fit, file = outpath)
 
@@ -308,7 +308,7 @@ plan <- drake::drake_plan(
 options(clustermq.scheduler = "slurm",
         clustermq.template = "drake_workers/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
-     log_make = "ESP_PowerFits_drake.log", verbose = 2,
+     log_make = "Modfits_drake.log", verbose = 2,
      log_progress = TRUE,
      log_build_times = FALSE,
      recoverable = FALSE,
