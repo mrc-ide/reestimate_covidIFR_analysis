@@ -619,11 +619,21 @@ JHUdf <- readr::read_csv("data/raw/JHU_time_series_covid19_deaths_US_july72020.c
   dplyr::mutate(Admin2sp = sub(" ", "-", Admin2),
                 georegion = paste0(Province_State, "_", Admin2sp)) %>%
   dplyr::mutate(date = lubridate::mdy(date)) %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-  dplyr::filter(georegion == "New York_New-York") %>%
+  dplyr::group_by(georegion) %>% # group by region for daily deaths
   dplyr::rename(cumdeaths = deaths) %>%
   dplyr::mutate(deaths = cumdeaths - dplyr::lag(cumdeaths),
                 deaths = ifelse(is.na(deaths), 0, deaths)) %>% # take care of first value
   dplyr::select(c("date", "georegion", "deaths"))
+
+# fill in from origin
+georegions <- dplyr::group_keys(dplyr::group_by(JHUdf, georegion)) %>% dplyr::pull(.)
+origindf <- tibble::as_tibble(expand.grid(date = seq(lubridate::ymd("2020-01-01"), min(JHUdf$date), by = "1 day"),
+                  georegion = list(georegions),
+                  deaths = 0)) %>%
+  tidyr::unnest(cols = georegion)
+# combine now
+JHUdf <- dplyr::bind_rows(JHUdf, origindf) %>%
+  dplyr::arrange(georegion, date)
 
 
 #..................................................................................
@@ -632,6 +642,9 @@ JHUdf <- readr::read_csv("data/raw/JHU_time_series_covid19_deaths_US_july72020.c
 #............................................................
 # New York City, NY
 #...........................................................
+NYCJHU <- JHUdf %>%
+  dplyr::filter(georegion == "New York_New-York")
+
 #......................
 # regions
 #......................
