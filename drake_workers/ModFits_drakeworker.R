@@ -222,9 +222,9 @@ fit_map <- tibble::tibble(
 
 
 # select what we need for fits and make outpaths
-dir.create("data/param_map/ModFits/", recursive = T)
+dir.create("data/param_map/ModFits_sm/", recursive = T)
 lapply(split(fit_map, 1:nrow(fit_map)), function(x){
-  saveRDS(x, paste0("data/param_map/ModFits/",
+  saveRDS(x, paste0("data/param_map/ModFits_sm/",
                     x$name, "_GTI", x$GTI_pow, "_rung", x$rungs, "_burn", x$burnin, "_smpl", x$samples, ".RDS"))
 })
 
@@ -265,8 +265,8 @@ run_MCMC <- function(path) {
   gc()
 
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ModFits2/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ModFits2/",
+  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ModFits_sm/", recursive = TRUE)
+  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ModFits_sm/",
                    mod$name, "_GTI", mod$GTI_pow, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, ".RDS")
   saveRDS(fit, file = outpath)
 
@@ -283,7 +283,7 @@ run_MCMC <- function(path) {
 
 # read files in after sleeping to account for file lag
 Sys.sleep(60)
-file_param_map <- list.files(path = "data/param_map/ModFits/",
+file_param_map <- list.files(path = "data/param_map/ModFits_sm/",
                              pattern = "*.RDS",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)
