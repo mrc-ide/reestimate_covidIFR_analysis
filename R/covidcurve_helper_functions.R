@@ -34,8 +34,12 @@ make_IFR_model_fit <- function(num_mas, maxMa,
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
 
   # seroprev
+  seroprev_day_lftvr <- tibble::tibble(ObsDaymin = unique(dat$seroprevMCMC$ObsDaymin),
+                                       ObsDaymax = unique(dat$seroprevMCMC$ObsDaymax),
+                                       SeroDay = serodayparams)
+
   dat$obs_serology <- dplyr::left_join(dat$seroprevMCMC, dictkey) %>%
-    dplyr::mutate(SeroDay = "sero_day1") %>%
+    dplyr::left_join(., seroprev_day_lftvr) %>%
     dplyr::select(c("SeroDay", "Strata", "SeroPrev")) %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
     dplyr::arrange(SeroDay, Strata) %>%
