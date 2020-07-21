@@ -18,10 +18,7 @@ jpgsnapshot <- function(outpath, plot, type = "wide") {
 
 library(ggplot2)
 quick_mc_diagnostics <- function(modout) {
-  # get mcaccplot
-  mcaccplot <- drjacoby::plot_mc_acceptance(modout$mcmcout)
-  mcacclogplot1 <- drjacoby::plot_rung_loglike(modout$mcmcout, x_axis_type = 2, y_axis_type = 2)
-  mcacclogplot2 <- drjacoby::plot_rung_loglike(modout$mcmcout, x_axis_type = 2, y_axis_type = 3)
+
   # find max ma (will mix slowest)
   maxma <- modout$inputs$IFRmodel$maxMa
   maxmachain <- drjacoby::plot_par(modout$mcmcout, maxma, display = FALSE)
@@ -33,11 +30,20 @@ quick_mc_diagnostics <- function(modout) {
   spechain <- spechain[[1]][["trace"]] + theme(legend.position = "none")
   serodaychain <- serodaychain[[1]][["trace"]] + theme(legend.position = "none")
   seroratechain <- seroratechain[[1]][["trace"]] + theme(legend.position = "bottom")
-  # out
-  lftside <- cowplot::plot_grid(mcaccplot, mcacclogplot1, mcacclogplot2,
-                                nrow = 3)
   rightside <- cowplot::plot_grid(maxmachain, spechain, serodaychain, seroratechain,
                                   nrow = 4, rel_heights = c(1,1,1,1.5))
-  cowplot::plot_grid(lftside, rightside, ncol = 2)
 
+  # MC coupling considered
+  if (!is.na(modout$mcmcout$diagnostics$mc_accept)) {
+    # get mcaccplot
+    mcaccplot <- drjacoby::plot_mc_acceptance(modout$mcmcout)
+    mcacclogplot1 <- drjacoby::plot_rung_loglike(modout$mcmcout, x_axis_type = 2, y_axis_type = 2)
+    mcacclogplot2 <- drjacoby::plot_rung_loglike(modout$mcmcout, x_axis_type = 2, y_axis_type = 3)
+
+    lftside <- cowplot::plot_grid(mcaccplot, mcacclogplot1, mcacclogplot2,
+                                  nrow = 3)
+    cowplot::plot_grid(lftside, rightside, ncol = 2)
+  } else {
+    plot(rightside)
+  }
 }
