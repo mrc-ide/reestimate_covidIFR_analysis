@@ -644,7 +644,8 @@ JHUdf <- dplyr::bind_rows(JHUdf, origindf) %>%
 #...........................................................
 NYCJHU <- JHUdf %>%
   dplyr::filter(georegion == "New York_New-York")
-
+NYpopdf <- populationdf %>%
+  dplyr::filter(study_id == "NYC_NY_1")
 #......................
 # regions
 #......................
@@ -669,8 +670,7 @@ NYC_NY_1.agebands.dat <- process_data3(deaths = deathsdf,
 #......................
 # NYC seroprevalence and deaths not perfectly aligned because blood donor data
 # Assumptions.
-# 1) 18-34 and 34-44 seroprevalence will be averaged for the 0-45 age group
-# 2) Seroprev in the 0-45 age group will be equivalent to the 0-18 age group
+# 1) 18-34 and 34-44 seroprevalence will be averaged for the 0-18 and 18-45 age group
 # 2) Seroprev in the 44-54 age group will be equivalent to the 45-65 age group
 # 3) Seroprev in the 54+ age group will be equivalent to the 65-75 and 75+ age group
 
@@ -699,8 +699,41 @@ nyc_adj_seroprev <- nyc_adj_seroprev %>%
   dplyr::rename(SeroPrev = seroprevalence)
 
 
+#......................
+# adding in CDC_1 data as well
+#......................
+cdc1 <- sero_prevdf %>%
+  dplyr::filter(study_id == "CDC_1" & stringr::str_detect(region, "New York") & gender == "both") %>%
+  dplyr::filter(!(age_low == 0 & age_high == 999)) %>%
+  dplyr::rename(ObsDaymin = date_start_survey,
+                ObsDaymax = date_end_survey) %>%
+  dplyr::mutate(ObsDaymin = as.numeric(ObsDaymin - lubridate::ymd("20200101")),
+                ObsDaymax = as.numeric(ObsDaymax - lubridate::ymd("20200101"))) %>%
+  dplyr::select(c("ObsDaymin", "ObsDaymax", "age_low", "age_high", "seroprevalence_unadjusted")) %>%
+  dplyr::rename(seroprevalence = seroprevalence_unadjusted)
+
+nyc_adj_seroprev2 <- tibble::tibble(
+  ObsDaymin = unique(cdc1$ObsDaymin),
+  ObsDaymax = unique(cdc1$ObsDaymax),
+  ageband = unique(NYC_NY_1.agebands.dat$deathsMCMC$ageband),
+  age_low = unique(as.numeric(stringr::str_split_fixed(NYC_NY_1.agebands.dat$deathsMCMC$ageband, "-[0-9]+", n=2)[,1])),
+  age_high= unique(as.numeric(stringr::str_split_fixed(NYC_NY_1.agebands.dat$deathsMCMC$ageband, "[0-9]+-", n=2)[,2])),
+  seroprevalence = NA) %>%
+  dplyr::arrange(age_low)
+
+# Assumptions
+# 1) 0-18 matches 0-18
+# 2) 18-45 matches 19-49
+# 3) 50-64 matches 45-65
+# 4) 65-75 and 75+ matches 65+
+
+nyc_adj_seroprev2$seroprevalence <- apply(nyc_adj_seroprev2, 1, wiggle_age_matchfun, wiggle = 5, y = cdc1)
+nyc_adj_seroprev2 <- nyc_adj_seroprev2 %>%
+  dplyr::rename(SeroPrev = seroprevalence)
+
+
 # write over
-NYC_NY_1.agebands.dat$seroprevMCMC <- nyc_adj_seroprev
+NYC_NY_1.agebands.dat$seroprevMCMC <- dplyr::bind_rows(nyc_adj_seroprev2, nyc_adj_seroprev)
 
 #......................
 # get rho
@@ -711,7 +744,7 @@ NYC_NY_1.agebands.dat$rho <- rep(1, length(unique(NYC_NY_1.agebands.dat$deathsMC
 # save out
 #......................
 dir.create("data/derived/USA", recursive = T)
-saveRDS(NYC_NY_1.agebands.dat, "data/derived/USA/NYC_NY_1_agebands.RDS")
+saveRDS(NYC_NY_1.agebands.dat, "data/derived/USA/NYC_NY_1_cdc1_agebands.RDS")
 
 
 
