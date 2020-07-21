@@ -217,13 +217,12 @@ fit_map <- map %>%
   dplyr::select(c("sim", dplyr::everything()))
 
 fit_map_sm <- fit_map %>%
-  dplyr::select(c("sim", "sens", "spec", "demog")) %>%
-  dplyr::mutate(lvl = purrr::map_chr(curve, "nm"))
+  dplyr::mutate(lvl = purrr::map_chr(curve, function(x){unique(x$nm)})) %>%
+  dplyr::select(c("lvl", "sim", "sens", "spec", "demog"))
 
 #............................................................
 # Come Together
 #...........................................................
-
 # select what we need for fits and make outpaths
 dir.create("data/param_map/SimCurves/", recursive = T)
 lapply(split(fit_map, 1:nrow(fit_map)), function(x){

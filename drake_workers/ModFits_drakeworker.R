@@ -152,12 +152,12 @@ BRA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
 #............................................................
 # New York City
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,     0,          109),
-                                init =  c(0.85,    0.99,     0.7,        114),
-                                max =   c(1.00,    1.00,     1,          118),
-                                dsc1 =  c(204.5,   990.5,    700,        109),
-                                dsc2 =  c(234.5,   10.5,     300,        118))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1", "sero_day2"),
+                                min =   c(0.50,    0.50,     0,          82,          109),
+                                init =  c(0.85,    0.99,     0.7,        87,          114),
+                                max =   c(1.00,    1.00,     1,          91,          118),
+                                dsc1 =  c(204.5,   990.5,    700,        82,          109),
+                                dsc2 =  c(234.5,   10.5,     300,        91,          118))
 #......................
 # agebands
 #......................
@@ -173,11 +173,11 @@ NYC_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
 # Great Britian
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,     0,          109),
-                                init =  c(0.99,    0.99,     0.7,        114),
-                                max =   c(1.00,    1.00,     1,          118),
-                                dsc1 =  c(990.5,   990.5,    700,        109),
-                                dsc2 =  c(10.5,   10.5,     300,        118))
+                                min =   c(0.50,    0.50,     0,          94),
+                                init =  c(0.99,    0.99,     0.7,        107),
+                                max =   c(1.00,    1.00,     1,          120),
+                                dsc1 =  c(990.5,   990.5,    700,        94),
+                                dsc2 =  c(10.5,   10.5,     300,         120))
 #......................
 # regions
 #......................
@@ -221,9 +221,9 @@ fit_map <- tibble::tibble(
 
 
 # select what we need for fits and make outpaths
-dir.create("data/param_map/ModFits_sm/", recursive = T)
+dir.create("data/param_map/Modfits/", recursive = T)
 lapply(split(fit_map, 1:nrow(fit_map)), function(x){
-  saveRDS(x, paste0("data/param_map/ModFits_sm/",
+  saveRDS(x, paste0("data/param_map/Modfits/",
                     x$name, "_GTI", x$GTI_pow, "_rung", x$rungs, "_burn", x$burnin, "_smpl", x$samples, ".RDS"))
 })
 
@@ -263,8 +263,8 @@ run_MCMC <- function(path) {
   gc()
 
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ModFits_sm/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/ModFits_sm/",
+  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits/", recursive = TRUE)
+  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits/",
                    mod$name, "_GTI", mod$GTI_pow, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, ".RDS")
   saveRDS(fit, file = outpath)
 
@@ -281,7 +281,7 @@ run_MCMC <- function(path) {
 
 # read files in after sleeping to account for file lag
 Sys.sleep(60)
-file_param_map <- list.files(path = "data/param_map/ModFits_sm/",
+file_param_map <- list.files(path = "data/param_map/Modfits/",
                              pattern = "*.RDS",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)
