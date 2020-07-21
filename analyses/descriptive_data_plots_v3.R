@@ -72,6 +72,10 @@ datmap <- datmap %>%
 datmap <- datmap %>%
   dplyr::mutate(plotdat = purrr::map2(.x = std_deaths, .y = seroprev_adjdat, dplyr::left_join)) # let dplyr find strata
 
+# save out
+saveRDS(datmap, file = "data/derived/descriptive_results_datamap.RDS")
+
+
 #............................................................
 # Age Bands Plots/Descriptions
 #...........................................................
