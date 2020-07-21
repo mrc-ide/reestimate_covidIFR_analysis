@@ -36,7 +36,8 @@ expgrowth <- expgrowth %>%
     infxns = mean(I)
   ) %>%
   dplyr::mutate_if(is.numeric, round, 0) %>%
-  dplyr::rename(time = step)
+  dplyr::rename(time = step) %>%
+  dplyr::mutate(nm = "expgrowth")
 
 
 #......................
@@ -59,7 +60,8 @@ intervene <- intervene %>%
     infxns = mean(I)
   ) %>%
   dplyr::mutate_if(is.numeric, round, 0) %>%
-  dplyr::rename(time = step)
+  dplyr::rename(time = step) %>%
+  dplyr::mutate(nm = "intervene")
 
 
 
@@ -83,7 +85,8 @@ secondwave <- secondwave %>%
     infxns = mean(I)
   ) %>%
   dplyr::mutate_if(is.numeric, round, 0) %>%
-  dplyr::rename(time = step)
+  dplyr::rename(time = step) %>%
+  dplyr::mutate(nm = "secondwave")
 
 
 
@@ -214,7 +217,8 @@ fit_map <- map %>%
   dplyr::select(c("sim", dplyr::everything()))
 
 fit_map_sm <- fit_map %>%
-  dplyr::select(c("sim", "lvl", "sens", "spec", "demog"))
+  dplyr::select(c("sim", "sens", "spec", "demog")) %>%
+  dplyr::mutate(lvl = purrr::map_chr(curve, "nm"))
 
 #............................................................
 # Come Together

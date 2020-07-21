@@ -56,8 +56,8 @@ ESP_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
 #......................
 param_map <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
                                            GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                                           burnin = 1e4,
-                                           samples = 1e4))
+                                           burnin = 1e3,
+                                           samples = 1e3))
 # age bands
 age_mod_map <- tibble::tibble(name = c("ESP_agebands"),
                               modelobj = list(ESP_age_mod))

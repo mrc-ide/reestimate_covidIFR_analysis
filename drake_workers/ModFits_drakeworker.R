@@ -159,16 +159,15 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day
                                 dsc1 =  c(204.5,   990.5,    700,        109),
                                 dsc2 =  c(234.5,   10.5,     300,        118))
 #......................
-# regions
+# agebands
 #......................
-rawage <- readRDS("data/derived/USA/NYC_NY_1_agebands.RDS")
+rawage <- readRDS("data/derived/USA/NYC_NY_1_cdc1_agebands.RDS")
 NYC_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 174, init = 181, max = 188, dsc1 = 174, dsc2 = 188),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1")
-
+                                  serodayparams = c("sero_day1", "sero_day2"))
 
 #............................................................
 # Great Britian
@@ -238,7 +237,6 @@ run_MCMC <- function(path) {
   #......................
   # make cluster object to parallelize chains
   #......................
-  start <- Sys.time()
   n_chains <- 10
   n_cores <- parallel::detectCores()
 
