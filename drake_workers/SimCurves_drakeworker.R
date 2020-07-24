@@ -125,7 +125,7 @@ wrap_sim <- function(curve, sens, spec, fatalitydata, demog, sero_day) {
     simulate_seroprevalence = TRUE,
     sens = sens,
     spec = spec,
-    sero_delay_rate = 10,
+    sero_delay_rate = 13.3,
     demog = demog)
 
   # sero tidy up
@@ -158,27 +158,27 @@ map$inputdata <- purrr::pmap(map, wrap_sim, sero_day = 150)
 get_sens_spec <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",         "sero_rate",  "sero_day"),
                  min =   c(0.5,              0.5,            0,            140),
-                 init =  c(0.8,              0.8,            0.7,          150),
+                 init =  c(0.8,              0.8,            0.9,          150),
                  max =   c(1,                1,              1,            160),
-                 dsc1 =  c(sens*1e3,        spec*1e3,        70,           140),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  30,           160))
+                 dsc1 =  c(sens*1e3,        spec*1e3,        900,          140),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  100,          160))
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 
 # onset to deaths
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
-                               min  = c(10,    0.01),
-                               init = c(14,    0.7),
-                               max =  c(20,    1.00),
-                               dsc1 = c(2.7,   -0.23),
-                               dsc2 = c(0.05,   0.05))
+                               min  = c(10,     0.01),
+                               init = c(14,     0.7),
+                               max =  c(20,     1.00),
+                               dsc1 = c(2.657,  -0.236),
+                               dsc2 = c(0.01,   0.01))
 
 # everything else for region
 wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
   ifr_paramsdf <- make_ma_reparamdf(num_mas = 5)
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
                                           num_xs = 4)
-  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 12, dsc1 = 0, dsc2 = 12),
+  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
                                            num_ys = 5)
   noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 0, init = 5, max = 10)
 
@@ -258,8 +258,8 @@ run_MCMC <- function(path) {
                                       reparamKnots = TRUE,
                                       reparamSpec = TRUE,
                                       chains = n_chains,
-                                      burnin = 1e3,
-                                      samples = 1e3,
+                                      burnin = 1e4,
+                                      samples = 1e4,
                                       rungs = 50,
                                       GTI_pow = 3,
                                       cluster = cl)

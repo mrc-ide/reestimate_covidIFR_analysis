@@ -118,10 +118,10 @@ mapage$inputdata <- purrr::pmap(mapage, wrap_sim, sero_day = 150)
 get_sens_spec <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",         "sero_rate",  "sero_day"),
                  min =   c(0.5,              0.5,            0,            140),
-                 init =  c(0.8,              0.8,            0.7,          150),
+                 init =  c(0.8,              0.8,            0.9,          150),
                  max =   c(1,       1,                       1,            160),
-                 dsc1 =  c(sens*1e3,        spec*1e3,        700,          140),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  300,          160))
+                 dsc1 =  c(sens*1e3,        spec*1e3,        900,          140),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  100,          160))
 }
 maprgn$sens_spec_tbl <- purrr::map2(maprgn$sens, maprgn$spec, get_sens_spec)
 mapage$sens_spec_tbl <- purrr::map2(mapage$sens, mapage$spec, get_sens_spec)
@@ -264,8 +264,8 @@ run_MCMC <- function(path) {
                                       reparamKnots = TRUE,
                                       reparamSpec = TRUE,
                                       chains = n_chains,
-                                      burnin = 1e3,
-                                      samples = 1e3,
+                                      burnin = 1e4,
+                                      samples = 1e4,
                                       rungs = 50,
                                       GTI_pow = 3,
                                       cluster = cl)
