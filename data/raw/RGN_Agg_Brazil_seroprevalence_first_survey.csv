@@ -1,0 +1,6 @@
+"","region","n_tested","n_positive","seroprevalence_unadjusted","country","study_id","age_low","age_high","gender","seroprevalence_weighted","date_start_survey","date_end_survey","age_breakdown","for_regional_analysis","gender_breakdown"
+"1","Central-West",2477,0,0,"BRA","BRA1",0,999,"both",NA,2020-05-15,2020-05-22,0,1,0
+"2","North",4710,269,0.0571125265392781,"BRA","BRA1",0,999,"both",NA,2020-05-15,2020-05-22,0,1,0
+"3","Northeast",6023,38,0.00630914826498423,"BRA","BRA1",0,999,"both",NA,2020-05-15,2020-05-22,0,1,0
+"4","South",5309,9,0.0016952345074402,"BRA","BRA1",0,999,"both",NA,2020-05-15,2020-05-22,0,1,0
+"5","Southeast",5682,21,0.00369588173178458,"BRA","BRA1",0,999,"both",NA,2020-05-15,2020-05-22,0,1,0
