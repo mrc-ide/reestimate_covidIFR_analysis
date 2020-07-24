@@ -197,7 +197,7 @@ age_std_daily_deaths_plot <- ageplotdat %>%
                 seroprevadj = seroprevadj * 100) %>%
   ggplot() +
   geom_line(aes(x = obsday, y = std_deaths, color = ageband), alpha = 0.8, size = 1.2) +
-  facet_wrap(.~study_id) +
+  facet_wrap(.~study_id, scales = "free_y") +
   xlab("Obs. Day") + ylab("Daily Deaths per Million") +
   xyaxis_plot_theme
 jpgsnapshot(outpath = "results/descriptive_figures/age_std_daily_deaths_plot.jpg",
@@ -354,7 +354,8 @@ rgn_std_daily_deaths_plot <- rgnplotdat %>%
   geom_line(aes(x = obsday, y = std_deaths, color = region), alpha = 0.8, size = 1.2) +
   facet_wrap(.~study_id) +
   xlab("Obs. Day") + ylab("Daily Deaths per Million") +
-  xyaxis_plot_theme
+  xyaxis_plot_theme +
+  theme(legend.position = "none")
 jpgsnapshot(outpath = "results/descriptive_figures/rgn_std_daily_deaths_plot.jpg",
             plot = rgn_std_daily_deaths_plot)
 

@@ -348,9 +348,6 @@ process_death_data <- function(deaths, recast_deaths_df, recast_deaths_geocode,
   # tidy up death data
   #......................
   deaths <- deaths %>%
-    dplyr::mutate(date_start_survey = origin,
-                  date_end_survey = lubridate::ymd(date_end_survey),
-                  ObsDay = as.numeric(date_end_survey - origin) + 1)  %>%
     dplyr::filter(study_id %in% study_ids)
 
 
@@ -422,7 +419,6 @@ process_death_data <- function(deaths, recast_deaths_df, recast_deaths_geocode,
   # if cumulative, recast from recast_deaths_df
   #......................
   if (cumulative){
-    if(length(unique(deaths$ObsDay)) > 1) { stop("Cumulative data has multiple end dates") }
     recast_deaths_df <- recast_deaths_df %>%
       dplyr::filter(georegion %in% recast_deaths_geocode) %>%
       dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date) - origin) + 1) %>%
@@ -431,12 +427,15 @@ process_death_data <- function(deaths, recast_deaths_df, recast_deaths_geocode,
 
     # now multiple proportions to get time series
     deaths.prop <- deaths %>%
-      dplyr::mutate(ObsDay = max(date_end_survey)) %>%
-      dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
+      dplyr::mutate(date_start_survey = origin,
+                    date_end_survey = lubridate::ymd(date_end_survey),
+                    ObsDay = max(date_end_survey)) %>%
+      dplyr::group_by_at(c(groupingvar, "ObsDay")) %>% # to get deaths at end of shorter survey period
       dplyr::summarise(death_num = sum(n_deaths),
                        age_low = mean(age_low),
                        age_high = mean(age_high)) %>%
       dplyr::arrange(age_low)
+
 
     # store group names
     groupvarnames <- group_keys(deaths.prop)
@@ -444,6 +443,7 @@ process_death_data <- function(deaths, recast_deaths_df, recast_deaths_geocode,
     # get proportion
     deaths.prop <- deaths.prop %>%
       dplyr::ungroup(.) %>%
+      dplyr::select(-c("ObsDay")) %>%
       dplyr::mutate(death_denom = sum(death_num),
                     death_prop = death_num/death_denom) # protect against double counting of same person in multiple groups
 
@@ -475,7 +475,9 @@ process_death_data <- function(deaths, recast_deaths_df, recast_deaths_geocode,
     #......................
 
     deaths.summ <- deaths %>%
-      dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date_start_survey) - origin) + 1) %>%
+      dplyr::mutate(date_start_survey = origin,
+                    date_end_survey = lubridate::ymd(date_end_survey),
+                    ObsDay = as.numeric(date_end_survey - origin) + 1)  %>%
       dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
       dplyr::summarise( Deaths = sum(n_deaths) ) %>%
       dplyr::arrange_at(c("ObsDay", groupingvar))
