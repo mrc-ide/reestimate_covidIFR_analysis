@@ -1,3 +1,17 @@
+source(paste0(here::here(), "/R/assertions_v5.R"))
+#' @title Make a nice DT table from a dataframe
+#' @import dplyr, DT
+pretty_DT_tab <- function(df, pageLength = 10) {
+  df %>%
+    dplyr::mutate_if(is.numeric, round, 2) %>%
+    DT::datatable(., extensions='Buttons',
+                  options = list(
+                    searching = T,
+                    pageLength = pageLength,
+                    dom = 'Bfrtip',
+                    buttons = c('csv')))
+}
+
 #' @title Quick Jpeg
 jpgsnapshot <- function(outpath, plot, type = "wide") {
   assert_in(type, c("long", "wide"))
@@ -34,7 +48,7 @@ quick_mc_diagnostics <- function(modout) {
                                   nrow = 4, rel_heights = c(1,1,1,1.5))
 
   # MC coupling considered
-  if (!is.na(modout$mcmcout$diagnostics$mc_accept)) {
+  if (!is.na(modout$mcmcout$diagnostics$mc_accept[[1]])) {
     # get mcaccplot
     mcaccplot <- drjacoby::plot_mc_acceptance(modout$mcmcout)
     mcacclogplot1 <- drjacoby::plot_rung_loglike(modout$mcmcout, x_axis_type = 2, y_axis_type = 2)
