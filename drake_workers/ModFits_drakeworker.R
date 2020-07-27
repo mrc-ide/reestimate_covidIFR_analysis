@@ -249,14 +249,15 @@ fit_map <- tibble::tibble(
            "GBR_age", "GBR_rgn",
            "NLD_age", "NLD_rgn"),
   modelobj = list(BRA_age_mod, BRA_rgn_mod,
+                  CHE_age_mod, CHE_rgn_mod,
                   DNK_age_mod, DNK_rgn_mod,
                   ESP_age_mod, ESP_rgn_mod,
                   GBR_age_mod, GBR_rgn_mod,
                   NLD_age_mod, NLD_rgn_mod),
   rungs = 50,
   GTI_pow = 3,
-  burnin = 1e4,
-  samples = 1e4
+  burnin = 1e3,
+  samples = 1e3
 )
 
 
