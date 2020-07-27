@@ -12,7 +12,7 @@ sandbox/
 results/
 figures/
 data/param_map/
-
+.drake
 
 # knitr and R markdown default cache directories
 /*_cache/
