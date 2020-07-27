@@ -8,7 +8,7 @@ make_IFR_model_fit <- function(num_mas, maxMa,
                                num_xs, max_xveclist,
                                num_ys, max_yveclist,
                                sens_spec_tbl, tod_paramsdf,
-                               serodayparams, sero_adj = FALSE) {
+                               serodayparams) {
 
   # make dfs
   ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas)
@@ -24,43 +24,22 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   #......................
   # format data
   #......................
-  if (sero_adj) {
-    dictkey <- tibble::tibble(groupvar = unlist(dat$seroprev_group_adj[, groupvar]), "Strata" = paste0("ma", 1:num_mas))
-    colnames(dictkey) <- c(paste(groupvar), "Strata")
-    # deaths
-    dat$deaths <- dplyr::left_join(dat$deaths, dictkey) %>%
-      dplyr::select(c("ObsDay", "Strata", "Deaths")) %>%
-      dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
-      dplyr::arrange(ObsDay, Strata) %>%
-      dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
-
-    # seroprev
-    dat$obs_serology <- dplyr::left_join(dat$seroprev_group_adj, dictkey) %>%
-      dplyr::mutate(SeroDay = "sero_day1") %>%
-      dplyr::rename(SeroPrev = seroprevalence_adj) %>%
-      dplyr::select(c("SeroDay", "Strata", "SeroPrev")) %>%
-      dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
-      dplyr::arrange(SeroDay, Strata) %>%
-      dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
-
-
-    inputdata <- list(obs_deaths = dat$deaths,
-                      obs_serology = dat$obs_serology)
-  } else {
-
-  dictkey <- tibble::tibble(groupvar = unlist(dat$seroprev_group[, groupvar]), "Strata" = paste0("ma", 1:num_mas))
+  dictkey <- tibble::tibble(groupvar = as.character(unlist(unique(dat$seroprevMCMC[, groupvar]))), "Strata" = paste0("ma", 1:num_mas))
   colnames(dictkey) <- c(paste(groupvar), "Strata")
   # deaths
-  dat$deaths <- dplyr::left_join(dat$deaths, dictkey) %>%
+  dat$deaths <- dplyr::left_join(dat$deathsMCMC, dictkey) %>%
     dplyr::select(c("ObsDay", "Strata", "Deaths"))  %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
     dplyr::arrange(ObsDay, Strata) %>%
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
 
   # seroprev
-  dat$obs_serology <- dplyr::left_join(dat$seroprev_group, dictkey) %>%
-    dplyr::mutate(SeroDay = "sero_day1") %>%
-    dplyr::rename(SeroPrev = seroprevalence) %>%
+  seroprev_day_lftvr <- tibble::tibble(ObsDaymin = unique(dat$seroprevMCMC$ObsDaymin),
+                                       ObsDaymax = unique(dat$seroprevMCMC$ObsDaymax),
+                                       SeroDay = serodayparams)
+
+  dat$obs_serology <- dplyr::left_join(dat$seroprevMCMC, dictkey) %>%
+    dplyr::left_join(., seroprev_day_lftvr) %>%
     dplyr::select(c("SeroDay", "Strata", "SeroPrev")) %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
     dplyr::arrange(SeroDay, Strata) %>%
@@ -69,7 +48,7 @@ make_IFR_model_fit <- function(num_mas, maxMa,
 
   inputdata <- list(obs_deaths = dat$deaths,
                     obs_serology = dat$obs_serology)
-  }
+
 
   demog <- dat$prop_pop %>%
     dplyr::left_join(., dictkey) %>%

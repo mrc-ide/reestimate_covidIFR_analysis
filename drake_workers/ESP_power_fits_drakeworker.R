@@ -15,18 +15,20 @@ source("R/covidcurve_helper_functions.R")
 #............................................................
 # Make Paramset and write to disk for input into MCMC
 #...........................................................
+# onset to deaths
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
-                               min  = c(10,    0.01),
-                               init = c(18,    0.45),
-                               max =  c(25,    1.00),
-                               dsc1 = c(2.9,   -0.78),
-                               dsc2 = c(0.05,   0.05))
+                               min  = c(10,     0.01),
+                               init = c(14,     0.7),
+                               max =  c(20,     1.00),
+                               dsc1 = c(2.657,  -0.236),
+                               dsc2 = c(0.01,   0.01))
+
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.83,    0.50,     5,           117),
-                                init =  c(0.85,    0.99,     10,          125),
-                                max =   c(0.87,    1.00,     15,          131),
-                                dsc1 =  c(886.5,   52.5,     2.15,        117),
-                                dsc2 =  c(114.5,   1.5,      0.05,        131))
+                                min =   c(0.83,    0.50,    0,          117),
+                                init =  c(0.85,    0.99,    0.7,        125),
+                                max =   c(0.87,    1.00,    1,          131),
+                                dsc1 =  c(886.5,   520.5,   700,        117),
+                                dsc2 =  c(114.5,   10.5,    300,        131))
 #......................
 # regions
 #......................
@@ -53,9 +55,9 @@ ESP_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
 # make param maps
 #......................
 param_map <- tibble::as_tibble(expand.grid(rungs = c(10, 25, 50),
-                                        GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
-                                        burnin = 1e4,
-                                        samples = 1e4))
+                                           GTI_pow = c(2, 2.5, 3, 3.5, 4.0, 4.5, 5.0, 5.5, 6),
+                                           burnin = 1e3,
+                                           samples = 1e3))
 # age bands
 age_mod_map <- tibble::tibble(name = c("ESP_agebands"),
                               modelobj = list(ESP_age_mod))
@@ -93,7 +95,7 @@ run_MCMC <- function(path) {
   if (n_cores < n_chains) {
     mkcores <- n_cores - 1
   } else {
-    mkcores <- n_chains/2
+    mkcores <- n_chains
   }
 
   cl <- parallel::makeCluster(mkcores)
@@ -101,12 +103,16 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
+                                      reparamSpec = TRUE,
                                       chains = n_chains,
                                       burnin = mod$burnin,
                                       samples = mod$samples,
                                       rungs = mod$rungs,
                                       GTI_pow = mod$GTI_pow,
                                       cluster = cl)
+  parallel::stopCluster(cl)
+  gc()
+
   mc_accept_mean <- mean(fit$mcmcout$diagnostics$mc_accept$value)
   mc_accept_min <- min(fit$mcmcout$diagnostics$mc_accept$value)
   time_elapse <- Sys.time() - start
@@ -160,11 +166,14 @@ options(clustermq.scheduler = "slurm",
         clustermq.template = "drake_workers/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
      log_make = "ESP_PowerFits_drake.log", verbose = 2,
-     log_progress = FALSE,
+     log_progress = TRUE,
      log_build_times = FALSE,
      recoverable = FALSE,
      history = FALSE,
      session_info = FALSE,
-     lock_envir = FALSE) # unlock environment so parallel::clusterApplyLB in drjacoby can work
+     lock_envir = FALSE, # unlock environment so parallel::clusterApplyLB in drjacoby can work
+     lock_cache = FALSE)
+
+cat("************** Drake Finished **************************")
 
 

@@ -30,7 +30,9 @@ sero_valdf <- readr::read_csv("data/raw/seroassay_validation.csv")
 sero_prevdf <- readr::read_csv("data/raw/seroprevalence.csv") %>%
   dplyr::select(-c("ref", "notes")) %>%
   dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-                date_end_survey = lubridate::dmy(date_end_survey))
+                date_end_survey = lubridate::dmy(date_end_survey),
+                seroprevalence_unadjusted = ifelse(is.na(seroprevalence_unadjusted), n_positive/n_tested, seroprevalence_unadjusted)
+  )
 
 
 
@@ -71,8 +73,6 @@ ESP.agebands.dat <- process_data3(deaths = deathsdf,
                                   groupingvar = "ageband",
                                   study_ids = "ESP1",
                                   recast_deaths_geocode = "ESP",
-                                  filtRegions = NULL,
-                                  filtGender = NULL,
                                   death_agebreaks = c(0, 10, 20, 30, 40,
                                                       50, 60, 70, 80, 90, 999),
                                   sero_agebreaks = c(0, 10, 20, 30, 40,
@@ -82,19 +82,19 @@ ESP.agebands.dat <- process_data3(deaths = deathsdf,
 #......................
 # suspicious 0 followed by very large increase
 # Monday, April 27 appears suspicious, such that all deaths from Apr 27 got pushed to Apr 28
-ESP.agebands.dat$deaths$Deaths[ESP.agebands.dat$deaths$ObsDay == 117] <- -1
-ESP.agebands.dat$deaths$Deaths[ESP.agebands.dat$deaths$ObsDay == 118] <- -1
-ESP.regions.dat$deaths$Deaths[ESP.regions.dat$deaths$ObsDay == 117] <- -1
-ESP.regions.dat$deaths$Deaths[ESP.regions.dat$deaths$ObsDay == 118] <- -1
+ESP.agebands.dat$deathsMCMC$Deaths[ESP.agebands.dat$deathsMCMC$ObsDay == 117] <- -1
+ESP.agebands.dat$deathsMCMC$Deaths[ESP.agebands.dat$deathsMCMC$ObsDay == 118] <- -1
+ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 117] <- -1
+ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 118] <- -1
 
 # No adjustments to serology as there is alignment of deaths and seroprevalence age groups.
 
 #......................
 # get rho
 #......................
-ESP.agebands.dat$rho <- rep(1, length(unique(ESP.agebands.dat$deaths$ageband)))
+ESP.agebands.dat$rho <- rep(1, length(unique(ESP.agebands.dat$deathsMCMC$ageband)))
 # multiple through demog and age-standardize for region
-ESP.regions.dat$rho <- rep(1, length(unique(ESP.regions.dat$deaths$region)))
+ESP.regions.dat$rho <- rep(1, length(unique(ESP.regions.dat$deathsMCMC$region)))
 
 
 #......................
@@ -119,10 +119,7 @@ NLD.regions.dat <- process_data3(deaths = deathsdf,
                                  recast_deaths_df = ECDCdf,
                                  groupingvar = "region",
                                  study_ids = "NLD1",
-                                 recast_deaths_geocode = "NLD",
-                                 filtRegions = NULL, # some regions combined in serosurvey
-                                 filtGender = NULL,
-                                 filtAgeBand = NULL)
+                                 recast_deaths_geocode = "NLD")
 
 #......................
 # ages
@@ -136,9 +133,6 @@ NLD.agebands.dat <- process_data3(deaths = deathsdf,
                                   groupingvar = "ageband",
                                   study_ids = "NLD1",
                                   recast_deaths_geocode = "NLD",
-                                  filtRegions = NULL, # some regions combined in serosurvey
-                                  filtGender = NULL,
-                                  filtAgeBand = NULL,
                                   death_agebreaks = c(0, 9, 19, 29, 39, 49, 59, 69, 79, 89, 999),
                                   sero_agebreaks = c(0, 9, 19, 29, 39, 49, 59, 69, 79, 89, 999))
 
@@ -215,10 +209,7 @@ DNK.regions.dat <- process_data3(deaths = deathsdf,
                                  recast_deaths_df = ECDCdf,
                                  groupingvar = "region",
                                  study_ids = "DNK1",
-                                 recast_deaths_geocode = "DNK",
-                                 filtRegions = NULL, # some regions combined in serosurvey
-                                 filtGender = NULL,
-                                 filtAgeBand = NULL)
+                                 recast_deaths_geocode = "DNK")
 
 #......................
 # ages
@@ -232,9 +223,9 @@ DNK.agebands.dat <- process_data3(deaths = deathsdf,
                                   groupingvar = "ageband",
                                   study_ids = "DNK1",
                                   recast_deaths_geocode = "DNK",
-                                  filtRegions = NULL, # some regions combined in serosurvey
-                                  filtGender = NULL,
-                                  filtAgeBand = NULL)
+                                  death_agebreaks = c(0, 59, 69, 79, 89, 999),
+                                  sero_agebreaks = c(0, 59, 69, 79, 89, 999),
+                                  filtGender = "both")
 
 
 #......................
@@ -294,10 +285,7 @@ CHE.agebands.dat <- process_data3(deaths = deathsdf,
                                   recast_deaths_df = CHE1TimeSeries,
                                   groupingvar = "ageband",
                                   study_ids = "CHE1",
-                                  recast_deaths_geocode = "Geneva",   ## use study id in case we get more studies later.
-                                  filtRegions = NULL, # some regions combined in serosurvey
-                                  filtGender = NULL,
-                                  filtAgeBand = NULL)
+                                  recast_deaths_geocode = "Geneva")   ## use study id in case we get more studies later.
 
 #......................
 # MANUAL ADJUSTMENTS
@@ -370,10 +358,7 @@ IRN.agebands.dat <- process_data3(deaths = IRNdeaths,
                                   recast_deaths_df = IRN_recast_df,
                                   groupingvar = "ageband",
                                   study_ids = "IRN1",
-                                  recast_deaths_geocode = "IRN",
-                                  filtRegions = NULL, # some regions combined in serosurvey
-                                  filtGender = NULL,
-                                  filtAgeBand = NULL)
+                                  recast_deaths_geocode = "IRN")
 
 #......................
 # MANUAL ADJUSTMENTS
@@ -407,10 +392,7 @@ SWE.regions.dat <- process_data3(deaths = deathsdf,
                                  recast_deaths_df = ECDCdf,
                                  groupingvar = "region",
                                  study_ids = "SWE1",
-                                 recast_deaths_geocode = "SWE",
-                                 filtRegions = NULL, # some regions combined in serosurvey
-                                 filtGender = NULL,
-                                 filtAgeBand = NULL)
+                                 recast_deaths_geocode = "SWE")
 #......................
 # age bands
 #......................
@@ -423,10 +405,7 @@ SWE.agebands.dat <- process_data3(deaths = deathsdf,
                                   recast_deaths_df = ECDCdf,
                                   groupingvar = "ageband",
                                   study_ids = "SWE1",
-                                  recast_deaths_geocode = "SWE",
-                                  filtRegions = NULL, # some regions combined in serosurvey
-                                  filtGender = NULL,
-                                  filtAgeBand = NULL)
+                                  recast_deaths_geocode = "SWE")
 
 #......................
 # MANUAL ADJUSTMENTS
@@ -450,9 +429,150 @@ dir.create("data/derived/SWE", recursive = T)
 saveRDS(SWE.regions.dat, "data/derived/SWE/SWE_regions.RDS")
 saveRDS(SWE.agebands.dat, "data/derived/SWE/SWE_agebands.RDS")
 
+#............................................................
+# Great Britian
+#...........................................................
+# TODO temp location/data for GB
+# Process GB death data
+gbrdeaths <- readRDS("~/Desktop/GBR_deaths_timeseries.rds") %>%
+  dplyr::filter(!is.na(ageband)) # remove missing obs in age bands
+# TODO check w/ orderly/Lucy why these are missing
+# TODO check why serology start dates for GRB2 have a range?
+GBRsero_prevdf <- sero_prevdf %>%
+  dplyr::filter(study_id == "GBR2") %>%
+  dplyr::mutate(date_start_survey = lubridate::ymd("2020-05-10"),
+                date_end_survey = lubridate::ymd("2020-06-05"))
 
 
+GBRTimeSeries <- gbrdeaths %>%
+  dplyr::mutate(ObsDay = factor(ObsDay, levels = c(0:max(ObsDay))), # fix ObsDay/dates lapses
+                region = factor(region),
+                gender = factor(gender)) %>%
+  dplyr::group_by_at(c("ObsDay", "ageband", "region", "gender"), .drop = F) %>%
+  dplyr::summarise(
+    n_deaths = sum(n_deaths)
+  ) %>%
+  dplyr::mutate( # now lift back over
+    ObsDay = as.integer(as.character(ObsDay)),
+    date = min(lubridate::ymd(gbrdeaths$dod)) + ObsDay,
+    region = as.character(region),
+    gender = as.character(gender),
+    age_low = as.numeric( stringr::str_extract(ageband, "[0-9]+(?=\\,)") ),
+    age_high = as.numeric( stringr::str_extract(ageband, "(?<=\\,)[0-9]+") ),
+    age_high = ifelse(age_high == 120, 999, age_high)
+  ) %>%
+  dplyr::ungroup(.) %>%
+  dplyr::select(c("date", "age_low", "age_high", "region", "gender", "n_deaths")) %>%
+  dplyr::arrange(date, age_low, region, gender)
 
+# now liftover for process data function
+GBRTimeSeries <- GBRTimeSeries %>%
+  dplyr::mutate(
+    country = "GBR",
+    study_id = "GBR2",
+    age_breakdown = 1,
+    gender_breakdown = 1,
+    for_regional_analysis = 1) %>%
+  dplyr::rename(date_start_survey = date) %>%
+  dplyr::mutate(date_end_survey = date_start_survey) %>%
+  dplyr::select(c("country", "study_id", "age_low", "age_high", "region", "gender", "n_deaths", "date_start_survey", "date_end_survey", "age_breakdown", "for_regional_analysis", "gender_breakdown"))
+
+# population data
+GBRpopdf <- readr::read_csv("data/raw/UK_ONS_2016_Population_Data.csv") %>%
+  dplyr::filter(study_id == "GBR2") %>%
+  dplyr::mutate(region = factor(region, # to match Marc, Lilith, and Co.
+                                levels = c("East",
+                                           "East Midlands",
+                                           "London",
+                                           "North East",
+                                           "North West",
+                                           "South East",
+                                           "South West",
+                                           "West Midlands",
+                                           "Yorkshire and The Humber"),
+                                labels = c("East of England",
+                                           "Midlands",
+                                           "London",
+                                           "North East and Yorkshire",
+                                           "North West",
+                                           "South East",
+                                           "South West",
+                                           "Midlands",
+                                           "North East and Yorkshire"
+                                )),
+                region = as.character(region),
+                country = "GBR",
+                study_id = "GBR2",
+                age_breakdown = 1,
+                gender_breakdown = 1,
+                for_regional_analysis = 1) %>%
+  dplyr::select(c("country", "study_id", "age_low", "age_high", "region", "gender", "population", "age_breakdown", "for_regional_analysis", "gender_breakdown"))
+
+#......................
+# regions
+#......................
+GBR.regions.dat <- process_data3(deaths = GBRTimeSeries,
+                                 population = GBRpopdf,
+                                 sero_val = sero_valdf,
+                                 seroprev = GBRsero_prevdf,
+                                 cumulative = FALSE,
+                                 groupingvar = "region",
+                                 study_ids = "GBR2")
+
+#......................
+# agebands
+#......................
+GBR.agebands.dat <- process_data3(deaths = GBRTimeSeries,
+                                  population = GBRpopdf,
+                                  sero_val = sero_valdf,
+                                  seroprev = GBRsero_prevdf,
+                                  cumulative = FALSE,
+                                  groupingvar = "ageband",
+                                  study_ids = "GBR2",
+                                  death_agebreaks = c(0, 10, 20, 30, 40,
+                                                      50, 60, 70, 80, 90, 999))
+#......................
+# MANUAL ADJUSTMENTS
+#......................
+gbr_org_seroprev <- GBR.agebands.dat$seroprev_group %>%
+  dplyr::select(c("age_low", "age_high", "seroprevalence"))
+agebands <- unique(GBR.agebands.dat$deathsMCMC$ageband)
+GBR_adj_seroprev <- tibble::tibble(
+  ObsDaymin = unique(GBR.agebands.dat$seroprevMCMC$ObsDaymin),
+  ObsDaymax = unique(GBR.agebands.dat$seroprevMCMC$ObsDaymax),
+  ageband = agebands,
+  age_low = as.numeric(stringr::str_split_fixed(agebands, "-[0-9]+", n=2)[,1]),
+  age_high = as.numeric(stringr::str_split_fixed(agebands, "[0-9]+-", n=2)[,2]),
+  seroprevalence = NA) %>%
+  dplyr::arrange(age_low)
+
+# wiggle
+GBR_adj_seroprev$seroprevalence <- apply(GBR_adj_seroprev, 1, wiggle_age_matchfun, wiggle = 2, y = gbr_org_seroprev)
+
+# Great Britian seroprevalence and deaths not perfectly aligned.
+# Assumptions.
+# 1) 0-10 and 10-20 seroprevalence will be equivalent to the 20-30 age group
+# 2) 70-80, 80-90, 90+ seroprevalence will be equivalent to the 60-70 age group
+GBR_adj_seroprev$seroprevalence[1:2] <- gbr_org_seroprev$seroprevalence[1]
+GBR_adj_seroprev$seroprevalence[8:10] <- gbr_org_seroprev$seroprevalence[6]
+GBR_adj_seroprev <- GBR_adj_seroprev %>%
+  dplyr::rename(SeroPrev = seroprevalence)
+# write over
+GBR.agebands.dat$seroprevMCMC <- GBR_adj_seroprev
+
+#......................
+# get rho
+#......................
+GBR.agebands.dat$rho <- rep(1, length(unique(GBR.agebands.dat$deathsMCMC$ageband)))
+GBR.regions.dat$rho <-  rep(1, length(unique(GBR.regions.dat$deathsMCMC$region)))
+
+
+#......................
+# save out
+#......................
+dir.create("data/derived/UK/")
+saveRDS(GBR.agebands.dat, "data/derived/UK/GBR_agebands.RDS")
+saveRDS(GBR.regions.dat, "data/derived/UK/GBR_regions.RDS")
 
 
 #..................................................................................
@@ -498,8 +618,22 @@ JHUdf <- readr::read_csv("data/raw/JHU_time_series_covid19_deaths_US_july72020.c
   dplyr::filter(!is.na(Admin2)) %>%
   dplyr::mutate(Admin2sp = sub(" ", "-", Admin2),
                 georegion = paste0(Province_State, "_", Admin2sp)) %>%
-  dplyr::select(c("date", "georegion", "deaths")) %>%
-  dplyr::mutate(date = lubridate::mdy(date)) # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+  dplyr::mutate(date = lubridate::mdy(date)) %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+  dplyr::group_by(georegion) %>% # group by region for daily deaths
+  dplyr::rename(cumdeaths = deaths) %>%
+  dplyr::mutate(deaths = cumdeaths - dplyr::lag(cumdeaths),
+                deaths = ifelse(is.na(deaths), 0, deaths)) %>% # take care of first value
+  dplyr::select(c("date", "georegion", "deaths"))
+
+# fill in from origin
+georegions <- dplyr::group_keys(dplyr::group_by(JHUdf, georegion)) %>% dplyr::pull(.)
+origindf <- tibble::as_tibble(expand.grid(date = seq(lubridate::ymd("2020-01-01"), min(JHUdf$date), by = "1 day"),
+                  georegion = list(georegions),
+                  deaths = 0)) %>%
+  tidyr::unnest(cols = georegion)
+# combine now
+JHUdf <- dplyr::bind_rows(JHUdf, origindf) %>%
+  dplyr::arrange(georegion, date)
 
 
 #..................................................................................
@@ -508,6 +642,10 @@ JHUdf <- readr::read_csv("data/raw/JHU_time_series_covid19_deaths_US_july72020.c
 #............................................................
 # New York City, NY
 #...........................................................
+NYCJHU <- JHUdf %>%
+  dplyr::filter(georegion == "New York_New-York")
+NYpopdf <- populationdf %>%
+  dplyr::filter(study_id == "NYC_NY_1")
 #......................
 # regions
 #......................
@@ -526,13 +664,77 @@ NYC_NY_1.agebands.dat <- process_data3(deaths = deathsdf,
                                        groupingvar = "ageband",
                                        study_ids = "NYC_NY_1",
                                        recast_deaths_geocode = "New York_New-York",
-                                       filtRegions = NULL, # some regions combined in serosurvey
-                                       filtGender = NULL,
-                                       filtAgeBand = NULL)
+                                       death_agebreaks = c(0, 18, 45, 65, 75, 999)) # need this for pop liftover
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-# TODO -- we have blood age donors sero but death in 17 yr age bands
+# # NYC seroprevalence and deaths not perfectly aligned because blood donor data
+# # Assumptions.
+# # 1) 18-34 and 34-44 seroprevalence will be averaged for the 0-18 and 18-45 age group
+# # 2) Seroprev in the 44-54 age group will be equivalent to the 45-65 age group
+# # 3) Seroprev in the 54+ age group will be equivalent to the 65-75 and 75+ age group
+#
+# nyc_adj_seroprev <- tibble::tibble(
+#   ObsDaymin = unique(NYC_NY_1.agebands.dat$seroprevMCMC$ObsDaymin),
+#   ObsDaymax = unique(NYC_NY_1.agebands.dat$seroprevMCMC$ObsDaymax),
+#   ageband = unique(NYC_NY_1.agebands.dat$deathsMCMC$ageband),
+#   age_low = unique(as.numeric(stringr::str_split_fixed(NYC_NY_1.agebands.dat$deathsMCMC$ageband, "-[0-9]+", n=2)[,1])),
+#   age_high= unique(as.numeric(stringr::str_split_fixed(NYC_NY_1.agebands.dat$deathsMCMC$ageband, "[0-9]+-", n=2)[,2])),
+#   seroprevalence = NA) %>%
+#   dplyr::arrange(age_low)
+# # lift over
+# nyc_adj_seroprev$seroprevalence[1:2] <- NYC_NY_1.agebands.dat$seroprevMCMC %>%
+#   dplyr::filter(ageband %in% c("18-34", "34-44")) %>%
+#   dplyr::summarise(
+#     n_positive = sum(n_positive),
+#     n_tested = sum(n_tested),
+#     SeroPrev = n_positive/n_tested
+#   ) %>%
+#   dplyr::select(c("SeroPrev")) %>%
+#   unlist(.) %>%
+#   unname(.)
+# nyc_adj_seroprev$seroprevalence[3] <- NYC_NY_1.agebands.dat$seroprevMCMC$SeroPrev[3]
+# nyc_adj_seroprev$seroprevalence[4:5] <- NYC_NY_1.agebands.dat$seroprevMCMC$SeroPrev[4]
+# nyc_adj_seroprev <- nyc_adj_seroprev %>%
+#   dplyr::rename(SeroPrev = seroprevalence)
+#
+
+#......................
+# adding in CDC_1 data as well
+#......................
+cdc1 <- sero_prevdf %>%
+  dplyr::filter(study_id == "CDC_1" & stringr::str_detect(region, "New York") & gender == "both") %>%
+  dplyr::filter(!(age_low == 0 & age_high == 999)) %>%
+  dplyr::rename(ObsDaymin = date_start_survey,
+                ObsDaymax = date_end_survey) %>%
+  dplyr::mutate(ObsDaymin = as.numeric(ObsDaymin - lubridate::ymd("20200101")),
+                ObsDaymax = as.numeric(ObsDaymax - lubridate::ymd("20200101"))) %>%
+  dplyr::select(c("ObsDaymin", "ObsDaymax", "age_low", "age_high", "seroprevalence_unadjusted")) %>%
+  dplyr::rename(seroprevalence = seroprevalence_unadjusted)
+
+nyc_adj_seroprev2 <- tibble::tibble(
+  ObsDaymin = unique(cdc1$ObsDaymin),
+  ObsDaymax = unique(cdc1$ObsDaymax),
+  ageband = unique(NYC_NY_1.agebands.dat$deathsMCMC$ageband),
+  age_low = unique(as.numeric(stringr::str_split_fixed(NYC_NY_1.agebands.dat$deathsMCMC$ageband, "-[0-9]+", n=2)[,1])),
+  age_high= unique(as.numeric(stringr::str_split_fixed(NYC_NY_1.agebands.dat$deathsMCMC$ageband, "[0-9]+-", n=2)[,2])),
+  seroprevalence = NA) %>%
+  dplyr::arrange(age_low)
+
+# Assumptions
+# 1) 0-18 matches 0-18
+# 2) 18-45 matches 19-49
+# 3) 50-64 matches 45-65
+# 4) 65-75 and 75+ matches 65+
+
+nyc_adj_seroprev2$seroprevalence <- apply(nyc_adj_seroprev2, 1, wiggle_age_matchfun, wiggle = 5, y = cdc1)
+nyc_adj_seroprev2 <- nyc_adj_seroprev2 %>%
+  dplyr::rename(SeroPrev = seroprevalence)
+
+
+# write over
+#NYC_NY_1.agebands.dat$seroprevMCMC <- dplyr::bind_rows(nyc_adj_seroprev2, nyc_adj_seroprev)
+NYC_NY_1.agebands.dat$seroprevMCMC <- nyc_adj_seroprev2
 
 #......................
 # get rho
@@ -543,7 +745,7 @@ NYC_NY_1.agebands.dat$rho <- rep(1, length(unique(NYC_NY_1.agebands.dat$deathsMC
 # save out
 #......................
 dir.create("data/derived/USA", recursive = T)
-saveRDS(NYC_NY_1.agebands.dat, "data/derived/USA/NYC_NY_1_agebands.RDS")
+saveRDS(NYC_NY_1.agebands.dat, "data/derived/USA/NYC_NY_1_cdc1_agebands.RDS")
 
 
 
@@ -753,13 +955,8 @@ saveRDS(MD_FL.regions.dat, "data/derived/USA/MD_FL_regions.RDS")
 #......................
 # pre-process Brazil
 #......................
-rgn_key <- readr::read_csv("data/raw/BRA_state_region_key.csv") %>%
-  dplyr::select(-c("state")) %>%
-  dplyr::rename(state = state_abbr)
 bradeaths <- readRDS("data/raw/Brazil_state_age_sex_deaths.rds") %>%
-  dplyr::left_join(., rgn_key, by = "state") %>%
-  dplyr::select(-c("state")) %>%
-  dplyr::filter(!is.na(date)) %>%
+  magrittr::set_colnames(tolower(colnames(.))) %>%
   dplyr::rename(gender = sex) %>%
   dplyr::group_by(date, region, age, gender) %>%
   dplyr::summarise(
@@ -838,10 +1035,7 @@ BRA.regions.dat <- process_data3(deaths = bradeaths,
                                  seroprev = rgnsero_prevdf,
                                  cumulative = FALSE,
                                  groupingvar = "region",
-                                 study_ids = "BRA1",
-                                 filtRegions = NULL,
-                                 filtGender = NULL,
-                                 filtAgeBand = NULL)
+                                 study_ids = "BRA1")
 
 
 #......................
@@ -872,8 +1066,8 @@ BRA.agebands.dat <- process_data3(deaths = bradeaths,
 #......................
 # get rho
 #......................
-BRA.regions.dat$rho <- rep(1, length(unique(BRA.regions.dat$deaths$region)))
-BRA.agebands.dat$rho <- rep(1, length(unique(BRA.agebands.dat$deaths$ageband)))
+BRA.regions.dat$rho <- rep(1, length(unique(BRA.regions.dat$deathsMCMC$region)))
+BRA.agebands.dat$rho <- rep(1, length(unique(BRA.agebands.dat$deathsMCMC$ageband)))
 
 #......................
 # save out

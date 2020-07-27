@@ -16,7 +16,7 @@ library(COVIDCurve)
 library(drjacoby)
 library(tidyverse)
 library(cowplot)
-source("R/extra_MCMC_plotting_functions.R")
+source("R/extra_plotting_functions.R")
 ```
 
 ```{r}

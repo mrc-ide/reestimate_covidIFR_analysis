@@ -28,3 +28,5 @@ reports/*.pdf
 reports/*.html
 reports/*.docx
 
+# temp for UK
+UK/
