@@ -135,7 +135,7 @@ ECDCdf <- readr::read_csv("data/raw/daily_deaths_ECDC20200724.csv") %>%
   dplyr::mutate(date = lubridate::mdy(date), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
                 deaths = ifelse(deaths < 0, 0, deaths)) # remove deaths typos
 # demography
-populationdf <- readr::read_csv("data/raw/population.csv") %>%
+populationdf <- readr::read_tsv("data/raw/population.tsv") %>%
   dplyr::select(-c("reference")) %>%
   dplyr::mutate(age_low = ifelse(age_low == 0 & age_high == 0, 1, age_low),
                 age_high = ifelse(age_low == 1 & age_high == 0, 1, age_high))  # liftover "zero" year olds to be 1, 1 as well
