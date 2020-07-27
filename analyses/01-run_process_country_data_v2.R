@@ -645,7 +645,7 @@ NLD.agebands.dat$seroprevMCMC <- nld_adj_seroprev
 # Netherlands seroprevalence missing in some regions
 # assume that this missing values can be imputed as the mean of the other regions
 NLD.regions.dat$seroprevMCMC$SeroPrev <- (NLD.regions.dat$seroprev_group$range_sero_low + NLD.regions.dat$seroprev_group$range_sero_high)/2
-nldmean <- mean(NLD.regions.dat$seroprev_group$seroprevalence_unadjusted, na.rm = T)
+nldmean <- mean(NLD.regions.dat$seroprevMCMC$SeroPrev, na.rm = T)
 NLD.regions.dat$seroprevMCMC <- NLD.regions.dat$seroprevMCMC %>%
   dplyr::mutate(SeroPrev = ifelse(is.na(SeroPrev), nldmean, SeroPrev))
 
