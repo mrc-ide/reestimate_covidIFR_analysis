@@ -4,7 +4,14 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Denmark
+# England
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, 
+                      message = FALSE, eval = TRUE, 
+                      results = 'hide', fig.align = 'center')
+knitr::opts_knit$set(root.dir = here::here())
+
+```
 ```{r}
 # remotes::install_github("mrc-ide/COVIDCurve", ref = "develop")
 library(COVIDCurve)
@@ -42,7 +49,7 @@ modout$mcmcout$output %>%
 ```{r}
 quickout <- quick_mc_diagnostics(modout)
 ```
-```{r, results='asis'}
+```{r, results='asis', fig.height=11, fig.width=7}
 quickout
 ```
 
@@ -64,7 +71,7 @@ ifrs <- dplyr::left_join(agekey, ifrs, by = "param") %>%
 # get crude ifrs 
 #......................
 dscdat <- readRDS("data/derived/descriptive_results_datamap.RDS") 
-GBR2crudedat <- dscdat %>% 
+GBRcrudedat <- dscdat %>% 
   dplyr::filter(study_id == "GBR2" & breakdown == "ageband")  %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
@@ -133,14 +140,14 @@ tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>%
 ```{r}
 seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
                                                    dwnsmpl = 1e3,
-                                                   by_chain = T)
+                                                   by_chain = F)
 
 serocurvedat <- seropnts %>% 
-  dplyr::select(c("chain", "sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
-  tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 4:ncol(.)) %>% 
+  dplyr::select(c("sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
+  tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 3:ncol(.)) %>% 
   dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG", "IF"),
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
-  dplyr::group_by_at(c("chain", "sim", "ObsDay", "seroprevlvl", "param")) %>% 
+  dplyr::group_by_at(c("sim", "ObsDay", "seroprevlvl", "param")) %>% 
   dplyr::summarise(serocount = sum(serocount, na.rm = T) ) %>% 
   dplyr::mutate(seroprev = serocount/popdenom) %>% 
   dplyr::left_join(., agekey, by = "param")
@@ -244,7 +251,7 @@ modout$mcmcout$output %>%
 ```{r}
 quickout <- quick_mc_diagnostics(modout)
 ```
-```{r, results='asis'}
+```{r, results='asis', fig.height=11, fig.width=7}
 quickout
 ```
 
@@ -267,7 +274,7 @@ ifrs <- dplyr::left_join(rgnkey, ifrs, by = "param") %>%
 #......................
 dscdat <- readRDS("data/derived/descriptive_results_datamap.RDS") 
 GBRcrudedat <- dscdat %>% 
-  dplyr::filter(study_id == "GBR1" & breakdown == "region")  %>%
+  dplyr::filter(study_id == "GBR2" & breakdown == "region")  %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
 rgnplotdat <- GBRcrudedat %>%
@@ -335,14 +342,14 @@ tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>%
 ```{r}
 seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
                                                    dwnsmpl = 1e3,
-                                                   by_chain = T)
+                                                   by_chain = F)
 
 serocurvedat <- seropnts %>% 
-  dplyr::select(c("chain", "sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
-  tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 4:ncol(.)) %>% 
+  dplyr::select(c("sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
+  tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 3:ncol(.)) %>% 
   dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG", "IF"),
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
-  dplyr::group_by_at(c("chain", "sim", "ObsDay", "seroprevlvl", "param")) %>% 
+  dplyr::group_by_at(c("sim", "ObsDay", "seroprevlvl", "param")) %>% 
   dplyr::summarise(serocount = sum(serocount, na.rm = T) ) %>% 
   dplyr::mutate(seroprev = serocount/popdenom) %>% 
   dplyr::left_join(., rgnkey, by = "param")
