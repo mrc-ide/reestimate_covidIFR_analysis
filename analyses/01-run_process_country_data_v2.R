@@ -37,7 +37,7 @@ bradeaths <- readRDS("data/raw/Brazil_state_age_sex_deaths.rds") %>%
   ) %>%
   dplyr::ungroup(.) %>%
   dplyr::mutate(
-    date = lubridate::ymd("2020-01-01") + as.numeric(as.character(tempday)) - 1, # 1 is origin already
+    date = lubridate::ymd("2020-01-01") + as.numeric(as.character(tempday)),
     age = as.numeric(as.character(age)),
     country = "BRA",
     study_id = "BRA1",
@@ -68,7 +68,8 @@ bra_populationdf <- readr::read_csv("data/raw/Brazil_2020_Population_Data.csv") 
     study_id = "BRA1",
     age_breakdown = 1,
     for_regional_analysis = 1,
-    gender_breakdown = 1)
+    gender_breakdown = 1) %>%
+  dplyr::ungroup(.)
 
 #......................
 # regions
@@ -103,7 +104,12 @@ BRA.agebands.dat <- process_data3(deaths = bradeaths,
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-# none because we had line list
+# TODO follow up with Charlie about this weird date
+BRA.agebands.dat$deathsMCMC$Deaths[BRA.agebands.dat$deathsMCMC$ObsDay == 189] <- -1
+
+# seroprevalence not absolutely 0
+BRA.regions.dat$seroprevMCMC <- BRA.regions.dat$seroprevMCMC %>%
+  dplyr::mutate(SeroPrev = ifelse(SeroPrev == 0, .1e-100, SeroPrev))
 
 #......................
 # get rho
@@ -269,10 +275,13 @@ che_adj_seroprev <- dplyr::left_join(che_adj_seroprev, che_org_seroprev,
   dplyr::select(c("ObsDaymin", "ObsDaymax", "ageband", "SeroPrev")) %>%
   dplyr::arrange(ObsDaymin, ObsDaymax, ageband)
 
-
-
-
+# bring together
 CHE.agebands.dat$seroprevMCMC <- che_adj_seroprev
+
+# seroprevalence not absolutely 0
+CHE.agebands.dat$seroprevMCMC <- CHE.agebands.dat$seroprevMCMC %>%
+  dplyr::mutate(SeroPrev = ifelse(SeroPrev == 0, 1e-100, SeroPrev))
+
 
 #......................
 # get rho
@@ -648,6 +657,12 @@ NLD.regions.dat$seroprevMCMC$SeroPrev <- (NLD.regions.dat$seroprev_group$range_s
 nldmean <- mean(NLD.regions.dat$seroprevMCMC$SeroPrev, na.rm = T)
 NLD.regions.dat$seroprevMCMC <- NLD.regions.dat$seroprevMCMC %>%
   dplyr::mutate(SeroPrev = ifelse(is.na(SeroPrev), nldmean, SeroPrev))
+
+
+# seroprevalence not absolutely 0
+NLD.regions.dat$seroprevMCMC <- NLD.regions.dat$seroprevMCMC %>%
+  dplyr::mutate(SeroPrev = ifelse(SeroPrev == 0, 1e-100, SeroPrev))
+
 
 #......................
 # get rho

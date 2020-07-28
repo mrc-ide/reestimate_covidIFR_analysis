@@ -48,7 +48,7 @@ quick_mc_diagnostics <- function(modout) {
                                   nrow = 4, rel_heights = c(1,1,1,1.5))
 
   # MC coupling considered
-  if (!is.na(modout$mcmcout$diagnostics$mc_accept[[1]])) {
+  if (all(!is.na(modout$mcmcout$diagnostics$mc_accept))) {
     # get mcaccplot
     mcaccplot <- drjacoby::plot_mc_acceptance(modout$mcmcout)
     mcacclogplot1 <- drjacoby::plot_rung_loglike(modout$mcmcout, x_axis_type = 2, y_axis_type = 2)
