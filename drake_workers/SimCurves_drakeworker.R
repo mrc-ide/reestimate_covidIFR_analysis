@@ -229,7 +229,7 @@ lapply(split(fit_map, 1:nrow(fit_map)), function(x){
   saveRDS(x, paste0("data/param_map/SimCurves/",
                     x$sim, ".RDS"))
 })
-saveRDS(fit_map, "data/param_map/SimCurves/small_param_map.RDS")
+saveRDS(fit_map_sm, "data/param_map/SimCurves/small_param_map.RDS")
 
 
 
