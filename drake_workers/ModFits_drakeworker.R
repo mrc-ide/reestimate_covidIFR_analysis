@@ -256,8 +256,8 @@ fit_map <- tibble::tibble(
                   NLD_age_mod, NLD_rgn_mod),
   rungs = 50,
   GTI_pow = 3,
-  burnin = 5e3,
-  samples = 5e3
+  burnin = 1e3,
+  samples = 1e3
 )
 
 
