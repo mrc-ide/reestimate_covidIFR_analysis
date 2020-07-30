@@ -679,8 +679,6 @@ dir.create("data/derived/NLD", recursive = T)
 saveRDS(NLD.regions.dat, "data/derived/NLD/NLD_regions.RDS")
 saveRDS(NLD.agebands.dat, "data/derived/NLD/NLD_agebands.RDS")
 
-
-
 #............................................................
 #--- SWE1 #----
 #...........................................................
@@ -797,14 +795,14 @@ JHUdf <- dplyr::bind_rows(JHUdf, origindf) %>%
 
 
 #............................................................
-#---- LA_CA #----
+#---- LA_CA1 #----
 # Los Angeles, CA Regional (Basic)
 #...........................................................
 LACAdeathsdf <- JHUdf %>%
-  dplyr::filter(georegion == "California_Los-Angeles") %>%
+  dplyr::filter(georegion %in% "California_Los-Angeles") %>%
   dplyr::mutate(
     country = "USA",
-    study_id = "LA_CA",
+    study_id = "LA_CA1",
     age_low = 0,
     age_high = 999,
     region = "California_Los-Angeles",
@@ -956,9 +954,54 @@ saveRDS(NYC_NY_1.agebands.dat, "data/derived/USA/NYC_NY_1_cdc1_agebands.RDS")
 
 
 
+#............................................................
+#--- SF_CA1 #----
+# San Francisco Bay Area, CA (Basic)
+#...........................................................
+bay_area_vec <- c("California_Sonoma", "California_Marin", "California_Napa", "California_Contra-Costa",
+                  "California_Alameda", "California_Santa-Clara", "California_San-Mateo", "California_Sacramento",
+                  "California_San-Joaquin")
+SF_CAdeathsdf <- JHUdf %>%
+  dplyr::filter(georegion %in% bay_area_vec) %>%
+  dplyr::mutate(
+    country = "USA",
+    study_id = "SF_CA1",
+    age_low = 0,
+    age_high = 999,
+    region = "California_San-Francisco",
+    gender = "both",
+    age_breakdown = 0,
+    gender_breakdown = 0,
+    for_regional_analysis = 1) %>%
+  dplyr::rename(date_start_survey = date,
+                n_deaths = deaths) %>%
+  dplyr::mutate(date_end_survey = date_start_survey)
 
+SF_CA.regions.dat <- process_data3(deaths = SF_CAdeathsdf,
+                                   population = populationdf,
+                                   sero_val = sero_valdf,
+                                   seroprev = sero_prevdf,
+                                   cumulative = FALSE,
+                                   groupingvar = "region",
+                                   study_ids = "SF_CA1",
+                                   filtRegions = NULL, # some regions combined in serosurvey
+                                   filtGender = NULL,
+                                   filtAgeBand = NULL)
+#......................
+# MANUAL ADJUSTMENTS
+#......................
+# assume blood group donors are representative
+SF_CA.regions.dat$seroprev_group$region <- "California_San-Francisco"
+#......................
+# get rho
+#......................
+# one because basic
+SF_CA.regions.dat$rho <- 1
 
-
+#......................
+# save out
+#......................
+saveRDS(SF_CA.regions.dat, "data/derived/USA/SF_CA_regions.RDS")
 
 
 
