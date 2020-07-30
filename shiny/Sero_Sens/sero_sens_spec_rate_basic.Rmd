@@ -140,13 +140,13 @@ renderPlot({ withProgress(message = 'Making plot', {
     dplyr::select(-c("infxns"))
   
   
-  cumdeaths <- dat$AggDat %>%
+  cumdeaths <- dat$AggDeath %>%
     dplyr::mutate(cumDeaths = cumsum(Deaths)/popN) %>%
     dplyr::select(-c("Deaths", "Strata")) %>%
     dplyr::rename(time = ObsDay)
   
   
-  serodf <- dat$seroprev %>%
+  serodf <- dat$SeroPrev %>%
     dplyr::select(c("event_obs_day", "TruePrev", "ObsPrev")) %>%
     dplyr::rename(time = event_obs_day)
   # combine
