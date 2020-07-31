@@ -142,8 +142,8 @@ serocurvedat <- seropnts %>%
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
   dplyr::group_by_at(c("sim", "ObsDay", "seroprevlvl", "param")) %>% 
   dplyr::summarise(serocount = sum(serocount, na.rm = T) ) %>% 
-  dplyr::left_join(., demog, by = "ageband") %>% 
   dplyr::left_join(., agekey, by = "param") %>% 
+  dplyr::left_join(., demog, by = "ageband") %>% 
   dplyr::mutate(seroprev = serocount/popN) 
 
 # crude data
@@ -347,8 +347,8 @@ serocurvedat <- seropnts %>%
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>%
   dplyr::group_by_at(c("sim", "ObsDay", "seroprevlvl", "param")) %>%
   dplyr::summarise(serocount = sum(serocount, na.rm = T) ) %>%
-  dplyr::left_join(., demog, by = "region") %>%
   dplyr::left_join(., rgnkey, by = "param") %>% 
+  dplyr::left_join(., demog, by = "region") %>%
   dplyr::mutate(seroprev = serocount/popN) 
 
 # crude data
