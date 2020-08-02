@@ -139,11 +139,11 @@ wrap_sim <- function(curve, sens, spec, fatalitydata, demog, sero_day) {
     dplyr::mutate(SeroDay = "sero_day")
 
   # death dat
-  dat$AggDat <- dat$AggDat %>%
+  dat$AggDeath <- dat$AggDeath %>%
     dplyr::mutate(Strata = as.character(Strata))
 
 
-  datinput <- list(obs_deaths = dat$AggDat,
+  datinput <- list(obs_deaths = dat$AggDeath,
                    obs_serology = obs_serology)
   return(datinput)
 
@@ -178,7 +178,7 @@ wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
   ifr_paramsdf <- make_ma_reparamdf(num_mas = 5)
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
                                           num_xs = 4)
-  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 14),
                                            num_ys = 5)
   noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 0, init = 5, max = 10)
 
@@ -256,7 +256,6 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      reparamSpec = TRUE,
                                       chains = n_chains,
                                       burnin = 1e4,
                                       samples = 1e4,
