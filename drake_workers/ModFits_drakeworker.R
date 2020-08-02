@@ -38,7 +38,7 @@ rawrgn <- readRDS("data/derived/BRA/BRA_regions.RDS")
 BRA_rgn_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                   groupvar = "region",  dat = rawrgn,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 174, init = 181, max = 188, dsc1 = 174, dsc2 = 188),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                   serodayparams = "sero_day1")
 #......................
@@ -48,7 +48,7 @@ rawage <- readRDS("data/derived/BRA/BRA_agebands.RDS")
 BRA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 174, init = 181, max = 188, dsc1 = 174, dsc2 = 188),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                   serodayparams = "sero_day1")
 
@@ -69,7 +69,7 @@ rawrgn <- readRDS("data/derived/CHE/CHE_region.RDS")
 CHE_rgn_mod <- make_IFR_model_fit(num_mas = 1, maxMa = "ma1",
                                   groupvar = "region",  dat = rawrgn,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 134, init = 140, max = 146, dsc1 = 134, dsc2 = 146),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.12, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                   serodayparams = c("sero_day1", "sero_day2", "sero_day3", "sero_day4", "sero_day5"))
 #......................
@@ -79,7 +79,7 @@ rawage <- readRDS("data/derived/CHE/CHE_agebands.RDS")
 CHE_age_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 134, init = 140, max = 146, dsc1 = 134, dsc2 = 146),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.12, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                   serodayparams = c("sero_day1", "sero_day2", "sero_day3", "sero_day4", "sero_day5"))
 
@@ -100,7 +100,7 @@ rawrgn <- readRDS("data/derived/DNK/DNK_regions.RDS")
 DNK_rgn_mod <- make_IFR_model_fit(num_mas = 3, maxMa = "ma1",
                                   groupvar = "region",  dat = rawrgn,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 124, init = 131, max = 139, dsc1 = 124, dsc2 = 139),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                   serodayparams = "sero_day1")
 #......................
@@ -110,7 +110,7 @@ rawage <- readRDS("data/derived/DNK/DNK_agebands.RDS")
 DNK_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 124, init = 131, max = 139, dsc1 = 124, dsc2 = 139),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                   serodayparams = "sero_day1")
 
@@ -134,7 +134,7 @@ rawrgn <- readRDS("data/derived/ESP/ESP_regions.RDS")
 ESP_rgn_mod <- make_IFR_model_fit(num_mas = 17, maxMa = "ma14",
                                   groupvar = "region",  dat = rawrgn,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 193, init = 200, max = 205, dsc1 = 193, dsc2 = 205),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                   serodayparams = c("sero_day1", "sero_day2"))
 
@@ -145,7 +145,7 @@ rawage <- readRDS("data/derived/ESP/ESP_agebands.RDS")
 ESP_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 193, init = 200, max = 205, dsc1 = 193, dsc2 = 205),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                   serodayparams = c("sero_day1", "sero_day2"))
 
@@ -166,7 +166,7 @@ rawrgn <- readRDS("data/derived/UK/GBR_regions.RDS")
 GBR_rgn_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma1",
                                   groupvar = "region",  dat = rawrgn,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 174, init = 181, max = 188, dsc1 = 174, dsc2 = 188),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.82, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                   serodayparams = "sero_day1")
 
@@ -177,7 +177,7 @@ rawage <- readRDS("data/derived/UK/GBR_agebands.RDS")
 GBR_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 174, init = 181, max = 188, dsc1 = 174, dsc2 = 188),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.82, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                   serodayparams = "sero_day1")
 
@@ -199,7 +199,7 @@ rawrgn <- readRDS("data/derived/NLD/NLD_regions.RDS")
 NLD_rgn_mod <- make_IFR_model_fit(num_mas = 25, maxMa = "ma1",
                                   groupvar = "region",  dat = rawrgn,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 124, init = 131, max = 138, dsc1 = 124, dsc2 = 138),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.67, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                   serodayparams = "sero_day1")
 
@@ -210,7 +210,7 @@ rawage <- readRDS("data/derived/NLD/NLD_agebands.RDS")
 NLD_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 124, init = 131, max = 138, dsc1 = 124, dsc2 = 138),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.67, dsc1 = 0, dsc2 = 14),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                   serodayparams = "sero_day1")
 
