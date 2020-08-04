@@ -241,6 +241,8 @@ NLD_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
 #............................................................
 #---- Come Together #----
 #...........................................................
+bvec <- seq(5, 1.1, length.out = 50)
+
 fit_map <- tibble::tibble(
   name = c("BRA_age", "BRA_rgn",
            "CHE1_age",
@@ -255,7 +257,7 @@ fit_map <- tibble::tibble(
                   GBR_age_mod, GBR_rgn_mod,
                   NLD_age_mod, NLD_rgn_mod),
   rungs = 50,
-  GTI_pow = 3,
+  GTI_pow = bvec,
   burnin = 1e4,
   samples = 1e4,
   thinning = 10,
@@ -294,12 +296,14 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
+                                      reparamSeros = TRUE,
                                       chains = n_chains,
                                       burnin = mod$burnin,
                                       samples = mod$samples,
                                       rungs = mod$rungs,
                                       GTI_pow = mod$GTI_pow,
-                                      cluster = cl)
+                                      cluster = cl,
+                                      thinning = 10)
 
   parallel::stopCluster(cl)
   gc()

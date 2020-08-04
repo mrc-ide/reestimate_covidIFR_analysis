@@ -153,12 +153,12 @@ make_splinex_reparamdf <- function(max_xvec = list("name" = "x4", min = 180, ini
   assert_numeric(max_xvec[["dsc1"]])
   assert_numeric(max_xvec[["dsc2"]])
 
-  out <- tibble::tibble(name = paste0("x", 1:num_xs),
-                        min  = rep(0, size = num_xs),
-                        init = rep(0.5, size = num_xs),
-                        max = rep(1, size = num_xs),
-                        dsc1 = rep(0, size = num_xs),
-                        dsc2 = rep(1, size = num_xs))
+  out <- tibble::tibble(name = paste0("x", 1:4),
+                                  min  = c(0,    0.33, 0.66, 0.85),
+                                  init = c(0.05, 0.40, 0.75, 0.9),
+                                  max =  c(0.33, 0.66, 0.99, 1),
+                                  dsc1 = c(0,    0.33, 0.66, 0.85),
+                                  dsc2 = c(0.33, 0.66, 0.99, 1))
   out %>%
     dplyr::filter(name != max_xvec["name"]) %>%
     dplyr::bind_rows(., max_xvec) %>%
