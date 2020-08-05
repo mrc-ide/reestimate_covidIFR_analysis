@@ -269,7 +269,7 @@ fit_map <- tibble::tibble(
 dir.create("data/param_map/Modfits/", recursive = T)
 lapply(split(fit_map, 1:nrow(fit_map)), function(x){
   saveRDS(x, paste0("data/param_map/Modfits/",
-                    x$name, "_GTI", x$GTI_pow, "_rung", x$rungs, "_burn", x$burnin, "_smpl", x$samples, ".RDS"))
+                    x$name, "_rung", x$rungs, "_burn", x$burnin, "_smpl", x$samples, ".RDS"))
 })
 
 
