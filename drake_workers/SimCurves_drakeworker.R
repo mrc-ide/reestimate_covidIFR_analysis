@@ -158,10 +158,10 @@ map$inputdata <- purrr::pmap(map, wrap_sim, sero_day = 150)
 get_sens_spec <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",         "sero_rate",  "sero_day"),
                  min =   c(0.5,              0.5,            0,            140),
-                 init =  c(0.8,              0.8,            0.9,          150),
-                 max =   c(1,                1,              1,            160),
-                 dsc1 =  c(sens*1e3,        spec*1e3,        900,          140),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  100,          160))
+                 init =  c(0.8,              0.8,            1,            150),
+                 max =   c(1,                1,              2,            160),
+                 dsc1 =  c(sens*1e3,        spec*1e3,        0,            140),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  2,            160))
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 
@@ -169,9 +169,9 @@ map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
                                min  = c(10,     0.01),
                                init = c(14,     0.7),
-                               max =  c(20,     1.00),
+                               max =  c(30,     3.00),
                                dsc1 = c(2.657,  -0.236),
-                               dsc2 = c(0.01,   0.01))
+                               dsc2 = c(0.05,   0.05))
 
 # everything else for region
 wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
