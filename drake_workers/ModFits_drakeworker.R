@@ -301,7 +301,7 @@ run_MCMC <- function(path) {
                                       burnin = mod$burnin,
                                       samples = mod$samples,
                                       rungs = mod$rungs,
-                                      GTI_pow = mod$GTI_pow,
+                                      GTI_pow = mod$GTI_pow[[1]],
                                       cluster = cl,
                                       thinning = 10)
 
@@ -311,7 +311,7 @@ run_MCMC <- function(path) {
   # out
   dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits/", recursive = TRUE)
   outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits/",
-                   mod$name, "_GTI", mod$GTI_pow, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, ".RDS")
+                   mod$name, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, ".RDS")
   saveRDS(fit, file = outpath)
 
   return(0)
