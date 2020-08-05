@@ -257,7 +257,7 @@ fit_map <- tibble::tibble(
                   GBR_age_mod, GBR_rgn_mod,
                   NLD_age_mod, NLD_rgn_mod),
   rungs = 50,
-  GTI_pow = bvec,
+  GTI_pow = list(bvec),
   burnin = 1e4,
   samples = 1e4,
   thinning = 10,

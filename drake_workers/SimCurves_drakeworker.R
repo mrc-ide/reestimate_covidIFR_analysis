@@ -129,7 +129,7 @@ wrap_sim <- function(curve, sens, spec, fatalitydata, demog, sero_day) {
     demog = demog)
 
   # sero tidy up
-  obs_serology <- dat$seroprev %>%
+  obs_serology <- dat$AggSeroPrev %>%
     dplyr::group_by(Strata) %>%
     dplyr::filter(event_obs_day == sero_day) %>%
     dplyr::rename(
