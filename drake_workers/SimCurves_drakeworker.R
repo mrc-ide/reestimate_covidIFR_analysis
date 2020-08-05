@@ -142,14 +142,19 @@ wrap_sim <- function(curve, sens, spec, fatalitydata, demog, sero_day) {
   dat$AggDeath <- dat$AggDeath %>%
     dplyr::mutate(Strata = as.character(Strata))
 
-
-  datinput <- list(obs_deaths = dat$AggDeath,
+  # make out
+  inputdata <- list(obs_deaths = dat$AggDeath,
                    obs_serology = obs_serology)
-  return(datinput)
+  out <- list(simdat = dat,
+              inputdata = inputdata)
+  return(out)
 
 }
 
-map$inputdata <- purrr::pmap(map, wrap_sim, sero_day = 150)
+# run simdat and extract results into separate pieces
+map$simdat <- purrr::pmap(map, wrap_sim, sero_day = 150)
+map$inputdata <- purrr::map(map$simdat, "inputdata")
+map$simdat <- purrr::map(map$simdat, "simdat", sero_day = 150)
 
 #......................
 # make IFR model
@@ -213,23 +218,25 @@ map$modelobj <-  purrr::pmap(map[,c("inputdata", "sens_spec_tbl", "demog")], wra
 # names
 #......................
 fit_map <- map %>%
-  dplyr::mutate(sim = paste0("sim", 1:nrow(.))) %>%
-  dplyr::select(c("sim", dplyr::everything()))
+  dplyr::mutate(sim = paste0("sim", 1:nrow(.)),
+                lvl = purrr::map_chr(curve, function(x){unique(x$nm)})) %>%
+  dplyr::select(c("sim", "lvl", dplyr::everything()))
 
-fit_map_sm <- fit_map %>%
-  dplyr::mutate(lvl = purrr::map_chr(curve, function(x){unique(x$nm)})) %>%
-  dplyr::select(c("lvl", "sim", "sens", "spec", "demog"))
 
 #............................................................
 # Come Together
 #...........................................................
+# save out full for later manips
+saveRDS(fit_map, "data/param_map/SimCurves/simfit_param_map.RDS")
+
 # select what we need for fits and make outpaths
 dir.create("data/param_map/SimCurves/", recursive = T)
-lapply(split(fit_map, 1:nrow(fit_map)), function(x){
+fit_map_modelobj <- fit_map %>%
+  dplyr::select(c("modelobj"))
+lapply(split(fit_map_modelobj, 1:nrow(fit_map_modelobj)), function(x){
   saveRDS(x, paste0("data/param_map/SimCurves/",
                     x$sim, ".RDS"))
 })
-saveRDS(fit_map_sm, "data/param_map/SimCurves/small_param_map.RDS")
 
 
 
