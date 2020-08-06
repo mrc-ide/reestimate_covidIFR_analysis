@@ -483,7 +483,8 @@ GBR2TimeSeries <- GBR2TimeSeries %>%
     for_regional_analysis = 1) %>%
   dplyr::rename(date_start_survey = date) %>%
   dplyr::mutate(date_end_survey = date_start_survey) %>%
-  dplyr::select(c("country", "study_id", "age_low", "age_high", "region", "gender", "n_deaths", "date_start_survey", "date_end_survey", "age_breakdown", "for_regional_analysis", "gender_breakdown"))
+  dplyr::select(c("country", "study_id", "age_low", "age_high", "region", "gender", "n_deaths", "date_start_survey", "date_end_survey", "age_breakdown", "for_regional_analysis", "gender_breakdown")) %>%
+  dplyr::filter(!is.na(region)) # TODO temp fix until we have real data
 
 # population data
 GBR2popdf <- readr::read_csv("data/raw/UK_ONS_2016_Population_Data.csv") %>%
