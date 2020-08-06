@@ -84,6 +84,14 @@ ageplotdat <- datmap %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
 
+###### filter to only plot the latest serology when there are multiple rounds - ok?
+maxDays<-  ageplotdat %>%
+  dplyr::group_by(study_id) %>%
+  dplyr::summarise(max_day=max(obsdaymax))
+ageplotdat<-full_join(ageplotdat,maxDays,by="study_id")
+ageplotdat<-filter(ageplotdat,obsdaymax==max_day)
+
+
 #......................
 # age adj seroprevalence
 #......................
