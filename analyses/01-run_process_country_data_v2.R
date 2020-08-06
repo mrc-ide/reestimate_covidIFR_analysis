@@ -279,6 +279,12 @@ CHE.agebands.dat$seroprevMCMC <- che_adj_seroprev
 #......................
 CHE.agebands.dat$rho <- rep(1, length(unique(che_adj_seroprev$ageband)))
 
+## make sure CHE sensitivity is numeric (sometimes is not?)
+CHE.agebands.dat$sero_sens$sensitivity<-as.numeric(CHE.agebands.dat$sero_sens$sensitivity)
+CHE.agebands.dat$sero_spec$specificity<-as.numeric(CHE.agebands.dat$sero_spec$specificity)
+CHE.region.dat$sero_sens$sensitivity<-as.numeric(CHE.region.dat$sero_sens$sensitivity)
+CHE.region.dat$sero_spec$specificity<-as.numeric(CHE.region.dat$sero_spec$specificity)
+
 #......................
 # save out
 #......................
@@ -975,6 +981,13 @@ ITA.agebands.dat <- process_data3(deaths = deathsdf,
 #......................
 # MANUAL ADJUSTMENTS
 #......................
+## TODO - decide prior with Nick (sensitivity>90%, specificity>95%). Just chose some values for now.
+ITA.agebands.dat$sero_sens$sensitivity<-0.9  ## unknown
+ITA.agebands.dat$sero_spec$specificity <-0.975
+ITA.regions.dat$sero_sens$sensitivity<-0.9  ## unknown
+ITA.regions.dat$sero_spec$specificity <-0.975
+
+
 # some lack of overlap between serology and deaths data.
 # use sero 0-17 for 9-19 yr olds
 # use the mean of 18-34 and 35-49 for the 30-39 group (they are v similar anyway)
@@ -1075,8 +1088,112 @@ saveRDS(DNK.agebands.dat, "data/derived/DNK/DNK_agebands.RDS")
 
 
 
+#............................................................
+#---- LUX1 #----
+#...........................................................
+#......................
+
+#......................
+# ages
+#......................
+LUX.agebands.dat <- process_data3(deaths = deathsdf,
+                                  population = populationdf,
+                                  sero_val = sero_valdf,
+                                  seroprev = sero_prevdf,
+                                  cumulative = TRUE,
+                                  recast_deaths_df = ECDCdf,
+                                  groupingvar = "ageband",
+                                  study_ids = "LUX1",
+                                  recast_deaths_geocode = "LUX",
+                                  death_agebreaks = c(0, 29,39,49,59,69,79, 999),
+                                  sero_agebreaks = NULL,
+                                  filtGender = "both")
 
 
+#......................
+# MANUAL ADJUSTMENTS
+#......................
+# Only one ageband - assume all the same.
+agebands <- unique(LUX.agebands.dat$deathsMCMC$ageband)
+lux_adj_seroprev <- tibble::tibble(
+  ObsDaymin = unique(LUX.agebands.dat$seroprevMCMC$ObsDaymin),
+  ObsDaymax = unique(LUX.agebands.dat$seroprevMCMC$ObsDaymax),
+  ageband = agebands,
+  SeroPrev = NA)
+lux_adj_seroprev$SeroPrev <- LUX.agebands.dat$seroprev_group$seroprevalence_unadjusted
+LUX.agebands.dat$seroprevMCMC <- lux_adj_seroprev
+
+#......................
+# get rho
+#......................
+LUX.agebands.dat$rho <- rep(1, length(unique(LUX.agebands.dat$deathsMCMC$ageband)))
+
+#......................
+# save out
+#......................
+dir.create("data/derived/LUX", recursive = T)
+saveRDS(LUX.agebands.dat, "data/derived/LUX/LUX_agebands.RDS")
+
+
+
+
+#............................................................
+#---- CHN1 #----
+#...........................................................
+#......................
+CHN1TimeSeries <- readr::read_csv("data/raw/deaths_time_series.csv") %>%
+  dplyr::filter(study_id == "CHN1")
+# sanity check
+CHN1TimeSeries <- CHN1TimeSeries %>%
+  dplyr::rename(date = date_end_survey,
+                deaths = n_deaths) %>%
+  dplyr::mutate(date = lubridate::dmy(date)) # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+CHN1TimeSeries$georegion <- "CHN"
+#......................
+# ages
+#......................
+CHN.agebands.dat <- process_data3(deaths = deathsdf,
+                                  population = populationdf,
+                                  sero_val = sero_valdf,
+                                  seroprev = sero_prevdf,
+                                  cumulative = TRUE,
+                                  recast_deaths_df = CHN1TimeSeries,
+                                  groupingvar = "ageband",
+                                  study_ids = "CHN1",
+                                  recast_deaths_geocode = "CHN",
+                                  death_agebreaks = c(0,9,19, 29,39,49,59,69,79, 999),
+                                  sero_agebreaks = c(0,19,  24,  29,  34,  39,  44,  49,  54,  59,999),
+                                  filtGender = "both")
+
+
+#......................
+# MANUAL ADJUSTMENTS
+#......................
+#
+agebands <- unique(CHN.agebands.dat$deathsMCMC$ageband)
+chn_adj_seroprev <- tibble::tibble(
+  ObsDaymin = unique(CHN.agebands.dat$seroprevMCMC$ObsDaymin),
+  ObsDaymax = unique(CHN.agebands.dat$seroprevMCMC$ObsDaymax),
+  ageband = agebands,
+  SeroPrev = NA)
+chn_adj_seroprev$SeroPrev[1:2] <- mean(CHN.agebands.dat$seroprev_group$seroprevalence_unadjusted)
+chn_adj_seroprev$SeroPrev[3] <- sum(CHN.agebands.dat$seroprev_group$n_positive[2:3]) /sum(CHN.agebands.dat$seroprev_group$n_tested[2:3])
+chn_adj_seroprev$SeroPrev[4] <- sum(CHN.agebands.dat$seroprev_group$n_positive[4:5]) /sum(CHN.agebands.dat$seroprev_group$n_tested[4:5])
+chn_adj_seroprev$SeroPrev[5] <- sum(CHN.agebands.dat$seroprev_group$n_positive[6:7]) /sum(CHN.agebands.dat$seroprev_group$n_tested[6:7])
+chn_adj_seroprev$SeroPrev[6] <- sum(CHN.agebands.dat$seroprev_group$n_positive[8:9]) /sum(CHN.agebands.dat$seroprev_group$n_tested[8:9])
+chn_adj_seroprev$SeroPrev[7:9] <- sum(CHN.agebands.dat$seroprev_group$n_positive[10]) /sum(CHN.agebands.dat$seroprev_group$n_tested[10])
+CHN.agebands.dat$seroprevMCMC <- chn_adj_seroprev
+
+#......................
+# get rho
+#......................
+CHN.agebands.dat$rho <- rep(1, length(unique(CHN.agebands.dat$deathsMCMC$ageband)))
+
+#......................
+# save out
+#......................
+dir.create("data/derived/CHN", recursive = T)
+saveRDS(CHN.agebands.dat, "data/derived/CHN/CHN_agebands.RDS")
 
 
 

@@ -44,9 +44,9 @@ serohlp <- datmap %>%
   dplyr::mutate(
     seroprevdat = purrr::map(data, "seroprevMCMC"),
     sens = purrr::map(data, "sero_sens"),
-    sens = purrr::map_dbl(sens, function(x){x$sensitivity}),
+    sens = purrr::map_dbl(sens, function(x){as.numeric(x$sensitivity)}),
     spec = purrr::map(data, "sero_spec"),
-    spec = purrr::map_dbl(spec, function(x){x$specificity})) %>%
+    spec = purrr::map_dbl(spec, function(x){as.numeric(x$specificity)})) %>%
   dplyr::select(c("seroprevdat", "sens", "spec"))
 
 datmap <- datmap %>%
@@ -131,7 +131,8 @@ age_IFRraw_plot <- ageplotdat %>%
   dplyr::select(c("study_id", "age_mid", "cumdeaths", "popn", "seroprev", "seroprevadj")) %>%
   dplyr::mutate(infxns = popn * seroprev,
                 crudeIFR =  cumdeaths/infxns,
-                seroprev = seroprev * 100 ) %>%
+                seroprev = seroprev * 100 )
+%>%
   ggplot() +
   geom_line(aes(x = age_mid, y = crudeIFR, color = study_id), alpha = 0.8, size = 1.2) +
   geom_point(aes(x = age_mid, y = crudeIFR, fill = seroprev), color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
