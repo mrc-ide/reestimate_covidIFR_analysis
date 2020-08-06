@@ -268,6 +268,7 @@ run_MCMC <- function(path) {
                                       samples = 1e4,
                                       rungs = 50,
                                       GTI_pow = 3,
+                                      thinning = 10,
                                       cluster = cl)
   parallel::stopCluster(cl)
   gc()
@@ -295,7 +296,9 @@ file_param_map <- list.files(path = "data/param_map/SimCurves/",
                              pattern = "*.RDS",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)
+# remove non-fit items that are for carrying forward simulations
 file_param_map <- file_param_map[!grepl("small_param_map.RDS", file_param_map$path),]
+file_param_map <- file_param_map[!grepl("simfit_param_map.RDS", file_param_map$path),]
 
 
 #............................................................
