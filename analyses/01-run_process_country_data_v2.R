@@ -939,6 +939,138 @@ dir.create("data/derived/USA", recursive = T)
 saveRDS(NYC_NY_1.agebands.dat, "data/derived/USA/NYC_NY_1_cdc1_agebands.RDS")
 
 
+#............................................................
+#---- ITA1 #----
+#...........................................................
+#......................
+# regions
+#......................
+ITA.regions.dat <- process_data3(deaths = deathsdf,
+                                 population = populationdf,
+                                 sero_val = sero_valdf,
+                                 seroprev = sero_prevdf,
+                                 cumulative = TRUE,
+                                 recast_deaths_df = ECDCdf,
+                                 groupingvar = "region",
+                                 study_ids = "ITA1",
+                                 recast_deaths_geocode = "ITA")
+
+#......................
+# ages
+#......................
+ITA.agebands.dat <- process_data3(deaths = deathsdf,
+                                  population = populationdf,
+                                  sero_val = sero_valdf,
+                                  seroprev = sero_prevdf,
+                                  cumulative = TRUE,
+                                  recast_deaths_df = ECDCdf,
+                                  groupingvar = "ageband",
+                                  study_ids = "ITA1",
+                                  recast_deaths_geocode = "ITA",
+                                  death_agebreaks = c(0,9,19,29,39,49,59,69,79,89, 999),
+                                  sero_agebreaks = c(0, 17,  34,  49,  59,  69, 999),
+                                  filtGender = "both")
+
+
+#......................
+# MANUAL ADJUSTMENTS
+#......................
+# some lack of overlap between serology and deaths data.
+# use sero 0-17 for 9-19 yr olds
+# use the mean of 18-34 and 35-49 for the 30-39 group (they are v similar anyway)
+#
+agebands <- unique(ITA.agebands.dat$deathsMCMC$ageband)
+ita_adj_seroprev <- tibble::tibble(
+  ObsDaymin = unique(ITA.agebands.dat$seroprevMCMC$ObsDaymin),
+  ObsDaymax = unique(ITA.agebands.dat$seroprevMCMC$ObsDaymax),
+  ageband = agebands,
+  SeroPrev = NA)
+ita_adj_seroprev$SeroPrev[1:2] <- ITA.agebands.dat$seroprev_group$seroprevalence_unadjusted[1]
+ita_adj_seroprev$SeroPrev[3] <- ITA.agebands.dat$seroprev_group$seroprevalence_unadjusted[2]
+ita_adj_seroprev$SeroPrev[4] <- mean(ITA.agebands.dat$seroprev_group$seroprevalence_unadjusted[2:3])
+ita_adj_seroprev$SeroPrev[5] <- ITA.agebands.dat$seroprev_group$seroprevalence_unadjusted[3]
+ita_adj_seroprev$SeroPrev[6:7] <- ITA.agebands.dat$seroprev_group$seroprevalence_unadjusted[4:5]
+ita_adj_seroprev$SeroPrev[8:10] <- ITA.agebands.dat$seroprev_group$seroprevalence_unadjusted[6]
+ITA.agebands.dat$seroprevMCMC <- ita_adj_seroprev
+
+#......................
+# get rho
+#......................
+ITA.agebands.dat$rho <- rep(1, length(unique(ITA.agebands.dat$deathsMCMC$ageband)))
+# multiple through demog and age-standardize for region
+ITA.regions.dat$rho <- rep(1, length(unique(ITA.regions.dat$deathsMCMC$region)))
+
+#......................
+# save out
+#......................
+dir.create("data/derived/ITA", recursive = T)
+saveRDS(ITA.regions.dat, "data/derived/ITA/ITA_regions.RDS")
+saveRDS(ITA.agebands.dat, "data/derived/ITA/ITA_agebands.RDS")
+
+
+#............................................................
+#---- DNK1 #----
+#...........................................................
+#......................
+# regions
+#......................
+DNK.regions.dat <- process_data3(deaths = deathsdf,
+                                 population = populationdf,
+                                 sero_val = sero_valdf,
+                                 seroprev = sero_prevdf,
+                                 cumulative = TRUE,
+                                 recast_deaths_df = ECDCdf,
+                                 groupingvar = "region",
+                                 study_ids = "DNK1",
+                                 recast_deaths_geocode = "DNK")
+
+#......................
+# ages
+#......................
+DNK.agebands.dat <- process_data3(deaths = deathsdf,
+                                  population = populationdf,
+                                  sero_val = sero_valdf,
+                                  seroprev = sero_prevdf,
+                                  cumulative = TRUE,
+                                  recast_deaths_df = ECDCdf,
+                                  groupingvar = "ageband",
+                                  study_ids = "DNK1",
+                                  recast_deaths_geocode = "DNK",
+                                  death_agebreaks = c(0, 59, 69, 79, 89, 999),
+                                  sero_agebreaks = c(0, 59, 69, 79, 89, 999),
+                                  filtGender = "both")
+
+
+#......................
+# MANUAL ADJUSTMENTS
+#......................
+# Denmark deaths agebands do not overlap well
+# will take mean for the 0-59 age group for blood donors less then 60
+# will assume > 60 for rest
+agebands <- unique(DNK.agebands.dat$deathsMCMC$ageband)
+dnk_adj_seroprev <- tibble::tibble(
+  ObsDaymin = unique(DNK.agebands.dat$seroprevMCMC$ObsDaymin),
+  ObsDaymax = unique(DNK.agebands.dat$seroprevMCMC$ObsDaymax),
+  ageband = agebands,
+  SeroPrev = NA)
+dnk_adj_seroprev$SeroPrev[1] <- mean(DNK.agebands.dat$seroprev_group$seroprevalence_unadjusted[1:4])
+dnk_adj_seroprev$SeroPrev[2:5] <- DNK.agebands.dat$seroprev_group$seroprevalence_unadjusted[5]
+DNK.agebands.dat$seroprevMCMC <- dnk_adj_seroprev
+
+#......................
+# get rho
+#......................
+DNK.agebands.dat$rho <- rep(1, length(unique(DNK.agebands.dat$deathsMCMC$ageband)))
+# multiple through demog and age-standardize for region
+DNK.regions.dat$rho <- rep(1, length(unique(DNK.regions.dat$deathsMCMC$region)))
+
+#......................
+# save out
+#......................
+dir.create("data/derived/DNK", recursive = T)
+saveRDS(DNK.regions.dat, "data/derived/DNK/DNK_regions.RDS")
+saveRDS(DNK.agebands.dat, "data/derived/DNK/DNK_agebands.RDS")
+
 
 
 
