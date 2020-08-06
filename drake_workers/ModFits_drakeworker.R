@@ -123,7 +123,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day
                                 init =  c(0.85,    0.99,     1,          125,        146),
                                 max =   c(1.00,    1.00,     1.5,        131,        153),
                                 dsc1 =  c(123.5,   156.5,    0.5,        118,        139),
-                                dsc2 =  c(30.5,    0.5,      1,5,        132,        153))
+                                dsc2 =  c(30.5,    0.5,      1.5,        132,        153))
 # https://www.thelancet.com/cms/10.1016/S0140-6736(20)31483-5/attachment/25c80941-a8c5-470e-a6a8-fde7397b9547/mmc1.pdf
 # based on supp table 3
 #......................
