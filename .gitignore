@@ -10,10 +10,6 @@
 # Data files I'm generating
 sandbox/
 results/
-param_map/
-
-# temp dont push figures
-figures/
 
 # knitr and R markdown default cache directories
 /*_cache/
