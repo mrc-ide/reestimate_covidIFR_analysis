@@ -516,8 +516,8 @@ NLD.agebands.dat <- process_data3(deaths = deathsdf,
                                   groupingvar = "ageband",
                                   study_ids = "NLD1",
                                   recast_deaths_geocode = "NLD",
-                                  death_agebreaks = c(0, 9, 19, 29, 39, 49, 59, 69, 79, 89, 999),
-                                  sero_agebreaks = c(0, 9, 19, 29, 39, 49, 59, 69, 79, 89, 999))
+                                  death_agebreaks = c(0, 49, 59, 69, 79, 89, 999),
+                                  sero_agebreaks = c(0, 49, 59, 69, 79, 89, 999))
 
 
 #......................

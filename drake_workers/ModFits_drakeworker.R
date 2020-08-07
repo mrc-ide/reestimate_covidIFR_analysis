@@ -201,7 +201,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day
 # agebands
 #......................
 rawage <- readRDS("data/derived/NLD/NLD_agebands.RDS")
-NLD_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+NLD_age_mod <- make_IFR_model_fit(num_mas = 6, maxMa = "ma6",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.67, dsc1 = 0, dsc2 = 16.67),
@@ -335,7 +335,7 @@ fit_map <- tibble::tibble(
                   NLD_age_mod,
                   ITA_age_mod, ITA_rgn_mod,
                   LUX_age_mod,
-                  CHN1),
+                  CHN_age_mod),
   rungs = 50,
   GTI_pow = list(bvec),
   burnin = 1e4,
