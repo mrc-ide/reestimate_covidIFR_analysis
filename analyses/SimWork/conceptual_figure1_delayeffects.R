@@ -84,7 +84,7 @@ plotdatdf <- datdf %>%
   tidyr::gather(., key = "datlevel", value = "prop", 2:ncol(.)) %>%
   dplyr::mutate(datlevel = factor(datlevel,
                                   levels = c("cumincidence", "TruePrev", "ObsPrev", "cumDeaths"),
-                                  labels = c("Cum. Infxns", "True Prev.", "Obs. Prev", "Cum. Deaths")))
+                                  labels = c("Cum. Prop. \n of Infected", "True Seroprev.", "Obs. Seroprev.", "Cum. Prop. \n of Deaths")))
 
 #......................
 # labels and arrows
@@ -127,7 +127,7 @@ delay_plotObj <- plotdatdf %>%
                            hjust = c(0.5, 0.5, 0.5, 0.5)
                            ) +
   scale_color_manual(values = c("#224B8B", "#3BABFD", "#06CDF4")) +
-  xlab("Time (days)") + ylab("Prop. of Population Affected") +
+  xlab("Time (days)") + ylab("Proportion") +
   theme(plot.title = element_blank(),
         axis.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 16),
         axis.text = element_text(family = "Helvetica", hjust = 0.5, size = 15),
