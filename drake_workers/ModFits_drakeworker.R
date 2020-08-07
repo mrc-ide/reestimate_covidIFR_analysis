@@ -247,7 +247,7 @@ ITA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
                                 min =   c(0.50,    0.50,    0.5,         106),
-                                init =  c(0.85,    0.99,    1,           100),
+                                init =  c(0.85,    0.99,    1,           116),
                                 max =   c(1.00,    1.00,    1.5,         126),
                                 dsc1 =  c(12.5,   181.5,    0.5,         106),
                                 dsc2 =  c(14.5,     4.5,    1.5,         126))
