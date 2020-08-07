@@ -7,7 +7,6 @@ rogan_gladen <- function(obs_prev, sens, spec){
   return(ret)
 }
 
-
 #' @title Adjust Seroprevalence Studies for Sens/Spec
 #' @param seroprevdat dataframe; dataframe of strata specific seroprevalences. Must contain SeroPrev column
 #' @param sens numeric; sensitivity
@@ -71,9 +70,9 @@ standardize_deathdat <- function(deathdat_long, popdat, groupingvar, Nstandardiz
 }
 
 #' @title
-#'
+#' @import rogan_gladen
+#' @note Function uses rogan gladen adjustment above
 get_crude_summarydf <- function(IFRmodinput, groupingvar) {
-  rogan_gladen <- function(obs_prev, sens, spec){(obs_prev + spec -1)/(spec+sens-1)}
   #......................
   # setup new df
   #......................

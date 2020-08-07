@@ -100,9 +100,7 @@ BRA.agebands.dat <- process_data3(deaths = bradeaths,
                                   cumulative = FALSE,
                                   groupingvar = "ageband",
                                   study_ids = "BRA1",
-                                  filtRegions = NULL,
-                                  filtGender = NULL,
-                                  filtAgeBand = NULL,
+                                  origin = lubridate::ymd("2020-01-01"),
                                   death_agebreaks = c(0, 4, 9,
                                                       19, 29, 39,
                                                       49, 59, 69,
@@ -110,10 +108,6 @@ BRA.agebands.dat <- process_data3(deaths = bradeaths,
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-# TODO follow up with Charlie about this weird date
-BRA.regions.dat$deathsMCMC$Deaths[BRA.regions.dat$deathsMCMC$ObsDay == 189] <- -1
-BRA.agebands.dat$deathsMCMC$Deaths[BRA.agebands.dat$deathsMCMC$ObsDay == 189] <- -1
-
 # seroprevalence not absolutely 0
 BRA.regions.dat$seroprevMCMC <- BRA.regions.dat$seroprevMCMC %>%
   dplyr::mutate(SeroPrev = ifelse(SeroPrev == 0, 1e-10, SeroPrev))
@@ -295,12 +289,6 @@ CHE.agebands.dat$seroprevMCMC <- CHE.agebands.dat$seroprevMCMC %>%
 #......................
 CHE.agebands.dat$rho <- rep(1, length(unique(che_adj_seroprev$ageband)))
 
-## make sure CHE sensitivity is numeric (sometimes is not?)
-CHE.agebands.dat$sero_sens$sensitivity<-as.numeric(CHE.agebands.dat$sero_sens$sensitivity)
-CHE.agebands.dat$sero_spec$specificity<-as.numeric(CHE.agebands.dat$sero_spec$specificity)
-CHE.region.dat$sero_sens$sensitivity<-as.numeric(CHE.region.dat$sero_sens$sensitivity)
-CHE.region.dat$sero_spec$specificity<-as.numeric(CHE.region.dat$sero_spec$specificity)
-
 #......................
 # save out
 #......................
@@ -419,16 +407,16 @@ ESP.agebands.dat <- process_data3(deaths = deathsdf,
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-# suspicious 0 followed by very large increase
-# Monday, April 27 appears suspicious, such that all deaths from Apr 27 got pushed to Apr 28
-ESP.agebands.dat$deathsMCMC$Deaths[ESP.agebands.dat$deathsMCMC$ObsDay == 117] <- -1
-ESP.agebands.dat$deathsMCMC$Deaths[ESP.agebands.dat$deathsMCMC$ObsDay == 118] <- -1
-ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 117] <- -1
-ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 118] <- -1
-
-# typo for 1179 deaths on May 25
-ESP.agebands.dat$deathsMCMC$Deaths[ESP.agebands.dat$deathsMCMC$ObsDay == 171] <- -1
-ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 171] <- -1
+# # suspicious 0 followed by very large increase
+# # Monday, April 27 appears suspicious, such that all deaths from Apr 27 got pushed to Apr 28
+# ESP.agebands.dat$deathsMCMC$Deaths[ESP.agebands.dat$deathsMCMC$ObsDay == 117] <- -1
+# ESP.agebands.dat$deathsMCMC$Deaths[ESP.agebands.dat$deathsMCMC$ObsDay == 118] <- -1
+# ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 117] <- -1
+# ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 118] <- -1
+#
+# # typo for 1179 deaths on May 25
+# ESP.agebands.dat$deathsMCMC$Deaths[ESP.agebands.dat$deathsMCMC$ObsDay == 171] <- -1
+# ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 171] <- -1
 
 
 # No adjustments to serology as there is alignment of deaths and seroprevalence age groups.
@@ -437,7 +425,6 @@ ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 171] <- -
 # get rho
 #......................
 ESP.agebands.dat$rho <- rep(1, length(unique(ESP.agebands.dat$deathsMCMC$ageband)))
-# multiple through demog and age-standardize for region
 ESP.regions.dat$rho <- rep(1, length(unique(ESP.regions.dat$deathsMCMC$region)))
 
 
@@ -499,8 +486,6 @@ GBR2popdf <- readr::read_csv("data/raw/UK_ONS_2016_Population_Data.csv") %>%
 #......................
 # save out
 #......................
-
-
 
 #............................................................
 #---- NLD1 #-----
@@ -1049,6 +1034,11 @@ saveRDS(SF_CA.regions.dat, "data/derived/USA/SF_CA_regions.RDS")
 #..................................................................................
 #---- Preprocess Asian Data  #-----
 #..................................................................................
+# demography
+populationdf <- readr::read_tsv("data/raw/population.tsv") %>%
+  dplyr::select(-c("reference")) %>%
+  dplyr::mutate(age_low = ifelse(age_low == 0 & age_high == 0, 1, age_low),
+                age_high = ifelse(age_low == 1 & age_high == 0, 1, age_high))  # liftover "zero" year olds to be 1, 1 as well
 
 #............................................................
 #---- CHN1 #----
