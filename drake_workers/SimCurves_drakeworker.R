@@ -95,11 +95,11 @@ secondwave <- secondwave %>%
 #............................................................
 # make up fatality data
 fatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
-                                  IFR = c(1e-3, 0.15, 0.2, 0.299, 0.6),
-                                  Rho = 1,
-                                  Ne = 1)
+                               IFR = c(1e-3, 0.15, 0.2, 0.299, 0.6),
+                               Rho = 1,
+                               Ne = 1)
 demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
-                           popN = c(5e5, 5e5, 5e5, 2250000, 1250000))
+                        popN = c(5e5, 5e5, 5e5, 2250000, 1250000))
 
 
 #............................................................
@@ -144,7 +144,7 @@ wrap_sim <- function(curve, sens, spec, fatalitydata, demog, sero_day) {
 
   # make out
   inputdata <- list(obs_deaths = dat$AggDeath,
-                   obs_serology = obs_serology)
+                    obs_serology = obs_serology)
   out <- list(simdat = dat,
               inputdata = inputdata)
   return(out)
@@ -179,12 +179,18 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
                                dsc2 = c(0.05,   0.05))
 
 # everything else for region
-wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
+wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
   ifr_paramsdf <- make_ma_reparamdf(num_mas = 5)
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
                                           num_xs = 4)
-  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
-                                           num_ys = 5)
+
+  if (curve$nm == "expgrowth") {
+    infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y5", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
+                                             num_ys = 5)
+  } else {
+    infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
+                                             num_ys = 5)
+  }
   noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 0, init = 5, max = 10)
 
   # bring together
@@ -212,7 +218,7 @@ wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
   mod1
 }
 
-map$modelobj <-  purrr::pmap(map[,c("inputdata", "sens_spec_tbl", "demog")], wrap_make_IFR_model)
+map$modelobj <-  purrr::pmap(map[,c("curve", "inputdata", "sens_spec_tbl", "demog")], wrap_make_IFR_model)
 
 #......................
 # names
