@@ -28,7 +28,7 @@ source("R/my_themes.R")
 #...................... 
 # read in data
 #......................
-modout <- readRDS("results/ModFits/GBR_age_GTI3_rung50_burn1000_smpl1000.RDS")
+modout <- readRDS("results/ModFits/GBR_age_rung50_burn10000_smpl10000.RDS")
 ```
 
 #### Log Plot
@@ -64,7 +64,7 @@ agekey <- modout$inputs$IFRmodel$IFRdictkey %>%
 ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
                                        what = "IFRparams", by_chain = FALSE)
 ifrs <- dplyr::left_join(agekey, ifrs, by = "param") %>% 
-  dplyr::mutate(param = factor(param, levels = paste0("ma", 1:5))) %>% 
+  dplyr::mutate(param = factor(param, levels = paste0("ma", 1:10))) %>% 
   dplyr::arrange()
 
 #...................... 
@@ -116,7 +116,7 @@ plot(main_plotObj)
 
 ```{r, results='asis', fig.width=8, fig.height=6}
 ifrs %>% 
-  dplyr::mutate_if(is.numeric, round, 2) %>% 
+  dplyr::mutate_if(is.numeric, round, 4) %>% 
   pretty_DT_tab(.)
 
 ```
@@ -233,7 +233,7 @@ plot(ppc_plot_age)
 #...................... 
 # read in data
 #......................
-modout <- readRDS("results/ModFits/GBR_rgn_GTI3_rung50_burn1000_smpl1000.RDS")
+modout <- readRDS("results/ModFits/GBR_rgn_rung50_burn10000_smpl10000.RDS")
 ```
 
 #### Log Plot
@@ -269,7 +269,7 @@ rgnkey <- modout$inputs$IFRmodel$IFRdictkey %>%
 ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
                                        what = "IFRparams", by_chain = FALSE)
 ifrs <- dplyr::left_join(rgnkey, ifrs, by = "param") %>% 
-  dplyr::mutate(param = factor(param, levels = paste0("ma", 1:3))) %>% 
+  dplyr::mutate(param = factor(param, levels = paste0("ma", 1:7))) %>% 
   dplyr::arrange()
 
 #...................... 
@@ -321,7 +321,7 @@ plot(main_plotObj)
 
 ```{r, results='asis', fig.width=8, fig.height=6}
 ifrs %>% 
-  dplyr::mutate_if(is.numeric, round, 2) %>% 
+  dplyr::mutate_if(is.numeric, round, 4) %>% 
   pretty_DT_tab(.)
 
 ```

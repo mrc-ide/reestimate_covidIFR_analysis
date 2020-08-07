@@ -21,7 +21,7 @@ source("R/my_themes.R")
 #...................... 
 # read in data
 #......................
-modout <- readRDS("results/ModFits/NLD_age_GTI3_rung50_burn1000_smpl1000.RDS")
+modout <- readRDS("results/ModFits/NLD_age_rung50_burn1000_smpl1000.RDS")
 ```
 
 #### Log Plot
@@ -226,7 +226,7 @@ plot(ppc_plot_age)
 #......................
 # read in data
 #......................
-modout <- readRDS("results/ModFits/NLD_rgn_GTI3_rung50_burn1000_smpl1000.RDS")
+modout <- readRDS("results/ModFits/NLD_rgn_rung50_burn1000_smpl1000.RDS")
 ```
 
 #### Log Plot
