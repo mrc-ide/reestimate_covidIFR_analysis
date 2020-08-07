@@ -1,3 +1,4 @@
+source(paste0(here::here(), "/R/assertions_v5.R"))
 simple_seir <- odin::odin({
   ## deal with time
   ## Core equations for transitions between compartments:
@@ -48,7 +49,6 @@ simple_seir <- odin::odin({
 #' @param time numeric; total time of epidemic observed, up to but not including this "day"
 
 run_simple_seir <-  function(N, E0, R0, betas, beta_changes, sigma, gamma, time, ...){
-  source("R/assertions_v5.R")
   assert_numeric(N)
   assert_numeric(E0)
   assert_numeric(R0)
