@@ -44,9 +44,9 @@ serohlp <- datmap %>%
   dplyr::mutate(
     seroprevdat = purrr::map(data, "seroprevMCMC"),
     sens = purrr::map(data, "sero_sens"),
-    sens = purrr::map_dbl(sens, function(x){x$sensitivity}),
+    sens = purrr::map_dbl(sens, function(x){as.numeric(x$sensitivity)}),
     spec = purrr::map(data, "sero_spec"),
-    spec = purrr::map_dbl(spec, function(x){x$specificity})) %>%
+    spec = purrr::map_dbl(spec, function(x){as.numeric(x$specificity)})) %>%
   dplyr::select(c("seroprevdat", "sens", "spec"))
 
 datmap <- datmap %>%
@@ -83,6 +83,14 @@ ageplotdat <- datmap %>%
   dplyr::filter(breakdown == "ageband") %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
+
+###### filter to only plot the latest serology when there are multiple rounds - ok?
+maxDays<-  ageplotdat %>%
+  dplyr::group_by(study_id) %>%
+  dplyr::summarise(max_day=max(obsdaymax))
+ageplotdat<-full_join(ageplotdat,maxDays,by="study_id")
+ageplotdat<-filter(ageplotdat,obsdaymax==max_day)
+
 
 #......................
 # age adj seroprevalence
