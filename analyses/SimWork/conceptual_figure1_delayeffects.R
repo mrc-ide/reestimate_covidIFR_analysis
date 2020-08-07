@@ -22,7 +22,7 @@ infxns <- lapply(1:nsims, function(x){
                   beta_changes = c(1, 130, 140, 150),
                   sigma = 0.2,
                   gamma = 0.2,
-                  time = 200)
+                  time = 300)
 })
 infxns <- infxns %>%
   dplyr::bind_rows(.) %>%
@@ -32,15 +32,6 @@ infxns <- infxns %>%
   ) %>%
   dplyr::mutate_if(is.numeric, round, 0) %>%
   dplyr::rename(time = step)
-
-#......................
-# Trim Infection Curve
-#......................
-infxns <- infxns %>%
-  dplyr::filter(time > 50) %>% # trim beginning
-  dplyr::mutate(infxns = ifelse(time > 170, 0, infxns), # "stop" time to show seroprev and deaths continue
-                time = 1:nrow(.)) # reset time
-
 
 
 # make up fatality data
@@ -57,35 +48,30 @@ demog <- tibble::tibble(Strata = "ma1",
 dat <- COVIDCurve::Aggsim_infxn_2_death(
   fatalitydata = fatalitydata,
   demog = demog,
-  m_od = 18.8,
-  s_od = 0.45,
-  curr_day = 150,
-  level = "Time-Series",
+  m_od = 14.26,
+  s_od = 0.19,
+  curr_day = 300,
   infections = infxns$infxns,
   simulate_seroprevalence = TRUE,
   sens = 0.86,
   spec = 0.95,
-  sero_delay_rate = 10)
+  sero_delay_rate = 13.3)
 
 #......................
 # tidy up and combine
 #......................
-infxns <- infxns %>%
-  dplyr::mutate(infxns = ifelse(infxns == 0 & time > 50, -1, infxns))
-
 cuminxns <- infxns %>%
-  dplyr::filter(infxns != -1) %>%
   dplyr::mutate(cumincidence = cumsum(infxns)/popN) %>%
   dplyr::select(-c("infxns"))
 
 
-cumdeaths <- dat$AggDat %>%
+cumdeaths <- dat$AggDeath %>%
   dplyr::mutate(cumDeaths = cumsum(Deaths)/popN) %>%
   dplyr::select(-c("Deaths", "Strata")) %>%
   dplyr::rename(time = ObsDay)
 
 
-serodf <- dat$seroprev %>%
+serodf <- dat$AggSeroPrev %>%
   dplyr::select(c("event_obs_day", "TruePrev", "ObsPrev")) %>%
   dplyr::rename(time = event_obs_day)
 # combine
@@ -98,33 +84,63 @@ plotdatdf <- datdf %>%
   tidyr::gather(., key = "datlevel", value = "prop", 2:ncol(.)) %>%
   dplyr::mutate(datlevel = factor(datlevel,
                                   levels = c("cumincidence", "TruePrev", "ObsPrev", "cumDeaths"),
-                                  labels = c("Cum. Infxns", "True Prev.", "Obs. Prev", "Cum. Deaths"))
-  )
+                                  labels = c("Cum. Prop. \n of Infected", "True Seroprev.", "Obs. Seroprev.", "Cum. Prop. \n of Deaths")))
+
+#......................
+# labels and arrows
+#......................
+arrows <- tibble::tibble(
+  lvl =  c("mod", "serocon", "sens", "spec"),
+  x =    c(112,    147,       250,    10),
+  xend = c(160,    170.5,       250,    10),
+  y =    c(0.1,    0.5,       0.71,    0),
+  yend = c(0.1,    0.5,       0.625,   0.05)
+)
+
+
+labels <- tibble::tibble(
+  lvl =    c("mod",       "serocon",    "sens",    "spec"),
+  label =  c("O-D Delay", "O-S Delay",  "Sens.",   "Spec."),
+  x =      c(185,          195,          265,       12),
+  y =      c(0.1,          0.5,         0.6675,    0.07),
+)
+
+
+
 
 
 #......................
 # plot & inset
 #......................
-delay_plotObj <- ggplot() +
-  geom_vline(xintercept = 120, color = "#a50f15", linetype = "dashed", size = 0.5, alpha = 0.8) +
-  geom_line(data = plotdatdf, aes(x = time, y = prop, color = datlevel, size = datlevel)) +
-  # geom_segment(data = reshape(DATA, v.names="VALUE", idvar = "NAME", timevar = "YEAR", direction = "wide"),
-  #              aes(x=VALUE.2011, xend=VALUE.2016, y=NAME, yend=NAME), size = 2,
-  #              arrow = arrow(length = unit(0.5, "cm")))
-  scale_size_manual(values = c(1.3, 1.3, 0.9, 0.9)) +
-  scale_color_manual(values = c("#252525", "#0868ac", "#74a9cf", "#969696")) +
-  xlab("Time (days)") + ylab("Prop. of Population Affected") +
-  theme(plot.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 14),
-        axis.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 12),
-        axis.text = element_text(family = "Helvetica", hjust = 0.5, size = 11),
+delay_plotObj <- plotdatdf %>%
+  dplyr::filter(datlevel != "True Prev.") %>% # discuss wheter true goes into figure or not
+  ggplot() +
+  geom_line(aes(x = time, y = prop, color = datlevel), size = 2) +
+  geom_segment(data = arrows, aes(x = x, xend = xend, y = y, yend = yend),
+               size = 1.8, color = "#000000",
+               arrow = arrow(length = unit(0.025, "npc"))) +
+  geom_text(data = labels, aes(x = x, y = y, label = label),
+                           size = 5,
+                           family = "Helvetica",
+                           fontface = "bold",
+                           vjust = c(0.5, 0.5, 0.5, 0.5),
+                           hjust = c(0.5, 0.5, 0.5, 0.5)
+                           ) +
+  scale_color_manual(values = c("#224B8B", "#3BABFD", "#06CDF4")) +
+  xlab("Time (days)") + ylab("Proportion") +
+  theme(plot.title = element_blank(),
+        axis.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 16),
+        axis.text = element_text(family = "Helvetica", hjust = 0.5, size = 15),
         legend.position = "right",
         legend.title = element_blank(),
-        legend.text = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 10),
+        legend.text = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 15),
+        legend.key=element_blank(),
         panel.background = element_rect(fill = "transparent"),
         plot.background = element_rect(fill = "transparent"),
         panel.grid = element_blank(),
         panel.border = element_blank(),
         axis.line = element_line(color = "#000000", size = 1))
+
 
 
 infxninet_plotObj <- infxns %>%
@@ -148,15 +164,10 @@ infxninet_plotObj <- infxns %>%
 #......................
 # out
 #......................
-jpeg("figures/temp_fig_1.jpg", width = 11, height = 8, units = "in", res = 500)
+jpeg("figures/conceptual_fig_1.jpg", width = 11, height = 8, units = "in", res = 500)
 cowplot::ggdraw() +
   cowplot::draw_plot(delay_plotObj, x = 0, y = 0, width = 1, height = 1, scale = 1) +
   cowplot::draw_plot(infxninet_plotObj, x = 0.085, y= 0.75, width = 0.3, height = 0.2)
 graphics.off()
 
-
-
-
-
-# sanity
 

@@ -480,7 +480,8 @@ process_death_data <- function(deaths, recast_deaths_df, recast_deaths_geocode,
                     ObsDay = as.numeric(date_end_survey - origin) + 1)  %>%
       dplyr::group_by_at(c(groupingvar, "ObsDay")) %>%
       dplyr::summarise( Deaths = sum(n_deaths) ) %>%
-      dplyr::arrange_at(c("ObsDay", groupingvar))
+      dplyr::arrange_at(c("ObsDay", groupingvar)) %>%
+      dplyr::ungroup(.)
   }
   # out
   return(deaths.summ)

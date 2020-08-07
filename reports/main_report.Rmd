@@ -24,6 +24,9 @@ knitr::opts_knit$set(root.dir = here::here())
 ```{r, child = '~/Documents/Github/reestimate_covidIFR_analysis/reports/BRA1_IFR_results.Rmd'}
 ```
 
+```{r, child = '~/Documents/Github/reestimate_covidIFR_analysis/reports/CHE1_IFR_results.Rmd'}
+```
+
 ```{r, child = '~/Documents/Github/reestimate_covidIFR_analysis/reports/DNK1_IFR_results.Rmd'}
 ```
 

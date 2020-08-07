@@ -4,7 +4,14 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Denmark
+# Spain
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, 
+                      message = FALSE, eval = TRUE, 
+                      results = 'hide', fig.align = 'center')
+knitr::opts_knit$set(root.dir = here::here())
+
+```
 ```{r}
 # remotes::install_github("mrc-ide/COVIDCurve", ref = "develop")
 library(COVIDCurve)
@@ -21,8 +28,7 @@ source("R/my_themes.R")
 #...................... 
 # read in data
 #......................
-modout <- readRDS("results/ModFits/ESP_age_GTI2.5_rung50_burn1000_smpl1000.RDS")
-
+modout <- readRDS("results/ModFits/ESP_age_GTI3_rung50_burn1000_smpl1000.RDS")
 ```
 
 #### Log Plot
@@ -43,7 +49,7 @@ modout$mcmcout$output %>%
 ```{r}
 quickout <- quick_mc_diagnostics(modout)
 ```
-```{r, results='asis'}
+```{r, results='asis', fig.height=11, fig.width=7}
 quickout
 ```
 
@@ -58,22 +64,25 @@ agekey <- modout$inputs$IFRmodel$IFRdictkey %>%
 ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
                                        what = "IFRparams", by_chain = FALSE)
 ifrs <- dplyr::left_join(agekey, ifrs, by = "param") %>% 
-  dplyr::mutate(param = factor(param, levels = paste0("ma", 1:5))) %>% 
+  dplyr::mutate(param = factor(param, levels = paste0("ma", 1:10))) %>% 
   dplyr::arrange()
 
 #...................... 
 # get crude ifrs 
 #......................
 dscdat <- readRDS("data/derived/descriptive_results_datamap.RDS") 
-ESPrcrudedat <- dscdat %>% 
-  dplyr::filter(study_id == "ESP1" & breakdown == "ageband")  %>%
+ESPcrudedat <- dscdat %>% 
+  dplyr::filter(study_id == "ESP1-2" & breakdown == "ageband")  %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
-ageplotdat <- ESPrcrudedat %>%
+ageplotdat <- ESPcrudedat %>%
   dplyr::filter(seromidpt == obsday) %>%
   dplyr::mutate(infxns = popn * seroprev,
                 crudeIFR =  cumdeaths/infxns) %>% 
-  dplyr::select(c("ageband", "crudeIFR")) 
+  dplyr::select(c("ageband", "crudeIFR")) %>% 
+  dplyr::group_by(ageband) %>% 
+  dplyr::mutate(serodayfct = factor(1:dplyr::n())) %>% 
+  dplyr::ungroup(.)
 
 
 #...................... 
@@ -81,14 +90,16 @@ ageplotdat <- ESPrcrudedat %>%
 #......................
 infxncurve <- COVIDCurve::draw_posterior_infxn_cubic_splines(IFRmodel_inf = modout,
                                                              dwnsmpl = 1e3,
-                                                             by_chain = FALSE)
+                                                             by_chain = FALSE, 
+                                                             by_strata = TRUE)
 #...................... 
 # make ifr and incidence plots
 #......................
 plot1 <- ggplot() +
   geom_pointrange(data = ifrs, aes(x = ageband, ymin = LCI, ymax = UCI, y = median), 
                   color = "#969696", size = 1.2) +
-  geom_point(data = ageplotdat, aes(x = ageband, y = crudeIFR), color = "#000000", size = 2) +
+  geom_point(data = ageplotdat, aes(x = ageband, y = crudeIFR, shape = serodayfct), 
+             color = "#000000", size = 3, alpha = 0.75, show.legend = F) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"),
         legend.position = "right") +
@@ -103,7 +114,7 @@ jpgsnapshot("figures/ESP_ifr_plot_age.jpg", plot = main_plotObj)
 
 ```
 
-```{r, results='asis', fig.width=8, fig.height=6}
+```{r, results='asis', fig.width=8, fig.height=10}
 plot(main_plotObj)
 ```
 
@@ -121,9 +132,8 @@ demog <- modout$inputs$IFRmodel$demog %>%
   dplyr::rename(param = Strata)
 demog <- demog %>% 
   dplyr::left_join(., agekey)
-popdenom <- sum(demog$popN)
 
-gIFR <- sum(ifrs$median * demog$popN/popdenom)
+gIFR <- sum(ifrs$median * demog$popN/sum(demog$popN))
 
 tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>% 
   knitr::kable(.)
@@ -134,20 +144,21 @@ tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>%
 ```{r}
 seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
                                                    dwnsmpl = 1e3,
-                                                   by_chain = T)
+                                                   by_chain = F)
 
 serocurvedat <- seropnts %>% 
-  dplyr::select(c("chain", "sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
-  tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 4:ncol(.)) %>% 
+  dplyr::select(c("sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
+  tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 3:ncol(.)) %>% 
   dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG", "IF"),
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
-  dplyr::group_by_at(c("chain", "sim", "ObsDay", "seroprevlvl", "param")) %>% 
+  dplyr::group_by_at(c("sim", "ObsDay", "seroprevlvl", "param")) %>% 
   dplyr::summarise(serocount = sum(serocount, na.rm = T) ) %>% 
-  dplyr::mutate(seroprev = serocount/popdenom) %>% 
-  dplyr::left_join(., agekey, by = "param")
+  dplyr::left_join(., agekey, by = "param") %>% 
+   dplyr::left_join(., demog, by = "ageband") %>% 
+  dplyr::mutate(seroprev = serocount/popN)
 
 # crude data
-SeroPrevObs <- ESPrcrudedat %>% 
+SeroPrevObs <- ESPcrudedat %>% 
   dplyr::select(c("obsdaymin", "obsdaymax", "ageband", "seroprev")) %>% 
   dplyr::filter(!duplicated(.)) %>% 
   dplyr::left_join(., demog, by = "ageband") %>% 
@@ -168,7 +179,9 @@ serocurvedat %>%
   scale_color_manual("Seroprev. \n Adjustment", values = c("#FFD301", "#246BCF"),
                      labels = c("Inferred 'Truth'", "Inferred 'Observed' - \n Rogan-Gladen Corrected")) +
   labs(caption = "Grey box is observed seroprevalence across study period") +
-  xyaxis_plot_theme
+  xyaxis_plot_theme + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"))
+
 
 ```
 
@@ -224,7 +237,7 @@ plot(ppc_plot_age)
 #...................... 
 # read in data
 #......................
-modout <- readRDS("results/ModFits/ESP_age_GTI2.5_rung50_burn1000_smpl1000.RDS")
+modout <- readRDS("results/ModFits/ESP_rgn_GTI3_rung50_burn1000_smpl1000.RDS")
 ```
 
 #### Log Plot
@@ -245,12 +258,11 @@ modout$mcmcout$output %>%
 ```{r}
 quickout <- quick_mc_diagnostics(modout)
 ```
-```{r, results='asis'}
+```{r, results='asis', fig.height=11, fig.width=7}
 quickout
 ```
 
 #### IFRs & Incidence Curve
-
 ```{r}
 rgnkey <- modout$inputs$IFRmodel$IFRdictkey %>% 
   dplyr::rename(param = Strata)
@@ -260,18 +272,18 @@ rgnkey <- modout$inputs$IFRmodel$IFRdictkey %>%
 ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
                                        what = "IFRparams", by_chain = FALSE)
 ifrs <- dplyr::left_join(rgnkey, ifrs, by = "param") %>% 
-  dplyr::mutate(param = factor(param, levels = paste0("ma", 1:3))) %>% 
+  dplyr::mutate(param = factor(param, levels = paste0("ma", 1:17))) %>% 
   dplyr::arrange()
 
 #...................... 
 # get crude ifrs 
 #......................
 dscdat <- readRDS("data/derived/descriptive_results_datamap.RDS") 
-ESPrcrudedat <- dscdat %>% 
-  dplyr::filter(study_id == "ESP1" & breakdown == "region")  %>%
+ESPcrudedat <- dscdat %>% 
+  dplyr::filter(study_id == "ESP1-2" & breakdown == "region")  %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
-rgnplotdat <- ESPrcrudedat %>%
+rgnplotdat <- ESPcrudedat %>%
   dplyr::filter(seromidpt == obsday) %>%
   dplyr::mutate(infxns = popn * seroprev,
                 crudeIFR =  cumdeaths/infxns) %>% 
@@ -283,7 +295,8 @@ rgnplotdat <- ESPrcrudedat %>%
 #......................
 infxncurve <- COVIDCurve::draw_posterior_infxn_cubic_splines(IFRmodel_inf = modout,
                                                              dwnsmpl = 1e3,
-                                                             by_chain = FALSE)
+                                                             by_chain = FALSE, 
+                                                             by_strata = TRUE)
 #...................... 
 # make ifr and incidence plots
 #......................
@@ -305,7 +318,7 @@ jpgsnapshot("figures/ESP_ifr_plot_rgn.jpg", plot = main_plotObj)
 
 ```
 
-```{r, results='asis', fig.width=8, fig.height=6}
+```{r, results='asis', fig.width=8, fig.height=10}
 plot(main_plotObj)
 ```
 
@@ -323,9 +336,8 @@ demog <- modout$inputs$IFRmodel$demog %>%
   dplyr::rename(param = Strata)
 demog <- demog %>% 
   dplyr::left_join(., rgnkey)
-popdenom <- sum(demog$popN)
 
-gIFR <- sum(ifrs$median * demog$popN/popdenom)
+gIFR <- sum(ifrs$median * demog$popN/sum(demog$popN))
 
 tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>% 
   knitr::kable(.)
@@ -336,20 +348,21 @@ tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>%
 ```{r}
 seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
                                                    dwnsmpl = 1e3,
-                                                   by_chain = T)
+                                                   by_chain = F)
 
 serocurvedat <- seropnts %>% 
-  dplyr::select(c("chain", "sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
-  tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 4:ncol(.)) %>% 
+  dplyr::select(c("sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
+  tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 3:ncol(.)) %>% 
   dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG", "IF"),
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
-  dplyr::group_by_at(c("chain", "sim", "ObsDay", "seroprevlvl", "param")) %>% 
+  dplyr::group_by_at(c("sim", "ObsDay", "seroprevlvl", "param")) %>% 
   dplyr::summarise(serocount = sum(serocount, na.rm = T) ) %>% 
-  dplyr::mutate(seroprev = serocount/popdenom) %>% 
-  dplyr::left_join(., rgnkey, by = "param")
+  dplyr::left_join(., rgnkey, by = "param") %>% 
+  dplyr::left_join(., demog, by = "region") %>% 
+  dplyr::mutate(seroprev = serocount/popN)
 
 # crude data
-SeroPrevObs <- ESPrcrudedat %>% 
+SeroPrevObs <- ESPcrudedat %>% 
   dplyr::select(c("obsdaymin", "obsdaymax", "region", "seroprev")) %>% 
   dplyr::filter(!duplicated(.)) %>% 
   dplyr::left_join(., demog, by = "region") %>% 
@@ -370,7 +383,9 @@ serocurvedat %>%
   scale_color_manual("Seroprev. \n Adjustment", values = c("#FFD301", "#246BCF"),
                      labels = c("Inferred 'Truth'", "Inferred 'Observed' - \n Rogan-Gladen Corrected")) +
   labs(caption = "Grey box is observed seroprevalence across study period") +
-  xyaxis_plot_theme
+  xyaxis_plot_theme + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"))
+
 
 ```
 

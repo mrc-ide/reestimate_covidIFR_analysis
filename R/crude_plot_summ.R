@@ -4,6 +4,7 @@ source("R/assertions_v5.R")
 rogan_gladen <- function(obs_prev, sens, spec){
   ret <- (obs_prev + spec - 1)/(spec + sens - 1)
   ret <- ifelse(ret <= 0, NA, ret) # occurs when obs_prev and spec are less than 1
+  return(ret)
 }
 
 
@@ -58,7 +59,7 @@ standardize_deathdat <- function(deathdat_long, popdat, groupingvar, Nstandardiz
     ret <- ret %>%
       dplyr::mutate(age_mid = purrr::map_dbl(ageband, function(x){
         nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
-        nums[nums == 999] <- 95
+        nums[nums == 999] <- 100
         return(mean(nums))})
       )
   } else {

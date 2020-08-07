@@ -42,7 +42,7 @@ modout$mcmcout$output %>%
 ```{r}
 quickout <- quick_mc_diagnostics(modout)
 ```
-```{r, results='asis'}
+```{r, results='asis', fig.height=11, fig.width=7}
 quickout
 ```
 
@@ -80,7 +80,8 @@ ageplotdat <- dnkrcrudedat %>%
 #......................
 infxncurve <- COVIDCurve::draw_posterior_infxn_cubic_splines(IFRmodel_inf = modout,
                                                              dwnsmpl = 1e3,
-                                                             by_chain = FALSE)
+                                                             by_chain = FALSE, 
+                                                             by_strata = TRUE)
 #...................... 
 # make ifr and incidence plots
 #......................
@@ -102,7 +103,7 @@ jpgsnapshot("figures/DNK_ifr_plot_age.jpg", plot = main_plotObj)
 
 ```
 
-```{r, results='asis', fig.width=8, fig.height=6}
+```{r, results='asis', fig.width=8, fig.height=10}
 plot(main_plotObj)
 ```
 
@@ -120,9 +121,8 @@ demog <- modout$inputs$IFRmodel$demog %>%
   dplyr::rename(param = Strata)
 demog <- demog %>% 
   dplyr::left_join(., agekey)
-popdenom <- sum(demog$popN)
 
-gIFR <- sum(ifrs$median * demog$popN/popdenom)
+gIFR <- sum(ifrs$median * demog$popN/sum(demog$popN))
 
 tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>% 
   knitr::kable(.)
@@ -133,17 +133,18 @@ tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>%
 ```{r}
 seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
                                                    dwnsmpl = 1e3,
-                                                   by_chain = T)
+                                                   by_chain = F)
 
 serocurvedat <- seropnts %>% 
-  dplyr::select(c("chain", "sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
-  tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 4:ncol(.)) %>% 
+  dplyr::select(c("sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
+  tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 3:ncol(.)) %>% 
   dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG", "IF"),
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
-  dplyr::group_by_at(c("chain", "sim", "ObsDay", "seroprevlvl", "param")) %>% 
+  dplyr::group_by_at(c("sim", "ObsDay", "seroprevlvl", "param")) %>% 
   dplyr::summarise(serocount = sum(serocount, na.rm = T) ) %>% 
-  dplyr::mutate(seroprev = serocount/popdenom) %>% 
-  dplyr::left_join(., agekey, by = "param")
+  dplyr::left_join(., agekey, by = "param") %>% 
+  dplyr::left_join(., demog, by = "ageband") %>% 
+  dplyr::mutate(seroprev = serocount/popN) 
 
 # crude data
 SeroPrevObs <- dnkrcrudedat %>% 
@@ -167,7 +168,9 @@ serocurvedat %>%
   scale_color_manual("Seroprev. \n Adjustment", values = c("#FFD301", "#246BCF"),
                      labels = c("Inferred 'Truth'", "Inferred 'Observed' - \n Rogan-Gladen Corrected")) +
   labs(caption = "Grey box is observed seroprevalence across study period") +
-  xyaxis_plot_theme
+  xyaxis_plot_theme + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"))
+
 
 ```
 
@@ -244,7 +247,7 @@ modout$mcmcout$output %>%
 ```{r}
 quickout <- quick_mc_diagnostics(modout)
 ```
-```{r, results='asis'}
+```{r, results='asis', fig.height=11, fig.width=7}
 quickout
 ```
 
@@ -282,7 +285,8 @@ rgnplotdat <- dnkrcrudedat %>%
 #......................
 infxncurve <- COVIDCurve::draw_posterior_infxn_cubic_splines(IFRmodel_inf = modout,
                                                              dwnsmpl = 1e3,
-                                                             by_chain = FALSE)
+                                                             by_chain = FALSE, 
+                                                             by_strata = TRUE)
 #...................... 
 # make ifr and incidence plots
 #......................
@@ -304,7 +308,7 @@ jpgsnapshot("figures/DNK_ifr_plot_rgn.jpg", plot = main_plotObj)
 
 ```
 
-```{r, results='asis', fig.width=8, fig.height=6}
+```{r, results='asis', fig.width=8, fig.height=10}
 plot(main_plotObj)
 ```
 
@@ -322,9 +326,8 @@ demog <- modout$inputs$IFRmodel$demog %>%
   dplyr::rename(param = Strata)
 demog <- demog %>% 
   dplyr::left_join(., rgnkey)
-popdenom <- sum(demog$popN)
 
-gIFR <- sum(ifrs$median * demog$popN/popdenom)
+gIFR <- sum(ifrs$median * demog$popN/sum(demog$popN))
 
 tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>% 
   knitr::kable(.)
@@ -335,17 +338,18 @@ tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>%
 ```{r}
 seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
                                                    dwnsmpl = 1e3,
-                                                   by_chain = T)
+                                                   by_chain = F)
 
 serocurvedat <- seropnts %>% 
-  dplyr::select(c("chain", "sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
-  tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 4:ncol(.)) %>% 
+  dplyr::select(c("sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
+  tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 3:ncol(.)) %>% 
   dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG", "IF"),
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
-  dplyr::group_by_at(c("chain", "sim", "ObsDay", "seroprevlvl", "param")) %>% 
+  dplyr::group_by_at(c("sim", "ObsDay", "seroprevlvl", "param")) %>% 
   dplyr::summarise(serocount = sum(serocount, na.rm = T) ) %>% 
-  dplyr::mutate(seroprev = serocount/popdenom) %>% 
-  dplyr::left_join(., rgnkey, by = "param")
+  dplyr::left_join(., rgnkey, by = "param") %>% 
+   dplyr::left_join(., demog, by = "region") %>% 
+  dplyr::mutate(seroprev = serocount/popN) 
 
 # crude data
 SeroPrevObs <- dnkrcrudedat %>% 
@@ -369,7 +373,9 @@ serocurvedat %>%
   scale_color_manual("Seroprev. \n Adjustment", values = c("#FFD301", "#246BCF"),
                      labels = c("Inferred 'Truth'", "Inferred 'Observed' - \n Rogan-Gladen Corrected")) +
   labs(caption = "Grey box is observed seroprevalence across study period") +
-  xyaxis_plot_theme
+  xyaxis_plot_theme + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"))
+
 
 ```
 
