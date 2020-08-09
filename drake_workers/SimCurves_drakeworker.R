@@ -233,6 +233,7 @@ fit_map <- map %>%
 # Come Together
 #...........................................................
 # save out full for later manips
+dir.create("data/param_map/SimCurves/", recursive = TRUE)
 saveRDS(fit_map, "data/param_map/SimCurves/simfit_param_map.RDS")
 
 # select what we need for fits and make outpaths
