@@ -237,9 +237,8 @@ dir.create("data/param_map/SimCurves/", recursive = TRUE)
 saveRDS(fit_map, "data/param_map/SimCurves/simfit_param_map.RDS")
 
 # select what we need for fits and make outpaths
-dir.create("data/param_map/SimCurves/", recursive = T)
 fit_map_modelobj <- fit_map %>%
-  dplyr::select(c("modelobj"))
+  dplyr::select(c("sim", "modelobj"))
 lapply(split(fit_map_modelobj, 1:nrow(fit_map_modelobj)), function(x){
   saveRDS(x, paste0("data/param_map/SimCurves/",
                     x$sim, ".RDS"))

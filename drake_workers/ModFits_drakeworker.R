@@ -340,8 +340,7 @@ fit_map <- tibble::tibble(
   GTI_pow = list(bvec),
   burnin = 1e4,
   samples = 1e4,
-  thinning = 10,
-)
+  thinning = 10)
 
 
 
