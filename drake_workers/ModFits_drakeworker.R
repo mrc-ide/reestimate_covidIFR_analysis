@@ -20,17 +20,17 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
                                init = c(14,     0.7),
                                max =  c(30,     5.00),
                                dsc1 = c(2.66,  -0.24),
-                               dsc2 = c(0.05,   0.05))
+                               dsc2 = c(0.05,   0.5))
 
 #............................................................
 #---- BRA1 #----
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,     0.5,      136),
-                                init =  c(0.85,    0.99,     1,        140),
-                                max =   c(1.00,    1.00,     1.5,       143),
-                                dsc1 =  c(850.5,   990.5,    0.5,      136),
-                                dsc2 =  c(150.5,    10.5,    1.5,       143))
+                                min =   c(0.50,    0.50,     10,      136),
+                                init =  c(0.85,    0.99,     15,        140),
+                                max =   c(1.00,    1.00,     30,       143),
+                                dsc1 =  c(850.5,   990.5,    2.8,      136),
+                                dsc2 =  c(150.5,    10.5,    0.1,       143))
 #......................
 # regions
 #......................
@@ -57,11 +57,11 @@ BRA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
 #---- CHE1 #-----
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1", "sero_day2", "sero_day3", "sero_day4", "sero_day5"),
-                                min =   c(0.50,    0.50,     0.5,       97,          104,         111,         118,         124),
-                                init =  c(0.85,    0.99,     1,         100,         108,         115,         121,         127),
-                                max =   c(1.00,    1.00,     1.5,        104,         111,         118,         124,         131),
-                                dsc1 =  c(156.5,   176.5,    0.5,       97,          104,         111,         118,         124),
-                                dsc2 =  c(25.5,    0.5,      1.5,        104,         111,         118,         124,         131))
+                                min =   c(0.50,    0.50,     10,       97,          104,         111,         118,         124),
+                                init =  c(0.85,    0.99,     15,         100,         108,         115,         121,         127),
+                                max =   c(1.00,    1.00,     30,        104,         111,         118,         124,         131),
+                                dsc1 =  c(156.5,   176.5,    2.8,       97,          104,         111,         118,         124),
+                                dsc2 =  c(25.5,    0.5,      0.1,        104,         111,         118,         124,         131))
 #......................
 # regions
 #......................
@@ -88,11 +88,11 @@ CHE_age_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma9",
 #---- DNK1 #-----
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,     0.5,        97),
-                                init =  c(0.85,    0.99,     1,          110),
-                                max =   c(1.00,    1.00,     1.5,         124),
-                                dsc1 =  c(128.5,   647.5,    0.5,        97),
-                                dsc2 =  c(27.5,    4.5,      1.5,         124))
+                                min =   c(0.50,    0.50,     10,        97),
+                                init =  c(0.85,    0.99,     15,          110),
+                                max =   c(1.00,    1.00,     30,         124),
+                                dsc1 =  c(128.5,   647.5,    2.8,        97),
+                                dsc2 =  c(27.5,    4.5,      0.1,         124))
 #......................
 # regions
 #......................
@@ -119,11 +119,11 @@ DNK_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
 #---- ESP1-2 #-----
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1", "sero_day2"),
-                                min =   c(0.83,    0.50,     0.5,        118,        139),
-                                init =  c(0.85,    0.99,     1,          125,        146),
-                                max =   c(1.00,    1.00,     1.5,        131,        153),
-                                dsc1 =  c(123.5,   156.5,    0.5,        118,        139),
-                                dsc2 =  c(30.5,    0.5,      1.5,        132,        153))
+                                min =   c(0.83,    0.50,     10,        118,        139),
+                                init =  c(0.85,    0.99,     15,          125,        146),
+                                max =   c(1.00,    1.00,     30,        131,        153),
+                                dsc1 =  c(123.5,   156.5,    2.8,        118,        139),
+                                dsc2 =  c(30.5,    0.5,      0.1,        132,        153))
 # https://www.thelancet.com/cms/10.1016/S0140-6736(20)31483-5/attachment/25c80941-a8c5-470e-a6a8-fde7397b9547/mmc1.pdf
 # based on supp table 3
 #......................
@@ -187,11 +187,11 @@ ESP_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
 #---- NLD1 #----
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,     0.5,        92),
-                                init =  c(0.85,    0.99,     1,          100),
-                                max =   c(1.00,    1.00,     1.5,         106),
-                                dsc1 =  c(171.5,   281.5,    0.5,        92),
-                                dsc2 =  c(3.5,     1.5,      1.5,         106))
+                                min =   c(0.50,    0.50,     10,        92),
+                                init =  c(0.85,    0.99,     15,          100),
+                                max =   c(1.00,    1.00,     30,         106),
+                                dsc1 =  c(171.5,   281.5,    2.8,        92),
+                                dsc2 =  c(3.5,     1.5,      0.1,         106))
 #......................
 # regions
 #......................
@@ -214,11 +214,11 @@ NLD_age_mod <- make_IFR_model_fit(num_mas = 6, maxMa = "ma6",
 #---- ITA1 #----
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,     0.5,        146),
-                                init =  c(0.85,    0.99,     1,          172),
-                                max =   c(1.00,    1.00,     1.5,        197),
-                                dsc1 =  c(90.5,   95.5,      0.5,        146),
-                                dsc2 =  c(10.5,     5.5,      1.5,       197))
+                                min =   c(0.50,    0.50,     10,        146),
+                                init =  c(0.85,    0.99,     15,          172),
+                                max =   c(1.00,    1.00,     30,        197),
+                                dsc1 =  c(90.5,   95.5,      2.8,        146),
+                                dsc2 =  c(10.5,     5.5,      0.1,       197))
 #......................
 #regions
 #......................
@@ -246,11 +246,11 @@ ITA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
 #---- LUX1 #----
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,    0.5,         106),
-                                init =  c(0.85,    0.99,    1,           116),
-                                max =   c(1.00,    1.00,    1.5,         126),
-                                dsc1 =  c(12.5,   181.5,    0.5,         106),
-                                dsc2 =  c(14.5,     4.5,    1.5,         126))
+                                min =   c(0.50,    0.50,    10,         106),
+                                init =  c(0.85,    0.99,    15,           116),
+                                max =   c(1.00,    1.00,    30,         126),
+                                dsc1 =  c(12.5,   181.5,    2.8,         106),
+                                dsc2 =  c(14.5,     4.5,    0.1,         126))
 
 #......................
 # agebands
@@ -291,11 +291,11 @@ LUX_age_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
 #---- CHN1 #----
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,     0.5,        86),
-                                init =  c(0.85,    0.97,     1,          103),
-                                max =   c(1.00,    1.00,     1.5,        119),
-                                dsc1 =  c(91.5,    198.5,    0.5,        86),
-                                dsc2 =  c(14.5,    202.5,    1.5,        119))
+                                min =   c(0.50,    0.50,     10,        86),
+                                init =  c(0.85,    0.97,     15,          103),
+                                max =   c(1.00,    1.00,     30,        119),
+                                dsc1 =  c(91.5,    198.5,    2.8,        86),
+                                dsc2 =  c(14.5,    202.5,    0.1,        119))
 
 #......................
 # agebands
@@ -318,15 +318,15 @@ CHN_age_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma9",
 bvec <- seq(5, 2.5, length.out = 50)
 
 fit_map <- tibble::tibble(
-  name = c("BRA_age", "BRA_rgn",
+  name = c("BRA1_age", "BRA1_rgn",
            "CHE1_age",
-           "DNK_age", "DNK_rgn",
-           "ESP_age", "ESP_rgn",
+           "DNK1_age", "DNK1_rgn",
+           "ESP1-2_age", "ESP1-2_rgn",
            #"GBR_age", "GBR_rgn",
-           "NLD_age",
-           "ITA_age", "ITA_rgn",
-           "LUX_age",
-           "CHN_age"),
+           "NLD1_age",
+           "ITA1_age", "ITA1_rgn",
+           "LUX1_age",
+           "CHN1_age"),
   modelobj = list(BRA_age_mod, BRA_rgn_mod,
                   CHE_age_mod,
                   DNK_age_mod, DNK_rgn_mod,
@@ -375,7 +375,8 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      reparamSeros = TRUE,
+                                      reparamSeros = FALSE,
+                                      reparamNe = TRUE,
                                       chains = n_chains,
                                       burnin = mod$burnin,
                                       samples = mod$samples,
