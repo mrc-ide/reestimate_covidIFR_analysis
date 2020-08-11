@@ -96,6 +96,7 @@ get_ifr_compare <- function(simdat, curve, modout, fatalitydata, dwnsmpl = 1e3) 
   #......................
   plotright <- cumdat %>%
     dplyr::select(c("ObsDay", "RGIFR", "CrudeIFR")) %>%
+    dplyr::filter(ObsDay >= 50) %>%
     tidyr::gather(., key = "IFRlvl", value = "IFR", 2:ncol(.)) %>%
     dplyr::mutate(IFRlvl = factor(IFRlvl, levels = c("RGIFR", "CrudeIFR"), labels = c("Rogan-Gladen \n Adj.", "Crude"))) %>%
     ggplot() +
@@ -128,9 +129,9 @@ fit_map$ifrplots <- purrr::pmap(fit_map[, c("curve", "modout", "simdat", "fatali
 #............................................................
 # final figure
 #...........................................................
-#plotA <- fit_map$ifrplots[[1]]
+plotA <- fit_map$ifrplots[[1]]
 plotB <- fit_map$ifrplots[[2]]
 plotC <- fit_map$ifrplots[[3]]
 
-cowplot::plot_grid(plotB, plotC, labels = c("(A)", "(B)"),
+cowplot::plot_grid(plotA, plotB, plotC, labels = c("(A)", "(B)", "(C)"),
                    align = "v", ncol = 1)
