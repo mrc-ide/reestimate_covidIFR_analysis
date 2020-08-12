@@ -324,7 +324,7 @@ fit_map <- tibble::tibble(
            "ESP1-2_age", "ESP1-2_rgn",
            #"GBR_age", "GBR_rgn",
            "NLD1_age",
-           "ITA1_age", "ITA1_rgn",
+           #"ITA1_age", "ITA1_rgn",
            "LUX1_age",
            "CHN1_age"),
   modelobj = list(BRA_age_mod, BRA_rgn_mod,
@@ -333,7 +333,7 @@ fit_map <- tibble::tibble(
                   ESP_age_mod, ESP_rgn_mod,
                   #GBR_age_mod, GBR_rgn_mod,
                   NLD_age_mod,
-                  ITA_age_mod, ITA_rgn_mod,
+                  #ITA_age_mod, ITA_rgn_mod,
                   LUX_age_mod,
                   CHN_age_mod),
   rungs = 50,
@@ -384,7 +384,6 @@ run_MCMC <- function(path) {
                                       GTI_pow = mod$GTI_pow[[1]],
                                       cluster = cl,
                                       thinning = 10)
-
   parallel::stopCluster(cl)
   gc()
 
@@ -393,7 +392,6 @@ run_MCMC <- function(path) {
   outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits/",
                    mod$name, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, ".RDS")
   saveRDS(fit, file = outpath)
-
   return(0)
 }
 
