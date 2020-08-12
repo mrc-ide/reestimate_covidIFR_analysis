@@ -40,7 +40,9 @@ make_IFR_model_fit <- function(num_mas, maxMa,
 
   dat$obs_serology <- dplyr::left_join(dat$seroprevMCMC, dictkey) %>%
     dplyr::left_join(., seroprev_day_lftvr) %>%
-    dplyr::select(c("SeroDay", "Strata", "SeroPrev")) %>%
+    dplyr::rename(SeroPos = n_positive,
+                  SeroN = n_tested) %>%
+    dplyr::select(c("SeroDay", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
     dplyr::arrange(SeroDay, Strata) %>%
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
@@ -48,7 +50,6 @@ make_IFR_model_fit <- function(num_mas, maxMa,
 
   inputdata <- list(obs_deaths = dat$deaths,
                     obs_serology = dat$obs_serology)
-
 
   demog <- dat$prop_pop %>%
     dplyr::left_join(., dictkey) %>%
@@ -154,11 +155,11 @@ make_splinex_reparamdf <- function(max_xvec = list("name" = "x4", min = 180, ini
   assert_numeric(max_xvec[["dsc2"]])
 
   out <- tibble::tibble(name = paste0("x", 1:num_xs),
-                                  min  = rep(0, num_xs),
-                                  init = rep(0.5, num_xs),
-                                  max =  rep(1, num_xs),
-                                  dsc1 = rep(0, num_xs),
-                                  dsc2 = rep(1, num_xs))
+                        min  = rep(0, num_xs),
+                        init = rep(0.5, num_xs),
+                        max =  rep(1, num_xs),
+                        dsc1 = rep(0, num_xs),
+                        dsc2 = rep(1, num_xs))
   out %>%
     dplyr::filter(name != max_xvec["name"]) %>%
     dplyr::bind_rows(., max_xvec) %>%

@@ -216,7 +216,7 @@ che_adj_seroprev <- tidyr::expand_grid(che_adj_seroprev, ageband) %>%
 
 # pull out original
 che_org_seroprev <- CHE.agebands.dat$seroprev_group %>%
-  dplyr::select(c("ObsDaymin", "ObsDaymax", "age_low", "age_high", "seroprevalence_unadjusted"))
+  dplyr::select(c("ObsDaymin", "ObsDaymax", "age_low", "age_high", "n_positive", "n_tested", "seroprevalence_unadjusted"))
 
 # because of multiple dates, this is a slightly harder wiggle than below
 # assumption 1
@@ -273,15 +273,11 @@ che_org_seroprev <- dplyr::bind_rows(che_org_seroprev_assum1,
 che_adj_seroprev <- dplyr::left_join(che_adj_seroprev, che_org_seroprev,
                                      by = c("ObsDaymin", "ObsDaymax", "age_low", "age_high")) %>%
   dplyr::rename(SeroPrev = seroprevalence_unadjusted) %>%
-  dplyr::select(c("ObsDaymin", "ObsDaymax", "ageband", "SeroPrev")) %>%
+  dplyr::select(c("ObsDaymin", "ObsDaymax", "ageband", "n_positive", "n_tested", "SeroPrev")) %>%
   dplyr::arrange(ObsDaymin, ObsDaymax, ageband)
 
 # bring together
 CHE.agebands.dat$seroprevMCMC <- che_adj_seroprev
-
-# seroprevalence not absolutely 0
-CHE.agebands.dat$seroprevMCMC <- CHE.agebands.dat$seroprevMCMC %>%
-  dplyr::mutate(SeroPrev = ifelse(SeroPrev == 0, 1e-10, SeroPrev))
 
 
 #......................
@@ -341,8 +337,16 @@ dnk_adj_seroprev <- tibble::tibble(
   ObsDaymin = unique(DNK.agebands.dat$seroprevMCMC$ObsDaymin),
   ObsDaymax = unique(DNK.agebands.dat$seroprevMCMC$ObsDaymax),
   ageband = agebands,
+  n_positive = NA,
+  n_tested = NA,
   SeroPrev = NA)
+
+dnk_adj_seroprev$n_positive[1] <- sum(DNK.agebands.dat$seroprev_group$n_positive[1:4])
+dnk_adj_seroprev$n_tested[1] <- sum(DNK.agebands.dat$seroprev_group$n_tested[1:4])
 dnk_adj_seroprev$SeroPrev[1] <- mean(DNK.agebands.dat$seroprev_group$seroprevalence_unadjusted[1:4])
+
+dnk_adj_seroprev$n_positive[2:5] <- DNK.agebands.dat$seroprev_group$n_positive[5]
+dnk_adj_seroprev$n_tested[2:5] <- DNK.agebands.dat$seroprev_group$n_tested[5]
 dnk_adj_seroprev$SeroPrev[2:5] <- DNK.agebands.dat$seroprev_group$seroprevalence_unadjusted[5]
 DNK.agebands.dat$seroprevMCMC <- dnk_adj_seroprev
 
@@ -525,34 +529,26 @@ NLD.agebands.dat <- process_data3(deaths = deathsdf,
 #......................
 # Netherlands seroprevalence and deaths not perfectly aligned.
 # Assumptions.
-# 1) 31-40 seroprevalence will be equivalent to the 30-39 age group, same for other 10 year age bands 30-70.
-# 2) 18-30 seroprevalence = 20-29 seroprevalence
-# 3) 60-72 seroprevalence = 60-69 seroprevalence
-# 4) all other seroprevalence = national average.
+# TODO ages changed and regions contact authors
 agebands <- unique(NLD.agebands.dat$deathsMCMC$ageband)
 nld_adj_seroprev <- tibble::tibble(
   ObsDaymin = unique(NLD.agebands.dat$seroprevMCMC$ObsDaymin),
   ObsDaymax = unique(NLD.agebands.dat$seroprevMCMC$ObsDaymax),
-  ageband = agebands,
-  age_low = as.numeric(stringr::str_split_fixed(agebands, "-[0-9]+", n=2)[,1]),
-  age_high = as.numeric(stringr::str_split_fixed(agebands, "[0-9]+-", n=2)[,2]),
+  ageband = agebands[5:6],
+  age_low = as.numeric(stringr::str_split_fixed(ageband, "-[0-9]+", n=2)[,1]),
+  age_high = as.numeric(stringr::str_split_fixed(ageband, "[0-9]+-", n=2)[,2]),
+  n_positive = NA,
+  n_tested = NA,
   seroprevalence = NA) %>%
   dplyr::arrange(age_low)
 
-nld_org_seroprev <- NLD.agebands.dat$seroprev_group %>%
-  dplyr::select(c("age_low", "age_high", "seroprevalence_unadjusted")) %>%
-  dplyr::rename(seroprevalence = seroprevalence_unadjusted)
 
-nld_adj_seroprev$seroprevalence <- apply(nld_adj_seroprev, 1, wiggle_age_matchfun, wiggle = 2, y = nld_org_seroprev)
-# assuming missing is mean
-nldmean <- mean(nld_adj_seroprev$seroprevalence, na.rm = T)
-nld_adj_seroprev <- nld_adj_seroprev %>%
-  dplyr::mutate(seroprevalence = ifelse(is.na(seroprevalence), nldmean, seroprevalence)) %>%
-  dplyr::rename(SeroPrev = seroprevalence) %>%
-  dplyr::select(c("ObsDaymin", "ObsDaymax", "ageband", "SeroPrev"))
-
+nld_adj_seroprev$n_positive <- NLD.agebands.dat$seroprevMCMC$n_positive[4]
+nld_adj_seroprev$n_tested <- NLD.agebands.dat$seroprevMCMC$n_tested[4]
+nld_adj_seroprev$SeroPrev <- NLD.agebands.dat$seroprevMCMC$SeroPrev[4]
 # write new serology df
-NLD.agebands.dat$seroprevMCMC <- nld_adj_seroprev
+NLD.agebands.dat$seroprevMCMC <- dplyr::bind_rows(NLD.agebands.dat$seroprevMCMC,
+                                                  nld_adj_seroprev)
 
 # Netherlands seroprevalence missing in some regions
 # assume that this missing values can be imputed as the mean of the other regions
@@ -560,11 +556,6 @@ NLD.regions.dat$seroprevMCMC$SeroPrev <- (NLD.regions.dat$seroprev_group$range_s
 nldmean <- mean(NLD.regions.dat$seroprevMCMC$SeroPrev, na.rm = T)
 NLD.regions.dat$seroprevMCMC <- NLD.regions.dat$seroprevMCMC %>%
   dplyr::mutate(SeroPrev = ifelse(is.na(SeroPrev), nldmean, SeroPrev))
-
-
-# seroprevalence not absolutely 0
-NLD.regions.dat$seroprevMCMC <- NLD.regions.dat$seroprevMCMC %>%
-  dplyr::mutate(SeroPrev = ifelse(SeroPrev == 0, 1e-10, SeroPrev))
 
 
 #......................
@@ -685,6 +676,8 @@ ita_adj_seroprev <- tibble::tibble(
   ObsDaymin = unique(ITA.agebands.dat$seroprevMCMC$ObsDaymin),
   ObsDaymax = unique(ITA.agebands.dat$seroprevMCMC$ObsDaymax),
   ageband = agebands,
+  n_positive = NA,
+  n_tested = NA,
   SeroPrev = NA)
 ita_adj_seroprev$SeroPrev[1:2] <- ITA.agebands.dat$seroprev_group$seroprevalence_unadjusted[1]
 ita_adj_seroprev$SeroPrev[3] <- ITA.agebands.dat$seroprev_group$seroprevalence_unadjusted[2]
@@ -692,6 +685,22 @@ ita_adj_seroprev$SeroPrev[4] <- mean(ITA.agebands.dat$seroprev_group$seroprevale
 ita_adj_seroprev$SeroPrev[5] <- ITA.agebands.dat$seroprev_group$seroprevalence_unadjusted[3]
 ita_adj_seroprev$SeroPrev[6:7] <- ITA.agebands.dat$seroprev_group$seroprevalence_unadjusted[4:5]
 ita_adj_seroprev$SeroPrev[8:10] <- ITA.agebands.dat$seroprev_group$seroprevalence_unadjusted[6]
+
+ita_adj_seroprev$n_positive[1:2] <- ITA.agebands.dat$seroprev_group$n_positive[1]
+ita_adj_seroprev$n_positive[3] <- ITA.agebands.dat$seroprev_group$n_positive[2]
+ita_adj_seroprev$n_positive[4] <- sum(ITA.agebands.dat$seroprev_group$n_positive[2:3])
+ita_adj_seroprev$n_positive[5] <- ITA.agebands.dat$seroprev_group$n_positive[3]
+ita_adj_seroprev$n_positive[6:7] <- ITA.agebands.dat$seroprev_group$n_positive[4:5]
+ita_adj_seroprev$n_positive[8:10] <- ITA.agebands.dat$seroprev_group$n_positive[6]
+
+ita_adj_seroprev$n_tested[1:2] <- ITA.agebands.dat$seroprev_group$n_tested[1]
+ita_adj_seroprev$n_tested[3] <- ITA.agebands.dat$seroprev_group$n_tested[2]
+ita_adj_seroprev$n_tested[4] <- sum(ITA.agebands.dat$seroprev_group$n_tested[2:3])
+ita_adj_seroprev$n_tested[5] <- ITA.agebands.dat$seroprev_group$n_tested[3]
+ita_adj_seroprev$n_tested[6:7] <- ITA.agebands.dat$seroprev_group$n_tested[4:5]
+ita_adj_seroprev$n_tested[8:10] <- ITA.agebands.dat$seroprev_group$n_tested[6]
+
+
 ITA.agebands.dat$seroprevMCMC <- ita_adj_seroprev
 
 #......................
@@ -743,8 +752,13 @@ lux_adj_seroprev <- tibble::tibble(
   ObsDaymin = unique(LUX.agebands.dat$seroprevMCMC$ObsDaymin),
   ObsDaymax = unique(LUX.agebands.dat$seroprevMCMC$ObsDaymax),
   ageband = agebands,
+  n_postive = NA,
+  n_tested = NA,
   SeroPrev = NA)
+lux_adj_seroprev$n_positive <- LUX.agebands.dat$seroprev_group$n_positive
+lux_adj_seroprev$n_tested <- LUX.agebands.dat$seroprev_group$n_tested
 lux_adj_seroprev$SeroPrev <- LUX.agebands.dat$seroprev_group$seroprevalence_unadjusted
+
 LUX.agebands.dat$seroprevMCMC <- lux_adj_seroprev
 
 #......................
@@ -1072,19 +1086,37 @@ CHN.agebands.dat <- process_data3(deaths = deathsdf,
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-#
 agebands <- unique(CHN.agebands.dat$deathsMCMC$ageband)
 chn_adj_seroprev <- tibble::tibble(
   ObsDaymin = unique(CHN.agebands.dat$seroprevMCMC$ObsDaymin),
   ObsDaymax = unique(CHN.agebands.dat$seroprevMCMC$ObsDaymax),
   ageband = agebands,
+  n_positive = NA,
+  n_tested = NA,
   SeroPrev = NA)
+
+chn_adj_seroprev$n_positive[1:2] <- round(mean(CHN.agebands.dat$seroprev_group$n_positive))
+chn_adj_seroprev$n_positive[3] <- sum(CHN.agebands.dat$seroprev_group$n_positive[2:3])
+chn_adj_seroprev$n_positive[4] <- sum(CHN.agebands.dat$seroprev_group$n_positive[4:5])
+chn_adj_seroprev$n_positive[5] <- sum(CHN.agebands.dat$seroprev_group$n_positive[6:7])
+chn_adj_seroprev$n_positive[6] <- sum(CHN.agebands.dat$seroprev_group$n_positive[8:9])
+chn_adj_seroprev$n_positive[7:9] <- CHN.agebands.dat$seroprev_group$n_positive[10]
+
+chn_adj_seroprev$n_tested[1:2] <- round(mean(CHN.agebands.dat$seroprev_group$n_tested))
+chn_adj_seroprev$n_tested[3] <- sum(CHN.agebands.dat$seroprev_group$n_tested[2:3])
+chn_adj_seroprev$n_tested[4] <- sum(CHN.agebands.dat$seroprev_group$n_tested[4:5])
+chn_adj_seroprev$n_tested[5] <- sum(CHN.agebands.dat$seroprev_group$n_tested[6:7])
+chn_adj_seroprev$n_tested[6] <- sum(CHN.agebands.dat$seroprev_group$n_tested[8:9])
+chn_adj_seroprev$n_tested[7:9] <- CHN.agebands.dat$seroprev_group$n_tested[10]
+
 chn_adj_seroprev$SeroPrev[1:2] <- mean(CHN.agebands.dat$seroprev_group$seroprevalence_unadjusted)
-chn_adj_seroprev$SeroPrev[3] <- sum(CHN.agebands.dat$seroprev_group$n_positive[2:3]) /sum(CHN.agebands.dat$seroprev_group$n_tested[2:3])
-chn_adj_seroprev$SeroPrev[4] <- sum(CHN.agebands.dat$seroprev_group$n_positive[4:5]) /sum(CHN.agebands.dat$seroprev_group$n_tested[4:5])
-chn_adj_seroprev$SeroPrev[5] <- sum(CHN.agebands.dat$seroprev_group$n_positive[6:7]) /sum(CHN.agebands.dat$seroprev_group$n_tested[6:7])
-chn_adj_seroprev$SeroPrev[6] <- sum(CHN.agebands.dat$seroprev_group$n_positive[8:9]) /sum(CHN.agebands.dat$seroprev_group$n_tested[8:9])
-chn_adj_seroprev$SeroPrev[7:9] <- sum(CHN.agebands.dat$seroprev_group$n_positive[10]) /sum(CHN.agebands.dat$seroprev_group$n_tested[10])
+chn_adj_seroprev$SeroPrev[3] <- sum(CHN.agebands.dat$seroprev_group$n_positive[2:3]) / sum(CHN.agebands.dat$seroprev_group$n_tested[2:3])
+chn_adj_seroprev$SeroPrev[4] <- sum(CHN.agebands.dat$seroprev_group$n_positive[4:5]) / sum(CHN.agebands.dat$seroprev_group$n_tested[4:5])
+chn_adj_seroprev$SeroPrev[5] <- sum(CHN.agebands.dat$seroprev_group$n_positive[6:7]) / sum(CHN.agebands.dat$seroprev_group$n_tested[6:7])
+chn_adj_seroprev$SeroPrev[6] <- sum(CHN.agebands.dat$seroprev_group$n_positive[8:9]) / sum(CHN.agebands.dat$seroprev_group$n_tested[8:9])
+chn_adj_seroprev$SeroPrev[7:9] <- sum(CHN.agebands.dat$seroprev_group$n_positive[10]) / sum(CHN.agebands.dat$seroprev_group$n_tested[10])
+
+
 CHN.agebands.dat$seroprevMCMC <- chn_adj_seroprev
 
 #......................
