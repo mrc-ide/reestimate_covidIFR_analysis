@@ -449,8 +449,13 @@ process_death_data <- function(deaths, recast_deaths_df, recast_deaths_geocode,
       if (i < min(recast_deaths_df$ObsDay)) { # fill in for common origin
         deaths.summ[,i] <- 0
       } else {
-        deaths.summ[,i] <- deaths.prop$death_prop * recast_deaths_df$deaths[iter]
-        iter <- iter + 1
+        if (i %in% recast_deaths_df$ObsDay) {
+          deaths.summ[,i] <- deaths.prop$death_prop * recast_deaths_df$deaths[iter]
+          iter <- iter + 1
+        } else { # catch instance where missing days in the middle of the series
+          deaths.summ[,i] <- -1
+          iter <- iter + 1
+        }
       }
     }
     # need to round to nearest person

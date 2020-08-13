@@ -738,7 +738,7 @@ LUX.agebands.dat <- process_data3(deaths = deathsdf,
                                   groupingvar = "ageband",
                                   study_ids = "LUX1",
                                   recast_deaths_geocode = "LUX",
-                                  death_agebreaks = c(0, 29,39,49,59,69,79, 999),
+                                  death_agebreaks = c(0, 29, 39, 49, 59, 69, 79, 999),
                                   sero_agebreaks = NULL,
                                   filtGender = "both")
 

@@ -34,17 +34,14 @@ make_IFR_model_fit <- function(num_mas, maxMa,
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
 
   # seroprev
-  seroprev_day_lftvr <- tibble::tibble(ObsDaymin = unique(dat$seroprevMCMC$ObsDaymin),
-                                       ObsDaymax = unique(dat$seroprevMCMC$ObsDaymax),
-                                       SeroDay = serodayparams)
-
   dat$obs_serology <- dplyr::left_join(dat$seroprevMCMC, dictkey) %>%
-    dplyr::left_join(., seroprev_day_lftvr) %>%
     dplyr::rename(SeroPos = n_positive,
-                  SeroN = n_tested) %>%
-    dplyr::select(c("SeroDay", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
+                  SeroN = n_tested,
+                  SeroStartSurvey = ObsDaymin,
+                  SeroEndSurvey = ObsDaymax) %>%
+    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
-    dplyr::arrange(SeroDay, Strata) %>%
+    dplyr::arrange(SeroStartSurvey, Strata) %>%
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
 
 
@@ -72,7 +69,6 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   mod1$set_Infxnparams(paste0("y", 1:num_ys))
   mod1$set_relInfxn(max_yveclist[["name"]])
   mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
-  mod1$set_Serodayparams(serodayparams)
   mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
