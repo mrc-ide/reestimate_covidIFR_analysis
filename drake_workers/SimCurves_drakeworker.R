@@ -95,11 +95,11 @@ secondwave <- secondwave %>%
 #............................................................
 # make up fatality data
 fatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
-                                  IFR = c(1e-3, 0.15, 0.2, 0.299, 0.6),
-                                  Rho = 1,
-                                  Ne = 1)
+                               IFR = c(1e-3, 1e-3, 0.05, 0.1, 0.2),
+                               Rho = 1,
+                               Ne = 1)
 demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
-                           popN = c(5e5, 5e5, 5e5, 2250000, 1250000))
+                        popN = c(1.2e6, 1.1e6, 1e6, 9e5, 8e5))
 
 
 #............................................................
@@ -118,7 +118,7 @@ wrap_sim <- function(curve, sens, spec, fatalitydata, demog, sero_day) {
 
   dat <- COVIDCurve::Aggsim_infxn_2_death(
     fatalitydata = fatalitydata,
-    m_od = 14.26,
+    m_od = 17.8,
     s_od = 0.79,
     curr_day = 200,
     infections = curve$infxns,
@@ -129,39 +129,50 @@ wrap_sim <- function(curve, sens, spec, fatalitydata, demog, sero_day) {
     demog = demog)
 
   # sero tidy up
-  obs_serology <- dat$seroprev %>%
+  obs_serology <- dat$AggSeroPrev %>%
     dplyr::group_by(Strata) %>%
     dplyr::filter(event_obs_day == sero_day) %>%
+    dplyr::mutate(
+      SeroPos = round(ObsPrev * popN),
+      SeroN = popN ) %>%
     dplyr::rename(
       SeroDay = event_obs_day,
       SeroPrev = ObsPrev) %>%
-    dplyr::select(c("SeroDay", "Strata", "SeroPrev")) %>%
-    dplyr::mutate(SeroDay = "sero_day")
+    dplyr::mutate(SeroStartSurvey = sero_day - 5,
+                   SeroEndSurvey = sero_day + 5) %>%
+    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
+    dplyr::ungroup(.) %>%
+    dplyr::arrange(SeroStartSurvey, Strata)
 
   # death dat
-  dat$AggDat <- dat$AggDat %>%
+  dat$AggDeath <- dat$AggDeath %>%
     dplyr::mutate(Strata = as.character(Strata))
 
-
-  datinput <- list(obs_deaths = dat$AggDat,
-                   obs_serology = obs_serology)
-  return(datinput)
+  # make out
+  inputdata <- list(obs_deaths = dat$AggDeath,
+                    obs_serology = obs_serology)
+  out <- list(simdat = dat,
+              inputdata = inputdata)
+  return(out)
 
 }
 
-map$inputdata <- purrr::pmap(map, wrap_sim, sero_day = 150)
+# run simdat and extract results into separate pieces
+map$simdat <- purrr::pmap(map, wrap_sim, sero_day = 150)
+map$inputdata <- purrr::map(map$simdat, "inputdata")
+map$simdat <- purrr::map(map$simdat, "simdat", sero_day = 150)
 
 #......................
 # make IFR model
 #......................
 # sens/spec
 get_sens_spec <- function(sens, spec) {
-  tibble::tibble(name =  c("sens",          "spec",         "sero_rate",  "sero_day"),
-                 min =   c(0.5,              0.5,            0,            140),
-                 init =  c(0.8,              0.8,            0.9,          150),
-                 max =   c(1,                1,              1,            160),
-                 dsc1 =  c(sens*1e3,        spec*1e3,        900,          140),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  100,          160))
+  tibble::tibble(name =  c("sens",          "spec",         "sero_rate"),
+                 min =   c(0.5,              0.5,            10),
+                 init =  c(0.8,              0.8,            15),
+                 max =   c(1,                1,              30),
+                 dsc1 =  c(sens*1e3,        spec*1e3,        2.8),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  0.1))
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 
@@ -169,17 +180,23 @@ map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
                                min  = c(10,     0.01),
                                init = c(14,     0.7),
-                               max =  c(20,     1.00),
-                               dsc1 = c(2.657,  -0.236),
-                               dsc2 = c(0.01,   0.01))
+                               max =  c(30,     3.00),
+                               dsc1 = c(2.9,    -0.24),
+                               dsc2 = c(0.05,   0.5))
 
 # everything else for region
-wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
+wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
   ifr_paramsdf <- make_ma_reparamdf(num_mas = 5)
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
                                           num_xs = 4)
-  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
-                                           num_ys = 5)
+
+  if (curve$nm[1] == "expgrowth") {
+    infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y5", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
+                                             num_ys = 5)
+  } else {
+    infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
+                                             num_ys = 5)
+  }
   noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 0, init = 5, max = 10)
 
   # bring together
@@ -197,7 +214,6 @@ wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
   mod1$set_relInfxn("y3")
   mod1$set_Noiseparams(c(paste0("Ne", 1:5)))
   mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
-  mod1$set_Serodayparams("sero_day")
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
@@ -207,29 +223,31 @@ wrap_make_IFR_model <- function(inputdata, sens_spec_tbl, demog) {
   mod1
 }
 
-map$modelobj <-  purrr::pmap(map[,c("inputdata", "sens_spec_tbl", "demog")], wrap_make_IFR_model)
+map$modelobj <-  purrr::pmap(map[,c("curve", "inputdata", "sens_spec_tbl", "demog")], wrap_make_IFR_model)
 
 #......................
 # names
 #......................
 fit_map <- map %>%
-  dplyr::mutate(sim = paste0("sim", 1:nrow(.))) %>%
-  dplyr::select(c("sim", dplyr::everything()))
+  dplyr::mutate(sim = paste0("sim", 1:nrow(.)),
+                lvl = purrr::map_chr(curve, function(x){unique(x$nm)})) %>%
+  dplyr::select(c("sim", "lvl", dplyr::everything()))
 
-fit_map_sm <- fit_map %>%
-  dplyr::mutate(lvl = purrr::map_chr(curve, function(x){unique(x$nm)})) %>%
-  dplyr::select(c("lvl", "sim", "sens", "spec", "demog"))
 
 #............................................................
 # Come Together
 #...........................................................
+# save out full for later manips
+dir.create("data/param_map/SimCurves/", recursive = TRUE)
+saveRDS(fit_map, "data/param_map/SimCurves/simfit_param_map.RDS")
+
 # select what we need for fits and make outpaths
-dir.create("data/param_map/SimCurves/", recursive = T)
-lapply(split(fit_map, 1:nrow(fit_map)), function(x){
+fit_map_modelobj <- fit_map %>%
+  dplyr::select(c("sim", "modelobj"))
+lapply(split(fit_map_modelobj, 1:nrow(fit_map_modelobj)), function(x){
   saveRDS(x, paste0("data/param_map/SimCurves/",
                     x$sim, ".RDS"))
 })
-saveRDS(fit_map, "data/param_map/SimCurves/small_param_map.RDS")
 
 
 
@@ -256,12 +274,14 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      reparamSpec = TRUE,
+                                      reparamSeros = FALSE,
+                                      reparamNe = TRUE,
                                       chains = n_chains,
                                       burnin = 1e4,
                                       samples = 1e4,
                                       rungs = 50,
                                       GTI_pow = 3,
+                                      thinning = 10,
                                       cluster = cl)
   parallel::stopCluster(cl)
   gc()
@@ -289,7 +309,9 @@ file_param_map <- list.files(path = "data/param_map/SimCurves/",
                              pattern = "*.RDS",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)
+# remove non-fit items that are for carrying forward simulations
 file_param_map <- file_param_map[!grepl("small_param_map.RDS", file_param_map$path),]
+file_param_map <- file_param_map[!grepl("simfit_param_map.RDS", file_param_map$path),]
 
 
 #............................................................

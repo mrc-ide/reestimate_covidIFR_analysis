@@ -25,12 +25,12 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
 #............................................................
 #---- BRA1 #----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,     10,      136),
-                                init =  c(0.85,    0.99,     15,        140),
-                                max =   c(1.00,    1.00,     30,       143),
-                                dsc1 =  c(850.5,   990.5,    2.8,      136),
-                                dsc2 =  c(150.5,    10.5,    0.1,       143))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
+                                min =   c(0.50,    0.50,     10),
+                                init =  c(0.85,    0.99,     15),
+                                max =   c(1.00,    1.00,     30),
+                                dsc1 =  c(850.5,   990.5,    2.8),
+                                dsc2 =  c(150.5,    10.5,    0.1))
 #......................
 # regions
 #......................
@@ -39,8 +39,7 @@ BRA_rgn_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma2", # Northern Region
                                   groupvar = "region",  dat = rawrgn,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 174, init = 181, max = 188, dsc1 = 174, dsc2 = 188),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1")
+                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 #......................
 # agebands
 #......................
@@ -49,19 +48,18 @@ BRA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 174, init = 181, max = 188, dsc1 = 174, dsc2 = 188),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1")
+                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
 #---- CHE1 #-----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1", "sero_day2", "sero_day3", "sero_day4", "sero_day5"),
-                                min =   c(0.50,    0.50,     10,       97,          104,         111,         118,         124),
-                                init =  c(0.85,    0.99,     15,         100,         108,         115,         121,         127),
-                                max =   c(1.00,    1.00,     30,        104,         111,         118,         124,         131),
-                                dsc1 =  c(156.5,   176.5,    2.8,       97,          104,         111,         118,         124),
-                                dsc2 =  c(25.5,    0.5,      0.1,        104,         111,         118,         124,         131))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
+                                min =   c(0.50,    0.50,     10),
+                                init =  c(0.85,    0.99,     15),
+                                max =   c(1.00,    1.00,     30),
+                                dsc1 =  c(156.5,   176.5,    2.8),
+                                dsc2 =  c(25.5,    0.5,      0.1))
 #......................
 # regions
 #......................
@@ -70,8 +68,7 @@ CHE_rgn_mod <- make_IFR_model_fit(num_mas = 1, maxMa = "ma1", # Geneva (only 1 r
                                   groupvar = "region",  dat = rawrgn,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 134, init = 140, max = 146, dsc1 = 134, dsc2 = 146),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.12, dsc1 = 0, dsc2 = 13.12),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = c("sero_day1", "sero_day2", "sero_day3", "sero_day4", "sero_day5"))
+                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 #......................
 # agebands
 #......................
@@ -80,19 +77,18 @@ CHE_age_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 134, init = 140, max = 146, dsc1 = 134, dsc2 = 146),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.12, dsc1 = 0, dsc2 = 13.12),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = c("sero_day1", "sero_day2", "sero_day3", "sero_day4", "sero_day5"))
+                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
 #---- DNK1 #-----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,     10,        97),
-                                init =  c(0.85,    0.99,     15,          110),
-                                max =   c(1.00,    1.00,     30,         124),
-                                dsc1 =  c(128.5,   647.5,    2.8,        97),
-                                dsc2 =  c(27.5,    4.5,      0.1,         124))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
+                                min =   c(0.50,    0.50,     10),
+                                init =  c(0.85,    0.99,     15),
+                                max =   c(1.00,    1.00,     30),
+                                dsc1 =  c(128.5,   647.5,    2.8),
+                                dsc2 =  c(27.5,    4.5,      0.1))
 #......................
 # regions
 #......................
@@ -101,8 +97,7 @@ DNK_rgn_mod <- make_IFR_model_fit(num_mas = 3, maxMa = "ma1", # Capital Region
                                   groupvar = "region",  dat = rawrgn,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1")
+                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 #......................
 # agebands
 #......................
@@ -111,19 +106,18 @@ DNK_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1")
+                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
 #---- ESP1-2 #-----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1", "sero_day2"),
-                                min =   c(0.83,    0.50,     10,        118,        139),
-                                init =  c(0.85,    0.99,     15,          125,        146),
-                                max =   c(1.00,    1.00,     30,        131,        153),
-                                dsc1 =  c(123.5,   156.5,    2.8,        118,        139),
-                                dsc2 =  c(30.5,    0.5,      0.1,        132,        153))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
+                                min =   c(0.83,    0.50,     10),
+                                init =  c(0.85,    0.99,     15),
+                                max =   c(1.00,    1.00,     30),
+                                dsc1 =  c(123.5,   156.5,    2.8),
+                                dsc2 =  c(30.5,    0.5,      0.1))
 # https://www.thelancet.com/cms/10.1016/S0140-6736(20)31483-5/attachment/25c80941-a8c5-470e-a6a8-fde7397b9547/mmc1.pdf
 # based on supp table 3
 #......................
@@ -135,8 +129,7 @@ ESP_rgn_mod <- make_IFR_model_fit(num_mas = 17, maxMa = "ma17", # La Rioja Regio
                                   groupvar = "region",  dat = rawrgn,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 193, init = 200, max = 205, dsc1 = 193, dsc2 = 205),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 17.66),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = c("sero_day1", "sero_day2"))
+                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 #......................
 # agebands
@@ -146,8 +139,7 @@ ESP_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 193, init = 200, max = 205, dsc1 = 193, dsc2 = 205),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 17.66),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = c("sero_day1", "sero_day2"))
+                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 #...........................................................
@@ -186,12 +178,12 @@ ESP_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
 #............................................................
 #---- NLD1 #----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,     10,        92),
-                                init =  c(0.85,    0.99,     15,          100),
-                                max =   c(1.00,    1.00,     30,         106),
-                                dsc1 =  c(171.5,   281.5,    2.8,        92),
-                                dsc2 =  c(3.5,     1.5,      0.1,         106))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
+                                min =   c(0.50,    0.50,     10),
+                                init =  c(0.85,    0.99,     15),
+                                max =   c(1.00,    1.00,     30),
+                                dsc1 =  c(171.5,   281.5,    2.8),
+                                dsc2 =  c(3.5,     1.5,      0.1))
 #......................
 # regions
 #......................
@@ -205,52 +197,49 @@ NLD_age_mod <- make_IFR_model_fit(num_mas = 6, maxMa = "ma6",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.67, dsc1 = 0, dsc2 = 16.67),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1")
+                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 
-#............................................................
-#---- ITA1 #----
-#...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,     10,        146),
-                                init =  c(0.85,    0.99,     15,          172),
-                                max =   c(1.00,    1.00,     30,        197),
-                                dsc1 =  c(90.5,   95.5,      2.8,        146),
-                                dsc2 =  c(10.5,     5.5,      0.1,       197))
-#......................
-#regions
-#......................
-rawrgn <- readRDS("data/derived/ITA/ITA_regions.RDS")
-ITA_rgn_mod <- make_IFR_model_fit(num_mas = 21, maxMa = "ma10", # Lombardia (Lombardy) Region
-                                  groupvar = "region",  dat = rawrgn,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.91, dsc1 = 0, dsc2 = 17.91),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1")
-
-#......................
-# agebands
-#......................
-rawage <- readRDS("data/derived/ITA/ITA_agebands.RDS")
-ITA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
-                                  groupvar = "ageband",  dat = rawage,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.91, dsc1 = 0, dsc2 = 17.91),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1")
+# #............................................................
+# #---- ITA1 #----
+# #...........................................................
+# sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
+#                                 min =   c(0.50,    0.50,     10),
+#                                 init =  c(0.85,    0.99,     15),
+#                                 max =   c(1.00,    1.00,     30),
+#                                 dsc1 =  c(90.5,   95.5,      2.8),
+#                                 dsc2 =  c(10.5,     5.5,      0.1))
+# #......................
+# #regions
+# #......................
+# rawrgn <- readRDS("data/derived/ITA/ITA_regions.RDS")
+# ITA_rgn_mod <- make_IFR_model_fit(num_mas = 21, maxMa = "ma10", # Lombardia (Lombardy) Region
+#                                   groupvar = "region",  dat = rawrgn,
+#                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
+#                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.91, dsc1 = 0, dsc2 = 17.91),
+#                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+#
+# #......................
+# # agebands
+# #......................
+# rawage <- readRDS("data/derived/ITA/ITA_agebands.RDS")
+# ITA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+#                                   groupvar = "ageband",  dat = rawage,
+#                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
+#                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.91, dsc1 = 0, dsc2 = 17.91),
+#                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
 #---- LUX1 #----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,    10,         106),
-                                init =  c(0.85,    0.99,    15,           116),
-                                max =   c(1.00,    1.00,    30,         126),
-                                dsc1 =  c(12.5,   181.5,    2.8,         106),
-                                dsc2 =  c(14.5,     4.5,    0.1,         126))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
+                                min =   c(0.50,    0.50,    10),
+                                init =  c(0.85,    0.99,    15),
+                                max =   c(1.00,    1.00,    30),
+                                dsc1 =  c(12.5,   181.5,    2.8),
+                                dsc2 =  c(14.5,     4.5,    0.1))
 
 #......................
 # agebands
@@ -262,8 +251,8 @@ LUX_age_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.34, dsc1 = 0, dsc2 = 13.34),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                   serodayparams = "sero_day1")
-
-
+# fixed inside code too?
+LUX_age_mod$data$obs_deaths$Deaths <- ifelse(is.na(LUX_age_mod$data$obs_deaths$Deaths), -1, LUX_age_mod$data$obs_deaths$Deaths)
 
 # #............................................................
 # # New York City
@@ -290,12 +279,12 @@ LUX_age_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
 #............................................................
 #---- CHN1 #----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate", "sero_day1"),
-                                min =   c(0.50,    0.50,     10,        86),
-                                init =  c(0.85,    0.97,     15,          103),
-                                max =   c(1.00,    1.00,     30,        119),
-                                dsc1 =  c(91.5,    198.5,    2.8,        86),
-                                dsc2 =  c(14.5,    202.5,    0.1,        119))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
+                                min =   c(0.50,    0.50,     10),
+                                init =  c(0.85,    0.97,     15),
+                                max =   c(1.00,    1.00,     30),
+                                dsc1 =  c(91.5,    198.5,    2.8),
+                                dsc2 =  c(14.5,    202.5,    0.1))
 
 #......................
 # agebands
@@ -305,8 +294,7 @@ CHN_age_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 199, init = 206, max = 213, dsc1 = 199, dsc2 = 213),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.20, dsc1 = 0, dsc2 = 16.20),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1")
+                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 

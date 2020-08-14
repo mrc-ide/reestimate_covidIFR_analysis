@@ -16,7 +16,7 @@ make_IFR_model_fit <- function(num_mas, maxMa,
                                           num_xs = num_xs)
   infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
                                            num_ys = num_ys)
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0, init = 5, max = 10)
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0, init = 1, max = 10)
 
 
   # bring together
@@ -34,21 +34,19 @@ make_IFR_model_fit <- function(num_mas, maxMa,
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
 
   # seroprev
-  seroprev_day_lftvr <- tibble::tibble(ObsDaymin = unique(dat$seroprevMCMC$ObsDaymin),
-                                       ObsDaymax = unique(dat$seroprevMCMC$ObsDaymax),
-                                       SeroDay = serodayparams)
-
   dat$obs_serology <- dplyr::left_join(dat$seroprevMCMC, dictkey) %>%
-    dplyr::left_join(., seroprev_day_lftvr) %>%
-    dplyr::select(c("SeroDay", "Strata", "SeroPrev")) %>%
+    dplyr::rename(SeroPos = n_positive,
+                  SeroN = n_tested,
+                  SeroStartSurvey = ObsDaymin,
+                  SeroEndSurvey = ObsDaymax) %>%
+    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
-    dplyr::arrange(SeroDay, Strata) %>%
+    dplyr::arrange(SeroStartSurvey, Strata) %>%
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
 
 
   inputdata <- list(obs_deaths = dat$deaths,
                     obs_serology = dat$obs_serology)
-
 
   demog <- dat$prop_pop %>%
     dplyr::left_join(., dictkey) %>%
@@ -71,7 +69,6 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   mod1$set_Infxnparams(paste0("y", 1:num_ys))
   mod1$set_relInfxn(max_yveclist[["name"]])
   mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
-  mod1$set_Serodayparams(serodayparams)
   mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
@@ -154,11 +151,11 @@ make_splinex_reparamdf <- function(max_xvec = list("name" = "x4", min = 180, ini
   assert_numeric(max_xvec[["dsc2"]])
 
   out <- tibble::tibble(name = paste0("x", 1:num_xs),
-                        min  = rep(0, size = num_xs),
-                        init = rep(0.5, size = num_xs),
-                        max = rep(1, size = num_xs),
-                        dsc1 = rep(0, size = num_xs),
-                        dsc2 = rep(1, size = num_xs))
+                        min  = rep(0, num_xs),
+                        init = rep(0.5, num_xs),
+                        max =  rep(1, num_xs),
+                        dsc1 = rep(0, num_xs),
+                        dsc2 = rep(1, num_xs))
   out %>%
     dplyr::filter(name != max_xvec["name"]) %>%
     dplyr::bind_rows(., max_xvec) %>%

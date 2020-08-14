@@ -131,8 +131,8 @@ age_IFRraw_plot <- ageplotdat %>%
   dplyr::select(c("study_id", "age_mid", "cumdeaths", "popn", "seroprev", "seroprevadj")) %>%
   dplyr::mutate(infxns = popn * seroprev,
                 crudeIFR =  cumdeaths/infxns,
-                seroprev = seroprev * 100 )
-%>%
+                crudeIFR = ifelse(crudeIFR > 1, 1, crudeIFR),
+                seroprev = seroprev * 100 ) %>%
   ggplot() +
   geom_line(aes(x = age_mid, y = crudeIFR, color = study_id), alpha = 0.8, size = 1.2) +
   geom_point(aes(x = age_mid, y = crudeIFR, fill = seroprev), color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
@@ -150,6 +150,7 @@ age_IFRadj_plot <- ageplotdat %>%
   dplyr::select(c("study_id", "age_mid", "cumdeaths", "popn", "seroprev", "seroprevadj")) %>%
   dplyr::mutate(infxns = popn * seroprevadj,
                 crudeIFR =  cumdeaths/infxns,
+                crudeIFR = ifelse(crudeIFR > 1, 1, crudeIFR),
                 seroprevadj = seroprevadj * 100 ) %>%
   ggplot() +
   geom_line(aes(x = age_mid, y = crudeIFR, color = study_id), alpha = 0.8, size = 1.2) +
@@ -263,6 +264,7 @@ rgn_IFR_plot <- rgnplotdat %>%
   dplyr::select(c("study_id", "region", "cumdeaths", "popn", "seroprev")) %>%
   dplyr::mutate(infxns = popn * seroprev,
                 crudeIFR =  cumdeaths/infxns,
+                crudeIFR = ifelse(crudeIFR > 1, 1, crudeIFR),
                 seroprev = seroprev * 100 ) %>%
   dplyr::filter(infxns > 0) %>%
   ggplot() +
@@ -285,6 +287,7 @@ rgn_IFR_plot <- rgnplotdat %>%
   dplyr::select(c("study_id", "region", "cumdeaths", "popn", "seroprevadj")) %>%
   dplyr::mutate(infxns = popn * seroprevadj,
                 crudeIFR =  cumdeaths/infxns,
+                crudeIFR = ifelse(crudeIFR > 1, 1, crudeIFR),
                 seroprevadj = seroprevadj * 100 ) %>%
   dplyr::filter(infxns > 0) %>%
   ggplot() +

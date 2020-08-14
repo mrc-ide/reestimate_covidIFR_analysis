@@ -4,8 +4,8 @@ source("R/assertions_v5.R")
 rogan_gladen <- function(obs_prev, sens, spec){
   ret <- (obs_prev + spec - 1)/(spec + sens - 1)
   ret <- ifelse(ret <= 0, NA, ret) # occurs when obs_prev and spec are less than 1
+  return(ret)
 }
-
 
 #' @title Adjust Seroprevalence Studies for Sens/Spec
 #' @param seroprevdat dataframe; dataframe of strata specific seroprevalences. Must contain SeroPrev column
@@ -58,7 +58,7 @@ standardize_deathdat <- function(deathdat_long, popdat, groupingvar, Nstandardiz
     ret <- ret %>%
       dplyr::mutate(age_mid = purrr::map_dbl(ageband, function(x){
         nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
-        nums[nums == 999] <- 95
+        nums[nums == 999] <- 100
         return(mean(nums))})
       )
   } else {
@@ -70,9 +70,9 @@ standardize_deathdat <- function(deathdat_long, popdat, groupingvar, Nstandardiz
 }
 
 #' @title
-#'
+#' @import rogan_gladen
+#' @note Function uses rogan gladen adjustment above
 get_crude_summarydf <- function(IFRmodinput, groupingvar) {
-  rogan_gladen <- function(obs_prev, sens, spec){(obs_prev + spec -1)/(spec+sens-1)}
   #......................
   # setup new df
   #......................

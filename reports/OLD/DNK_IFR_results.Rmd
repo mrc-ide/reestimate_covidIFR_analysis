@@ -21,7 +21,7 @@ source("R/my_themes.R")
 #...................... 
 # read in data
 #......................
-modout <- readRDS("results/ModFits/NLD1_age_GTI3_rung50_burn1000_smpl1000.RDS")
+modout <- readRDS("results/ModFits/DNK_age_GTI3_rung50_burn1000_smpl1000.RDS")
 ```
 
 #### Log Plot
@@ -64,11 +64,11 @@ ifrs <- dplyr::left_join(agekey, ifrs, by = "param") %>%
 # get crude ifrs 
 #......................
 dscdat <- readRDS("data/derived/descriptive_results_datamap.RDS") 
-NLD1rcrudedat <- dscdat %>% 
-  dplyr::filter(study_id == "NLD11" & breakdown == "ageband")  %>%
+dnkrcrudedat <- dscdat %>% 
+  dplyr::filter(study_id == "DNK1" & breakdown == "ageband")  %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
-ageplotdat <- NLD1rcrudedat %>%
+ageplotdat <- dnkrcrudedat %>%
   dplyr::filter(seromidpt == obsday) %>%
   dplyr::mutate(infxns = popn * seroprev,
                 crudeIFR =  cumdeaths/infxns) %>% 
@@ -98,7 +98,7 @@ plot2 <- infxncurve$plotObj
 main_plotObj <- cowplot::plot_grid(plot1, plot2, ncol = 1, nrow = 2)
 
 # quick out
-jpgsnapshot("figures/NLD1_ifr_plot_age.jpg", plot = main_plotObj)
+jpgsnapshot("figures/DNK_ifr_plot_age.jpg", plot = main_plotObj)
 
 ```
 
@@ -136,17 +136,16 @@ seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
                                                    by_chain = T)
 
 serocurvedat <- seropnts %>% 
-  dplyr::select(c("chain", "sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
+  dplyr::select(c("chain", "sim", "seroprev")) %>% 
+  tidyr::unnest(cols = seroprev) %>% 
   tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 4:ncol(.)) %>% 
-  dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG", "IF"),
-                param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
-  dplyr::group_by_at(c("chain", "sim", "ObsDay", "seroprevlvl", "param")) %>% 
+  dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG", "IF")) %>% 
+  dplyr::group_by_at(c("chain", "sim", "ObsDay", "seroprevlvl")) %>% 
   dplyr::summarise(serocount = sum(serocount, na.rm = T) ) %>% 
-  dplyr::mutate(seroprev = serocount/popdenom) %>% 
-  dplyr::left_join(., agekey, by = "param")
+  dplyr::mutate(seroprev = serocount/popdenom)
 
 # crude data
-SeroPrevObs <- NLD1rcrudedat %>% 
+SeroPrevObs <- dnkrcrudedat %>% 
   dplyr::select(c("obsdaymin", "obsdaymax", "ageband", "seroprev")) %>% 
   dplyr::filter(!duplicated(.)) %>% 
   dplyr::left_join(., demog, by = "ageband") %>% 
@@ -159,8 +158,8 @@ SeroPrevObs <- NLD1rcrudedat %>%
 serocurvedat %>% 
   ggplot() +
   geom_line(aes(x = ObsDay, y = seroprev, color = seroprevlvl), alpha = 0.5) +
-  geom_rect(data = SeroPrevObs, aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf), 
-            color = "#d9d9d9", fill = "#d9d9d9", alpha = 0.8) +
+  geom_rect(data = SeroPrevObs, aes(xmin = obsdaymin, xmax = obsdaymin, ymin = -Inf, ymax = Inf), 
+            color = "#bdbdbd", alpha = 0.8) +
   geom_point(data = SeroPrevObs, aes(x = obsmidday, y = seroprev, group = ageband),
              color = "#000000", size = 1.2) +
   facet_wrap(.~ageband) +
@@ -210,7 +209,7 @@ ppc_plot_age <- ggplot() +
   theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5, vjust = 0.5))
 
-jpgsnapshot("figures/NLD1_ppc_plot_age.jpg", plot = ppc_plot_age)
+jpgsnapshot("figures/DNK_ppc_plot_age.jpg", plot = ppc_plot_age)
 
 ```
 
@@ -223,7 +222,7 @@ plot(ppc_plot_age)
 #...................... 
 # read in data
 #......................
-modout <- readRDS("results/ModFits/NLD_rgn_GTI3_rung50_burn1000_smpl1000.RDS")
+modout <- readRDS("results/ModFits/DNK_rgn_GTI3_rung50_burn1000_smpl1000.RDS")
 ```
 
 #### Log Plot
@@ -266,11 +265,11 @@ ifrs <- dplyr::left_join(rgnkey, ifrs, by = "param") %>%
 # get crude ifrs 
 #......................
 dscdat <- readRDS("data/derived/descriptive_results_datamap.RDS") 
-NLD1rcrudedat <- dscdat %>% 
-  dplyr::filter(study_id == "NLD11" & breakdown == "region")  %>%
+dnkrcrudedat <- dscdat %>% 
+  dplyr::filter(study_id == "DNK1" & breakdown == "region")  %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
-rgnplotdat <- NLD1rcrudedat %>%
+rgnplotdat <- dnkrcrudedat %>%
   dplyr::filter(seromidpt == obsday) %>%
   dplyr::mutate(infxns = popn * seroprev,
                 crudeIFR =  cumdeaths/infxns) %>% 
@@ -300,7 +299,7 @@ plot2 <- infxncurve$plotObj
 main_plotObj <- cowplot::plot_grid(plot1, plot2, ncol = 1, nrow = 2)
 
 # quick out
-jpgsnapshot("figures/NLD1_ifr_plot_rgn.jpg", plot = main_plotObj)
+jpgsnapshot("figures/DNK_ifr_plot_rgn.jpg", plot = main_plotObj)
 
 ```
 
@@ -338,17 +337,16 @@ seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
                                                    by_chain = T)
 
 serocurvedat <- seropnts %>% 
-  dplyr::select(c("chain", "sim", "ObsDay", dplyr::starts_with("RG_"), dplyr::starts_with("inf_"))) %>% 
+  dplyr::select(c("chain", "sim", "seroprev")) %>% 
+  tidyr::unnest(cols = seroprev) %>% 
   tidyr::gather(., key = "seroprev_strata_lvl", value = "serocount", 4:ncol(.)) %>% 
-  dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG", "IF"),
-                param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
-  dplyr::group_by_at(c("chain", "sim", "ObsDay", "seroprevlvl", "param")) %>% 
+  dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG", "IF")) %>% 
+  dplyr::group_by_at(c("chain", "sim", "ObsDay", "seroprevlvl")) %>% 
   dplyr::summarise(serocount = sum(serocount, na.rm = T) ) %>% 
-  dplyr::mutate(seroprev = serocount/popdenom) %>% 
-  dplyr::left_join(., rgnkey, by = "param")
+  dplyr::mutate(seroprev = serocount/popdenom)
 
 # crude data
-SeroPrevObs <- NLD1rcrudedat %>% 
+SeroPrevObs <- dnkrcrudedat %>% 
   dplyr::select(c("obsdaymin", "obsdaymax", "region", "seroprev")) %>% 
   dplyr::filter(!duplicated(.)) %>% 
   dplyr::left_join(., demog, by = "region") %>% 
@@ -361,8 +359,8 @@ SeroPrevObs <- NLD1rcrudedat %>%
 serocurvedat %>% 
   ggplot() +
   geom_line(aes(x = ObsDay, y = seroprev, color = seroprevlvl), alpha = 0.5) +
-  geom_rect(data = SeroPrevObs, aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf), 
-            color = "#d9d9d9", fill = "#d9d9d9", alpha = 0.8) +
+  geom_rect(data = SeroPrevObs, aes(xmin = obsdaymin, xmax = obsdaymin, ymin = -Inf, ymax = Inf), 
+            color = "#bdbdbd", alpha = 0.8) +
   geom_point(data = SeroPrevObs, aes(x = obsmidday, y = seroprev, group = region),
              color = "#000000", size = 1.2) +
   facet_wrap(.~region) +
@@ -372,6 +370,7 @@ serocurvedat %>%
   xyaxis_plot_theme
 
 ```
+
 
 
 #### Posterior Predictive Check
@@ -411,7 +410,7 @@ ppc_plot_rgn <- ggplot() +
   theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5, vjust = 0.5))
 
-jpgsnapshot("figures/NLD1_ppc_plot_rgn.jpg", plot = ppc_plot_rgn)
+jpgsnapshot("figures/DNK_ppc_plot_rgn.jpg", plot = ppc_plot_rgn)
 
 ```
 
