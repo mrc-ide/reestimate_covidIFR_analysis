@@ -138,9 +138,11 @@ wrap_sim <- function(curve, sens, spec, fatalitydata, demog, sero_day) {
     dplyr::rename(
       SeroDay = event_obs_day,
       SeroPrev = ObsPrev) %>%
-    dplyr::select(c("SeroDay", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
-    dplyr::mutate(SeroDay = "sero_day")
-
+    dplyr::mutate(SeroStartSurvey = sero_day - 5,
+                   SeroEndSurvey = sero_day + 5) %>%
+    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
+    dplyr::ungroup(.) %>%
+    dplyr::arrange(SeroStartSurvey, Strata)
 
   # death dat
   dat$AggDeath <- dat$AggDeath %>%
@@ -165,12 +167,12 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_day = 150)
 #......................
 # sens/spec
 get_sens_spec <- function(sens, spec) {
-  tibble::tibble(name =  c("sens",          "spec",         "sero_rate",  "sero_day"),
-                 min =   c(0.5,              0.5,            10,            140),
-                 init =  c(0.8,              0.8,            15,            150),
-                 max =   c(1,                1,              30,            160),
-                 dsc1 =  c(sens*1e3,        spec*1e3,        2.8,           140),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  0.1,          160))
+  tibble::tibble(name =  c("sens",          "spec",         "sero_rate"),
+                 min =   c(0.5,              0.5,            10),
+                 init =  c(0.8,              0.8,            15),
+                 max =   c(1,                1,              30),
+                 dsc1 =  c(sens*1e3,        spec*1e3,        2.8),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  0.1))
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 
@@ -188,7 +190,7 @@ wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
                                           num_xs = 4)
 
-  if (curve$nm == "expgrowth") {
+  if (curve$nm[1] == "expgrowth") {
     infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y5", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
                                              num_ys = 5)
   } else {
@@ -212,7 +214,6 @@ wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_relInfxn("y3")
   mod1$set_Noiseparams(c(paste0("Ne", 1:5)))
   mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
-  mod1$set_Serodayparams("sero_day")
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
