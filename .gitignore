@@ -22,6 +22,7 @@ data/param_map/
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+*unnamed-chunk*
 
 # knitr outputs
 reports/*.pdf

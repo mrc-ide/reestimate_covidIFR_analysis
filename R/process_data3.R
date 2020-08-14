@@ -147,7 +147,10 @@ process_seroprev_data <- function(seroprev, origin, study_ids, sero_agebreaks, g
     dplyr::mutate(date_start_survey = lubridate::ymd(date_start_survey),
                   date_end_survey = lubridate::ymd(date_end_survey),
                   ObsDaymin = as.numeric(date_start_survey - origin) + 1,
-                  ObsDaymax = as.numeric(date_end_survey - origin) + 1) %>%
+                  ObsDaymax = as.numeric(date_end_survey - origin) + 1,
+                  n_positive = ifelse(is.na(n_positive) & !is.na(n_tested) & !is.na(seroprevalence_unadjusted),
+                                      round(n_tested * seroprevalence_unadjusted), n_positive)
+    ) %>%
     dplyr::filter(study_id %in% study_ids)
 
   #......................
@@ -213,22 +216,13 @@ process_seroprev_data <- function(seroprev, origin, study_ids, sero_agebreaks, g
 
   # split pieces for MCMC model vs. Descriptive plot
   # NB this group_by and mean/sum if there is only one day will just return the same value
-  if(sum(is.na(seroprev$n_tested)) > 0 | sum(is.na(seroprev$n_positive)) > 0) {
-    seroprevMCMC <- seroprev %>%
-      dplyr::group_by_at(c("ObsDaymin", "ObsDaymax", groupingvar)) %>%
-      dplyr::summarise(seroprevalence_unadjusted = mean(seroprevalence_unadjusted)) %>%
-      dplyr::rename(SeroPrev = seroprevalence_unadjusted) %>%
-      dplyr::ungroup()
-  } else {
-    seroprevMCMC <- seroprev %>%
-      dplyr::group_by_at(c("ObsDaymin", "ObsDaymax", groupingvar)) %>%
-      dplyr::summarise(n_positive = sum(n_positive),
-                       n_tested = sum(n_tested),
-                       seroprevalence_unadjusted = n_positive/n_tested) %>%
-      dplyr::rename(SeroPrev = seroprevalence_unadjusted) %>%
-      dplyr::ungroup()
-  }
-
+  seroprevMCMC <- seroprev %>%
+    dplyr::group_by_at(c("ObsDaymin", "ObsDaymax", groupingvar)) %>%
+    dplyr::summarise(n_positive = sum(n_positive),
+                     n_tested = sum(n_tested),
+                     seroprevalence_unadjusted = n_positive/n_tested) %>%
+    dplyr::rename(SeroPrev = seroprevalence_unadjusted) %>%
+    dplyr::ungroup()
   # out
   out <- list(seroprevMCMC = seroprevMCMC,
               seroprevFull = seroprev)
@@ -455,8 +449,13 @@ process_death_data <- function(deaths, recast_deaths_df, recast_deaths_geocode,
       if (i < min(recast_deaths_df$ObsDay)) { # fill in for common origin
         deaths.summ[,i] <- 0
       } else {
-        deaths.summ[,i] <- deaths.prop$death_prop * recast_deaths_df$deaths[iter]
-        iter <- iter + 1
+        if (i %in% recast_deaths_df$ObsDay) {
+          deaths.summ[,i] <- deaths.prop$death_prop * recast_deaths_df$deaths[iter]
+          iter <- iter + 1
+        } else { # catch instance where missing days in the middle of the series
+          deaths.summ[,i] <- -1
+          iter <- iter + 1
+        }
       }
     }
     # need to round to nearest person
