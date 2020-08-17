@@ -550,6 +550,28 @@ nld_adj_seroprev$SeroPrev <- NLD.agebands.dat$seroprevMCMC$SeroPrev[4]
 NLD.agebands.dat$seroprevMCMC <- dplyr::bind_rows(NLD.agebands.dat$seroprevMCMC,
                                                   nld_adj_seroprev)
 
+### NLD agebands shifted by one - correct.
+inds<-which(NLD.agebands.dat$seroprevMCMC$ageband=='49-59')
+inds2<-which(NLD.agebands.dat$seroprev_group$age_high==60)
+NLD.agebands.dat$seroprevMCMC$SeroPrev[inds]<-NLD.agebands.dat$seroprev_group$seroprevalence_unadjusted[inds2]
+NLD.agebands.dat$seroprevMCMC$n_tested[inds]<-NLD.agebands.dat$seroprev_group$n_tested[inds2]
+NLD.agebands.dat$seroprevMCMC$n_positive[inds]<-NLD.agebands.dat$seroprev_group$n_positive[inds2]
+
+
+inds<-which(NLD.agebands.dat$seroprevMCMC$ageband=='59-69')
+inds2<-which(NLD.agebands.dat$seroprev_group$age_high==72)
+NLD.agebands.dat$seroprevMCMC$SeroPrev[inds]<-NLD.agebands.dat$seroprev_group$seroprevalence_unadjusted[inds2]
+NLD.agebands.dat$seroprevMCMC$n_tested[inds]<-NLD.agebands.dat$seroprev_group$n_tested[inds2]
+NLD.agebands.dat$seroprevMCMC$n_positive[inds]<-NLD.agebands.dat$seroprev_group$n_positive[inds2]
+
+inds<-which(NLD.agebands.dat$seroprevMCMC$ageband=='0-49')
+inds2<-which(NLD.agebands.dat$seroprev_group$age_high<=50)
+NLD.agebands.dat$seroprevMCMC$n_tested[inds]<-sum(NLD.agebands.dat$seroprev_group$n_tested[inds2])
+NLD.agebands.dat$seroprevMCMC$n_positive[inds]<-sum(NLD.agebands.dat$seroprev_group$n_positive[inds2])
+NLD.agebands.dat$seroprevMCMC$SeroPrev[inds]<-NLD.agebands.dat$seroprevMCMC$n_positive[inds]/
+  NLD.agebands.dat$seroprevMCMC$n_tested[inds]
+
+
 # Netherlands seroprevalence missing in some regions
 # assume that this missing values can be imputed as the mean of the other regions
 NLD.regions.dat$seroprevMCMC$SeroPrev <- (NLD.regions.dat$seroprev_group$range_sero_low + NLD.regions.dat$seroprev_group$range_sero_high)/2
