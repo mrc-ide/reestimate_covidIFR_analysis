@@ -474,13 +474,55 @@ GBR2popdf <- readr::read_csv("data/raw/UK_ONS_2016_Population_Data.csv") %>%
                 for_regional_analysis = 1) %>%
   dplyr::select(c("country", "study_id", "age_low", "age_high", "region", "gender", "population", "age_breakdown", "for_regional_analysis", "gender_breakdown"))
 
+
+#............................................................
+#---- GBR3 #----
+#...........................................................
+#......................
+GBR3TimeSeries <- readr::read_csv("data/raw/deaths_time_series.csv") %>%
+  dplyr::filter(study_id == "GBR3")
+# sanity check
+GBR3TimeSeries <- GBR3TimeSeries %>%
+  dplyr::rename(date = date_end_survey,
+                deaths = n_deaths) %>%
+  dplyr::mutate(date = lubridate::dmy(date)) # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+GBR3TimeSeries$georegion <- "ENG"
+#......................
+# ages
+#......................
+GBR3.agebands.dat <- process_data3(deaths = deathsdf,
+                                   population = populationdf,
+                                   sero_val = sero_valdf,
+                                   seroprev = sero_prevdf,
+                                   cumulative = TRUE,
+                                   recast_deaths_df = GBR3TimeSeries,
+                                   groupingvar = "ageband",
+                                   study_ids = "GBR3",
+                                   recast_deaths_geocode = "ENG",
+                                   death_agebreaks = c(0,44,64,74,999),
+                                   sero_agebreaks = c(0,44,64,74,999),
+                                   filtGender = "both")
 #......................
 # regions
 #......................
-
-#......................
-# agebands
-#......................
+GBR3.regions.dat <- process_data3(deaths = deathsdf,
+                                  population = populationdf,
+                                  sero_val = sero_valdf,
+                                  seroprev = sero_prevdf,
+                                  cumulative = TRUE,
+                                  recast_deaths_df = GBR3TimeSeries,
+                                  groupingvar = "region",
+                                  study_ids = "GBR3",
+                                  recast_deaths_geocode = "ENG",
+                                  filtRegions = c("North East",
+                                                  "North West",
+                                                  "Yorkshire",
+                                                  "East Midlands",
+                                                  "West Midlands",
+                                                  "East of England",
+                                                  "London",
+                                                  "South East",
+                                                  "South West"))
 
 #......................
 # MANUAL ADJUSTMENTS
@@ -490,6 +532,9 @@ GBR2popdf <- readr::read_csv("data/raw/UK_ONS_2016_Population_Data.csv") %>%
 #......................
 # save out
 #......................
+dir.create("data/derived/GBR3", recursive = T)
+saveRDS(GBR3.regions.dat, "data/derived/GBR3/GBR3_regions.RDS")
+saveRDS(GBR3.agebands.dat, "data/derived/GBR3/GBR3_agebands.RDS")
 
 #............................................................
 #---- NLD1 #-----
@@ -1151,8 +1196,6 @@ CHN.agebands.dat$rho <- rep(1, length(unique(CHN.agebands.dat$deathsMCMC$ageband
 #......................
 dir.create("data/derived/CHN", recursive = T)
 saveRDS(CHN.agebands.dat, "data/derived/CHN/CHN_agebands.RDS")
-
-
 
 
 
