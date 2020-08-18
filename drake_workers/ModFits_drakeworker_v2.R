@@ -16,11 +16,11 @@ source("R/covidcurve_helper_functions.R")
 #.................................................................................
 # onset to deaths
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
-                               min  = c(10,     0.01),
+                               min  = c(10,     0),
                                init = c(14,     0.7),
-                               max =  c(30,     5.00),
-                               dsc1 = c(2.66,  -0.24),
-                               dsc2 = c(0.05,   0.5))
+                               max =  c(30,     1),
+                               dsc1 = c(2.66,   50),
+                               dsc2 = c(0.25,   50))
 
 #............................................................
 #---- BRA1 #----
@@ -249,8 +249,7 @@ LUX_age_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.34, dsc1 = 0, dsc2 = 13.34),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1")
+                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 # fixed inside code too?
 LUX_age_mod$data$obs_deaths$Deaths <- ifelse(is.na(LUX_age_mod$data$obs_deaths$Deaths), -1, LUX_age_mod$data$obs_deaths$Deaths)
 
