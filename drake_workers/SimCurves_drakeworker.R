@@ -187,8 +187,8 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
                                min  = c(10,     0),
                                init = c(14,     0.7),
                                max =  c(30,     1),
-                               dsc1 = c(2.66,   50),
-                               dsc2 = c(0.1,    50))
+                               dsc1 = c(14.5,   50),
+                               dsc2 = c(1,      50))
 
 # everything else for region
 wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
