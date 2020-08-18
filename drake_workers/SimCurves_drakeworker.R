@@ -176,19 +176,19 @@ get_sens_spec <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",         "sero_rate"),
                  min =   c(0.5,              0.5,            0),
                  init =  c(0.8,              0.8,            1),
-                 max =   c(1,                1,              50),
+                 max =   c(1,                1,              5),
                  dsc1 =  c(sens*1e3,        spec*1e3,        0.5),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  0.5))
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  0.25))
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 
 # onset to deaths
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
-                               min  = c(10,     0.01),
+                               min  = c(10,     0),
                                init = c(14,     0.7),
-                               max =  c(30,     3.00),
-                               dsc1 = c(2.66,  -0.24),
-                               dsc2 = c(0.25,   0.5))
+                               max =  c(30,     1),
+                               dsc1 = c(2.66,   50),
+                               dsc2 = c(0.1,    50))
 
 # everything else for region
 wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
@@ -279,7 +279,7 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      reparamSeros = TRUE,
+                                      reparamDelays = TRUE,
                                       reparamNe = TRUE,
                                       chains = n_chains,
                                       burnin = 1e4,
