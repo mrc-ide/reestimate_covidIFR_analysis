@@ -109,7 +109,11 @@ map <- expand.grid(curve = list(expgrowth, intervene, secondwave),
                    sens = c(0.85, 0.90),
                    spec = c(0.95, 0.99),
                    mod = c(13, 18, 23),
-                   sero_rate = c(7, 14, 21))
+                   sero_rate = c(7, 14, 21)) %>%
+  dplyr::filter( (sero_rate == 14 & mod == 18) |
+                   (sero_rate == 7 & mod == 23) |
+                   (sero_rate == 21 & mod == 13 ))
+
 map <- tibble::as_tibble(map) %>%
   dplyr::mutate(fatalitydata = list(fatalitydata),
                 demog = list(demog))
