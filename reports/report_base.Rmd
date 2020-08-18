@@ -3,9 +3,6 @@ title: "Reestimating the IFR with Serology Data"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: 
   pdf_document:
-    toc: true
-    toc_depth: 3
-    number_sections: true
 params:
    path: ""
 ---
@@ -37,7 +34,7 @@ stratachar <- ifelse(grepl("age", basename(params$path)), "Age-Band", "Region")
 
 ## Fit Diagnostics
 #### Log Plot
-```{r, results='asis', fig.width=7.5, fig.height=9.5}
+```{r, results='asis', fig.width=7.5, fig.height=8.5}
 modout$mcmcout$output %>%
   dplyr::filter(rung == "rung1") %>%
   dplyr::filter(stage == "sampling") %>%
@@ -55,6 +52,7 @@ modout$mcmcout$output %>%
 
 ```
 
+\pagebreak
 #### Metropolis Coupling Acceptance Plot
 ```{r, results='asis', fig.width=7.5, fig.height=9.5}
 mcaccplot <- drjacoby::plot_mc_acceptance(modout$mcmcout)
@@ -65,12 +63,13 @@ cowplot::plot_grid(mcaccplot, mcacclogplot1, mcacclogplot2, nrow = 3)
 
 ```
 
+\pagebreak
 #### Serological Diagnostics 
 ```{r, results='asis', fig.width=7.5, fig.height=9.5}
 quick_sero_diagnostics(modout)
 ```
 
-
+\pagebreak
 ## `r paste(stratachar)` Estimates
 
 #### IFRs & Incidence Curve
@@ -144,6 +143,7 @@ jpgsnapshot(paste0("figures/", studyidchar, "-", stratachar, "_IFRplot.jpg"),
 plot(main_plotObj)
 ```
 
+\pagebreak
 ```{r, results='asis', fig.width=8, fig.height=6}
 ifrs %>% 
   dplyr::mutate_if(is.numeric, round, 2) %>% 
@@ -166,6 +166,7 @@ tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>%
 
 ```
 
+\pagebreak
 #### Seroprevalence Observed vs. Inferred True Prev
 ```{r}
 seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
@@ -210,7 +211,8 @@ serocurvedat %>%
 
 ```
 
-```{r, results='asis', fig.width=7, fig.height=8}
+\pagebreak
+```{r, results='asis', fig.width=7, fig.height=7}
 #......................
 # get deaths posterior pred check
 #......................
@@ -254,14 +256,14 @@ ggplot() +
 
 ```
 
-
+\pagebreak
 #### Posterior Predictive Check
 ```{r}
 #...................... 
 # get posterior draws
 #......................
 postdat <- COVIDCurve::posterior_check_infxns_to_death(IFRmodel_inf = modout,
-                                                       dwnsmpl = 1e3,
+                                                       dwnsmpl = 1e1,
                                                        by_chain = FALSE)
 postdat_long <- postdat %>%
   dplyr::select(c("sim", "time", dplyr::starts_with("deaths"))) %>%
@@ -290,9 +292,9 @@ ppc_plot <- ggplot() +
             color = "#3182bd") +
   facet_wrap(.~strata) +
   theme_bw() +
-  ggtitle(caption = "Grey Lines are Draws from Posterior, Blue Line is Observed Data (from ECDC)") +
-  xlab("Time") + ylab("Deaths")
-theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
+  labs(caption = "Grey Lines are Draws from Posterior, Blue Line is Observed Data (from ECDC)") +
+  xlab("Time") + ylab("Deaths") + 
+  theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
       plot.subtitle = element_text(hjust = 0.5, vjust = 0.5)) 
 
 jpgsnapshot(paste0("figures/", studyidchar, "-", stratachar, "_PPCplot.jpg"), 
