@@ -1,6 +1,4 @@
 ---
-title: "Reestimating the IFR with Serology Data"
-date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: 
   pdf_document:
 params:
@@ -34,7 +32,7 @@ stratachar <- ifelse(grepl("age", basename(params$path)), "Age-Band", "Region")
 
 ## Fit Diagnostics
 #### Log Plot
-```{r, results='asis', fig.width=7.5, fig.height=8.5}
+```{r, results='asis', fig.width=7.5, fig.height=5.5}
 modout$mcmcout$output %>%
   dplyr::filter(rung == "rung1") %>%
   dplyr::filter(stage == "sampling") %>%
@@ -102,7 +100,9 @@ colnames(crudedat)[colnames(crudedat) == gsub("-", "", tolower(stratachar))] <- 
 crudeplotdat <- crudedat %>%
   dplyr::filter(seromidpt == obsday) %>%
   dplyr::mutate(infxns = popn * seroprev,
-                crudeIFR =  cumdeaths/infxns) %>% 
+                crudeIFR =  cumdeaths/infxns,
+                crudeIFR = ifelse(crudeIFR > 1, NA, crudeIFR) # protect against small denom
+                ) %>% 
   dplyr::select(c("strata", "crudeIFR")) %>% 
   dplyr::group_by(strata) %>% 
   dplyr::mutate(serodayfct = factor(1:dplyr::n())) %>% 
@@ -279,7 +279,12 @@ postdat_long <- postdat %>%
 datclean <-  modout$inputs$IFRmodel$data$obs_deaths %>%
   dplyr::filter(Deaths != -1) %>% 
   dplyr::left_join(., modout$inputs$IFRmodel$IFRdictkey, by = "Strata") 
+# liftover name
 colnames(datclean)[colnames(datclean) == gsub("-", "", tolower(stratachar))] <- "strata"
+datclean <- datclean %>% 
+  dplyr::mutate(param = factor(Strata, levels = paste0("ma", 1:nrow(dictkey))),
+                strata = forcats::fct_reorder(strata, as.numeric(param)))
+
 
 
 #...................... 
