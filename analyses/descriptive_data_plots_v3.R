@@ -132,7 +132,10 @@ age_IFRraw_plot <- ageplotdat %>%
   dplyr::mutate(infxns = popn * seroprev,
                 crudeIFR =  cumdeaths/infxns,
                 crudeIFR = ifelse(crudeIFR > 1, 1, crudeIFR),
-                seroprev = seroprev * 100 ) %>%
+                seroprev = seroprev * 100 )
+write.csv(age_IFRraw_plot,file="C:/Users/Lucy/Documents/GitHub/reestimate_covidIFR_analysis/data/derived/age_summ_IFR.csv",row.names = F)
+
+age_IFRraw_plot <- age_IFRraw_plot %>%
   ggplot() +
   geom_line(aes(x = age_mid, y = crudeIFR, color = study_id), alpha = 0.8, size = 1.2) +
   geom_point(aes(x = age_mid, y = crudeIFR, fill = seroprev), color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
@@ -306,7 +309,10 @@ jpgsnapshot(outpath = "results/descriptive_figures/rgn_IFR_adj_plot.jpg",
 # standardized deaths by seroprev
 #......................
 std_deaths_seroplot <- rgnplotdat %>%
-  dplyr::filter(seromidpt == obsday) %>%
+  dplyr::filter(seromidpt == obsday)
+write.csv(std_deaths_seroplot,file="data/derived/region_summ_IFR.csv",row.names = F)
+
+std_deaths_seroplot <- std_deaths_seroplot %>%
   dplyr::select(c("study_id", "region", "std_cum_deaths", "popn", "seroprevadj")) %>%
   dplyr::mutate(seroprevadj = seroprevadj * 100) %>%
   ggplot() +
