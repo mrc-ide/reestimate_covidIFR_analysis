@@ -293,6 +293,93 @@ saveRDS(CHE.region.dat, "data/derived/CHE/CHE_region.RDS")
 saveRDS(CHE.agebands.dat, "data/derived/CHE/CHE_agebands.RDS")
 
 
+
+#............................................................
+#---- CHE2, Zurich #----
+#...........................................................
+#......................
+# ages
+#......................
+# TODO check on this CHE timeseries
+CHE2TimeSeries <- readr::read_csv("data/raw/deaths_time_series.csv") %>%
+  dplyr::filter(study_id == "CHE2")
+# sanity check
+identical(CHE2TimeSeries$date_start_survey, CHE2TimeSeries$date_end_survey)
+CHE2TimeSeries <- CHE2TimeSeries %>%
+  dplyr::rename(date = date_end_survey,
+                deaths = n_deaths,
+                georegion = region) %>%
+  dplyr::mutate(date = lubridate::dmy(date)) # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+
+
+#......................
+# ages
+#......................
+######## TODO
+# CHE2.region.dat <- process_data3(deaths = deathsdf,
+#                                 population = populationdf,
+#                                 sero_val = sero_valdf,
+#                                 seroprev = sero_prevdf,
+#                                 cumulative = TRUE,
+#                                 recast_deaths_df = CHE2TimeSeries,
+#                                 groupingvar = "region",
+#                                 study_ids = "CHE2",
+#                                 death_agebreaks = c(0, 999), # for pop splits
+#                                 recast_deaths_geocode = "Zurich")   ## use study id in case we get more studies later.
+
+
+#......................
+# ages
+#......................
+CHE2.agebands.dat <- process_data3(deaths = deathsdf,
+                                  population = populationdf,
+                                  sero_val = sero_valdf,
+                                  seroprev = sero_prevdf,
+                                  cumulative = TRUE,
+                                  recast_deaths_df = CHE2TimeSeries,
+                                  groupingvar = "ageband",
+                                  study_ids = "CHE2",
+                                  death_agebreaks = c(0, 10, 20, 30,
+                                                      40, 50, 60, 70,
+                                                      80, 999), # for pop splits
+                                  recast_deaths_geocode = "Zurich")   ## use study id in case we get more studies later.
+
+#......................
+# MANUAL ADJUSTMENTS
+#......................
+# Assume:
+# (1) seroprevalence 18-75 is representative of all ages
+ageband <- unique(CHE2.agebands.dat$deathsMCMC$ageband)
+che2_adj_seroprev <- tibble::tibble(
+  ObsDaymin = unique(CHE2.agebands.dat$seroprevMCMC$ObsDaymin),
+  ObsDaymax = unique(CHE2.agebands.dat$seroprevMCMC$ObsDaymax),
+  n_positive = unique(CHE2.agebands.dat$seroprevMCMC$n_positive),
+  n_tested = unique(CHE2.agebands.dat$seroprevMCMC$n_tested),
+  SeroPrev = unique(CHE2.agebands.dat$seroprevMCMC$SeroPrev))
+che2_adj_seroprev <- tidyr::expand_grid(che2_adj_seroprev, ageband) %>%
+  dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-[0-9]+", n=2)[,1]),
+                age_high= as.numeric(stringr::str_split_fixed(ageband, "[0-9]+-", n=2)[,2])) %>%
+  dplyr::arrange(age_low)
+
+che2_adj_seroprev <- che2_adj_seroprev %>%
+  dplyr::arrange(ObsDaymin, ObsDaymax, ageband)
+
+# bring together
+CHE2.agebands.dat$seroprevMCMC <- che2_adj_seroprev
+
+
+#......................
+# get rho
+#......................
+CHE2.agebands.dat$rho <- rep(1, length(unique(che2_adj_seroprev$ageband)))
+
+#......................
+# save out
+#......................
+dir.create("data/derived/CHE2", recursive = T)
+#saveRDS(CHE2.region.dat, "data/derived/CHE2/CHE2_region.RDS")
+saveRDS(CHE2.agebands.dat, "data/derived/CHE2/CHE2_agebands.RDS")
+
 #............................................................
 #---- DNK1 #----
 #...........................................................
