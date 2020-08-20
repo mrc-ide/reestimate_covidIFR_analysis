@@ -74,7 +74,8 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
   mod1$set_rho(rep(1, num_mas))
-  mod1$set_rcensor_day(.Machine$integer.max)
+  #mod1$set_rcensor_day(.Machine$integer.max)
+  mod1$set_rcensor_day(max(dat$deaths$ObsDay) - 10)
   mod1$set_IFRdictkey(dictkey)
   # out
   mod1
@@ -99,7 +100,7 @@ make_ma_reparamdf <- function(num_mas = 10) {
   assert_pos_int(num_mas)
   tibble::tibble(name = paste0("ma", 1:num_mas),
                  min  = rep(0, size = num_mas),
-                 init = rep(0.5, size = num_mas),
+                 init = rep(0.1, size = num_mas),
                  max = rep(1, size = num_mas),
                  dsc1 = rep(0, size = num_mas),
                  dsc2 = rep(1, size = num_mas))
@@ -152,7 +153,7 @@ make_splinex_reparamdf <- function(max_xvec = list("name" = "x4", min = 180, ini
 
   out <- tibble::tibble(name = paste0("x", 1:num_xs),
                         min  = rep(0, num_xs),
-                        init = rep(0.5, num_xs),
+                        init = seq(1e-3, 0.9, length.out = num_xs),
                         max =  rep(1, num_xs),
                         dsc1 = rep(0, num_xs),
                         dsc2 = rep(1, num_xs))

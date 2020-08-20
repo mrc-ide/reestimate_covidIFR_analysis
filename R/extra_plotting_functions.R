@@ -135,36 +135,32 @@ jpgsnapshot <- function(outpath, plot, type = "wide",width_wide=11,height_wide=8
 
 
 #' @title Quick Diagnostic Plot for MCMC Framework
-#' @details Plot the MC acceptance as well as the chains that are likely to mix the slowest
+#' @details Plot the serological chains that are highly correlated
 
 library(ggplot2)
-quick_mc_diagnostics <- function(modout) {
+quick_sero_diagnostics <- function(modout) {
 
   # find max ma (will mix slowest)
   maxma <- modout$inputs$IFRmodel$maxMa
   maxmachain <- drjacoby::plot_par(modout$mcmcout, maxma, display = FALSE)
   spechain <- drjacoby::plot_par(modout$mcmcout, "spec", display = FALSE)
-  serodaychain <- drjacoby::plot_par(modout$mcmcout, "sero_day", display = FALSE)
+  senschain <- drjacoby::plot_par(modout$mcmcout, "sens", display = FALSE)
+  modchain <- drjacoby::plot_par(modout$mcmcout, "mod", display = FALSE)
+  sodchain <- drjacoby::plot_par(modout$mcmcout, "sod", display = FALSE)
   seroratechain <- drjacoby::plot_par(modout$mcmcout, "sero_rate", display = FALSE)
 
   maxmachain <- maxmachain[[1]][["trace"]] + theme(legend.position = "none")
   spechain <- spechain[[1]][["trace"]] + theme(legend.position = "none")
-  serodaychain <- serodaychain[[1]][["trace"]] + theme(legend.position = "none")
-  seroratechain <- seroratechain[[1]][["trace"]] + theme(legend.position = "bottom")
-  rightside <- cowplot::plot_grid(maxmachain, spechain, serodaychain, seroratechain,
-                                  nrow = 4, rel_heights = c(1,1,1,1.5))
+  senschain <- senschain[[1]][["trace"]] + theme(legend.position = "none")
+  modchain <- modchain[[1]][["trace"]] + theme(legend.position = "none")
+  sodchain <- sodchain[[1]][["trace"]] + theme(legend.position = "none")
+  seroratechain <- seroratechain[[1]][["trace"]] + theme(legend.position = "none")
+  # get legend
+  legend_bt <- cowplot::get_legend(maxmachain + theme(legend.position = "bottom",
+                                                      legend.title = element_blank()))
+  # out
+  topp <- cowplot::plot_grid(spechain, senschain, modchain, sodchain, maxmachain, seroratechain,
+                     ncol = 2, nrow = 3)
+  cowplot::plot_grid(topp, legend_bt, nrow = 2, rel_heights = c(1, 0.1))
 
-  # MC coupling considered
-  if (all(!is.na(modout$mcmcout$diagnostics$mc_accept))) {
-    # get mcaccplot
-    mcaccplot <- drjacoby::plot_mc_acceptance(modout$mcmcout)
-    mcacclogplot1 <- drjacoby::plot_rung_loglike(modout$mcmcout, x_axis_type = 2, y_axis_type = 2)
-    mcacclogplot2 <- drjacoby::plot_rung_loglike(modout$mcmcout, x_axis_type = 2, y_axis_type = 3)
-
-    lftside <- cowplot::plot_grid(mcaccplot, mcacclogplot1, mcacclogplot2,
-                                  nrow = 3)
-    cowplot::plot_grid(lftside, rightside, ncol = 2)
-  } else {
-    plot(rightside)
-  }
 }

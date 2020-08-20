@@ -107,25 +107,31 @@ demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
 #...........................................................
 map <- expand.grid(curve = list(expgrowth, intervene, secondwave),
                    sens = c(0.85, 0.90),
-                   spec = c(0.95, 0.99))
+                   spec = c(0.95, 0.99),
+                   mod = c(13, 18, 23),
+                   sero_rate = c(7, 14, 21)) %>%
+  dplyr::filter( (sero_rate == 14 & mod == 18) |
+                   (sero_rate == 7 & mod == 23) |
+                   (sero_rate == 21 & mod == 13 ))
+
 map <- tibble::as_tibble(map) %>%
   dplyr::mutate(fatalitydata = list(fatalitydata),
                 demog = list(demog))
 #......................
 # rung covidcurve simulator
 #......................
-wrap_sim <- function(curve, sens, spec, fatalitydata, demog, sero_day) {
+wrap_sim <- function(curve, sens, spec, mod, sero_rate, fatalitydata, demog, sero_day) {
 
   dat <- COVIDCurve::Aggsim_infxn_2_death(
     fatalitydata = fatalitydata,
-    m_od = 17.8,
-    s_od = 0.79,
+    m_od = mod,
+    s_od = 0.5,
     curr_day = 200,
     infections = curve$infxns,
     simulate_seroprevalence = TRUE,
     sens = sens,
     spec = spec,
-    sero_delay_rate = 13.3,
+    sero_delay_rate = sero_rate,
     demog = demog)
 
   # sero tidy up
@@ -168,21 +174,21 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_day = 150)
 # sens/spec
 get_sens_spec <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",         "sero_rate"),
-                 min =   c(0.5,              0.5,            10),
-                 init =  c(0.8,              0.8,            15),
-                 max =   c(1,                1,              30),
-                 dsc1 =  c(sens*1e3,        spec*1e3,        2.8),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  0.1))
+                 min =   c(0.5,              0.5,            0),
+                 init =  c(0.8,              0.8,            1),
+                 max =   c(1,                1,              5),
+                 dsc1 =  c(sens*1e3,        spec*1e3,        0.5),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  0.25))
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 
 # onset to deaths
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
-                               min  = c(10,     0.01),
+                               min  = c(10,     0),
                                init = c(14,     0.7),
-                               max =  c(30,     3.00),
-                               dsc1 = c(2.9,    -0.24),
-                               dsc2 = c(0.05,   0.5))
+                               max =  c(30,     1),
+                               dsc1 = c(2.66,   50),
+                               dsc2 = c(0.1,    50))
 
 # everything else for region
 wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
@@ -250,7 +256,6 @@ lapply(split(fit_map_modelobj, 1:nrow(fit_map_modelobj)), function(x){
 })
 
 
-
 #............................................................
 # MCMC Object
 #...........................................................
@@ -274,7 +279,7 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      reparamSeros = FALSE,
+                                      reparamDelays = TRUE,
                                       reparamNe = TRUE,
                                       chains = n_chains,
                                       burnin = 1e4,

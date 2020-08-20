@@ -15,22 +15,22 @@ source("R/covidcurve_helper_functions.R")
 # Make Paramset and write to disk for input into MCMC
 #.................................................................................
 # onset to deaths
-tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
-                               min  = c(10,     0.01),
-                               init = c(14,     0.7),
-                               max =  c(30,     5.00),
-                               dsc1 = c(2.66,  -0.24),
-                               dsc2 = c(0.05,   0.5))
+tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_rate"),
+                               min  = c(0,      0,     0),
+                               init = c(14,     0.7,   1),
+                               max =  c(50,     1,     5),
+                               dsc1 = c(14.5,   50,    0.5),
+                               dsc2 = c(1,      50,    0.25))
 
 #............................................................
 #---- BRA1 #----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
-                                min =   c(0.50,    0.50,     10),
-                                init =  c(0.85,    0.99,     15),
-                                max =   c(1.00,    1.00,     30),
-                                dsc1 =  c(850.5,   990.5,    2.8),
-                                dsc2 =  c(150.5,    10.5,    0.1))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.85,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(850.5,   990.5),
+                                dsc2 =  c(150.5,    10.5))
 #......................
 # regions
 #......................
@@ -54,12 +54,12 @@ BRA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
 #............................................................
 #---- CHE1 #-----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
-                                min =   c(0.50,    0.50,     10),
-                                init =  c(0.85,    0.99,     15),
-                                max =   c(1.00,    1.00,     30),
-                                dsc1 =  c(156.5,   176.5,    2.8),
-                                dsc2 =  c(25.5,    0.5,      0.1))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.85,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(156.5,   176.5),
+                                dsc2 =  c(25.5,    0.5))
 #......................
 # regions
 #......................
@@ -83,12 +83,12 @@ CHE_age_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma9",
 #............................................................
 #---- DNK1 #-----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
-                                min =   c(0.50,    0.50,     10),
-                                init =  c(0.85,    0.99,     15),
-                                max =   c(1.00,    1.00,     30),
-                                dsc1 =  c(128.5,   647.5,    2.8),
-                                dsc2 =  c(27.5,    4.5,      0.1))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.85,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(128.5,   647.5),
+                                dsc2 =  c(27.5,    4.5))
 #......................
 # regions
 #......................
@@ -112,12 +112,12 @@ DNK_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
 #............................................................
 #---- ESP1-2 #-----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
-                                min =   c(0.83,    0.50,     10),
-                                init =  c(0.85,    0.99,     15),
-                                max =   c(1.00,    1.00,     30),
-                                dsc1 =  c(123.5,   156.5,    2.8),
-                                dsc2 =  c(30.5,    0.5,      0.1))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.83,    0.50),
+                                init =  c(0.85,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(123.5,   156.5),
+                                dsc2 =  c(30.5,    0.5))
 # https://www.thelancet.com/cms/10.1016/S0140-6736(20)31483-5/attachment/25c80941-a8c5-470e-a6a8-fde7397b9547/mmc1.pdf
 # based on supp table 3
 #......................
@@ -178,12 +178,12 @@ ESP_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
 #............................................................
 #---- NLD1 #----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
-                                min =   c(0.50,    0.50,     10),
-                                init =  c(0.85,    0.99,     15),
-                                max =   c(1.00,    1.00,     30),
-                                dsc1 =  c(171.5,   281.5,    2.8),
-                                dsc2 =  c(3.5,     1.5,      0.1))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.85,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(171.5,   281.5),
+                                dsc2 =  c(3.5,     1.5))
 #......................
 # regions
 #......................
@@ -234,12 +234,12 @@ NLD_age_mod <- make_IFR_model_fit(num_mas = 6, maxMa = "ma6",
 #............................................................
 #---- LUX1 #----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
-                                min =   c(0.50,    0.50,    10),
-                                init =  c(0.85,    0.99,    15),
-                                max =   c(1.00,    1.00,    30),
-                                dsc1 =  c(12.5,   181.5,    2.8),
-                                dsc2 =  c(14.5,     4.5,    0.1))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.85,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(12.5,    181.5),
+                                dsc2 =  c(2.5,     4.5))
 
 #......................
 # agebands
@@ -249,8 +249,7 @@ LUX_age_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.34, dsc1 = 0, dsc2 = 13.34),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
-                                  serodayparams = "sero_day1")
+                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 # fixed inside code too?
 LUX_age_mod$data$obs_deaths$Deaths <- ifelse(is.na(LUX_age_mod$data$obs_deaths$Deaths), -1, LUX_age_mod$data$obs_deaths$Deaths)
 
@@ -279,12 +278,12 @@ LUX_age_mod$data$obs_deaths$Deaths <- ifelse(is.na(LUX_age_mod$data$obs_deaths$D
 #............................................................
 #---- CHN1 #----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
-                                min =   c(0.50,    0.50,     10),
-                                init =  c(0.85,    0.97,     15),
-                                max =   c(1.00,    1.00,     30),
-                                dsc1 =  c(91.5,    198.5,    2.8),
-                                dsc2 =  c(14.5,    202.5,    0.1))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.85,    0.97),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(91.5,    198.5),
+                                dsc2 =  c(14.5,    4.5))
 
 #......................
 # agebands
@@ -363,7 +362,7 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      reparamSeros = FALSE,
+                                      reparamDelays = TRUE,
                                       reparamNe = TRUE,
                                       chains = n_chains,
                                       burnin = mod$burnin,
