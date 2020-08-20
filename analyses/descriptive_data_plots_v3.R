@@ -180,7 +180,7 @@ std_deaths_seroplot <- ageplotdat %>%
   xlab("Adj. Seroprevalence (%).") + ylab("Cum. Deaths per Million") +
   labs(caption = "Cumulative Deaths per Million at midpoint of Seroprevalence Study") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/std_deaths_seroplot.jpg",
+jpgsnapshot(outpath = "results/descriptive_figures/std_deaths_age_seroplot.jpg", # had same name as regional data plot previously
             plot = std_deaths_seroplot)
 
 #......................
@@ -224,6 +224,14 @@ rgnplotdat <- datmap %>%
   dplyr::filter(breakdown == "region") %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
+
+###### filter to only plot the latest serology when there are multiple rounds - ok?
+maxDays<-  rgnplotdat %>%
+  dplyr::group_by(study_id) %>%
+  dplyr::summarise(max_day=max(obsdaymax))
+rgnplotdat<-full_join(rgnplotdat,maxDays,by="study_id")
+rgnplotdat<-filter(rgnplotdat,obsdaymax==max_day)
+
 #......................
 # rgn adj seroprevalence
 #......................
@@ -316,13 +324,13 @@ std_deaths_seroplot <- std_deaths_seroplot %>%
   dplyr::select(c("study_id", "region", "std_cum_deaths", "popn", "seroprevadj")) %>%
   dplyr::mutate(seroprevadj = seroprevadj * 100) %>%
   ggplot() +
-  geom_point(aes(x = seroprevadj, y = std_cum_deaths, color = study_id), size = 2.5) +
+  geom_point(aes(x = seroprevadj, y = std_cum_deaths, color = study_id), size = 2) +
   scale_color_manual("Study ID", values = discrete_colors) +
-  xlab("Adj. Seroprevalence (%).") + ylab("Cum. Deaths per Million") +
-  labs(caption = "Cumulative Deaths per Million at midpoint of Seroprevalence Study") +
+  xlab("Adjusted Seroprevalence (%).") + ylab("Cumulative Deaths per Million") +
+#  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/std_deaths_seroplot.jpg",
-            plot = std_deaths_seroplot)
+jpgsnapshot(outpath = "results/descriptive_figures/std_deaths_rgn_seroplot.jpg",
+            plot = std_deaths_seroplot,width_wide = 8,height_wide = 5.5)
 
 
 
