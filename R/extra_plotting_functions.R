@@ -120,14 +120,14 @@ pretty_DT_tab <- function(df, pageLength = 10) {
 }
 
 #' @title Quick Jpeg
-jpgsnapshot <- function(outpath, plot, type = "wide") {
+jpgsnapshot <- function(outpath, plot, type = "wide",width_wide=11,height_wide=8) {
   assert_in(type, c("long", "wide"))
   if (type == "long") {
     jpeg(outpath, width = 8, height = 11, units = "in", res = 500)
     plot(plot)
     graphics.off()
   } else if (type == "wide") {
-    jpeg(filename = outpath, width = 11, height = 8, units = "in", res = 500)
+    jpeg(filename = outpath, width = width_wide, height = height_wide, units = "in", res = 500)
     plot(plot)
     graphics.off()
   }
