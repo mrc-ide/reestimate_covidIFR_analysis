@@ -785,6 +785,12 @@ saveRDS(SWE.agebands.dat, "data/derived/SWE/SWE_agebands.RDS")
 #......................
 # regions
 #......................
+## add in approximate sample size by region in order for this to run properly.
+# we don't have data, but for now split total sample size equally across regions.
+# TODO - use CI from the report.
+inds<-which(sero_prevdf$study_id=="ITA1" & sero_prevdf$for_regional_analysis==1)
+sero_prevdf$n_tested[inds]<- 64660/length(inds) ## total sample size of italian serosurvey.
+sero_prevdf$n_positive[inds]<-round(sero_prevdf$n_tested[inds]*sero_prevdf$seroprevalence_unadjusted[inds])
 ITA.regions.dat <- process_data3(deaths = deathsdf,
                                  population = populationdf,
                                  sero_val = sero_valdf,
@@ -814,13 +820,6 @@ ITA.agebands.dat <- process_data3(deaths = deathsdf,
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-## TODO - decide prior with Nick (sensitivity>90%, specificity>95%). Just chose some values for now.
-ITA.agebands.dat$sero_sens$sensitivity<-0.9  ## unknown
-ITA.agebands.dat$sero_spec$specificity <-0.975
-ITA.regions.dat$sero_sens$sensitivity<-0.9  ## unknown
-ITA.regions.dat$sero_spec$specificity <-0.975
-
-
 # some lack of overlap between serology and deaths data.
 # use sero 0-17 for 9-19 yr olds
 # use the mean of 18-34 and 35-49 for the 30-39 group (they are v similar anyway)
