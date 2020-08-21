@@ -24,7 +24,7 @@ source("R/my_themes.R")
 modout <- readRDS(params$path)
 
 # pieces for below
-studyidchar <- toupper(stringr::str_split(basename(params$path), "_", simplify = T)[[1]])
+studyidchar <- toupper(stringr::str_split(basename(params$path), "_age|_rgn", simplify = T)[[1]])
 stratachar <- ifelse(grepl("age", basename(params$path)), "Age-Band", "Region")
 ```
 
