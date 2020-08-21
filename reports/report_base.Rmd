@@ -170,7 +170,7 @@ tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>%
 #### Seroprevalence Observed vs. Inferred True Prev
 ```{r}
 seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
-                                                   dwnsmpl = 1e2,
+                                                   dwnsmpl = 1e3,
                                                    by_chain = F)
 
 serocurvedat <- seropnts %>% 
