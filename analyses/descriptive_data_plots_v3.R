@@ -28,7 +28,7 @@ library(tidyverse)
 source("R/crude_plot_summ.R")
 source("R/my_themes.R")
 source("R/extra_plotting_functions.R")
-dir.create("results/descriptive_figures/", recursive = TRUE)
+dir.create("figures/descriptive_figures/", recursive = TRUE)
 
 #............................................................
 # read in data map
@@ -89,10 +89,9 @@ ageplotdat <- datmap %>%
 ageplotdat<-full_join(ageplotdat,study_cols,by="study_id")
 
 ###### filter to only plot the latest serology when there are multiple rounds - ok?
-maxDays<-  ageplotdat %>%
+maxDays <- ageplotdat %>%
   dplyr::group_by(study_id) %>%
   dplyr::summarise(max_day=max(obsdaymax))
-ageplotdat<-full_join(ageplotdat,maxDays,by="study_id")
 ageplotdat<-full_join(ageplotdat,maxDays,by="study_id")
 ageplotdat<-filter(ageplotdat,obsdaymax==max_day)
 
@@ -109,7 +108,7 @@ age_seroplot <- ageplotdat %>%
   scale_color_manual("Study ID", values = discrete_colors) +
   xlab("Age (yrs).") + ylab("Raw Seroprevalence (%)") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_raw_seroplot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_raw_seroplot.jpg",
             plot = age_seroplot)
 
 #......................
@@ -124,7 +123,7 @@ age_seroplot <- ageplotdat %>%
   scale_color_manual("Study ID", values = discrete_colors) +
   xlab("Age (yrs).") + ylab("Adj. Seroprevalence (%)") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_adj_seroplot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_adj_seroplot.jpg",
             plot = age_seroplot)
 
 #......................
@@ -138,7 +137,9 @@ age_IFRraw_plot0 <- ageplotdat %>%
                 crudeIFR =  cumdeaths/infxns,
                 crudeIFR = ifelse(crudeIFR > 1, 1, crudeIFR),
                 seroprev = seroprev * 100 )
-write.csv(age_IFRraw_plot0,file="C:/Users/Lucy/Documents/GitHub/reestimate_covidIFR_analysis/data/derived/age_summ_IFR.csv",row.names = F)
+
+# write this out for later use
+readr::write_csv(age_IFRraw_plot0, path = "data/derived/age_summ_IFR.csv")
 
 age_IFRraw_plot <- age_IFRraw_plot0 %>%
   ggplot() +
@@ -149,7 +150,7 @@ age_IFRraw_plot <- age_IFRraw_plot0 %>%
                        colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
   xlab("Age (yrs).") + ylab("Crude Infection Fatality Rate") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_IFRraw_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_IFRraw_plot.jpg",
             plot = age_IFRraw_plot)
 
 ### probably a neater way to do this. TODO
@@ -160,8 +161,8 @@ age_IFRraw_plot2 <- age_IFRraw_plot0 %>%
   scale_color_manual("Study ID", values = discrete_colors) +
   xlab("Age (years)") + ylab("Crude infection fatality rate") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_IFRraw_plot2.jpg",
-            plot = age_IFRraw_plot2,width_wide = 8,height_wide = 5.5)
+jpgsnapshot(outpath = "figures/descriptive_figures/age_IFRraw_plot2.jpg",
+            plot = age_IFRraw_plot2, width_wide = 8,height_wide = 5.5)
 
 age_IFRraw_plot_log <- age_IFRraw_plot0 %>%
   filter(crudeIFR>0) %>%
@@ -192,7 +193,7 @@ age_IFRadj_plot <- ageplotdat %>%
                        colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
   xlab("Age (yrs).") + ylab("Crude Infection Fatality Rate") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_IFRadj_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_IFRadj_plot.jpg",
             plot = age_IFRadj_plot)
 
 #......................
@@ -209,7 +210,7 @@ std_deaths_seroplot <- ageplotdat %>%
   xlab("Adj. Seroprevalence (%).") + ylab("Cum. Deaths per Million") +
   labs(caption = "Cumulative Deaths per Million at midpoint of Seroprevalence Study") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/std_deaths_age_seroplot.jpg", # had same name as regional data plot previously
+jpgsnapshot(outpath = "figures/descriptive_figures/std_deaths_age_seroplot.jpg", # had same name as regional data plot previously
             plot = std_deaths_seroplot)
 
 #......................
@@ -228,7 +229,7 @@ age_std_cum_deaths_plot <- ageplotdat %>%
   xlab("Age (yrs).") + ylab("Cum. Deaths per Million") +
   labs(caption = "Cumulative Deaths per Million at midpoint of Seroprevalence Study") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_std_cum_deaths_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_std_cum_deaths_plot.jpg",
             plot = age_std_cum_deaths_plot)
 
 
@@ -312,7 +313,7 @@ age_std_daily_deaths_plot <- ageplotdat %>%
   facet_wrap(.~study_id, scales = "free_y") +
   xlab("Obs. Day") + ylab("Daily Deaths per Million") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_std_daily_deaths_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_std_daily_deaths_plot.jpg",
             plot = age_std_daily_deaths_plot)
 
 
@@ -324,12 +325,12 @@ rgnplotdat <- datmap %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
 
-###### filter to only plot the latest serology when there are multiple rounds - ok?
-maxDays<-  rgnplotdat %>%
+# filter to only plot the latest serology when there are multiple rounds
+maxDays <- rgnplotdat %>%
   dplyr::group_by(study_id) %>%
   dplyr::summarise(max_day=max(obsdaymax))
-rgnplotdat<-full_join(rgnplotdat,maxDays,by="study_id")
-rgnplotdat<-filter(rgnplotdat,obsdaymax==max_day)
+rgnplotdat <- dplyr::full_join(rgnplotdat,maxDays,by="study_id")
+rgnplotdat <- dplyr::filter(rgnplotdat,obsdaymax==max_day)
 
 #......................
 # rgn adj seroprevalence
@@ -345,7 +346,7 @@ rgn_seroplot <- rgnplotdat %>%
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 8, angle = 45))
 
-jpgsnapshot(outpath = "results/descriptive_figures/rgn_raw_seroplot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/rgn_raw_seroplot.jpg",
             plot = rgn_seroplot)
 
 
@@ -364,7 +365,7 @@ rgn_seroplot <- rgnplotdat %>%
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 8, angle = 45))
 
-jpgsnapshot(outpath = "results/descriptive_figures/rgn_adj_seroplot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/rgn_adj_seroplot.jpg",
             plot = rgn_seroplot)
 #......................
 # crude raw IFR
@@ -386,7 +387,7 @@ rgn_IFR_plot <- rgnplotdat %>%
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 8, angle = 45))
 
-jpgsnapshot(outpath = "results/descriptive_figures/rgn_IFR_raw_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/rgn_IFR_raw_plot.jpg",
             plot = rgn_IFR_plot)
 
 #......................
@@ -409,7 +410,7 @@ rgn_IFR_plot <- rgnplotdat %>%
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 8, angle = 45))
 
-jpgsnapshot(outpath = "results/descriptive_figures/rgn_IFR_adj_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/rgn_IFR_adj_plot.jpg",
             plot = rgn_IFR_plot)
 
 #......................
@@ -417,7 +418,8 @@ jpgsnapshot(outpath = "results/descriptive_figures/rgn_IFR_adj_plot.jpg",
 #......................
 std_deaths_seroplot <- rgnplotdat %>%
   dplyr::filter(seromidpt == obsday)
-write.csv(std_deaths_seroplot,file="data/derived/region_summ_IFR.csv",row.names = F)
+# write out for later use
+readr::write_csv(std_deaths_seroplot, path = "data/derived/region_summ_IFR.csv")
 
 std_deaths_seroplot <- std_deaths_seroplot %>%
   dplyr::select(c("study_id", "region", "std_cum_deaths", "popn", "seroprevadj")) %>%
@@ -428,7 +430,7 @@ std_deaths_seroplot <- std_deaths_seroplot %>%
   xlab("Adjusted Seroprevalence (%).") + ylab("Cumulative Deaths per Million") +
 #  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/std_deaths_rgn_seroplot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/std_deaths_rgn_seroplot.jpg",
             plot = std_deaths_seroplot,width_wide = 8,height_wide = 5.5)
 
 
@@ -445,7 +447,7 @@ std_deaths_seroplot <- rgnplotdat %>%
   xlab("Adj. Seroprevalence (%).") + ylab("Cum. Deaths per Million") +
   labs(caption = "Cumulative Deaths per Million at midpoint of Seroprevalence Study") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/std_deaths_seroplot_labeled.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/std_deaths_seroplot_labeled.jpg",
             plot = std_deaths_seroplot)
 
 
@@ -467,7 +469,7 @@ rgn_std_cum_deaths_plot <- rgnplotdat %>%
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 8, angle = 45))
 
-jpgsnapshot(outpath = "results/descriptive_figures/rgn_std_cum_deaths_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/rgn_std_cum_deaths_plot.jpg",
             plot = rgn_std_cum_deaths_plot)
 #......................
 # daily standardized deaths by rgn
@@ -481,7 +483,7 @@ rgn_std_daily_deaths_plot <- rgnplotdat %>%
   xlab("Obs. Day") + ylab("Daily Deaths per Million") +
   xyaxis_plot_theme +
   theme(legend.position = "none")
-jpgsnapshot(outpath = "results/descriptive_figures/rgn_std_daily_deaths_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/rgn_std_daily_deaths_plot.jpg",
             plot = rgn_std_daily_deaths_plot)
 
 #......................
