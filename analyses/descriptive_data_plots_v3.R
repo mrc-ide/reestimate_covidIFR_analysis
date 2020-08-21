@@ -28,7 +28,7 @@ library(tidyverse)
 source("R/crude_plot_summ.R")
 source("R/my_themes.R")
 source("R/extra_plotting_functions.R")
-dir.create("results/descriptive_figures/", recursive = TRUE)
+dir.create("figures/descriptive_figures/", recursive = TRUE)
 
 #............................................................
 # read in data map
@@ -104,7 +104,7 @@ age_seroplot <- ageplotdat %>%
   scale_color_manual("Study ID", values = discrete_colors) +
   xlab("Age (yrs).") + ylab("Raw Seroprevalence (%)") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_raw_seroplot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_raw_seroplot.jpg",
             plot = age_seroplot)
 
 #......................
@@ -119,7 +119,7 @@ age_seroplot <- ageplotdat %>%
   scale_color_manual("Study ID", values = discrete_colors) +
   xlab("Age (yrs).") + ylab("Adj. Seroprevalence (%)") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_adj_seroplot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_adj_seroplot.jpg",
             plot = age_seroplot)
 
 #......................
@@ -146,7 +146,7 @@ age_IFRraw_plot <- age_IFRraw_plot0 %>%
                        colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
   xlab("Age (yrs).") + ylab("Crude Infection Fatality Rate") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_IFRraw_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_IFRraw_plot.jpg",
             plot = age_IFRraw_plot)
 
 ### probably a neater way to do this. TODO
@@ -172,7 +172,7 @@ age_IFRraw_plot2 <- age_IFRraw_plot0 %>%
   #                      colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
   xlab("Age (years)") + ylab("Crude infection fatality rate") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_IFRraw_plot2.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_IFRraw_plot2.jpg",
             plot = age_IFRraw_plot2, width_wide = 8,height_wide = 5.5)
 
 # seroadj
@@ -191,7 +191,7 @@ age_IFRadj_plot <- ageplotdat %>%
                        colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
   xlab("Age (yrs).") + ylab("Crude Infection Fatality Rate") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_IFRadj_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_IFRadj_plot.jpg",
             plot = age_IFRadj_plot)
 
 #......................
@@ -208,7 +208,7 @@ std_deaths_seroplot <- ageplotdat %>%
   xlab("Adj. Seroprevalence (%).") + ylab("Cum. Deaths per Million") +
   labs(caption = "Cumulative Deaths per Million at midpoint of Seroprevalence Study") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/std_deaths_age_seroplot.jpg", # had same name as regional data plot previously
+jpgsnapshot(outpath = "figures/descriptive_figures/std_deaths_age_seroplot.jpg", # had same name as regional data plot previously
             plot = std_deaths_seroplot)
 
 #......................
@@ -227,7 +227,7 @@ age_std_cum_deaths_plot <- ageplotdat %>%
   xlab("Age (yrs).") + ylab("Cum. Deaths per Million") +
   labs(caption = "Cumulative Deaths per Million at midpoint of Seroprevalence Study") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_std_cum_deaths_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_std_cum_deaths_plot.jpg",
             plot = age_std_cum_deaths_plot)
 #......................
 # daily standardized deaths by age
@@ -241,7 +241,7 @@ age_std_daily_deaths_plot <- ageplotdat %>%
   facet_wrap(.~study_id, scales = "free_y") +
   xlab("Obs. Day") + ylab("Daily Deaths per Million") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_std_daily_deaths_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_std_daily_deaths_plot.jpg",
             plot = age_std_daily_deaths_plot)
 
 
@@ -274,7 +274,7 @@ rgn_seroplot <- rgnplotdat %>%
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 8, angle = 45))
 
-jpgsnapshot(outpath = "results/descriptive_figures/rgn_raw_seroplot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/rgn_raw_seroplot.jpg",
             plot = rgn_seroplot)
 
 
@@ -293,7 +293,7 @@ rgn_seroplot <- rgnplotdat %>%
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 8, angle = 45))
 
-jpgsnapshot(outpath = "results/descriptive_figures/rgn_adj_seroplot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/rgn_adj_seroplot.jpg",
             plot = rgn_seroplot)
 #......................
 # crude raw IFR
@@ -315,7 +315,7 @@ rgn_IFR_plot <- rgnplotdat %>%
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 8, angle = 45))
 
-jpgsnapshot(outpath = "results/descriptive_figures/rgn_IFR_raw_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/rgn_IFR_raw_plot.jpg",
             plot = rgn_IFR_plot)
 
 #......................
@@ -338,7 +338,7 @@ rgn_IFR_plot <- rgnplotdat %>%
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 8, angle = 45))
 
-jpgsnapshot(outpath = "results/descriptive_figures/rgn_IFR_adj_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/rgn_IFR_adj_plot.jpg",
             plot = rgn_IFR_plot)
 
 #......................
@@ -358,7 +358,7 @@ std_deaths_seroplot <- std_deaths_seroplot %>%
   xlab("Adjusted Seroprevalence (%).") + ylab("Cumulative Deaths per Million") +
 #  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/std_deaths_rgn_seroplot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/std_deaths_rgn_seroplot.jpg",
             plot = std_deaths_seroplot,width_wide = 8,height_wide = 5.5)
 
 
@@ -375,7 +375,7 @@ std_deaths_seroplot <- rgnplotdat %>%
   xlab("Adj. Seroprevalence (%).") + ylab("Cum. Deaths per Million") +
   labs(caption = "Cumulative Deaths per Million at midpoint of Seroprevalence Study") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/std_deaths_seroplot_labeled.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/std_deaths_seroplot_labeled.jpg",
             plot = std_deaths_seroplot)
 
 
@@ -397,7 +397,7 @@ rgn_std_cum_deaths_plot <- rgnplotdat %>%
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(family = "Helvetica", hjust = 1, size = 8, angle = 45))
 
-jpgsnapshot(outpath = "results/descriptive_figures/rgn_std_cum_deaths_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/rgn_std_cum_deaths_plot.jpg",
             plot = rgn_std_cum_deaths_plot)
 #......................
 # daily standardized deaths by rgn
@@ -411,6 +411,6 @@ rgn_std_daily_deaths_plot <- rgnplotdat %>%
   xlab("Obs. Day") + ylab("Daily Deaths per Million") +
   xyaxis_plot_theme +
   theme(legend.position = "none")
-jpgsnapshot(outpath = "results/descriptive_figures/rgn_std_daily_deaths_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/rgn_std_daily_deaths_plot.jpg",
             plot = rgn_std_daily_deaths_plot)
 
