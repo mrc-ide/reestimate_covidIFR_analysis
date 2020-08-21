@@ -285,9 +285,9 @@ CHE.agebands.dat$rho <- rep(1, length(unique(che_adj_seroprev$ageband)))
 #......................
 # save out
 #......................
-dir.create("data/derived/CHE", recursive = T)
-saveRDS(CHE.region.dat, "data/derived/CHE/CHE_region.RDS")
-saveRDS(CHE.agebands.dat, "data/derived/CHE/CHE_agebands.RDS")
+dir.create("data/derived/CHE1", recursive = T)
+saveRDS(CHE.region.dat, "data/derived/CHE1/CHE1_region.RDS")
+saveRDS(CHE.agebands.dat, "data/derived/CHE1/CHE1_agebands.RDS")
 
 
 
