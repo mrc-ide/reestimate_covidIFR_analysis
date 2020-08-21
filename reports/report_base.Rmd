@@ -24,7 +24,7 @@ source("R/my_themes.R")
 modout <- readRDS(params$path)
 
 # pieces for below
-studyidchar <- toupper(stringr::str_split(basename(params$path), "_", simplify = T)[[1]])
+studyidchar <- toupper(stringr::str_split(basename(params$path), "_age|_rgn", simplify = T)[[1]])
 stratachar <- ifelse(grepl("age", basename(params$path)), "Age-Band", "Region")
 ```
 
@@ -170,7 +170,7 @@ tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>%
 #### Seroprevalence Observed vs. Inferred True Prev
 ```{r}
 seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
-                                                   dwnsmpl = 1e2,
+                                                   dwnsmpl = 1e3,
                                                    by_chain = F)
 
 serocurvedat <- seropnts %>% 

@@ -125,7 +125,7 @@ make_spliney_reparamdf <- function(max_yvec = list("name" = "y3", min = 0, init 
 
   out <- tibble::tibble(name = paste0("y", 1:num_ys),
                         min  = rep(0, size = num_ys),
-                        init = rep(0.5, size = num_ys),
+                        init = rep(0.1, size = num_ys),
                         max = rep(1, size = num_ys),
                         dsc1 = rep(0, size = num_ys),
                         dsc2 = rep(1, size = num_ys))
