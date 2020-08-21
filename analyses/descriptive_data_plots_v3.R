@@ -85,11 +85,11 @@ ageplotdat <- datmap %>%
   tidyr::unnest(cols = "plotdat")
 
 ###### filter to only plot the latest serology when there are multiple rounds - ok?
-maxDays<-  ageplotdat %>%
+maxDays <- ageplotdat %>%
   dplyr::group_by(study_id) %>%
   dplyr::summarise(max_day=max(obsdaymax))
-ageplotdat<-full_join(ageplotdat,maxDays,by="study_id")
-ageplotdat<-filter(ageplotdat,obsdaymax==max_day)
+ageplotdat <- dplry::full_join(ageplotdat, maxDays, by="study_id")
+ageplotdat <- dplyr::filter(ageplotdat, obsdaymax == max_day)
 
 
 #......................
@@ -133,7 +133,9 @@ age_IFRraw_plot0 <- ageplotdat %>%
                 crudeIFR =  cumdeaths/infxns,
                 crudeIFR = ifelse(crudeIFR > 1, 1, crudeIFR),
                 seroprev = seroprev * 100 )
-write.csv(age_IFRraw_plot0,file="C:/Users/Lucy/Documents/GitHub/reestimate_covidIFR_analysis/data/derived/age_summ_IFR.csv",row.names = F)
+
+# write this out for later use
+readr::write_csv(age_IFRraw_plot0, path = "data/derived/age_summ_IFR.csv")
 
 age_IFRraw_plot <- age_IFRraw_plot0 %>%
   ggplot() +
@@ -171,7 +173,7 @@ age_IFRraw_plot2 <- age_IFRraw_plot0 %>%
   xlab("Age (years)") + ylab("Crude infection fatality rate") +
   xyaxis_plot_theme
 jpgsnapshot(outpath = "results/descriptive_figures/age_IFRraw_plot2.jpg",
-            plot = age_IFRraw_plot2,width_wide = 8,height_wide = 5.5)
+            plot = age_IFRraw_plot2, width_wide = 8,height_wide = 5.5)
 
 # seroadj
 age_IFRadj_plot <- ageplotdat %>%
@@ -251,12 +253,12 @@ rgnplotdat <- datmap %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
 
-###### filter to only plot the latest serology when there are multiple rounds - ok?
-maxDays<-  rgnplotdat %>%
+# filter to only plot the latest serology when there are multiple rounds
+maxDays <- rgnplotdat %>%
   dplyr::group_by(study_id) %>%
   dplyr::summarise(max_day=max(obsdaymax))
-rgnplotdat<-full_join(rgnplotdat,maxDays,by="study_id")
-rgnplotdat<-filter(rgnplotdat,obsdaymax==max_day)
+rgnplotdat <- dplyr::full_join(rgnplotdat,maxDays,by="study_id")
+rgnplotdat <- dplyr::filter(rgnplotdat,obsdaymax==max_day)
 
 #......................
 # rgn adj seroprevalence
@@ -344,7 +346,8 @@ jpgsnapshot(outpath = "results/descriptive_figures/rgn_IFR_adj_plot.jpg",
 #......................
 std_deaths_seroplot <- rgnplotdat %>%
   dplyr::filter(seromidpt == obsday)
-write.csv(std_deaths_seroplot,file="data/derived/region_summ_IFR.csv",row.names = F)
+# write out for later use
+readr::write_csv(std_deaths_seroplot, path = "data/derived/region_summ_IFR.csv")
 
 std_deaths_seroplot <- std_deaths_seroplot %>%
   dplyr::select(c("study_id", "region", "std_cum_deaths", "popn", "seroprevadj")) %>%
