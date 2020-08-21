@@ -17,7 +17,11 @@ sero_prevdf <- readr::read_tsv("data/raw/seroprevalence_final_raw.tsv") %>%
   dplyr::mutate(date_start_survey = lubridate::ymd(date_start_survey), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
                 date_end_survey = lubridate::ymd(date_end_survey),
                 seroprevalence_unadjusted = ifelse(is.na(seroprevalence_unadjusted), n_positive/n_tested, seroprevalence_unadjusted))
-
+# cumulative deaths
+deathsdf <- readr::read_tsv("data/raw/cumulative_deaths.tsv") %>%
+  dplyr::select(-c("ref", "notes")) %>%
+  dplyr::mutate(date_start_survey = lubridate::ymd(date_start_survey), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+                date_end_survey = lubridate::ymd(date_end_survey))
 
 #..................................................................................
 #---- Preprocess Latin America Data  #-----
@@ -108,9 +112,6 @@ BRA.agebands.dat <- process_data3(deaths = bradeaths,
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-# seroprevalence not absolutely 0
-BRA.regions.dat$seroprevMCMC <- BRA.regions.dat$seroprevMCMC %>%
-  dplyr::mutate(SeroPrev = ifelse(SeroPrev == 0, 1e-10, SeroPrev))
 
 #......................
 # get rho
@@ -130,18 +131,14 @@ saveRDS(BRA.agebands.dat, "data/derived/BRA/BRA_agebands.RDS")
 #..................................................................................
 #---- Preprocess European Data #----
 #..................................................................................
-# deaths
-deathsdf <- readr::read_csv("data/raw/cumulative_deaths.csv") %>%
-  dplyr::select(-c("ref", "notes")) %>%
-  dplyr::mutate(date_start_survey = lubridate::ymd(date_start_survey), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-                date_end_survey = lubridate::ymd(date_end_survey))
+# get ecdc data for recasting
 ECDCdf <- readr::read_csv("data/raw/daily_deaths_ECDC20200724.csv") %>%
   dplyr::select(c("dateRep", "countryterritoryCode", "deaths")) %>%
   dplyr::rename(date = dateRep,
                 georegion = countryterritoryCode) %>%
   dplyr::mutate(date = lubridate::mdy(date), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
                 deaths = ifelse(deaths < 0, 0, deaths)) # remove deaths typos
-# demography
+# demography (non-US Census data)
 populationdf <- readr::read_tsv("data/raw/population.tsv") %>%
   dplyr::select(-c("reference")) %>%
   dplyr::mutate(age_low = ifelse(age_low == 0 & age_high == 0, 1, age_low),
@@ -498,18 +495,6 @@ ESP.agebands.dat <- process_data3(deaths = deathsdf,
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-# # suspicious 0 followed by very large increase
-# # Monday, April 27 appears suspicious, such that all deaths from Apr 27 got pushed to Apr 28
-# ESP.agebands.dat$deathsMCMC$Deaths[ESP.agebands.dat$deathsMCMC$ObsDay == 117] <- -1
-# ESP.agebands.dat$deathsMCMC$Deaths[ESP.agebands.dat$deathsMCMC$ObsDay == 118] <- -1
-# ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 117] <- -1
-# ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 118] <- -1
-#
-# # typo for 1179 deaths on May 25
-# ESP.agebands.dat$deathsMCMC$Deaths[ESP.agebands.dat$deathsMCMC$ObsDay == 171] <- -1
-# ESP.regions.dat$deathsMCMC$Deaths[ESP.regions.dat$deathsMCMC$ObsDay == 171] <- -1
-
-
 # No adjustments to serology as there is alignment of deaths and seroprevalence age groups.
 
 #......................
@@ -525,6 +510,12 @@ ESP.regions.dat$rho <- rep(1, length(unique(ESP.regions.dat$deathsMCMC$region)))
 dir.create("data/derived/ESP/ESP_agebands.RDS")
 saveRDS(ESP.agebands.dat, "data/derived/ESP/ESP_agebands.RDS")
 saveRDS(ESP.regions.dat, "data/derived/ESP/ESP_regions.RDS")
+
+#............................................................
+#---- GBR2 #----
+#...........................................................
+# TODO
+
 
 
 #............................................................
@@ -551,9 +542,8 @@ GBR3.agebands.dat <- process_data3(deaths = deathsdf,
                                    groupingvar = "ageband",
                                    study_ids = "GBR3",
                                    recast_deaths_geocode = "ENG",
-                                   death_agebreaks = c(0,44,64,74,999),
-                                   sero_agebreaks = c(0,44,64,74,999),
-                                   filtGender = "both")
+                                   death_agebreaks = c(0, 44, 64, 74, 999),
+                                   sero_agebreaks = c(0, 44, 64, 74, 999))
 #......................
 # regions
 #......................
@@ -924,7 +914,7 @@ populationdf <- readr::read_csv("data/raw/USA_County_Demographic_Data.csv") %>%
   dplyr::select(c("country", "age_low", "age_high", "region", "gender", "population", "age_breakdown", "for_regional_analysis", "gender_breakdown")) %>%
   dplyr::left_join(., readr::read_csv("data/raw/usa_study_id_county_key.csv"), by = "region")
 
-# JHU deaths
+# JHU data for new recast df
 JHUdf <- readr::read_csv("data/raw/JHU_time_series_covid19_deaths_US_july72020.csv") %>%
   tidyr::gather(., key = "date", value = "deaths", 13:ncol(.)) %>%
   dplyr::filter(!is.na(Admin2)) %>%
