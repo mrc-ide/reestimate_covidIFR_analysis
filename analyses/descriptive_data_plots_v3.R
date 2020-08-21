@@ -92,9 +92,8 @@ ageplotdat<-full_join(ageplotdat,study_cols,by="study_id")
 maxDays <- ageplotdat %>%
   dplyr::group_by(study_id) %>%
   dplyr::summarise(max_day=max(obsdaymax))
-
-ageplotdat <- dplry::full_join(ageplotdat, maxDays, by="study_id")
-ageplotdat <- dplyr::filter(ageplotdat, obsdaymax == max_day)
+ageplotdat<-full_join(ageplotdat,maxDays,by="study_id")
+ageplotdat<-filter(ageplotdat,obsdaymax==max_day)
 
 
 #......................
@@ -332,6 +331,7 @@ maxDays <- rgnplotdat %>%
   dplyr::summarise(max_day=max(obsdaymax))
 rgnplotdat <- dplyr::full_join(rgnplotdat,maxDays,by="study_id")
 rgnplotdat <- dplyr::filter(rgnplotdat,obsdaymax==max_day)
+rgnplotdat<-full_join(rgnplotdat,study_cols,by="study_id")
 
 #......................
 # rgn adj seroprevalence
