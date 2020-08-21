@@ -11,7 +11,7 @@ modoutpath <- modoutpath[!grepl("simfit_param_map.RDS", modoutpath)]
 modoutpath <- tibble::tibble(sim = sub(".RDS", "", basename(modoutpath)),
                              path = modoutpath)
 fit_map <- readRDS("results/SimCurves/simfit_param_map.RDS") %>%
-  dplyr::select(c("sim", "simdat", "curve", "sens", "spec", "fatalitydata", "demog")) %>%
+  dplyr::select(c("sim", "nm", "simdat", "curve", "sens", "spec", "mod", "sero_rate", "fatalitydata", "demog")) %>%
   dplyr::left_join(., modoutpath, by = "sim") %>%
   dplyr::filter(sens == 0.85 & spec == 0.99)
 
@@ -133,5 +133,21 @@ plotA <- fit_map$ifrplots[[1]]
 plotB <- fit_map$ifrplots[[2]]
 plotC <- fit_map$ifrplots[[3]]
 
-cowplot::plot_grid(plotA, plotB, plotC, labels = c("(A)", "(B)", "(C)"),
-                   align = "v", ncol = 1)
+plotD <- fit_map$ifrplots[[4]]
+plotE <- fit_map$ifrplots[[5]]
+plotF <- fit_map$ifrplots[[6]]
+
+plotG <- fit_map$ifrplots[[7]]
+plotH <- fit_map$ifrplots[[8]]
+plotI <- fit_map$ifrplots[[9]]
+
+jpeg("~/Desktop/temp.jpg", width = 11, height = 8, units = "in", res = 300)
+cowplot::plot_grid(plotA, plotB, plotC,
+                   plotD, plotE, plotF,
+                   plotG, plotH, plotI,
+                   labels = LETTERS[1:9],
+                   ncol = 3, nrow = 3)
+graphics.off()
+
+
+
