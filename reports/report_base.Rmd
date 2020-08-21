@@ -193,8 +193,8 @@ SeroPrevObs <- crudedat %>%
 
 ```
 
-```{r, results='asis', fig.width=7.5, fig.height=8.5}
-serocurvedat %>% 
+```{r}
+serocurvedatPlotObj <- serocurvedat %>% 
   ggplot() +
   geom_line(aes(x = ObsDay, y = seroprev, color = seroprevlvl), alpha = 0.5) +
   geom_rect(data = SeroPrevObs, aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf), 
@@ -208,7 +208,14 @@ serocurvedat %>%
   xyaxis_plot_theme + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"))
 
+jpgsnapshot(paste0("figures/", studyidchar, "-", stratachar, "_SeroPrevPDplot.jpg"), 
+            plot = serocurvedatPlotObj)
 
+
+```
+
+```{r, results='asis', fig.width=7.5, fig.height=8.5}
+plot(serocurvedatPlotObj)
 ```
 
 \pagebreak
