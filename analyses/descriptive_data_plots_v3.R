@@ -331,6 +331,7 @@ maxDays <- rgnplotdat %>%
   dplyr::summarise(max_day=max(obsdaymax))
 rgnplotdat <- dplyr::full_join(rgnplotdat,maxDays,by="study_id")
 rgnplotdat <- dplyr::filter(rgnplotdat,obsdaymax==max_day)
+rgnplotdat<-full_join(rgnplotdat,study_cols,by="study_id")
 
 #......................
 # rgn adj seroprevalence
