@@ -175,10 +175,10 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_day = 150)
 get_sens_spec <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",         "sero_rate"),
                  min =   c(0.5,              0.5,            0),
-                 init =  c(0.8,              0.8,            1),
+                 init =  c(0.8,              0.8,            0.9),
                  max =   c(1,                1,              5),
-                 dsc1 =  c(sens*1e3,        spec*1e3,        0.5),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  0.25))
+                 dsc1 =  c(sens*1e3,        spec*1e3,        0.9),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  2))
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 
@@ -244,14 +244,14 @@ fit_map <- map %>%
 # Come Together
 #...........................................................
 # save out full for later manips
-dir.create("data/param_map/SimCurves/", recursive = TRUE)
-saveRDS(fit_map, "data/param_map/SimCurves/simfit_param_map.RDS")
+dir.create("data/param_map/SimCurves_delayreparam/", recursive = TRUE)
+saveRDS(fit_map, "data/param_map/SimCurves_delayreparam/simfit_param_map.RDS")
 
 # select what we need for fits and make outpaths
 fit_map_modelobj <- fit_map %>%
   dplyr::select(c("sim", "modelobj"))
 lapply(split(fit_map_modelobj, 1:nrow(fit_map_modelobj)), function(x){
-  saveRDS(x, paste0("data/param_map/SimCurves/",
+  saveRDS(x, paste0("data/param_map/SimCurves_delayreparam/",
                     x$sim, ".RDS"))
 })
 
@@ -292,8 +292,8 @@ run_MCMC <- function(path) {
   gc()
 
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves/",
+  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_delayreparam/", recursive = TRUE)
+  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_delayreparam/",
                    mod$sim, ".RDS")
   saveRDS(fit, file = outpath)
 
@@ -310,7 +310,7 @@ run_MCMC <- function(path) {
 
 # read files in after sleeping to account for file lag
 Sys.sleep(60)
-file_param_map <- list.files(path = "data/param_map/SimCurves/",
+file_param_map <- list.files(path = "data/param_map/SimCurves_delayreparam/",
                              pattern = "*.RDS",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)
@@ -339,7 +339,7 @@ options(clustermq.scheduler = "slurm",
         clustermq.template = "drake_workers/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq",
      jobs = nrow(file_param_map),
-     log_make = "SimCurves.log", verbose = 2,
+     log_make = "SimCurves_delayreparam.log", verbose = 2,
      log_progress = TRUE,
      log_build_times = FALSE,
      recoverable = FALSE,
