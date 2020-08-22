@@ -26,15 +26,21 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   #......................
   dictkey <- tibble::tibble(groupvar = as.character(unlist(unique(dat$seroprevMCMC[, groupvar]))), "Strata" = paste0("ma", 1:num_mas))
   colnames(dictkey) <- c(paste(groupvar), "Strata")
-  # deaths
-  dat$deaths <- dplyr::left_join(dat$deathsMCMC, dictkey) %>%
-    dplyr::select(c("ObsDay", "Strata", "Deaths"))  %>%
+
+  # time series deaths
+  obs_deaths <- dat$deaths_TSMCMC %>%
+    dplyr::select(c("ObsDay", "deaths")) %>%
+    dplyr::rename(Deaths = deaths)
+
+  # prop deaths
+  prop_deaths <- dplyr::left_join(dat$deaths_propMCMC, dictkey) %>%
+    dplyr::select(c("Strata", "death_prop"))  %>%
+    dplyr::rename(PropDeaths = death_prop) %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
-    dplyr::arrange(ObsDay, Strata) %>%
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
 
   # seroprev
-  dat$obs_serology <- dplyr::left_join(dat$seroprevMCMC, dictkey) %>%
+  obs_serology <- dplyr::left_join(dat$seroprevMCMC, dictkey) %>%
     dplyr::rename(SeroPos = n_positive,
                   SeroN = n_tested,
                   SeroStartSurvey = ObsDaymin,
@@ -45,8 +51,9 @@ make_IFR_model_fit <- function(num_mas, maxMa,
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
 
 
-  inputdata <- list(obs_deaths = dat$deaths,
-                    obs_serology = dat$obs_serology)
+  inputdata <- list(obs_deaths = obs_deaths,
+                    prop_deaths = prop_deaths,
+                    obs_serology = obs_serology)
 
   demog <- dat$prop_pop %>%
     dplyr::left_join(., dictkey) %>%
@@ -74,8 +81,7 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
   mod1$set_rho(rep(1, num_mas))
-  #mod1$set_rcensor_day(.Machine$integer.max)
-  mod1$set_rcensor_day(max(dat$deaths$ObsDay) - 10)
+  mod1$set_rcensor_day(.Machine$integer.max)
   mod1$set_IFRdictkey(dictkey)
   # out
   mod1

@@ -37,7 +37,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawrgn <- readRDS("data/derived/BRA/BRA_regions.RDS")
 BRA_rgn_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma2", # Northern Region
                                   groupvar = "region",  dat = rawrgn,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 174, init = 181, max = 188, dsc1 = 174, dsc2 = 188),
+                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 175, init = 181, max = 189, dsc1 = 175, dsc2 = 189),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 #......................
@@ -46,7 +46,7 @@ BRA_rgn_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma2", # Northern Region
 rawage <- readRDS("data/derived/BRA/BRA_agebands.RDS")
 BRA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   groupvar = "ageband",  dat = rawage,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 174, init = 181, max = 188, dsc1 = 174, dsc2 = 188),
+                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 175, init = 181, max = 189, dsc1 = 175, dsc2 = 189),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
@@ -116,7 +116,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawrgn <- readRDS("data/derived/DNK/DNK_regions.RDS")
 DNK_rgn_mod <- make_IFR_model_fit(num_mas = 3, maxMa = "ma1", # Capital Region
                                   groupvar = "region",  dat = rawrgn,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
+                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 #......................
@@ -125,7 +125,7 @@ DNK_rgn_mod <- make_IFR_model_fit(num_mas = 3, maxMa = "ma1", # Capital Region
 rawage <- readRDS("data/derived/DNK/DNK_agebands.RDS")
 DNK_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                   groupvar = "ageband",  dat = rawage,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
+                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
@@ -148,7 +148,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawrgn <- readRDS("data/derived/ESP/ESP_regions.RDS")
 ESP_rgn_mod <- make_IFR_model_fit(num_mas = 17, maxMa = "ma17", # La Rioja Region
                                   groupvar = "region",  dat = rawrgn,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 193, init = 200, max = 205, dsc1 = 193, dsc2 = 205),
+                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 17.66),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
@@ -158,7 +158,7 @@ ESP_rgn_mod <- make_IFR_model_fit(num_mas = 17, maxMa = "ma17", # La Rioja Regio
 rawage <- readRDS("data/derived/ESP/ESP_agebands.RDS")
 ESP_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   groupvar = "ageband",  dat = rawage,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 193, init = 200, max = 205, dsc1 = 193, dsc2 = 205),
+                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 17.66),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
@@ -213,7 +213,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawage <- readRDS("data/derived/NLD/NLD_agebands.RDS")
 NLD_age_mod <- make_IFR_model_fit(num_mas = 6, maxMa = "ma6",
                                   groupvar = "ageband",  dat = rawage,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
+                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.67, dsc1 = 0, dsc2 = 16.67),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
@@ -265,7 +265,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawage <- readRDS("data/derived/LUX/LUX_agebands.RDS")
 LUX_age_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                   groupvar = "ageband",  dat = rawage,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
+                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.34, dsc1 = 0, dsc2 = 13.34),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 # fixed inside code too?
@@ -286,7 +286,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawage <- readRDS("data/derived/USA/NYC_NY_1agebands.RDS")
 NYC_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                   groupvar = "ageband",  dat = rawage,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 174, init = 181, max = 188, dsc1 = 174, dsc2 = 188),
+                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
@@ -353,7 +353,7 @@ fit_map <- tibble::tibble(
 #......................
 # manual adjustments to fit map
 #......................
-fit_map$bvec[grepl("BRA", fit_map$name)] <- seq(5, 2.5, length.out = 50)
+fit_map$GTI_pow[grepl("BRA", fit_map$name)] <- list(seq(5, 2.5, length.out = 50))
 
 #......................
 # fitmap out
