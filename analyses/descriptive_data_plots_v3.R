@@ -60,7 +60,7 @@ datmap <- datmap %>%
 #......................
 deathhlp <- datmap %>%
   dplyr::mutate(
-    deathdat_long = purrr::map(data, "deathsMCMC"),
+    deathdat_long = purrr::map(data, "deaths_group"),
     popdat = purrr::map(data, "prop_pop"),
     groupingvar = breakdown,
     Nstandardization = 1e6) %>%
@@ -86,14 +86,14 @@ ageplotdat <- datmap %>%
   dplyr::filter(breakdown == "ageband") %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
-ageplotdat<-full_join(ageplotdat,study_cols,by="study_id")
+ageplotdat <- dplyr::full_join(ageplotdat, study_cols, by="study_id")
 
-###### filter to only plot the latest serology when there are multiple rounds - ok?
+#filter to only plot the latest serology when there are multiple rouunds
 maxDays <- ageplotdat %>%
   dplyr::group_by(study_id) %>%
   dplyr::summarise(max_day=max(obsdaymax))
-ageplotdat<-full_join(ageplotdat,maxDays,by="study_id")
-ageplotdat<-filter(ageplotdat,obsdaymax==max_day)
+ageplotdat <- dplyr::full_join(ageplotdat, maxDays, by="study_id")
+ageplotdat <- dplyr::filter(ageplotdat, obsdaymax == max_day)
 
 
 #......................
