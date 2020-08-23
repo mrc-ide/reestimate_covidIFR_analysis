@@ -178,7 +178,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawrgn <- readRDS("data/derived/GBR3/GBR3_regions.RDS")
 GBR3_rgn_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma4",
                                    groupvar = "region",  dat = rawrgn,
-                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 206, init = 199, max = 213, dsc1 = 199, dsc2 = 213),
+                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 206, init = 210, max = 213, dsc1 = 199, dsc2 = 213),
                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
                                    sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
@@ -188,7 +188,7 @@ GBR3_rgn_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma4",
 rawage <- readRDS("data/derived/GBR3/GBR3_agebands.RDS")
 GBR3_age_mod <- make_IFR_model_fit(num_mas = 4, maxMa = "ma4",
                                    groupvar = "ageband",  dat = rawage,
-                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 206, init = 199, max = 213, dsc1 = 199, dsc2 = 213),
+                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 206, init = 210, max = 213, dsc1 = 199, dsc2 = 213),
                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
                                    sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
