@@ -113,7 +113,7 @@ crudeplotdat <- crudedat %>%
 # get incidence curve
 #......................
 infxncurve <- COVIDCurve::draw_posterior_infxn_cubic_splines(IFRmodel_inf = modout,
-                                                             dwnsmpl = 1e3,
+                                                             dwnsmpl = 1e2,
                                                              by_chain = FALSE, 
                                                              by_strata = TRUE)
 #...................... 
@@ -170,7 +170,7 @@ tibble::tibble("Overall IFR" = sprintf("%1.2f%%", 100*gIFR)) %>%
 #### Seroprevalence Observed vs. Inferred True Prev
 ```{r}
 seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
-                                                   dwnsmpl = 1e3,
+                                                   dwnsmpl = 1e2,
                                                    by_chain = F)
 
 serocurvedat <- seropnts %>% 
@@ -223,7 +223,21 @@ plot(serocurvedatPlotObj)
 #......................
 # get deaths posterior pred check
 #......................
-death_midday <-  modout$inputs$IFRmodel$data$obs_deaths %>%
+# recast deaths
+proplist <- split(modout$inputs$IFRmodel$data$prop_deaths, 1:nrow(modout$inputs$IFRmodel$data$prop_deaths))
+
+deathrecast <- lapply(proplist,
+                      function(x){
+                        tibble::tibble(
+                          Strata = x$Strata,
+                          Deaths = x$PropDeaths * modout$inputs$IFRmodel$data$obs_deaths$Deaths)}) %>% 
+  dplyr::bind_rows(.) %>% 
+  dplyr::group_by(Strata) %>% 
+  dplyr::mutate(ObsDay = 1:nrow(modout$inputs$IFRmodel$data$obs_deaths)) %>% 
+  dplyr::ungroup(.)
+
+
+death_midday <-  deathrecast %>%
   dplyr::filter(Deaths != -1) %>% 
   dplyr::left_join(., modout$inputs$IFRmodel$IFRdictkey, by = "Strata") %>% 
   dplyr::mutate(cumdeaths = cumsum(Deaths)) %>% 
@@ -270,7 +284,7 @@ ggplot() +
 # get posterior draws
 #......................
 postdat <- COVIDCurve::posterior_check_infxns_to_death(IFRmodel_inf = modout,
-                                                       dwnsmpl = 1e1,
+                                                       dwnsmpl = 1e2,
                                                        by_chain = FALSE)
 postdat_long <- postdat %>%
   dplyr::select(c("sim", "time", dplyr::starts_with("deaths"))) %>%
@@ -283,8 +297,7 @@ postdat_long <- postdat %>%
 #......................
 # get deaths posterior pred check
 #......................
-datclean <-  modout$inputs$IFRmodel$data$obs_deaths %>%
-  dplyr::filter(Deaths != -1) %>% 
+datclean <-  deathrecast %>% 
   dplyr::left_join(., modout$inputs$IFRmodel$IFRdictkey, by = "Strata") 
 # liftover name
 colnames(datclean)[colnames(datclean) == gsub("-", "", tolower(stratachar))] <- "strata"
