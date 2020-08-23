@@ -17,10 +17,10 @@ source("R/covidcurve_helper_functions.R")
 # onset to deaths
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_rate"),
                                min  = c(0,      0,     0),
-                               init = c(14,     0.7,   0.9),
-                               max =  c(50,     1,     5),
-                               dsc1 = c(14.5,   50,    0.9),
-                               dsc2 = c(1,      50,    2))
+                               init = c(14,     0.7,   13.5),
+                               max =  c(50,     1,     50),
+                               dsc1 = c(14.5,   50,    13.5),
+                               dsc2 = c(1,      50,    1))
 
 #............................................................
 #---- BRA1 #----
@@ -391,7 +391,7 @@ run_MCMC <- function(path) {
                                         reparamIFR = TRUE,
                                         reparamInfxn = TRUE,
                                         reparamKnots = TRUE,
-                                        reparamDelays = TRUE,
+                                        reparamDelays = FALSE,
                                         reparamNe = TRUE,
                                         chains = n_chains,
                                         burnin = mod$burnin,
@@ -406,7 +406,7 @@ run_MCMC <- function(path) {
                                         reparamIFR = FALSE,
                                         reparamInfxn = TRUE,
                                         reparamKnots = TRUE,
-                                        reparamDelays = TRUE,
+                                        reparamDelays = FALSE,
                                         reparamNe = TRUE,
                                         chains = n_chains,
                                         burnin = mod$burnin,

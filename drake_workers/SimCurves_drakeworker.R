@@ -153,18 +153,20 @@ wrap_sim <- function(curve, sens, spec, mod, sero_rate, fatalitydata, demog, ser
   # Time Series death dat
   obs_deaths <- dat$AggDeath %>%
     dplyr::group_by(ObsDay) %>%
-    dplyr::summarise(deaths = sum(Deaths)) %>%
-    dplyr::pull(deaths)
+    dplyr::summarise(Deaths = sum(Deaths)) %>%
+    dplyr::ungroup(.)
 
   # proportion deaths
   prop_strata_obs_deaths <- dat$AggDeath %>%
     dplyr::group_by(Strata) %>%
     dplyr::summarise(deaths = sum(Deaths)) %>%
-    dplyr::pull(deaths)/sum(dat$AggDeath$Deaths)
+    dplyr::ungroup(.) %>%
+    dplyr::mutate(PropDeaths = deaths/sum(dat$AggDeath$Deaths)) %>%
+    dplyr::select(-c("deaths"))
 
   # make out
-  inputdata <- list(obs_deaths = dat$AggDeath,
-                    prop_strata_obs_deaths = prop_strata_obs_deaths,
+  inputdata <- list(obs_deaths = obs_deaths,
+                    prop_deaths = prop_strata_obs_deaths,
                     obs_serology = obs_serology)
   out <- list(simdat = dat,
               inputdata = inputdata)
@@ -193,11 +195,11 @@ map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 
 # delay priors
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod",  "sero_rate"),
-                               min  = c(10,     0,      0),
-                               init = c(14,     0.7,    0.9),
-                               max =  c(30,     1,      5),
-                               dsc1 = c(14.5,   50,     0.9),
-                               dsc2 = c(1,      50,     2))
+                               min  = c(0,      0,      0),
+                               init = c(14,     0.7,    13),
+                               max =  c(30,     1,      30),
+                               dsc1 = c(14.5,   50,     13.5),
+                               dsc2 = c(1,      50,     1))
 
 # everything else for region
 wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
@@ -288,7 +290,7 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      reparamDelays = TRUE,
+                                      reparamDelays = FALSE,
                                       reparamNe = TRUE,
                                       chains = n_chains,
                                       burnin = 1e4,
