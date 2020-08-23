@@ -96,7 +96,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawage <- readRDS("data/derived/CHE2/CHE2_agebands.RDS")
 CHE2_age_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                    groupvar = "ageband",  dat = rawage,
-                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 206, init = 199, max = 213, dsc1 = 199, dsc2 = 213),
+                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 199, init = 206, max = 213, dsc1 = 199, dsc2 = 213),
                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14.24, dsc1 = 0, dsc2 = 14.24),
                                    sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
