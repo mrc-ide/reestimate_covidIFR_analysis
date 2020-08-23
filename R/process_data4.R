@@ -216,6 +216,17 @@ process_seroprev_data <- function(seroprev, origin, study_ids, sero_agebreaks, g
                      seroprevalence_unadjusted = n_positive/n_tested) %>%
     dplyr::rename(SeroPrev = seroprevalence_unadjusted) %>%
     dplyr::ungroup()
+
+  # make sure factor order perserved which can be overwritten in the group_by_at, so for safety
+  if (groupingvar == "ageband") {
+    seroprevMCMC <- seroprevMCMC %>%
+      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
+      dplyr::arrange(age_low) %>%
+      dplyr::mutate(ageband = forcats::fct_reorder(.f = ageband, .x = age_low)) %>%
+      dplyr::select(-c("age_low"))
+  }
+
+
   # out
   out <- list(seroprevMCMC = seroprevMCMC,
               seroprevFull = seroprev)
@@ -437,6 +448,14 @@ process_death_data <- function(cum_tp_deaths, time_series_totdeaths_df, time_ser
     dplyr::mutate(death_denom = sum(death_num),
                   death_prop = death_num/death_denom) # protect against double counting of same person in multiple groups
 
+  # make sure factor order perserved which can be overwritten in the group_by_at, so for safety
+  if (groupingvar == "ageband") {
+    cum_tp_deaths.prop <- cum_tp_deaths.prop %>%
+      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
+      dplyr::arrange(age_low) %>%
+      dplyr::mutate(ageband = forcats::fct_reorder(.f = ageband, .x = age_low)) %>%
+      dplyr::select(-c("age_low"))
+  }
   # store group names
   groupvarnames <- cum_tp_deaths %>%
     dplyr::group_by_at(c(groupingvar)) %>%
