@@ -37,6 +37,7 @@ make_IFR_model_fit <- function(num_mas, maxMa,
     dplyr::select(c("Strata", "death_prop"))  %>%
     dplyr::rename(PropDeaths = death_prop) %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
+    dplyr::arrange(Strata) %>%
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
 
   # seroprev
