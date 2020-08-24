@@ -134,7 +134,7 @@ age_IFRraw_plot0 <- ageplotdat %>%
   dplyr::filter(seromidpt == obsday) %>%
   dplyr::select(c("study_id","n_positive","n_tested","ageband","age_low","age_high", "age_mid", "cumdeaths", "popn", "seroprev", "seroprevadj")) %>%
   dplyr::mutate(infxns = popn * seroprev,
-                crudeIFR =  cumdeaths/infxns,
+                crudeIFR =  cumdeaths/(infxns+cumdeaths),
                 crudeIFR = ifelse(crudeIFR > 1, 1, crudeIFR),
                 seroprev = seroprev * 100 )
 
@@ -182,9 +182,11 @@ age_IFRadj_plot <- ageplotdat %>%
   dplyr::filter(seromidpt == obsday) %>%
   dplyr::select(c("study_id", "age_mid", "cumdeaths", "popn", "seroprev", "seroprevadj")) %>%
   dplyr::mutate(infxns = popn * seroprevadj,
-                crudeIFR =  cumdeaths/infxns,
+                crudeIFR =  cumdeaths/(cumdeaths+infxns),
                 crudeIFR = ifelse(crudeIFR > 1, 1, crudeIFR),
-                seroprevadj = seroprevadj * 100 ) %>%
+                seroprevadj = seroprevadj * 100 )
+
+%>%
   ggplot() +
   geom_line(aes(x = age_mid, y = crudeIFR, color = study_id), alpha = 0.8, size = 1.2) +
   geom_point(aes(x = age_mid, y = crudeIFR, fill = seroprevadj), color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
@@ -375,7 +377,7 @@ rgn_IFR_plot <- rgnplotdat %>%
   dplyr::filter(seromidpt == obsday) %>%
   dplyr::select(c("study_id", "region", "cumdeaths", "popn", "seroprev")) %>%
   dplyr::mutate(infxns = popn * seroprev,
-                crudeIFR =  cumdeaths/infxns,
+                crudeIFR =  cumdeaths/(infxns+cumdeaths),
                 crudeIFR = ifelse(crudeIFR > 1, 1, crudeIFR),
                 seroprev = seroprev * 100 ) %>%
   dplyr::filter(infxns > 0) %>%
@@ -398,7 +400,7 @@ rgn_IFR_plot <- rgnplotdat %>%
   dplyr::filter(seromidpt == obsday) %>%
   dplyr::select(c("study_id", "region", "cumdeaths", "popn", "seroprevadj")) %>%
   dplyr::mutate(infxns = popn * seroprevadj,
-                crudeIFR =  cumdeaths/infxns,
+                crudeIFR =  cumdeaths/(infxns+cumdeaths),
                 crudeIFR = ifelse(crudeIFR > 1, 1, crudeIFR),
                 seroprevadj = seroprevadj * 100 ) %>%
   dplyr::filter(infxns > 0) %>%
@@ -530,13 +532,13 @@ over80<-populationdf %>%
 
 ###### OVERALL IFRS
 ## TODO - CHECK CHE1-2 (SEEM LOW)
-age_IFRraw_plot0<-read.csv("data/derived/age_summ_IFR.csv",row.names = F)
+age_IFRraw_plot0<-read.csv("data/derived/age_summ_IFR.csv")
 ifr0<-age_IFRraw_plot0 %>%
   dplyr::group_by(study_id) %>%
   dplyr::summarise(n_deaths=sum(cumdeaths),
                    infxns=sum(infxns),
                    pop=sum(popn)) %>%
-  dplyr::mutate(ifr=n_deaths/infxns)
+  dplyr::mutate(ifr=n_deaths/(infxns+n_deaths))
 ifr0<-full_join(ifr0,over80,by="study_id")
 ifr0$prop_pop.y[which(ifr0$study_id=="GBR3")]<-0.04454408
 ifr0$prop_pop.y[which(ifr0$study_id=="BRA1")]<-0.021
