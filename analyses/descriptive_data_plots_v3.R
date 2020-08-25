@@ -38,7 +38,7 @@ datmap <- datmap %>%
   dplyr::mutate(data = purrr::map(relpath, readRDS))
 
 ## assign constant colours to each study
-study_cols<-data.frame(study_id=unique(datmap$study_id),cols=discrete_colors[1:length(unique(datmap$study_id))])
+study_cols<-data.frame(study_id=unique(datmap$study_id),study_cols=discrete_colors[1:length(unique(datmap$study_id))])
 
 #......................
 # wrangle & extract sero data
@@ -82,13 +82,16 @@ saveRDS(datmap, file = "data/derived/descriptive_results_datamap.RDS")
 #............................................................
 # Age Bands Plots/Descriptions
 #...........................................................
+# GBR4 Jersey, GBR2 Scotland, SF_CA - no age data or too early in epidemic to have age data.
+# LA_CA1, GBR2 TODO
+#-------------------------------------------------------
 ageplotdat <- datmap %>%
   dplyr::filter(breakdown == "ageband") %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
 ageplotdat<-full_join(ageplotdat,study_cols,by="study_id")
 
-###### filter to only plot the latest serology when there are multiple rounds - ok?
+###### filter to only plot the latest serology when there are multiple rounds.
 maxDays <- ageplotdat %>%
   dplyr::group_by(study_id) %>%
   dplyr::summarise(max_day=max(obsdaymax))
@@ -132,7 +135,7 @@ jpgsnapshot(outpath = "figures/descriptive_figures/age_adj_seroplot.jpg",
 # raw serology
 age_IFRraw_plot0 <- ageplotdat %>%
   dplyr::filter(seromidpt == obsday) %>%
-  dplyr::select(c("study_id","n_positive","n_tested","ageband","age_low","age_high", "age_mid", "cumdeaths", "popn", "seroprev", "seroprevadj")) %>%
+  dplyr::select(c("study_id","n_positive","n_tested","ageband","age_low","age_high", "age_mid", "cumdeaths", "popn", "seroprev", "seroprevadj","study_cols")) %>%
   dplyr::mutate(infxns = popn * seroprev,
                 crudeIFR =  cumdeaths/(infxns+cumdeaths),
                 crudeIFR = ifelse(crudeIFR > 1, 1, crudeIFR),
@@ -153,29 +156,35 @@ age_IFRraw_plot <- age_IFRraw_plot0 %>%
 jpgsnapshot(outpath = "figures/descriptive_figures/age_IFRraw_plot.jpg",
             plot = age_IFRraw_plot)
 
-### probably a neater way to do this. TODO
+
+### probably a neater way to do this. TODO correct legend.
+col_vec<-study_cols$study_cols
+names(col_vec) <- levels(study_cols$study_id)
+
 age_IFRraw_plot2 <- age_IFRraw_plot0 %>%
-  ggplot() +
-  geom_point(aes(x = age_mid, y = crudeIFR, color = study_id))+ #, color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
-  geom_line(aes(x = age_mid, y = crudeIFR, color = study_id), alpha = 0.8, size = 1.2) +
-  scale_color_manual("Study ID", values = discrete_colors) +
+  ggplot() + theme_bw() +
+  geom_point(aes(x = age_mid, y = crudeIFR, fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
+  geom_line(aes(x = age_mid, y = crudeIFR, group=study_id,color=study_id), size = 0.3) +
+  scale_fill_manual(values = col_vec, name = "study_id") +
+  scale_color_manual(values = col_vec, name = "study_id") +
   xlab("Age (years)") + ylab("Crude infection fatality rate") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "figures/descriptive_figures/age_IFRraw_plot2.jpg",
-            plot = age_IFRraw_plot2, width_wide = 8,height_wide = 5.5)
+ggsave(filename = "results/descriptive_figures/age_IFRraw_plot2.pdf", plot = age_IFRraw_plot2, width = 7, height = 5)
+
 
 age_IFRraw_plot_log <- age_IFRraw_plot0 %>%
   filter(crudeIFR>0) %>%
-  ggplot() +
-  geom_point(aes(x = age_mid, y = crudeIFR, color = study_id))+ #, color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
-  geom_line(aes(x = age_mid, y = crudeIFR, color = study_id), alpha = 0.8, size = 1.2) +
-  scale_color_manual("Study ID", values=discrete_colors) +
+  ggplot() + theme_bw() +
+  geom_point(aes(x = age_mid, y = crudeIFR, fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
+  geom_line(aes(x = age_mid, y = crudeIFR, group=study_id,color=study_id), size = 0.3) +
+  scale_fill_manual(values = col_vec, name = "study_id") +
+  scale_color_manual(values = col_vec, name = "study_id") +
   xlab("Age (years)") + ylab("Crude infection fatality rate") +
   xyaxis_plot_theme +
-  scale_y_log10() +
+  scale_y_log10()
 #  coord_cartesian(ylim=c(0.00000000001,1))
-jpgsnapshot(outpath = "results/descriptive_figures/age_IFRraw_plot_log.jpg",
-            plot = age_IFRraw_plot_log,width_wide = 8,height_wide = 5.5)
+ggsave(filename = "results/descriptive_figures/age_IFRraw_plot_log.pdf", plot = age_IFRraw_plot_log,
+         width = 7, height = 5)
 
 # seroadj
 age_IFRadj_plot <- ageplotdat %>%

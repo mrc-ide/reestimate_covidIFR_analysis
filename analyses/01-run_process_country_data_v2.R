@@ -1193,10 +1193,76 @@ dir.create("data/derived/CHN", recursive = T)
 saveRDS(CHN.agebands.dat, "data/derived/CHN/CHN_agebands.RDS")
 
 
+#............................................................
+#---- KEN1 #----
+#...........................................................
+#......................
+# ages
+#......................
+KEN1TimeSeries <- readr::read_csv("data/raw/deaths_time_series.csv") %>%
+  dplyr::filter(study_id == "KEN1")
+# sanity check
+identical(KEN1TimeSeries$date_start_survey, KEN1TimeSeries$date_end_survey)
+KEN1TimeSeries <- KEN1TimeSeries %>%
+  dplyr::rename(date = date_end_survey,
+                deaths = n_deaths) %>%
+  dplyr::mutate(date = lubridate::dmy(date)) # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+KEN1TimeSeries$georegion <- "KEN"
 
+##### no regional deaths data for Kenya.
+#......................
+# ages
+#......................
+KEN.agebands.dat <- process_data3(deaths = deathsdf,
+                                  population = populationdf,
+                                  sero_val = sero_valdf,
+                                  seroprev = sero_prevdf,
+                                  cumulative = TRUE,
+                                  recast_deaths_df = KEN1TimeSeries,
+                                  groupingvar = "ageband",
+                                  study_ids = "KEN1",
+                                  death_agebreaks = c(0, 39,59, 999), # for pop splits
+                                  recast_deaths_geocode = "KEN")   ## use study id in case we get more studies later.
 
+#......................
+# MANUAL ADJUSTMENTS
+#......................
+# mortality and seroprevalence agebands are exactly out of sync (25-35 instead of 20-30 etc).
+# combine into 2 broad age bands.
+agebands<-c('0-39','39-59','59-999')
+ken_adj_seroprev <- tibble::tibble(
+  ObsDaymin = unique(KEN.agebands.dat$seroprevMCMC$ObsDaymin),
+  ObsDaymax = unique(KEN.agebands.dat$seroprevMCMC$ObsDaymax),
+  ageband = agebands,
+  n_positive = NA,
+  n_tested = NA,
+  SeroPrev = NA)
 
+KEN.agebands.dat$seroprev_group
 
+### Assume 15-44 seroprevalence same as 0-40
+ken_adj_seroprev$n_positive[1] <- sum(KEN.agebands.dat$seroprev_group$n_positive[1:3])
+ken_adj_seroprev$n_tested[1] <- sum(KEN.agebands.dat$seroprev_group$n_tested[1:3])
+### Assume 45-65 ok for 40-60.
+ken_adj_seroprev$n_positive[2] <- sum(KEN.agebands.dat$seroprev_group$n_positive[4:5])
+ken_adj_seroprev$n_tested[2] <- sum(KEN.agebands.dat$seroprev_group$n_tested[4:5])
+### Assume 45-65 ok for 60+
+ken_adj_seroprev$n_positive[3] <- sum(KEN.agebands.dat$seroprev_group$n_positive[4:5])
+ken_adj_seroprev$n_tested[3] <- sum(KEN.agebands.dat$seroprev_group$n_tested[4:5])
+
+ken_adj_seroprev$SeroPrev<-ken_adj_seroprev$n_positive/ken_adj_seroprev$n_tested
+KEN.agebands.dat$seroprevMCMC <- ken_adj_seroprev
+
+#......................
+# get rho
+#......................
+KEN.agebands.dat$rho <- rep(1, length(unique(KEN.agebands.dat$deathsMCMC$ageband)))
+
+#......................
+# save out
+#......................
+dir.create("data/derived/KEN", recursive = T)
+saveRDS(KEN.agebands.dat, "data/derived/KEN/KEN_agebands.RDS")
 
 
 
