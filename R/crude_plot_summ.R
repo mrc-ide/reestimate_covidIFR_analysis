@@ -49,6 +49,7 @@ standardize_deathdat <- function(deathdat_long, popdat, groupingvar, Nstandardiz
     )
   # combine
   ret <- dplyr::left_join(deathdat_long, popdat, by = groupingvar) %>%
+    dplyr::filter(Deaths != -1) %>%  # missing value for cpp
     dplyr::mutate(std_deaths = (Deaths/popN) * Nstandardization,
                   std_cum_deaths = (cumdeaths/popN) * Nstandardization) %>%
     magrittr::set_colnames(tolower(colnames(.)))
