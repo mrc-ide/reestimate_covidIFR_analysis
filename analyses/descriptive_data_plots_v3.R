@@ -423,16 +423,26 @@ std_deaths_seroplot <- rgnplotdat %>%
 readr::write_csv(std_deaths_seroplot, path = "data/derived/region_summ_IFR.csv")
 
 
-#### region versus mortality
+#### region versus mortality. TODO - get colours same as age graph.
+# TODO add remaining studies. TODO collapse NLD1 into one measure.
 rgn_deaths_seroplot <- std_deaths_seroplot %>%
   dplyr::select(c("study_id", "region", "std_cum_deaths", "popn", "seroprev")) %>%
   dplyr::mutate(seroprev = seroprev * 100) %>%
   ggplot() + theme_bw() +
+  geom_abline(slope = c(0.1, 0.5, 1, 2, 5)*100, color = grey(0.8), size = 0.3) +
   geom_point(aes(x = seroprev, y = std_cum_deaths, fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
   scale_fill_manual(values = col_vec, name = "study_id") +
   xlab("Seroprevalence (%).") + ylab("Cumulative Deaths per Million") +
   #  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
-  xyaxis_plot_theme
+  xyaxis_plot_theme +
+  scale_x_continuous(limits = c(0,15), expand = c(0,0)) +
+  scale_y_continuous(limits = c(0,1800), expand = c(0,0), n.breaks = 5) +
+  annotate("text", x = c(12, 11, 9, 6, 2),
+                          y = c(170, 620, 1000, 1300, 1400),
+                          label = sprintf("%s%%", c(0.1, 0.5, 1, 2, 5)),
+                          hjust = 0,
+                          size = 3,
+                          col = grey(0.5))
 ggsave(filename = "results/descriptive_figures/deaths_rgn_seroplot.pdf", plot = rgn_deaths_seroplot, width = 7, height = 5)
 
 
