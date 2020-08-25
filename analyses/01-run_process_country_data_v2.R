@@ -572,6 +572,7 @@ GBR3.regions.dat <- process_data4(cum_tp_deaths = deathsdf,
                                   get_descriptive_dat = TRUE,
                                   groupingvar = "region",
                                   study_ids = "GBR3",
+                                  death_agebreaks = c(0, 999), # right now GBR3 popdf not refined at all
                                   filtRegions = c("North East",
                                                   "North West",
                                                   "Yorkshire",

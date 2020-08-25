@@ -245,6 +245,8 @@ process_population_data <- function(population, cum_tp_deaths, death_agebreaks, 
   # subset to study id
   population <- population %>%
     dplyr::filter(study_id %in% study_ids)
+  cum_tp_deaths <- cum_tp_deaths %>%
+    dplyr::filter(study_id %in% study_ids)
 
   #......................
   # Process Age
@@ -281,6 +283,7 @@ process_population_data <- function(population, cum_tp_deaths, death_agebreaks, 
         dplyr::filter(ageband %in% filtAgeBand)
     }
   }
+
 
   #......................
   # Process Regions (if necessary)
@@ -334,6 +337,17 @@ process_population_data <- function(population, cum_tp_deaths, death_agebreaks, 
       dplyr::arrange_at(c(groupingvar, "ageband")) %>%
       dplyr::ungroup()
   }
+
+  # make sure factor order perserved which can be overwritten in the group_by_at, so for safety
+  if (groupingvar == "ageband") {
+    population <- population %>%
+      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
+      dplyr::arrange(age_low) %>%
+      dplyr::mutate(ageband = forcats::fct_reorder(.f = ageband, .x = age_low)) %>%
+      dplyr::select(-c("age_low"))
+  }
+
+  # out
   return(pop_prop.summ)
 }
 
