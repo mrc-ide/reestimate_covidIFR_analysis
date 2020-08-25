@@ -17,10 +17,10 @@ source("R/covidcurve_helper_functions.R")
 # onset to deaths
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_rate"),
                                min  = c(0,      0,     0),
-                               init = c(14,     0.7,   13.5),
+                               init = c(19,     0.79,  18),
                                max =  c(50,     1,     50),
-                               dsc1 = c(14.5,   50,    13.5),
-                               dsc2 = c(1,      50,    1))
+                               dsc1 = c(19.26,  79,    18),
+                               dsc2 = c(1,      21,    1))
 
 #............................................................
 #---- BRA1 #----
@@ -268,8 +268,6 @@ LUX_age_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.34, dsc1 = 0, dsc2 = 13.34),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
-# fixed inside code too?
-LUX_age_mod$data$obs_deaths$Deaths <- ifelse(is.na(LUX_age_mod$data$obs_deaths$Deaths), -1, LUX_age_mod$data$obs_deaths$Deaths)
 
 #............................................................
 #---- New York City #----
@@ -279,7 +277,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(204.5,   990.5),
-                                dsc2 =  c(234.5,   10.5))
+                                dsc2 =  c(30.5,    10.5))
 #......................
 # agebands
 #......................
