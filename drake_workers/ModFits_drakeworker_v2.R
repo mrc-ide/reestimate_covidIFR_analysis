@@ -351,7 +351,9 @@ fit_map <- tibble::tibble(
 #......................
 # manual adjustments to fit map
 #......................
-fit_map$GTI_pow[grepl("BRA", fit_map$name)] <- list(seq(5, 2.5, length.out = 50))
+fit_map$GTI_pow[grepl("BRA1", fit_map$name)] <- list(seq(5, 2.5, length.out = 50))
+fit_map$GTI_pow[grepl("CHN1", fit_map$name)] <- list(seq(3.5, 3, length.out = 50))
+fit_map$GTI_pow[grepl("CHE1", fit_map$name)] <- list(seq(3.5, 3, length.out = 50))
 
 #......................
 # fitmap out
