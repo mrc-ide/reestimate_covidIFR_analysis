@@ -840,15 +840,14 @@ saveRDS(ITA.agebands.dat, "data/derived/ITA/ITA_agebands.RDS")
 #......................
 LUX.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                   time_series_totdeaths_df = JHUdf,
-                                  time_series_totdeaths_geocode = "ITA",
+                                  time_series_totdeaths_geocode = "LUX",
                                   population = populationdf,
                                   sero_val = sero_valdf,
                                   seroprev = sero_prevdf,
                                   get_descriptive_dat = TRUE,
                                   groupingvar = "ageband",
                                   study_ids = "LUX1",
-                                  death_agebreaks = c(0, 29, 39, 49, 59, 69, 79, 999),
-                                  sero_agebreaks = NULL)
+                                  death_agebreaks = c(0, 29, 39, 49, 59, 69, 79, 999))
 
 
 #......................
