@@ -105,14 +105,19 @@ demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
 #............................................................
 # Simulate Under Model
 #...........................................................
+# map <- expand.grid(curve = list(expgrowth, intervene, secondwave),
+#                    sens = c(0.85, 0.90),
+#                    spec = c(0.95, 0.99),
+#                    mod = c(13, 18, 23),
+#                    sero_rate = c(7, 14, 21)) %>%
+#   dplyr::filter( (sero_rate == 14 & mod == 18) |
+#                    (sero_rate == 7 & mod == 23) |
+#                    (sero_rate == 21 & mod == 13 ))
 map <- expand.grid(curve = list(expgrowth, intervene, secondwave),
                    sens = c(0.85, 0.90),
                    spec = c(0.95, 0.99),
-                   mod = c(13, 18, 23),
-                   sero_rate = c(7, 14, 21)) %>%
-  dplyr::filter( (sero_rate == 14 & mod == 18) |
-                   (sero_rate == 7 & mod == 23) |
-                   (sero_rate == 21 & mod == 13 ))
+                   mod = c(19),
+                   sero_rate = c(18))
 
 map <- tibble::as_tibble(map) %>%
   dplyr::mutate(fatalitydata = list(fatalitydata),
@@ -125,7 +130,7 @@ wrap_sim <- function(curve, sens, spec, mod, sero_rate, fatalitydata, demog, ser
   dat <- COVIDCurve::Aggsim_infxn_2_death(
     fatalitydata = fatalitydata,
     m_od = mod,
-    s_od = 0.5,
+    s_od = 0.79,
     curr_day = 200,
     infections = curve$infxns,
     simulate_seroprevalence = TRUE,
@@ -186,7 +191,7 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_day = 150)
 get_sens_spec <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec"),
                  min =   c(0.5,              0.5),
-                 init =  c(0.8,              0.8),
+                 init =  c(0.9,              0.99),
                  max =   c(1,                1),
                  dsc1 =  c(sens*1e3,        spec*1e3),
                  dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3)))
@@ -198,8 +203,8 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod",  "sero_rate"),
                                min  = c(0,      0,      0),
                                init = c(14,     0.7,    13),
                                max =  c(30,     1,      30),
-                               dsc1 = c(14.5,   50,     13.5),
-                               dsc2 = c(1,      50,     1))
+                               dsc1 = c(19,     79,     18),
+                               dsc2 = c(1,      21,     1))
 
 # everything else for region
 wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
