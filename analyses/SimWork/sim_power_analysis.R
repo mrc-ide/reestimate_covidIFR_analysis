@@ -61,22 +61,22 @@ analyze_fits <- function(sim, simdat, curve, modout, fatalitydata,
                          paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "spec", c("dsc1", "dsc2")], collapse = ","),
                          ")")) +
     theme(legend.position = "none")
-  senschain <- senschain[[1]][["trace"]] + geom_hline(yintercept = spec, linetype = "dashed", size = 1.25) +
+  senschain <- senschain[[1]][["trace"]] + geom_hline(yintercept = sens, linetype = "dashed", size = 1.25) +
     labs(caption = paste0("Prior was Beta(",
                           paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sens", c("dsc1", "dsc2")], collapse = ","),
                           ")")) +
     theme(legend.position = "none")
-  modchain <- modchain[[1]][["trace"]] + geom_hline(yintercept = spec, linetype = "dashed", size = 1.25) +
+  modchain <- modchain[[1]][["trace"]] + geom_hline(yintercept = mod, linetype = "dashed", size = 1.25) +
     labs(caption = paste0("Prior was Norm+(",
                           paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "mod", c("dsc1", "dsc2")], collapse = ","),
                           ")")) +
     theme(legend.position = "none")
-  sodchain <- sodchain[[1]][["trace"]] + geom_hline(yintercept = spec, linetype = "dashed", size = 1.25) +
+  sodchain <- sodchain[[1]][["trace"]] +
     labs(caption = paste0("Prior was Beta(",
                           paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sod", c("dsc1", "dsc2")], collapse = ","),
                           ")")) +
     theme(legend.position = "none")
-  seroratechain <- seroratechain[[1]][["trace"]] + geom_hline(yintercept = spec, linetype = "dashed", size = 1.25) +
+  seroratechain <- seroratechain[[1]][["trace"]] + geom_hline(yintercept = sero_rate, linetype = "dashed", size = 1.25) +
     labs(caption = paste0("Prior was Norm+(",
                           paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sero_rate", c("dsc1", "dsc2")], collapse = ","),
                           ")")) +
@@ -152,17 +152,17 @@ fit_map_sm <- fit_map %>%
   dplyr::mutate(diagplot = purrr::map(retplots, "diagplot"),
                 sero_plot_dets = purrr::map(retplots, "sero_plot_dets"),
                 infxnplot = purrr::map(retplots, "infxnplot")) %>%
-  dplyr::select(c("sim", "nm", "spec", "sens", "mod", "sero_rate", "sero_plot_dets", "infxnplot"))
+  dplyr::select(c("sim", "nm", "spec", "sens", "mod", "sero_rate", "diagplot", "sero_plot_dets", "infxnplot"))
 
 
 fit_map_sm_diagplots <- fit_map_sm %>%
-  dplyr::select(-c("diagplot")) %>%
-  dplyr::rename(plotObjs = sero_plot_dets)
+  dplyr::select(-c("sero_plot_dets", "infxnplot")) %>%
+  dplyr::rename(plotObjs = diagplot)
 fit_map_sm_sero_plot_dets <- fit_map_sm %>%
-  dplyr::select(-c("infxnplot")) %>%
+  dplyr::select(-c("infxnplot", "diagplot")) %>%
   dplyr::rename(plotObjs = sero_plot_dets)
 fit_map_sm_infxnplot <- fit_map_sm %>%
-  dplyr::select(-c("sero_plot_dets")) %>%
+  dplyr::select(-c("sero_plot_dets", "diagplot")) %>%
   dplyr::rename(plotObjs = infxnplot)
 
 fit_map_sm <- dplyr::bind_rows(fit_map_sm_diagplots, fit_map_sm_sero_plot_dets, fit_map_sm_infxnplot) %>%
