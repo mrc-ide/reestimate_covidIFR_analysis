@@ -23,6 +23,12 @@ fit_map$modout <- purrr::map(fit_map$path, readRDS)
 analyze_fits <- function(sim, simdat, curve, modout, fatalitydata,
                          spec, sens, mod, sero_rate, dwnsmpl = 1e2) {
 
+  # get title for throughout
+  title <- cowplot::ggdraw() + cowplot::draw_label(
+    paste0("Simulation run: ", sim),
+    fontface = 'bold', hjust = 0.5, vjust = 0.5) +
+    theme(plot.margin = margin(0, 5, 0, 0))
+
   #......................
   # like and mc accept
   #......................
@@ -42,7 +48,7 @@ analyze_fits <- function(sim, simdat, curve, modout, fatalitydata,
           legend.title = element_blank())
   mcaccplot <- drjacoby::plot_mc_acceptance(modout$mcmcout)
 
-  diagplot <- cowplot::plot_grid(likeplot, mcaccplot, ncol = 1, rel_heights = c(1, 0.4))
+  diagplot <- cowplot::plot_grid(title, likeplot, mcaccplot, ncol = 1, rel_heights = c(0.1, 1, 0.4))
 
   #......................
   # sero mixing
@@ -85,11 +91,6 @@ analyze_fits <- function(sim, simdat, curve, modout, fatalitydata,
   legend_bt <- cowplot::get_legend(maxmachain + theme(legend.position = "bottom",
                                                       legend.title = element_blank()))
   # out
-  title <- cowplot::ggdraw() + cowplot::draw_label(
-      paste0("Simulation run: ", sim),
-      fontface = 'bold', hjust = 0.5, vjust = 0.5) +
-    theme(plot.margin = margin(0, 5, 0, 0))
-
   topp <- cowplot::plot_grid(spechain, senschain, modchain, sodchain, maxmachain, seroratechain,
                              ncol = 2, nrow = 3)
   sero_plot_dets <- cowplot::plot_grid(title, topp, legend_bt, nrow = 3, rel_heights = c(0.1, 1, 0.1))

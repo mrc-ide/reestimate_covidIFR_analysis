@@ -160,7 +160,7 @@ if (n_cores < n_chains) {
 }
 cl <- parallel::makeCluster(mkcores)
 fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod1,
-                                    reparamIFR = TRUE,
+                                    reparamIFR = FALSE,
                                     reparamInfxn = TRUE,
                                     reparamKnots = TRUE,
                                     reparamDelays = FALSE,
