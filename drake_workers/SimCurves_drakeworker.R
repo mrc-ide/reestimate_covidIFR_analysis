@@ -93,6 +93,8 @@ secondwave <- secondwave %>%
 #............................................................
 # setup fatality data
 #............................................................
+# redefine popN for update demog
+popN <- sum(c(1.2e6, 1.1e6, 1e6, 9e5, 8e5))
 # make up fatality data
 fatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
                                IFR = c(1e-3, 1e-3, 0.05, 0.1, 0.2),
@@ -105,19 +107,15 @@ demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
 #............................................................
 # Simulate Under Model
 #...........................................................
-# map <- expand.grid(curve = list(expgrowth, intervene, secondwave),
-#                    sens = c(0.85, 0.90),
-#                    spec = c(0.95, 0.99),
-#                    mod = c(13, 18, 23),
-#                    sero_rate = c(7, 14, 21)) %>%
-#   dplyr::filter( (sero_rate == 14 & mod == 18) |
-#                    (sero_rate == 7 & mod == 23) |
-#                    (sero_rate == 21 & mod == 13 ))
 map <- expand.grid(curve = list(expgrowth, intervene, secondwave),
                    sens = c(0.85, 0.90),
                    spec = c(0.95, 0.99),
-                   mod = c(19),
-                   sero_rate = c(18))
+                   mod = c(13, 18, 23),
+                   sero_rate = c(7, 14, 21)) %>%
+  dplyr::filter( (sero_rate == 14 & mod == 18) |
+                   (sero_rate == 7 & mod == 23) |
+                   (sero_rate == 21 & mod == 13 ))
+
 
 map <- tibble::as_tibble(map) %>%
   dplyr::mutate(fatalitydata = list(fatalitydata),
@@ -204,7 +202,7 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod",  "sero_rate"),
                                init = c(14,     0.7,    13),
                                max =  c(30,     1,      30),
                                dsc1 = c(19,     79,     18),
-                               dsc2 = c(1,      21,     1))
+                               dsc2 = c(3,      21,     3))
 
 # everything else for region
 wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
