@@ -16,7 +16,7 @@ make_IFR_model_fit <- function(num_mas, maxMa,
                                           num_xs = num_xs)
   infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
                                            num_ys = num_ys)
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 1/num_mas, init = 1/num_mas, max = 1/num_mas)
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 1, init = 1, max = 1)
 
 
   # bring together
@@ -81,7 +81,7 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rho(rep(1, num_mas))
+  mod1$set_rho(demog$popN/sum(demog$popN))
   mod1$set_rcensor_day(.Machine$integer.max)
   mod1$set_IFRdictkey(dictkey)
   # out
