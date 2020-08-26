@@ -240,15 +240,17 @@ deathrecast <- lapply(proplist,
 death_midday <-  deathrecast %>%
   dplyr::filter(Deaths != -1) %>% 
   dplyr::left_join(., modout$inputs$IFRmodel$IFRdictkey, by = "Strata") %>% 
+  dplyr::group_by(Strata) %>% 
   dplyr::mutate(cumdeaths = cumsum(Deaths)) %>% 
-  dplyr::filter(ObsDay %in% round(unique(SeroPrevObs$obsmidday))) %>% 
+  dplyr::ungroup(.) %>% 
+  dplyr::filter(ObsDay %in% ceiling(unique(SeroPrevObs$obsmidday))) %>% 
   dplyr::rename(param = Strata)
 
 #......................
 # get seropost
 #......................
 seropost_midday <- serocurvedat %>% 
-  dplyr::filter(ObsDay %in% round(unique(SeroPrevObs$obsmidday))) %>% 
+  dplyr::filter(ObsDay %in% ceiling(unique(SeroPrevObs$obsmidday))) %>% 
   dplyr::ungroup() %>% 
   dplyr::left_join(., death_midday) %>% 
   dplyr::mutate(std_deaths = cumdeaths/popN * 1e6,
@@ -258,7 +260,7 @@ seropost_midday <- serocurvedat %>%
 SeroPrevObs_midday <- SeroPrevObs %>% 
   dplyr::left_join(., death_midday) %>% 
   dplyr::rename(obseroprev = seroprev) %>% 
-  dplyr::mutate(std_deaths = cumdeaths/popN * 1e6) 
+  dplyr::mutate(std_deaths = (cumdeaths/popN) * 1e6) 
 
 # plot
 ggplot() + 
@@ -332,3 +334,25 @@ jpgsnapshot(paste0("figures/", studyidchar, "-", stratachar, "_PPCplot.jpg"),
 plot(ppc_plot)
 ```
 
+\pagebreak
+#### Additional Parameters
+```{r}
+# knots ifrs 
+knots <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
+                                       what = "Knotparams", by_chain = FALSE)
+
+ypos <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
+                                       what = "Infxnparams", by_chain = FALSE)
+
+nes <-  COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
+                                       what = "Noiseparams", by_chain = FALSE)
+
+addparams <- dplyr::bind_rows(knots, ypos, nes)
+
+```
+```{r, results='asis', fig.width=8, fig.height=6}
+addparams %>% 
+  dplyr::mutate_if(is.numeric, round, 2) %>% 
+  knitr::kable(.)
+
+```
