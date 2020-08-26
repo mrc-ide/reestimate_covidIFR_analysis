@@ -16,7 +16,7 @@ make_IFR_model_fit <- function(num_mas, maxMa,
                                           num_xs = num_xs)
   infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
                                            num_ys = num_ys)
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 1, init = 1, max = 1)
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 1/num_mas, init = 1/num_mas, max = 1/num_mas)
 
 
   # bring together
