@@ -16,10 +16,7 @@ make_IFR_model_fit <- function(num_mas, maxMa,
                                           num_xs = num_xs)
   infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
                                            num_ys = num_ys)
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 1, init = 1, max = 1)
-  noise_paramsdf$dsc1 <- 0.99
-  noise_paramsdf$dsc2 <- 1.01
-
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0, init = 1, max = 10)
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
