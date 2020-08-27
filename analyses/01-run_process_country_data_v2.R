@@ -867,7 +867,7 @@ lux_adj_seroprev <- tibble::tibble(
   ObsDaymin = unique(LUX.agebands.dat$seroprevMCMC$ObsDaymin),
   ObsDaymax = unique(LUX.agebands.dat$seroprevMCMC$ObsDaymax),
   ageband = agebands,
-  n_postive = NA,
+  n_positive = NA,
   n_tested = NA,
   SeroPrev = NA)
 lux_adj_seroprev$n_positive <- LUX.agebands.dat$seroprev_group$n_positive
