@@ -251,6 +251,7 @@ death_midday <-  deathrecast %>%
 #......................
 seropost_midday <- serocurvedat %>% 
   dplyr::filter(ObsDay %in% ceiling(unique(SeroPrevObs$obsmidday))) %>% 
+  dplyr::filter(seroprevlvl == "Crude") %>% 
   dplyr::ungroup() %>% 
   dplyr::left_join(., death_midday) %>% 
   dplyr::mutate(std_deaths = cumdeaths/popN * 1e6,
@@ -262,15 +263,16 @@ SeroPrevObs_midday <- SeroPrevObs %>%
   dplyr::rename(obseroprev = seroprev) %>% 
   dplyr::mutate(std_deaths = (cumdeaths/popN) * 1e6) 
 
+
+
 # plot
 ggplot() + 
   geom_point(data = seropost_midday, aes(x = seroprev, y = std_deaths, color = strata), alpha = 0.5) + 
   geom_point(data = SeroPrevObs_midday, aes(x = obseroprev, y = std_deaths),
              color = "#000000", size = 2) +
   ggrepel::geom_text_repel(data = SeroPrevObs_midday, aes(x = obseroprev, y = std_deaths, label = strata)) +
-  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "#EA4335", alpha = 0.8) +
   scale_color_viridis_d("Strata") +
-  ylab("Deaths per Million") + xlab("Seroprevalence") +
+  ylab("Deaths per Million") + xlab("Inferred True Seroprevalence") +
   labs(caption = "Virids points are posteriors, black is observed") +
   xyaxis_plot_theme + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"))
