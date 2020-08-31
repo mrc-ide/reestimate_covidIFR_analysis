@@ -217,7 +217,7 @@ wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
     infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
                                              num_ys = 5)
   }
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 0, init = 5, max = 10)
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 1, init = 1, max = 11)
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
@@ -237,7 +237,7 @@ wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rho(rep(1, 5))
+  mod1$set_rho(demog$popN/sum(demog$popN))
   mod1$set_rcensor_day(.Machine$integer.max)
   # out
   mod1
@@ -294,7 +294,7 @@ run_MCMC <- function(path) {
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
                                       reparamDelays = FALSE,
-                                      reparamNe = TRUE,
+                                      reparamNe = FALSE,
                                       chains = n_chains,
                                       burnin = 1e4,
                                       samples = 1e4,
