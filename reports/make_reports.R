@@ -15,3 +15,4 @@ renderMyDocument <- function(path) {
 }
 
 lapply(paths, renderMyDocument)
+
