@@ -211,6 +211,8 @@ bvec <- seq(5, 2.5, length.out = 50)
 
 fit_map <- tibble::tibble(
   name = c("reg_mod", "serorev_mod"),
+  infxns = list(infxns, NULL), # Null sinse same infections
+  simdat = list(dat, serorev_dat),
   modelobj = list(mod1_reg, mod1_serorev),
   rungs = 50,
   GTI_pow = list(bvec),
