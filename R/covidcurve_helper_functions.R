@@ -11,12 +11,27 @@ make_IFR_model_fit <- function(num_mas, maxMa,
                                serodayparams) {
 
   # make dfs
-  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas)
+  if (groupvar == "ageband") {
+    ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.4)
+  } else if (groupvar == "region") {
+    ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.1)
+  } else {
+    stop("Grouping var option not available")
+  }
+
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
   infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
                                            num_ys = num_ys)
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0, init = 1, max = 10)
+
+
+  if (groupvar == "ageband") {
+    noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 1, init = 1, max = 1)
+  } else if (groupvar == "region") {
+    noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0.5, init = 1, max = 1.5)
+  } else {
+    stop("Grouping var option not available")
+  }
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
@@ -102,14 +117,14 @@ make_ma_dict_key <- function(strata_names) {
 #' @title Make IFR Uniform Distributed Reparameterized Param Df
 #' @param num_mas positive interger; Number of IFR strata to infer
 
-make_ma_reparamdf <- function(num_mas = 10) {
+make_ma_reparamdf <- function(num_mas = 10, upperMa) {
   assert_pos_int(num_mas)
   tibble::tibble(name = paste0("ma", 1:num_mas),
                  min  = rep(0, size = num_mas),
                  init = rep(0.1, size = num_mas),
-                 max = rep(1, size = num_mas),
+                 max = rep(upperMa, size = num_mas),
                  dsc1 = rep(0, size = num_mas),
-                 dsc2 = rep(1, size = num_mas))
+                 dsc2 = rep(upperMa, size = num_mas))
 }
 
 
@@ -185,11 +200,12 @@ make_noiseeff_reparamdf <- function(num_Nes = 4,
   assert_numeric(init)
   assert_numeric(max)
 
+  # normal(1, 0.05) for all Nes
   tibble::tibble(name = paste0("Ne", 1:num_Nes),
                  min  = rep(min, size = num_Nes),
                  init = rep(init, size = num_Nes),
                  max = rep(max, size = num_Nes),
-                 dsc1 = rep(min, size = num_Nes),
-                 dsc2 = rep(max, size = num_Nes))
+                 dsc1 = rep(1, size = num_Nes),
+                 dsc2 = rep(0.05, size = num_Nes))
 }
 
