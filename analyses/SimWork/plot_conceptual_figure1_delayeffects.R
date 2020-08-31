@@ -6,182 +6,17 @@
 set.seed(48)
 library(COVIDCurve)
 library(tidyverse)
-source("R/simple_seir_model.R")
 source("R/covidcurve_helper_functions.R")
 source("R/my_themes.R")
 
-#............................................................
-#----- Simulation #-----
-# run simple SEIR
-#...........................................................
-# make infxns from exponential growth followed by intervetions
-nsims <- 100
-popN <- 3e6
-infxns <- lapply(1:nsims, function(x){
-  run_simple_seir(N = popN,
-                  E0 = 50,
-                  R0 = 0,
-                  betas = c(0.33, 0.13, 0.12, 0.11),
-                  beta_changes = c(1, 130, 140, 150),
-                  sigma = 0.2,
-                  gamma = 0.2,
-                  time = 300)
-})
-infxns <- infxns %>%
-  dplyr::bind_rows(.) %>%
-  dplyr::group_by(step) %>%
-  dplyr::summarise(
-    infxns = mean(I)
-  ) %>%
-  dplyr::mutate_if(is.numeric, round, 0) %>%
-  dplyr::rename(time = step)
-
-
-# make up fatality data
-fatalitydata <- tibble::tibble(Strata = "ma1",
-                               IFR = 0.1,
-                               Rho = 1,
-                               Ne = 1)
-demog <- tibble::tibble(Strata = "ma1",
-                        popN = popN)
-
-# run COVIDCurve sim
-dat <- COVIDCurve::Aggsim_infxn_2_death(
-  fatalitydata = fatalitydata,
-  demog = demog,
-  m_od = 19.26,
-  s_od = 0.76,
-  curr_day = 300,
-  infections = infxns$infxns,
-  simulate_seroprevalence = TRUE,
-  sens = 0.85,
-  spec = 0.95,
-  sero_delay_rate = 18.3)
-
 
 #............................................................
-#----- Model & Fit #-----
+# read results in
 #...........................................................
-#......................
-# wrangle input data from sim
-#......................
-# sero tidy up
-sero_day <- 150
-obs_serology <- dat$AggSeroPrev %>%
-  dplyr::group_by(Strata) %>%
-  dplyr::filter(event_obs_day == sero_day) %>%
-  dplyr::mutate(
-    SeroPos = round(ObsPrev * popN),
-    SeroN = popN ) %>%
-  dplyr::rename(
-    SeroDay = event_obs_day,
-    SeroPrev = ObsPrev) %>%
-  dplyr::mutate(SeroStartSurvey = sero_day - 5,
-                SeroEndSurvey = sero_day + 5) %>%
-  dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
-  dplyr::ungroup(.) %>%
-  dplyr::arrange(SeroStartSurvey, Strata)
 
-# Time Series death dat
-obs_deaths <- dat$AggDeath %>%
-  dplyr::group_by(ObsDay) %>%
-  dplyr::summarise(Deaths = sum(Deaths)) %>%
-  dplyr::ungroup(.)
-
-# proportion deaths
-prop_strata_obs_deaths <- dat$AggDeath %>%
-  dplyr::group_by(Strata) %>%
-  dplyr::summarise(deaths = sum(Deaths)) %>%
-  dplyr::ungroup(.) %>%
-  dplyr::mutate(PropDeaths = deaths/sum(dat$AggDeath$Deaths)) %>%
-  dplyr::select(-c("deaths"))
-
-# make out
-inputdata <- list(obs_deaths = obs_deaths,
-                  prop_deaths = prop_strata_obs_deaths,
-                  obs_serology = obs_serology)
-
-#......................
-# make IFR model
-#......................
-# paramdf
-# sens/spec
-sens_spec_tbl <- tibble::tibble(name =  c("sens",  "spec"),
-                                min =   c(0.5,      0.5),
-                                init =  c(0.85,     0.99),
-                                max =   c(1,        1),
-                                dsc1 =  c(850.5,    990.5),
-                                dsc2 =  c(150.5,    10.5))
-
-# delay priors
-tod_paramsdf <- tibble::tibble(name = c("mod", "sod",  "sero_rate"),
-                               min  = c(0,      0,      0),
-                               init = c(19,     0.7,    18),
-                               max =  c(Inf,    1,      Inf),
-                               dsc1 = c(19.26,  79,     18.3),
-                               dsc2 = c(1,      21,     1))
-ifr_paramsdf <- make_ma_reparamdf(num_mas = 1)
-knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
-                                        num_xs = 4)
-infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
-                                         num_ys = 5)
-noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 1, min = 0, init = 5, max = 10)
-# bring together
-df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
-
-# make mod
-mod1 <- COVIDCurve::make_IFRmodel_agg$new()
-mod1$set_MeanTODparam("mod")
-mod1$set_CoefVarOnsetTODparam("sod")
-mod1$set_IFRparams("ma1")
-mod1$set_Knotparams(paste0("x", 1:4))
-mod1$set_relKnot("x4")
-mod1$set_Infxnparams(paste0("y", 1:5))
-mod1$set_relInfxn("y3")
-mod1$set_Noiseparams("Ne1")
-mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
-mod1$set_data(inputdata)
-mod1$set_demog(demog)
-mod1$set_paramdf(df_params)
-mod1$set_rho(1)
-mod1$set_rcensor_day(.Machine$integer.max)
-# out
-mod1
-
-#......................
-# Fit Model
-#......................
-n_chains <- 10
-n_cores <- parallel::detectCores()
-if (n_cores < n_chains) {
-  mkcores <- n_cores - 1
-} else {
-  mkcores <- n_chains
-}
-cl <- parallel::makeCluster(mkcores)
-fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod1,
-                                    reparamIFR = FALSE,
-                                    reparamInfxn = TRUE,
-                                    reparamKnots = TRUE,
-                                    reparamDelays = FALSE,
-                                    reparamNe = TRUE,
-                                    chains = n_chains,
-                                    burnin = 1e4,
-                                    samples = 1e4,
-                                    rungs = 50,
-                                    GTI_pow = 3,
-                                    cluster = cl,
-                                    thinning = 10)
-parallel::stopCluster(cl)
-gc()
-
-# save out
-dir.create("results/SimCurves/", recursive = TRUE)
-saveRDS(fit, "results/SimCurves/figure1_simfit.RDS")
-
-#......................
+#...........................................................
 # Plot Results
-#......................
+#...........................................................
 # IFR over time
 cumdat <-  dat$AggSeroPrev %>%
   dplyr::rename(ObsDay = event_obs_day) %>%
@@ -367,11 +202,11 @@ infxninset_plotObj <- ggplot() +
 # out
 #......................
 (toprow <- cowplot::ggdraw() +
-  cowplot::draw_plot(delay_plotObj, x = 0, y = 0, width = 1, height = 1, scale = 1) +
-  cowplot::draw_plot(infxninset_plotObj, x = 0.085, y= 0.65, width = 0.3, height = 0.3))
+    cowplot::draw_plot(delay_plotObj, x = 0, y = 0, width = 1, height = 1, scale = 1) +
+    cowplot::draw_plot(infxninset_plotObj, x = 0.085, y= 0.65, width = 0.3, height = 0.3))
 
 (fig1 <- cowplot::plot_grid(toprow, infIFR_plotObj, ncol = 1, align = "h",
-                           labels = c("(A)", "(B)"), rel_heights = c(1, 0.5)))
+                            labels = c("(A)", "(B)"), rel_heights = c(1, 0.5)))
 
 dir.create("figures/SimCurves/", recursive = T)
 jpeg("figures/SimCurves/conceptual_fig_1.jpg", width = 11, height = 8, units = "in", res = 500)
