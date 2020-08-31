@@ -74,7 +74,9 @@ process_data4 <- function(cum_tp_deaths = NULL, population = NULL, sero_val = NU
   # check time series
   assert_eq(c("date", "georegion", "deaths"), colnames(time_series_totdeaths_df))
   assert_date(time_series_totdeaths_df$date, message = "Deaths Time Series Date is not in lubridate format \n")
-  assert_increasing(as.numeric(time_series_totdeaths_df$date), message = "Dates not monotonically increasing")
+  checkdf <- time_series_totdeaths_df %>%
+    dplyr::filter(georegion == time_series_totdeaths_geocode)
+  assert_increasing(as.numeric(checkdf$date), message = "Dates not monotonically increasing")
 
   #............................................................
   # process death data
@@ -368,7 +370,8 @@ process_death_data <- function(cum_tp_deaths, time_series_totdeaths_df, time_ser
     dplyr::filter(georegion %in% time_series_totdeaths_geocode) %>%
     dplyr::mutate(ObsDay = as.numeric(lubridate::ymd(date) - origin) + 1) %>%
     dplyr::filter(ObsDay >= 1) %>% # consistent origin
-    dplyr::arrange(ObsDay)
+    dplyr::arrange(ObsDay) %>%
+    dplyr::select(-c("date"))
 
   # catch
   assert_greq(nrow(time_series_totdeaths_df), 1, message = "There was a mismatch in filtering the Time-Series data")

@@ -24,14 +24,7 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
                                            num_ys = num_ys)
 
-
-  if (groupvar == "ageband") {
-    noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 1, init = 1, max = 1)
-  } else if (groupvar == "region") {
-    noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0.5, init = 1, max = 1.5)
-  } else {
-    stop("Grouping var option not available")
-  }
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0.5, init = 1, max = 1.5)
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
@@ -45,6 +38,10 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   obs_deaths <- dat$deaths_TSMCMC %>%
     dplyr::select(c("ObsDay", "deaths")) %>%
     dplyr::rename(Deaths = deaths)
+  # sanity check
+  if( any(duplicated(obs_deaths$ObsDay)) ) {
+    stop("Time series has duplicated observed days")
+  }
 
   # prop deaths
   prop_deaths <- dplyr::left_join(dat$deaths_propMCMC, dictkey) %>%
