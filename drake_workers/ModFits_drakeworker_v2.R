@@ -14,13 +14,46 @@ source("R/covidcurve_helper_functions.R")
 #...................................................................................
 # Make Paramset and write to disk for input into MCMC
 #.................................................................................
+#......................
 # onset to deaths
-tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_rate"),
+#......................
+tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                min  = c(17,     0,     16),
                                init = c(19,     0.79,  18),
                                max =  c(22,     1,     21),
                                dsc1 = c(19.26,  2370,  18.3),
                                dsc2 = c(0.5,    630,   0.5))
+#......................
+# seroreversion weibull scale/shape for various assay
+#......................
+abbott <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
+                         min  = c(2,                 255),
+                         init = c(4.5,               270),
+                         max =  c(7,                 285),
+                         dsc1 = c(4.5,               272),
+                         dsc2 = c(0.5,               1))
+
+# roche <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
+#                         min  = c(2,                 255),
+#                         init = c(4.5,               270),
+#                         max =  c(7,                 285),
+#                         dsc1 = c(4.5,               272),
+#                         dsc2 = c(0.5,               1))
+#
+# siemens <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
+#                           min  = c(2,                 255),
+#                           init = c(4.5,               270),
+#                           max =  c(7,                 285),
+#                           dsc1 = c(4.5,               272),
+#                           dsc2 = c(0.5,               1))
+#
+# diasorin <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
+#                            min  = c(2,                 255),
+#                            init = c(4.5,               270),
+#                            max =  c(7,                 285),
+#                            dsc1 = c(4.5,               272),
+#                            dsc2 = c(0.5,               1))
+
 
 #............................................................
 #---- BRA1 #----
@@ -351,10 +384,10 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 #......................
 rawage <- readRDS("data/derived/KEN1/KEN1_agebands.RDS")
 KEN1_age_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
-                                  groupvar = "ageband",  dat = rawage,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.11, dsc1 = 0, dsc2 = 17.11),
-                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+                                   groupvar = "ageband",  dat = rawage,
+                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
+                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.11, dsc1 = 0, dsc2 = 17.11),
+                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 
