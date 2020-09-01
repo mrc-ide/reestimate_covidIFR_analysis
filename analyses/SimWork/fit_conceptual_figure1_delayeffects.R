@@ -6,6 +6,7 @@
 set.seed(48)
 library(COVIDCurve)
 library(tidyverse)
+library(drake)
 source("R/simple_seir_model.R")
 source("R/covidcurve_helper_functions.R")
 source("R/my_themes.R")
