@@ -871,6 +871,7 @@ LA_CA.regions.dat <- process_data4(cum_tp_deaths = LACAdeathsdf,
 
 # rename region for later matching
 LA_CA.regions.dat$seroprevMCMC$region <- "California_Los-Angeles"
+LA_CA.regions.dat$deaths_propMCMC$region <- "California_Los-Angeles"
 
 
 #......................

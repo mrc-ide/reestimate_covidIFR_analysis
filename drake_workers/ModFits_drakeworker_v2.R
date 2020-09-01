@@ -296,7 +296,24 @@ NYC_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),
                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
-
+#............................................................
+#---- Bay Area/San Francisco, CA #----
+#...........................................................
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.73,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(1011.5,  41.5),
+                                dsc2 =  c(2.5,     2.5))
+#......................
+# agebands
+#......................
+rawbase <- readRDS("data/derived/USA/SF_CA1_regions.RDS")
+SFCA_basic_mod <- make_IFR_model_fit(num_mas = 1, maxMa = "ma1",
+                                     groupvar = "region",  dat = rawbase,
+                                     num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
+                                     num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.12, dsc1 = 0, dsc2 = 16.12),
+                                     sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 #............................................................
 #---- CHN1 #----
@@ -360,6 +377,7 @@ fit_map <- tibble::tibble(
            "LUX1_age",
            "LA_CA1_region", # basic but use region for splitting
            "NYC_NY_1_age",
+           "SF_CA1_region", # basic but use region for splitting
            "CHN1_age",
            "KEN1_age"),
   modelobj = list(BRA_age_mod, BRA_rgn_mod,
@@ -373,6 +391,7 @@ fit_map <- tibble::tibble(
                   LUX_age_mod,
                   LACA_basic_mod,
                   NYC_age_mod,
+                  SFCA_basic_mod,
                   CHN_age_mod,
                   KEN1_age_mod),
   rungs = 50,
@@ -384,9 +403,7 @@ fit_map <- tibble::tibble(
 #......................
 # manual adjustments to fit map
 #......................
-fit_map$GTI_pow[grepl("BRA1", fit_map$name)] <- list(seq(5, 2.5, length.out = 50))
-fit_map$GTI_pow[grepl("CHN1", fit_map$name)] <- list(seq(3.5, 3, length.out = 50))
-fit_map$GTI_pow[grepl("CHE1", fit_map$name)] <- list(seq(3.5, 3, length.out = 50))
+fit_map$GTI_pow[grepl("BRA1", fit_map$name)] <- list(seq(5, 3.5, length.out = 50))
 
 #......................
 # fitmap out
