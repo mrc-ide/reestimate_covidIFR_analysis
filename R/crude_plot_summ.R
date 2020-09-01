@@ -49,6 +49,7 @@ standardize_deathdat <- function(deathdat_long, popdat, groupingvar, Nstandardiz
     )
   # combine
   ret <- dplyr::left_join(deathdat_long, popdat, by = groupingvar) %>%
+    dplyr::filter(Deaths != -1) %>%  # missing value for cpp
     dplyr::mutate(std_deaths = (Deaths/popN) * Nstandardization,
                   std_cum_deaths = (cumdeaths/popN) * Nstandardization) %>%
     magrittr::set_colnames(tolower(colnames(.)))
@@ -63,6 +64,15 @@ standardize_deathdat <- function(deathdat_long, popdat, groupingvar, Nstandardiz
       )
   } else {
     ret$age_mid = NA
+  }
+
+  # make sure factor order perserved which can be overwritten in the group_by_at, so for safety
+  if (groupingvar == "ageband") {
+    ret <- ret %>%
+      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
+      dplyr::arrange(age_low) %>%
+      dplyr::mutate(ageband = forcats::fct_reorder(.f = ageband, .x = age_low)) %>%
+      dplyr::select(-c("age_low"))
   }
 
   # out
@@ -131,6 +141,15 @@ get_crude_summarydf <- function(IFRmodinput, groupingvar) {
                                                        spec = IFRmodinput$sero_spec$specificity,
                                                        sens = IFRmodinput$sero_sens$sensitivity))
     }
+  }
+
+  # make sure factor order perserved which can be overwritten in the group_by_at, so for safety
+  if (groupingvar == "ageband") {
+    ret <- ret %>%
+      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
+      dplyr::arrange(age_low) %>%
+      dplyr::mutate(ageband = forcats::fct_reorder(.f = ageband, .x = age_low)) %>%
+      dplyr::select(-c("age_low"))
   }
   return(ret)
 }

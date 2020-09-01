@@ -93,6 +93,8 @@ secondwave <- secondwave %>%
 #............................................................
 # setup fatality data
 #............................................................
+# redefine popN for update demog
+popN <- sum(c(1.2e6, 1.1e6, 1e6, 9e5, 8e5))
 # make up fatality data
 fatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
                                IFR = c(1e-3, 1e-3, 0.05, 0.1, 0.2),
@@ -114,6 +116,7 @@ map <- expand.grid(curve = list(expgrowth, intervene, secondwave),
                    (sero_rate == 7 & mod == 23) |
                    (sero_rate == 21 & mod == 13 ))
 
+
 map <- tibble::as_tibble(map) %>%
   dplyr::mutate(fatalitydata = list(fatalitydata),
                 demog = list(demog))
@@ -125,7 +128,7 @@ wrap_sim <- function(curve, sens, spec, mod, sero_rate, fatalitydata, demog, ser
   dat <- COVIDCurve::Aggsim_infxn_2_death(
     fatalitydata = fatalitydata,
     m_od = mod,
-    s_od = 0.5,
+    s_od = 0.79,
     curr_day = 200,
     infections = curve$infxns,
     simulate_seroprevalence = TRUE,
@@ -150,12 +153,23 @@ wrap_sim <- function(curve, sens, spec, mod, sero_rate, fatalitydata, demog, ser
     dplyr::ungroup(.) %>%
     dplyr::arrange(SeroStartSurvey, Strata)
 
-  # death dat
-  dat$AggDeath <- dat$AggDeath %>%
-    dplyr::mutate(Strata = as.character(Strata))
+  # Time Series death dat
+  obs_deaths <- dat$AggDeath %>%
+    dplyr::group_by(ObsDay) %>%
+    dplyr::summarise(Deaths = sum(Deaths)) %>%
+    dplyr::ungroup(.)
+
+  # proportion deaths
+  prop_strata_obs_deaths <- dat$AggDeath %>%
+    dplyr::group_by(Strata) %>%
+    dplyr::summarise(deaths = sum(Deaths)) %>%
+    dplyr::ungroup(.) %>%
+    dplyr::mutate(PropDeaths = deaths/sum(dat$AggDeath$Deaths)) %>%
+    dplyr::select(-c("deaths"))
 
   # make out
-  inputdata <- list(obs_deaths = dat$AggDeath,
+  inputdata <- list(obs_deaths = obs_deaths,
+                    prop_deaths = prop_strata_obs_deaths,
                     obs_serology = obs_serology)
   out <- list(simdat = dat,
               inputdata = inputdata)
@@ -173,22 +187,22 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_day = 150)
 #......................
 # sens/spec
 get_sens_spec <- function(sens, spec) {
-  tibble::tibble(name =  c("sens",          "spec",         "sero_rate"),
-                 min =   c(0.5,              0.5,            0),
-                 init =  c(0.8,              0.8,            1),
-                 max =   c(1,                1,              5),
-                 dsc1 =  c(sens*1e3,        spec*1e3,        0.5),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3),  0.25))
+  tibble::tibble(name =  c("sens",          "spec"),
+                 min =   c(0.5,              0.5),
+                 init =  c(0.9,              0.99),
+                 max =   c(1,                1),
+                 dsc1 =  c(sens*1e3,        spec*1e3),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3)))
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec)
 
-# onset to deaths
-tod_paramsdf <- tibble::tibble(name = c("mod", "sod"),
-                               min  = c(10,     0),
-                               init = c(14,     0.7),
-                               max =  c(30,     1),
-                               dsc1 = c(14.5,   50),
-                               dsc2 = c(1,      50))
+# delay priors
+tod_paramsdf <- tibble::tibble(name = c("mod", "sod",  "sero_rate"),
+                               min  = c(0,      0,      0),
+                               init = c(14,     0.7,    13),
+                               max =  c(30,     1,      30),
+                               dsc1 = c(19,     79,     18),
+                               dsc2 = c(3,      21,     3))
 
 # everything else for region
 wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
@@ -203,7 +217,7 @@ wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
     infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
                                              num_ys = 5)
   }
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 0, init = 5, max = 10)
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 1, init = 1, max = 11)
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
@@ -223,7 +237,7 @@ wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rho(rep(1, 5))
+  mod1$set_rho(demog$popN/sum(demog$popN))
   mod1$set_rcensor_day(.Machine$integer.max)
   # out
   mod1
@@ -279,8 +293,8 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      reparamDelays = TRUE,
-                                      reparamNe = TRUE,
+                                      reparamDelays = FALSE,
+                                      reparamNe = FALSE,
                                       chains = n_chains,
                                       burnin = 1e4,
                                       samples = 1e4,

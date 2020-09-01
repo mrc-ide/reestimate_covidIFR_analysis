@@ -60,7 +60,7 @@ datmap <- datmap %>%
 #......................
 deathhlp <- datmap %>%
   dplyr::mutate(
-    deathdat_long = purrr::map(data, "deathsMCMC"),
+    deathdat_long = purrr::map(data, "deaths_group"),
     popdat = purrr::map(data, "prop_pop"),
     groupingvar = breakdown,
     Nstandardization = 1e6) %>%
@@ -89,14 +89,14 @@ ageplotdat <- datmap %>%
   dplyr::filter(breakdown == "ageband") %>%
   dplyr::select(c("study_id", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
-ageplotdat<-full_join(ageplotdat,study_cols,by="study_id")
+ageplotdat <- dplyr::full_join(ageplotdat, study_cols, by="study_id")
 
-###### filter to only plot the latest serology when there are multiple rounds.
+#filter to only plot the latest serology when there are multiple rouunds
 maxDays <- ageplotdat %>%
   dplyr::group_by(study_id) %>%
   dplyr::summarise(max_day=max(obsdaymax))
-ageplotdat<-full_join(ageplotdat,maxDays,by="study_id")
-ageplotdat<-filter(ageplotdat,obsdaymax==max_day)
+ageplotdat <- dplyr::full_join(ageplotdat, maxDays, by="study_id")
+ageplotdat <- dplyr::filter(ageplotdat, obsdaymax == max_day)
 
 
 #......................
@@ -183,8 +183,8 @@ age_IFRraw_plot_log <- age_IFRraw_plot0 %>%
   xyaxis_plot_theme +
   scale_y_log10()
 #  coord_cartesian(ylim=c(0.00000000001,1))
-ggsave(filename = "results/descriptive_figures/age_IFRraw_plot_log.pdf", plot = age_IFRraw_plot_log,
-         width = 7, height = 5)
+jpgsnapshot(outpath = "figures/descriptive_figures/age_IFRraw_plot_log.jpg",
+            plot = age_IFRraw_plot_log,width_wide = 8,height_wide = 5.5)
 
 # seroadj
 age_IFRadj_plot <- ageplotdat %>%
@@ -255,22 +255,22 @@ tot_deaths <- age_IFRraw_plot0 %>%
   dplyr::select(study_id, tot_deaths,tot_deaths_std) %>%
   ungroup()
 
-age_prop_deaths<- full_join(age_IFRraw_plot0,tot_deaths,by="study_id") %>%
+age_prop_deaths_plotdat <- full_join(age_IFRraw_plot0,tot_deaths,by="study_id") %>%
   dplyr::mutate(prop_deaths = cumdeaths/tot_deaths,
                 prop_deaths_std = d_per_mill/tot_deaths_std) %>%
   dplyr::arrange(study_id,age_mid)
 
-cumu_deaths<- age_prop_deaths %>%
+cumu_deaths <- age_prop_deaths_plotdat %>%
   dplyr::group_by(study_id) %>%
   dplyr::summarise(cum_prop_deaths=cumsum(prop_deaths),
                    cum_prop_deaths_std=cumsum(prop_deaths_std))
 
-age_prop_deaths$cum_prop_deaths<-cumu_deaths$cum_prop_deaths
-age_prop_deaths$cum_prop_deaths_std<-cumu_deaths$cum_prop_deaths_std
+age_prop_deaths_plotdat$cum_prop_deaths<-cumu_deaths$cum_prop_deaths
+age_prop_deaths_plotdat$cum_prop_deaths_std<-cumu_deaths$cum_prop_deaths_std
 
 
 ########## Raw deaths by age cumulative (just showing us the population structure more than anything?)
-age_prop_deaths_plot<-ggplot(age_prop_deaths, aes(x = age_mid, y = cum_prop_deaths, group=study_id)) +
+age_prop_deaths_plot<-ggplot(age_prop_deaths_plotdat, aes(x = age_mid, y = cum_prop_deaths, group=study_id)) +
   #geom_point(aes(fill = study_id), color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
   geom_line(aes(color = study_id), alpha = 0.8, size = 1.2) +
   scale_color_manual("Study ID", values = c("ITA1"=discrete_colors[1],
@@ -286,19 +286,28 @@ age_prop_deaths_plot<-ggplot(age_prop_deaths, aes(x = age_mid, y = cum_prop_deat
                                             "LUX1"=discrete_colors[11])) +
   xlab("Age (yrs)") + ylab("Cumulative proportion of deaths") +
   xyaxis_plot_theme
-jpgsnapshot(outpath = "results/descriptive_figures/age_prop_cum_deaths_plot.jpg",
+jpgsnapshot(outpath = "figures/descriptive_figures/age_prop_cum_deaths_plot.jpg",
             plot = age_prop_deaths_plot)
 
 ########## Deaths per capita by age cumulative
-age_prop_deaths_plot_std<-age_prop_deaths %>%
-  ggplot() + theme_bw() +
-  geom_point(aes(x = age_mid, y = cum_prop_deaths_std, fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
-  geom_line(aes(x = age_mid, y = cum_prop_deaths_std, group=study_id,color=study_id), size = 0.3) +
-  scale_fill_manual(values = col_vec, name = "study_id") +
-  scale_color_manual(values = col_vec, name = "study_id") +
+age_prop_deaths_plot_std<-ggplot(age_prop_deaths_plotdat, aes(x = age_mid, y = cum_prop_deaths_std, group=study_id)) +
+  #geom_point(aes(fill = study_id), color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
+  geom_line(aes(color = study_id), alpha = 0.8, size = 1.2) +
+  scale_color_manual("Study ID", values = c("ITA1"=discrete_colors[1],
+                                            "ESP1-2"=discrete_colors[2],
+                                            "GBR3"=discrete_colors[3],
+                                            "NLD1"=discrete_colors[4],
+                                            "CHN1"=discrete_colors[5],
+                                            "NYC_NY_1"=discrete_colors[6],
+                                            "BRA1"=discrete_colors[7],
+                                            "CHE1"=discrete_colors[8],
+                                            "CHE2"=discrete_colors[9],
+                                            "DNK1"=discrete_colors[10],
+                                            "LUX1"=discrete_colors[11])) +
   xlab("Age (yrs)") + ylab("Cumulative proportion of deaths, age-standardised") +
   xyaxis_plot_theme
-ggsave(filename = "results/descriptive_figures/age_prop_deaths_plot_std.pdf", plot = age_prop_deaths_plot_std, width = 7, height = 5)
+jpgsnapshot(outpath = "figures/descriptive_figures/age_prop_cum_deaths_std_plot.jpg",
+            plot = age_prop_deaths_plot_std,width_wide = 8,height_wide = 5.5)
 
 
 #......................
@@ -417,37 +426,13 @@ jpgsnapshot(outpath = "figures/descriptive_figures/rgn_IFR_adj_plot.jpg",
 #......................
 # standardized deaths by seroprev
 #......................
-std_deaths_seroplot <- rgnplotdat %>%
+std_deaths_seroplotdat <- rgnplotdat %>%
   dplyr::filter(seromidpt == obsday)
 # write out for later use
 readr::write_csv(std_deaths_seroplot, path = "data/derived/region_summ_IFR.csv")
 
-
-#### region versus mortality. TODO - get colours same as age graph.
-# TODO add remaining studies. TODO collapse NLD1 into one measure.
-rgn_deaths_seroplot <- std_deaths_seroplot %>%
-  dplyr::select(c("study_id", "region", "std_cum_deaths", "popn", "seroprev")) %>%
-  dplyr::mutate(seroprev = seroprev * 100) %>%
-  ggplot() + theme_bw() +
-  geom_abline(slope = c(0.1, 0.5, 1, 2, 5)*100, color = grey(0.8), size = 0.3) +
-  geom_point(aes(x = seroprev, y = std_cum_deaths, fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
-  scale_fill_manual(values = col_vec, name = "study_id") +
-  xlab("Seroprevalence (%).") + ylab("Cumulative Deaths per Million") +
-  #  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
-  xyaxis_plot_theme +
-  scale_x_continuous(limits = c(0,15), expand = c(0,0)) +
-  scale_y_continuous(limits = c(0,1800), expand = c(0,0), n.breaks = 5) +
-  annotate("text", x = c(12, 11, 9, 6, 2),
-                          y = c(170, 620, 1000, 1300, 1400),
-                          label = sprintf("%s%%", c(0.1, 0.5, 1, 2, 5)),
-                          hjust = 0,
-                          size = 3,
-                          col = grey(0.5))
-ggsave(filename = "results/descriptive_figures/deaths_rgn_seroplot.pdf", plot = rgn_deaths_seroplot, width = 7, height = 5)
-
-
-####
-std_deaths_seroplot <- std_deaths_seroplot %>%
+# standardized deaths
+std_deaths_seroplot <- std_deaths_seroplotdat %>%
   dplyr::select(c("study_id", "region", "std_cum_deaths", "popn", "seroprevadj")) %>%
   dplyr::mutate(seroprevadj = seroprevadj * 100) %>%
   ggplot() + theme_bw() +
@@ -457,6 +442,19 @@ std_deaths_seroplot <- std_deaths_seroplot %>%
 #  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
   xyaxis_plot_theme
 ggsave(filename = "results/descriptive_figures/std_deaths_rgn_seroplot.pdf", plot = std_deaths_seroplot, width = 7, height = 5)
+
+# standardized deaths with names of regions (busy plot for internal)
+std_deaths_seroplot_busy <- std_deaths_seroplotdat %>%
+  dplyr::select(c("study_id", "region", "std_cum_deaths", "popn", "seroprevadj")) %>%
+  dplyr::mutate(seroprevadj = seroprevadj * 100) %>%
+  ggplot() +
+  geom_point(aes(x = seroprevadj, y = std_cum_deaths, color = study_id), size = 2) +
+  ggrepel::geom_text_repel(aes(x = seroprevadj, y = std_cum_deaths, label = region)) +
+  scale_color_manual("Study ID", values = discrete_colors) +
+  xlab("Adjusted Seroprevalence (%).") + ylab("Cumulative Deaths per Million") +
+  xyaxis_plot_theme
+jpgsnapshot(outpath = "figures/descriptive_figures/std_deaths_rgn_seroplot_busy.jpg",
+            plot = std_deaths_seroplot_busy, width_wide = 8, height_wide = 5.5)
 
 
 
