@@ -12,7 +12,7 @@ sandbox/
 results/
 figures/
 data/param_map/
-
+.drake
 
 # knitr and R markdown default cache directories
 /*_cache/
@@ -22,9 +22,10 @@ data/param_map/
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+*unnamed-chunk*
 
 # knitr outputs
 reports/*.pdf
 reports/*.html
 reports/*.docx
-
+reports/OLD/

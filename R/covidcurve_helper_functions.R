@@ -8,68 +8,64 @@ make_IFR_model_fit <- function(num_mas, maxMa,
                                num_xs, max_xveclist,
                                num_ys, max_yveclist,
                                sens_spec_tbl, tod_paramsdf,
-                               serodayparams, sero_adj = FALSE) {
+                               serodayparams) {
 
   # make dfs
-  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas)
+  if (groupvar == "ageband") {
+    ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.4)
+  } else if (groupvar == "region") {
+    ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.1)
+  } else {
+    stop("Grouping var option not available")
+  }
+
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
   infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
                                            num_ys = num_ys)
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0, init = 5, max = 10)
 
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0.5, init = 1, max = 1.5)
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
   #......................
   # format data
   #......................
-  if (sero_adj) {
-    dictkey <- tibble::tibble(groupvar = unlist(dat$seroprev_group_adj[, groupvar]), "Strata" = paste0("ma", 1:num_mas))
-    colnames(dictkey) <- c(paste(groupvar), "Strata")
-    # deaths
-    dat$deaths <- dplyr::left_join(dat$deaths, dictkey) %>%
-      dplyr::select(c("ObsDay", "Strata", "Deaths")) %>%
-      dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
-      dplyr::arrange(ObsDay, Strata) %>%
-      dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
-
-    # seroprev
-    dat$obs_serology <- dplyr::left_join(dat$seroprev_group_adj, dictkey) %>%
-      dplyr::mutate(SeroDay = "sero_day1") %>%
-      dplyr::rename(SeroPrev = seroprevalence_adj) %>%
-      dplyr::select(c("SeroDay", "Strata", "SeroPrev")) %>%
-      dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
-      dplyr::arrange(SeroDay, Strata) %>%
-      dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
-
-
-    inputdata <- list(obs_deaths = dat$deaths,
-                      obs_serology = dat$obs_serology)
-  } else {
-
-  dictkey <- tibble::tibble(groupvar = unlist(dat$seroprev_group[, groupvar]), "Strata" = paste0("ma", 1:num_mas))
+  dictkey <- tibble::tibble(groupvar = as.character(unlist(unique(dat$seroprevMCMC[, groupvar]))), "Strata" = paste0("ma", 1:num_mas))
   colnames(dictkey) <- c(paste(groupvar), "Strata")
-  # deaths
-  dat$deaths <- dplyr::left_join(dat$deaths, dictkey) %>%
-    dplyr::select(c("ObsDay", "Strata", "Deaths"))  %>%
+
+  # time series deaths
+  obs_deaths <- dat$deaths_TSMCMC %>%
+    dplyr::select(c("ObsDay", "deaths")) %>%
+    dplyr::rename(Deaths = deaths)
+  # sanity check
+  if( any(duplicated(obs_deaths$ObsDay)) ) {
+    stop("Time series has duplicated observed days")
+  }
+
+  # prop deaths
+  prop_deaths <- dplyr::left_join(dat$deaths_propMCMC, dictkey) %>%
+    dplyr::select(c("Strata", "death_prop"))  %>%
+    dplyr::rename(PropDeaths = death_prop) %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
-    dplyr::arrange(ObsDay, Strata) %>%
+    dplyr::arrange(Strata) %>%
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
 
   # seroprev
-  dat$obs_serology <- dplyr::left_join(dat$seroprev_group, dictkey) %>%
-    dplyr::mutate(SeroDay = "sero_day1") %>%
-    dplyr::rename(SeroPrev = seroprevalence) %>%
-    dplyr::select(c("SeroDay", "Strata", "SeroPrev")) %>%
+  obs_serology <- dplyr::left_join(dat$seroprevMCMC, dictkey) %>%
+    dplyr::rename(SeroPos = n_positive,
+                  SeroN = n_tested,
+                  SeroStartSurvey = ObsDaymin,
+                  SeroEndSurvey = ObsDaymax) %>%
+    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
-    dplyr::arrange(SeroDay, Strata) %>%
+    dplyr::arrange(SeroStartSurvey, Strata) %>%
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
 
 
-  inputdata <- list(obs_deaths = dat$deaths,
-                    obs_serology = dat$obs_serology)
-  }
+  inputdata <- list(obs_deaths = obs_deaths,
+                    prop_deaths = prop_deaths,
+                    obs_serology = obs_serology)
 
   demog <- dat$prop_pop %>%
     dplyr::left_join(., dictkey) %>%
@@ -92,12 +88,11 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   mod1$set_Infxnparams(paste0("y", 1:num_ys))
   mod1$set_relInfxn(max_yveclist[["name"]])
   mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
-  mod1$set_Serodayparams(serodayparams)
   mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rho(rep(1, num_mas))
+  mod1$set_rho(demog$popN/sum(demog$popN))
   mod1$set_rcensor_day(.Machine$integer.max)
   mod1$set_IFRdictkey(dictkey)
   # out
@@ -119,14 +114,14 @@ make_ma_dict_key <- function(strata_names) {
 #' @title Make IFR Uniform Distributed Reparameterized Param Df
 #' @param num_mas positive interger; Number of IFR strata to infer
 
-make_ma_reparamdf <- function(num_mas = 10) {
+make_ma_reparamdf <- function(num_mas = 10, upperMa) {
   assert_pos_int(num_mas)
   tibble::tibble(name = paste0("ma", 1:num_mas),
                  min  = rep(0, size = num_mas),
-                 init = rep(0.5, size = num_mas),
-                 max = rep(1, size = num_mas),
+                 init = rep(0.1, size = num_mas),
+                 max = rep(upperMa, size = num_mas),
                  dsc1 = rep(0, size = num_mas),
-                 dsc2 = rep(1, size = num_mas))
+                 dsc2 = rep(upperMa, size = num_mas))
 }
 
 
@@ -148,7 +143,7 @@ make_spliney_reparamdf <- function(max_yvec = list("name" = "y3", min = 0, init 
 
   out <- tibble::tibble(name = paste0("y", 1:num_ys),
                         min  = rep(0, size = num_ys),
-                        init = rep(0.5, size = num_ys),
+                        init = rep(0.1, size = num_ys),
                         max = rep(1, size = num_ys),
                         dsc1 = rep(0, size = num_ys),
                         dsc2 = rep(1, size = num_ys))
@@ -175,11 +170,11 @@ make_splinex_reparamdf <- function(max_xvec = list("name" = "x4", min = 180, ini
   assert_numeric(max_xvec[["dsc2"]])
 
   out <- tibble::tibble(name = paste0("x", 1:num_xs),
-                        min  = rep(0, size = num_xs),
-                        init = rep(0.5, size = num_xs),
-                        max = rep(1, size = num_xs),
-                        dsc1 = rep(0, size = num_xs),
-                        dsc2 = rep(1, size = num_xs))
+                        min  = rep(0, num_xs),
+                        init = seq(1e-3, 0.9, length.out = num_xs),
+                        max =  rep(1, num_xs),
+                        dsc1 = rep(0, num_xs),
+                        dsc2 = rep(1, num_xs))
   out %>%
     dplyr::filter(name != max_xvec["name"]) %>%
     dplyr::bind_rows(., max_xvec) %>%
@@ -202,11 +197,12 @@ make_noiseeff_reparamdf <- function(num_Nes = 4,
   assert_numeric(init)
   assert_numeric(max)
 
+  # normal(1, 0.05) for all Nes
   tibble::tibble(name = paste0("Ne", 1:num_Nes),
                  min  = rep(min, size = num_Nes),
                  init = rep(init, size = num_Nes),
                  max = rep(max, size = num_Nes),
-                 dsc1 = rep(min, size = num_Nes),
-                 dsc2 = rep(max, size = num_Nes))
+                 dsc1 = rep(1, size = num_Nes),
+                 dsc2 = rep(0.05, size = num_Nes))
 }
 

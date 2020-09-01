@@ -1,0 +1,42 @@
+---
+title: "Reestimating the IFR with Serology Data"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: 
+  html_document:
+    highlight: textmate
+    theme: lumen
+    toc: yes
+    toc_float: yes
+    toc_depth: 3
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, 
+                      message = FALSE, eval = TRUE, 
+                      results = 'hide', fig.align = 'center')
+knitr::opts_knit$set(root.dir = here::here())
+
+```
+
+```{r, child = '~/Documents/Github/reestimate_covidIFR_analysis/reports/BRA1_IFR_results.Rmd'}
+```
+
+```{r, child = '~/Documents/Github/reestimate_covidIFR_analysis/reports/CHE1_IFR_results.Rmd'}
+```
+
+```{r, child = '~/Documents/Github/reestimate_covidIFR_analysis/reports/DNK1_IFR_results.Rmd'}
+```
+
+```{r, child = '~/Documents/Github/reestimate_covidIFR_analysis/reports/ESP1-2_IFR_results.Rmd'}
+```
+
+```{r, child = '~/Documents/Github/reestimate_covidIFR_analysis/reports/GBR2_IFR_results.Rmd'}
+```
+
+```{r, child = '~/Documents/Github/reestimate_covidIFR_analysis/reports/NLD1_IFR_results.Rmd'}
+```
+
+

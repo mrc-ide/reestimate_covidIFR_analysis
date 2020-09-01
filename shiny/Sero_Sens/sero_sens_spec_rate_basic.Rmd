@@ -1,0 +1,219 @@
+---
+title: "Reestimating IFRs with Serological Data"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+editor_options: 
+  chunk_output_type: console
+output: flexdashboard::flex_dashboard
+runtime: shiny
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F, fig.align = 'center', results = 'hide', fig.keep = 'all')
+knitr::opts_knit$set(root.dir = here::here())
+```
+```{r}
+library(COVIDCurve)
+library(tidyverse)
+library(cowplot)
+# https://rmarkdown.rstudio.com/flexdashboard/layouts.html#multiple_pages
+```
+
+
+
+```{r}
+source("R/covidcurve_helper_functions.R")
+source("R/simple_seir_model.R")
+set.seed(48)
+
+
+#............................................................
+# Basic Incidence Curve
+#...........................................................
+nsims <- 100
+popN <- 3e6
+infxns <- lapply(1:nsims, function(x){
+  run_simple_seir(N = popN,
+                  E0 = 50,
+                  R0 = 0,
+                  betas = c(0.25, 0.13, 0.12, 0.11),
+                  beta_changes = c(1, 130, 140, 150),
+                  sigma = 0.2,
+                  gamma = 0.2,
+                  time = 200)
+})
+infxns <- infxns %>%
+  dplyr::bind_rows(.) %>%
+  dplyr::group_by(step) %>%
+  dplyr::summarise(
+    infxns = mean(I)
+  ) %>%
+  dplyr::mutate_if(is.numeric, round, 0) %>%
+  dplyr::rename(time = step)
+
+
+```
+
+
+Sidebar {.sidebar}
+=====================================
+
+```{r, results='asis'}
+#..............................................................
+# Sliding Panel for Different Parameters we are estimating
+#..............................................................
+
+inputPanel(
+  sliderInput("sens", label = "Sensitivity",
+              min = 0.8, max = 1, value = 0.95, step = 0.01),
+  
+  sliderInput("spec", label = "Specificity",
+              min = 0.8, max = 1, value = 0.95, step = 0.01),
+  
+  sliderInput("sero_rate", label = "Serology Rate",
+              min = 5, max = 15, value = 10, step = 0.5),
+  
+  sliderInput("mod", label = "Mean Offset for Gamma Dist",
+              min = 10, max = 25, value = 14.62, step = 0.5),
+  
+  sliderInput("sod", label = "Coeff. Of Variation for Gamma Dist",
+              min = 0, max = 1, value = 0.79, step = 0.01),
+  
+  sliderInput("ifr", label = "Infection Fatality Rate",
+              min = 0, max = 1, value = 0.1, step = 0.01),
+  
+  sliderInput("popN", label = "Population Size",
+              min = 5e4, max = 1e6, value = 7e5, step = 5e4),
+  
+  actionLink("button", "Ruh Roh!", icon("bug"), 
+             style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+  
+)
+
+
+
+
+```
+
+Simulating Serology and Death Delays
+=====================================
+
+```{r, results='asis', fig.align='center', fig.height=11, fig.width=8}
+
+renderPlot({ withProgress(message = 'Making plot', {
+  # re-render button
+  input$button
+  popN <- input$popN
+  
+  #..............................................................
+  # sim
+  #..............................................................
+  fatalitydata <- tibble::tibble(Strata = "ma1",
+                                 IFR = input$ifr,
+                                 Rho = 1,
+                                 Ne = 1)
+  demog <- tibble::tibble(Strata = "ma1",
+                          popN = popN)
+  
+  
+  dat <- COVIDCurve::Aggsim_infxn_2_death(
+    fatalitydata = fatalitydata,
+    m_od = input$mod,
+    s_od = input$sod,
+    curr_day = 200,
+    infections = infxns$infxns,
+    simulate_seroprevalence = TRUE,
+    sens = input$sens,
+    spec = input$spec,
+    sero_delay_rate = input$sero_rate,
+    demog = demog)
+  
+  #......................
+  # tidy up and combine
+  #......................
+  infxns <- infxns %>%
+    dplyr::mutate(infxns = ifelse(infxns == 0 & time > 50, -1, infxns))
+  
+  cuminxns <- infxns %>%
+    dplyr::filter(infxns != -1) %>%
+    dplyr::mutate(cumincidence = cumsum(infxns)/popN) %>%
+    dplyr::select(-c("infxns"))
+  
+  
+  cumdeaths <- dat$AggDeath %>%
+    dplyr::mutate(cumDeaths = cumsum(Deaths)/popN) %>%
+    dplyr::select(-c("Deaths", "Strata")) %>%
+    dplyr::rename(time = ObsDay)
+  
+  
+  serodf <- dat$SeroPrev %>%
+    dplyr::select(c("event_obs_day", "TruePrev", "ObsPrev")) %>%
+    dplyr::rename(time = event_obs_day)
+  # combine
+  datdf <- dplyr::left_join(cumdeaths, cuminxns, by = "time") %>%
+    dplyr::left_join(., serodf, by = "time")
+  
+  
+  # long
+  plotdatdf <- datdf %>%
+    tidyr::gather(., key = "datlevel", value = "prop", 2:ncol(.)) %>%
+    dplyr::mutate(datlevel = factor(datlevel,
+                                    levels = c("cumincidence", "TruePrev", "ObsPrev", "cumDeaths"),
+                                    labels = c("Cum. Infxns", "True Prev.", "Obs. Prev", "Cum. Deaths"))
+    )
+  
+  
+  #......................
+  # plot & inset
+  #......................
+  delay_plotObj <- ggplot() +
+    geom_line(data = plotdatdf, aes(x = time, y = prop, color = datlevel, size = datlevel)) +
+    # geom_segment(data = reshape(DATA, v.names="VALUE", idvar = "NAME", timevar = "YEAR", direction = "wide"),
+    #              aes(x=VALUE.2011, xend=VALUE.2016, y=NAME, yend=NAME), size = 2,
+    #              arrow = arrow(length = unit(0.5, "cm")))
+    scale_size_manual(values = c(1.3, 1.3, 0.9, 0.9)) +
+    scale_color_manual(values = c("#252525", "#0868ac", "#74a9cf", "#969696")) +
+    xlab("Time (days)") + ylab("Prop. of Population Affected") +
+    theme(plot.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 14),
+          axis.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 12),
+          axis.text = element_text(family = "Helvetica", hjust = 0.5, size = 11),
+          legend.position = "right",
+          legend.title = element_blank(),
+          legend.text = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 10),
+          panel.background = element_rect(fill = "transparent"),
+          plot.background = element_rect(fill = "transparent"),
+          panel.grid = element_blank(),
+          panel.border = element_blank(),
+          axis.line = element_line(color = "#000000", size = 1))
+  
+  
+  infxninet_plotObj <- infxns %>%
+    dplyr::filter(infxns != -1) %>%  # remove missing
+    dplyr::mutate(incidence = infxns/popN) %>%
+    ggplot() +
+    geom_line(aes(x = time, y = incidence), color = "#252525", size = 1.1, linetype = "dashed") +
+    xlab("Time (days)") + ylab("Daily Incidence") +
+    theme(axis.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 10),
+          axis.text = element_text(family = "Helvetica", hjust = 0.5, size = 8),
+          legend.position = "right",
+          legend.title = element_blank(),
+          legend.text = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 10),
+          panel.background = element_rect(fill = "transparent"),
+          plot.background = element_rect(fill = "transparent", color = "#000000", size = 0.25),
+          panel.grid = element_blank(),
+          panel.border = element_blank(),
+          axis.line = element_line(color = "#000000", size = 1))
+  
+}) # end of progress bar
+  
+  #..............................................................
+  # plot 
+  #..............................................................
+  cowplot::ggdraw() +
+    cowplot::draw_plot(delay_plotObj, x = 0, y = 0, width = 1, height = 1, scale = 1) +
+    cowplot::draw_plot(infxninet_plotObj, x = 0.085, y= 0.75, width = 0.3, height = 0.2)
+  
+})
+
+
+```
