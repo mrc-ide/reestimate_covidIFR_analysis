@@ -25,6 +25,7 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                dsc2 = c(0.5,    630,   0.5))
 #......................
 # seroreversion weibull scale/shape for various assay
+# (for later cbinds)
 #......................
 abbott <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
                          min  = c(2,                 255),
