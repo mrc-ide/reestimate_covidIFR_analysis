@@ -92,7 +92,7 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rho(demog$popN/sum(demog$popN))
+  mod1$set_rho(demog$popN)
   mod1$set_rcensor_day(.Machine$integer.max)
   mod1$set_IFRdictkey(dictkey)
   # out
