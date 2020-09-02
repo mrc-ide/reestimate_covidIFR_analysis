@@ -1122,7 +1122,7 @@ LACAdeathsdf <- JHUdf %>%
     study_id = "LA_CA1",
     age_low = 0,
     age_high = 999,
-    region = "Los Angeles County, California",
+    region = "California_Los-Angeles",
     gender = "both",
     age_breakdown = 0,
     gender_breakdown = 0,
@@ -1138,7 +1138,6 @@ LA_CA.regions.dat <- process_data4(cum_tp_deaths = LACAdeathsdf,
                                    population = populationdf,
                                    sero_val = sero_valdf,
                                    seroprev = sero_prevdf,
-                                   get_descriptive_dat = FALSE,
                                    groupingvar = "region",
                                    study_ids = "LA_CA1")
 
