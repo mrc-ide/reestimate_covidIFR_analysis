@@ -3,6 +3,7 @@
 ##
 ## Notes:
 ####################################################################################
+setwd("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/")
 set.seed(48)
 library(COVIDCurve)
 library(tidyverse)
