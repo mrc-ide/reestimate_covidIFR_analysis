@@ -146,7 +146,7 @@ Spain	ESP1-2		0	999	Ceuta	both	904		0.005	0.001	0.017			2020-05-18	2020-06-01	0	
 Spain	ESP1-2		0	999	Melilla	both	925		0.032	0.022	0.046			2020-05-18	2020-06-01	0	0	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid/docs/ESTUDIO_ENE-COVID19_SEGUNDA_RONDA_INFORME_PRELIMINAR.pdf, accessed July 20, 2058
 United Kingdom	GBR1		18	75	Scotland	both	500	0	0					2020-03-17	2020-03-17	0	0	1	was 1?	https://www.medrxiv.org/content/10.1101/2020.04.13.20060467v1	blood donors. assay is for 'neutralizing antibodies' (unusual)
 United Kingdom	GBR1		18	75	Scotland	both	500	5	0.01					2020-03-21	2020-03-23	0	0	1	was 1?	https://www.medrxiv.org/content/10.1101/2020.04.13.20060467v1	blood donors. assay is for 'neutralizing antibodies' (unusual)
-USA	LA_CA1		18	999	Los Angeles County, California	both	863	35	0.0406			0.0431		2020-04-10	2020-04-11	0	0	1	was 1?	https://jamanetwork.com/journals/jama/fullarticle/2766367
+USA	LA_CA1		18	999	Los Angeles County, California	both	863	35	0.0406			0.0431		2020-04-10	2020-04-14	0	0	1	was 1?	https://jamanetwork.com/journals/jama/fullarticle/2766367
 Netherlands	NLD1		18	30	all	both	1251	52	0.041566747				deaths.csv	2020-04-01	2020-04-15	1	0	0	0	https://www.researchsquare.com/article/rs-25862/v1
 Netherlands	NLD1		31	40	all	both	882	22	0.024943311				deaths.csv	2020-04-01	2020-04-15	1	0	0	0	https://www.researchsquare.com/article/rs-25862/v1
 Netherlands	NLD1		41	50	all	both	1354	31	0.022895126				deaths.csv	2020-04-01	2020-04-15	1	0	0	0	https://www.researchsquare.com/article/rs-25862/v1
@@ -274,4 +274,4 @@ USA	NYC_NY_1		35	44	New York City, New York, United States (New York State Depar
 USA	NYC_NY_1		45	54	New York City, New York, United States (New York State Department of Health)	both	1328	334	0.251506024		0.235			2020-04-19	2020-04-28	1	0	0	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf
 USA	NYC_NY_1		55	999	New York City, New York, United States (New York State Department of Health)	both	2217	490	0.221019396		0.191			2020-04-19	2020-04-28	1	0	0	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf
 USA	NYC_NY_1		0	999	New York City, New York, United States (New York State Department of Health)	male	2727	629	0.230656399		0.209			2020-04-19	2020-04-28	0	1	0	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf
-USA	NYC_NY_1		0	999	New York City, New York, United States (New York State Department of Health)	female	3219	690	0.214352283		0.196			2020-04-19	2020-04-28	0	1	0	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf		
+USA	NYC_NY_1		0	999	New York City, New York, United States (New York State Department of Health)	female	3219	690	0.214352283		0.196			2020-04-19	2020-04-28	0	1	0	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf
