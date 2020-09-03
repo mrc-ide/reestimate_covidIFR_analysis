@@ -2,6 +2,48 @@ source("R/assertions_v5.R")
 library(tidyverse)
 library(stringr)
 
+#' @title Calculate seroprevalens from a path
+#' @details goal here is to be memory light
+
+get_overall_seroprevs <- function(path, dwnsmpl = 1e2) {
+  modout <- readRDS(path)
+  seroprevs <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
+                                                      whichrung = "rung1",
+                                                      dwnsmpl = dwnsmpl,
+                                                      by_chain = FALSE)
+  return(seroprevs)
+}
+
+#' @title Calculate stratified IFR from a path
+#' @details goal here is to be memory light
+get_strata_IFRs <- function(path) {
+  modout <- readRDS(path)
+  stratachar <- ifelse(grepl("age", basename(path)), "ageband",
+                       ifelse(grepl("rgn", basename(path)), "region", NA))
+  dictkey <- modout$inputs$IFRmodel$IFRdictkey %>%
+    dplyr::rename(param = Strata)
+  colnames(dictkey)[colnames(dictkey) == stratachar] <- "strata"
+  # get ifrs
+  ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
+                                         what = "IFRparams", by_chain = FALSE)
+  # out
+  dplyr::left_join(dictkey, ifrs) %>%
+    dplyr::mutate(param = factor(param, levels = paste0("ma", 1:nrow(dictkey))),
+                  strata = forcats::fct_reorder(strata, as.numeric(param)))
+}
+
+#' @title Calculate overall IFR from a path
+#' @details goal here is to be memory light
+get_overall_IFRs <- function(path) {
+  modout <- readRDS(path)
+  out <- COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout,
+                                                  whichrung = "rung1",
+                                                  by_chain = FALSE)
+  return(out)
+}
+
+
+
 #' @title Make IFR Model for MCMC Fitting
 make_IFR_model_fit <- function(num_mas, maxMa,
                                groupvar, dat,

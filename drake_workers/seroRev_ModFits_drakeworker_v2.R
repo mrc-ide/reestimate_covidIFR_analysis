@@ -383,8 +383,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(204.5,   990.5),
-                                dsc2 =  c(30.5,    10.5))
+                                dsc1 =  c(204.5,   92.5),
+                                dsc2 =  c(30.5,    0.5))
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
