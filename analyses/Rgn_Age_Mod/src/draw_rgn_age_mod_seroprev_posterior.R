@@ -89,23 +89,28 @@ RgnAgeMod_draw_posterior_sero_curves <- function(rgn_age_IFRmodObj, whichrung = 
                                   data = datin,
                                   misc = misc_list)
 
-    crude_seroprev <- seroprev_lists[[1]] %>%
+    # extract relevant bits
+    sero_counts <- seroprev_lists[[1]] %>%
       do.call("rbind.data.frame", .) %>%
+      magrittr::set_colnames(paste0("serocounts_", paste0("R", 1:sum(grepl("Rne", names(paramsin)))))) %>%
       dplyr::mutate(ObsDay = 1:length(datin$obs_deaths)) %>%
       dplyr::select(c("ObsDay", dplyr::everything()))
 
     crude_seroprev <- seroprev_lists[[2]] %>%
       do.call("rbind.data.frame", .) %>%
+      magrittr::set_colnames(paste0("crude_pd_seroprev_",paste0("R", 1:sum(grepl("Rne", names(paramsin)))))) %>%
       dplyr::mutate(ObsDay = 1:length(datin$obs_deaths)) %>%
       dplyr::select(c("ObsDay", dplyr::everything()))
 
     RG_seroprev <- seroprev_lists[[3]] %>%
       do.call("rbind.data.frame", .) %>%
+      magrittr::set_colnames(paste0("RG_pd_seroprev_", paste0("R", 1:sum(grepl("Rne", names(paramsin)))))) %>%
       dplyr::mutate(ObsDay = 1:length(datin$obs_deaths)) %>%
       dplyr::select(c("ObsDay", dplyr::everything()))
 
-
-    ret <- dplyr::left_join(crude_seroprev, RG_seroprev, by = "ObsDay")
+    # out
+    ret <- dplyr::left_join(sero_counts, crude_seroprev, by = "ObsDay") %>%
+      dplyr::left_join(., RG_seroprev, by = "ObsDay")
     return(ret)
 
   }
