@@ -20,7 +20,7 @@ SEXP logprior(Rcpp::NumericVector params, int param_i, Rcpp::List misc) {
   double y5 = params["y5"];
   double sens = params["sens"];
   double spec = params["spec"];
-  double sero_rate = params["sero_rate"];
+  double sero_con_rate = params["sero_con_rate"];
   double Rne1 = params["Rne1"];
   double Rne2 = params["Rne2"];
   double Rne3 = params["Rne3"];
@@ -59,7 +59,7 @@ SEXP logprior(Rcpp::NumericVector params, int param_i, Rcpp::List misc) {
     R::dunif(y3,0,1,true) +
     R::dunif(y4,0,1,true) +
     R::dunif(y5,0,10,true) +
-    R::dnorm(sero_rate,18,1, true) +
+    R::dnorm(sero_con_rate,18,1, true) +
     R::dbeta(sens,123.5,30.5, true) +
     R::dbeta(spec,156.5,0.5, true) +
     R::dnorm(Rne1,1,0.05,true) +
@@ -78,7 +78,7 @@ SEXP logprior(Rcpp::NumericVector params, int param_i, Rcpp::List misc) {
     R::dnorm(Rne14,1,0.05,true) +
     R::dnorm(Rne15,1,0.05,true) +
     R::dnorm(Rne16,1,0.05,true) +
-    R::dnorm(Rne17,1,0.05,true) + 
+    R::dnorm(Rne17,1,0.05,true) +
     R::dnorm(mod,19.5,1,true) +
     R::dbeta(sod,79,21,true) +
     3*log(x4) +

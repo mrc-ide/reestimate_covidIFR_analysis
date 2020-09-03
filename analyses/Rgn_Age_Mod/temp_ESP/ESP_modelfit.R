@@ -101,7 +101,7 @@ infxn_paramsdf <- tibble::tibble(name = paste0("y", 1:5),
                                  init = c(0.05, 0.05, 9, 0.05, 0.05),
                                  max =  c(1, 1, 17.66, 1, 1))
 
-tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_rate"),
+tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                min  = c(17,      0,     16),
                                init = c(19.26,   0.7,   18.3),
                                max =  c(22,      1,     21))
