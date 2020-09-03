@@ -62,6 +62,7 @@ abbott <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
 #                            dsc1 = c(4.5,               272),
 #                            dsc2 = c(0.5,               1))
 
+
 #............................................................
 #---- BRA1 #----
 #...........................................................
@@ -480,9 +481,9 @@ fit_map <- tibble::tibble(
            "NLD1_age",
            #"ITA1_age", "ITA1_rgn",
            "LUX1_age",
-           "LA_CA1_region", # basic but use region for splitting
+           "LA_CA1_rgn", # basic but use region for splitting
            "NYC_NY_1_age",
-           "SF_CA1_region", # basic but use region for splitting
+           "SF_CA1_rgn", # basic but use region for splitting
            "CHN1_age",
            "KEN1_age"),
   modelobj = list(BRA1_age_mod, BRA1_rgn_mod,
@@ -578,7 +579,7 @@ run_MCMC <- function(path) {
   # out
   dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits_serorev/", recursive = TRUE)
   outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits_serorev/",
-                   mod$name, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, ".RDS")
+                   mod$name, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, "_SeroRev.RDS")
   saveRDS(fit, file = outpath)
   return(0)
 }

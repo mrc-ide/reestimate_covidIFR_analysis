@@ -452,9 +452,9 @@ fit_map <- tibble::tibble(
            "NLD1_age",
            #"ITA1_age", "ITA1_rgn",
            "LUX1_age",
-           "LA_CA1_region", # basic but use region for splitting
+           "LA_CA1_rgn", # basic but use region for splitting
            "NYC_NY_1_age",
-           "SF_CA1_region", # basic but use region for splitting
+           "SF_CA1_rgn", # basic but use region for splitting
            "CHN1_age",
            "KEN1_age"),
   modelobj = list(BRA1_age_mod, BRA1_rgn_mod,

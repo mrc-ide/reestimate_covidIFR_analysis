@@ -10,14 +10,8 @@ make_IFR_model_fit <- function(num_mas, maxMa,
                                sens_spec_tbl, tod_paramsdf,
                                serodayparams) {
 
-  # make dfs
-  if (groupvar == "ageband") {
-    ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.4)
-  } else if (groupvar == "region") {
-    ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.1)
-  } else {
-    stop("Grouping var option not available")
-  }
+
+  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.4)
 
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)

@@ -315,7 +315,6 @@ file_param_map <- list.files(path = "data/param_map/SimCurves_noserorev/",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)
 # remove non-fit items that are for carrying forward simulations
-file_param_map <- file_param_map[!grepl("small_param_map.RDS", file_param_map$path),]
 file_param_map <- file_param_map[!grepl("simfit_param_map.RDS", file_param_map$path),]
 
 

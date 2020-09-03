@@ -150,8 +150,8 @@ wrap_sim <- function(curve, sens, spec, mod, sero_rate, fatalitydata, demog, ser
       SeroN = testedN ) %>%
     dplyr::rename(
       SeroPrev = ObsPrev) %>%
-    dplyr::mutate(SeroStartSurvey = c(130, 155),
-                  SeroEndSurvey = c(140, 165)) %>%
+    dplyr::mutate(SeroStartSurvey = sero_day - 5,
+                  SeroEndSurvey = sero_day + 5) %>%
     dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
     dplyr::ungroup(.) %>%
     dplyr::arrange(SeroStartSurvey, Strata)
@@ -297,7 +297,7 @@ run_MCMC <- function(path) {
   # out
   dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_serorev/", recursive = TRUE)
   outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_serorev/",
-                   mod$sim, ".RDS")
+                   mod$sim, "_SeroRev.RDS")
   saveRDS(fit, file = outpath)
 
   return(0)
