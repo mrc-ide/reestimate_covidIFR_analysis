@@ -39,6 +39,7 @@ datmap <- datmap %>%
 
 ## assign constant colours to each study
 study_cols<-data.frame(study_id=unique(datmap$study_id),study_cols=discrete_colors[1:length(unique(datmap$study_id))])
+write.csv(study_cols,file="data/derived/study_colours.csv")
 
 #......................
 # wrangle & extract sero data
@@ -169,7 +170,7 @@ age_IFRraw_plot2 <- age_IFRraw_plot0 %>%
   scale_color_manual(values = col_vec, name = "study_id") +
   xlab("Age (years)") + ylab("Crude infection fatality rate") +
   xyaxis_plot_theme
-ggsave(filename = "results/descriptive_figures/age_IFRraw_plot2.pdf", plot = age_IFRraw_plot2, width = 7, height = 5)
+ggsave(filename = "results/descriptive_figures/age_IFRraw_plot2.tiff", plot = age_IFRraw_plot2, width = 7, height = 5)
 
 
 age_IFRraw_plot_log <- age_IFRraw_plot0 %>%
@@ -183,7 +184,7 @@ age_IFRraw_plot_log <- age_IFRraw_plot0 %>%
   xyaxis_plot_theme +
   scale_y_log10()
 #  coord_cartesian(ylim=c(0.00000000001,1))
-ggsave(filename = "results/descriptive_figures/age_IFRraw_plot_log.pdf", plot = age_IFRraw_plot_log,
+ggsave(filename = "results/descriptive_figures/age_IFRraw_plot_log.tiff", plot = age_IFRraw_plot_log,
          width = 7, height = 5)
 
 # seroadj
