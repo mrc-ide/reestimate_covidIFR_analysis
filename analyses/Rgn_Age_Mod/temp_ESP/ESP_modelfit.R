@@ -87,9 +87,9 @@ ifr_paramsdf <- readr::read_csv("ESP1-2_ifr_credint.csv") %>%
   dplyr::select(c("name", "min", "init", "max"))
 
 Rne_paramsdf <- tibble::tibble(name = paste0("Rne", 1:17),
-                               min  = rep(0.5, 17),
+                               min  = rep(0.1, 17),
                                init = rep(1, 17),
-                               max = rep(1.5, 17))
+                               max = rep(10, 17))
 
 knot_paramsdf <- tibble::tibble(name = paste0("x", 1:4),
                                 min  = c(0,    0.33, 0.66, 175),
