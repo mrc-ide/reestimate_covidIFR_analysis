@@ -9,6 +9,22 @@ source("R/process_data4.R")
 #......................
 # global data
 #......................
+# JHU data for new recast df
+JHUdf <- readr::read_csv("data/raw/time_series_covid19_deaths_global.csv") %>%
+  tidyr::pivot_longer(., cols = -c("Province/State", "Country/Region", "Lat", "Long"),
+                      names_to = "date", values_to = "deaths") %>%
+  magrittr::set_colnames(c("province", "country_region", "lat", "long", "date", "deaths")) %>%
+  dplyr::filter(is.na(province)) %>% # only want by country
+  dplyr::mutate(georegion = countrycode::countryname(country_region, destination = "iso3c"),
+                date = lubridate::mdy(date)) %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+  dplyr::group_by(georegion) %>% # group by region for daily deaths
+  dplyr::rename(cumdeaths = deaths) %>%
+  dplyr::mutate(deaths = cumdeaths - dplyr::lag(cumdeaths),
+                deaths = ifelse(is.na(deaths), 0, deaths), # take care of first value
+                deaths = ifelse(deaths < 1, 0, deaths)) %>% # take care of cumulative death correction
+  dplyr::select(c("date", "georegion", "deaths")) %>%
+  dplyr::ungroup(.)
+
 # serovalidation
 sero_valdf <-  readr::read_tsv("data/raw/serovalidation_final_raw.tsv")
 # seroprevalence
@@ -61,19 +77,6 @@ bra_cumdeaths <- readRDS("data/raw/Brazil_state_age_sex_deaths.rds") %>%
   dplyr::rename(n_deaths = deaths) %>%
   dplyr::arrange(region)
 
-bra_tsdeaths <- readRDS("data/raw/Brazil_state_age_sex_deaths.rds") %>%
-  magrittr::set_colnames(tolower(colnames(.))) %>%
-  dplyr::mutate(tempday = as.numeric(lubridate::ymd(date) - lubridate::ymd("2020-01-01")) + 1,
-                tempday = factor(tempday, levels = c(1:max(tempday)))) %>% # ugly code to fill in dates
-  dplyr::select(-c("date")) %>%
-  dplyr::group_by(tempday, .drop = FALSE) %>%
-  dplyr::summarise( deaths = sum(count) ) %>%
-  dplyr::ungroup(.) %>%
-  dplyr::mutate(
-    date = lubridate::ymd("2020-01-01") + as.numeric(as.character(tempday)) - 1,
-    georegion = "BRA") %>%
-  dplyr::select(c("date", "georegion", "deaths")) %>%
-  dplyr::arrange(date)
 
 bra_populationdf <- readr::read_csv("data/raw/Brazil_2020_Population_Data.csv") %>%
   magrittr::set_colnames(tolower(colnames(.))) %>%
@@ -97,7 +100,7 @@ bra_populationdf <- readr::read_csv("data/raw/Brazil_2020_Population_Data.csv") 
 # regions
 #......................
 BRA.regions.dat <- process_data4(cum_tp_deaths = bra_cumdeaths,
-                                 time_series_totdeaths_df = bra_tsdeaths,
+                                 time_series_totdeaths_df = JHUdf,
                                  time_series_totdeaths_geocode = "BRA",
                                  population = bra_populationdf,
                                  sero_val = sero_valdf,
@@ -112,7 +115,7 @@ BRA.regions.dat <- process_data4(cum_tp_deaths = bra_cumdeaths,
 # ages
 #......................
 BRA.agebands.dat <- process_data4(cum_tp_deaths = bra_cumdeaths,
-                                  time_series_totdeaths_df = bra_tsdeaths,
+                                  time_series_totdeaths_df = JHUdf,
                                   time_series_totdeaths_geocode = "BRA",
                                   population = bra_populationdf,
                                   sero_val = sero_valdf,
@@ -267,22 +270,6 @@ saveRDS(BRA.basic.dat, "data/derived/BRA5/BRA5_regions.RDS")
 #..................................................................................
 #---- Preprocess European Data #----
 #..................................................................................
-# JHU data for new recast df
-JHUdf <- readr::read_csv("data/raw/time_series_covid19_deaths_global.csv") %>%
-  tidyr::pivot_longer(., cols = -c("Province/State", "Country/Region", "Lat", "Long"),
-                      names_to = "date", values_to = "deaths") %>%
-  magrittr::set_colnames(c("province", "country_region", "lat", "long", "date", "deaths")) %>%
-  dplyr::filter(is.na(province)) %>% # only want by country
-  dplyr::mutate(georegion = countrycode::countryname(country_region, destination = "iso3c"),
-                date = lubridate::mdy(date)) %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-  dplyr::group_by(georegion) %>% # group by region for daily deaths
-  dplyr::rename(cumdeaths = deaths) %>%
-  dplyr::mutate(deaths = cumdeaths - dplyr::lag(cumdeaths),
-                deaths = ifelse(is.na(deaths), 0, deaths), # take care of first value
-                deaths = ifelse(deaths < 1, 0, deaths)) %>% # take care of cumulative death correction
-  dplyr::select(c("date", "georegion", "deaths")) %>%
-  dplyr::ungroup(.)
-
 #............................................................
 #---- CHE1 #----
 #...........................................................
