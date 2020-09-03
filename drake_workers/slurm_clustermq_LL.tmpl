@@ -2,7 +2,7 @@
 #SBATCH --job-name={{ job_name }}           # job name
 #SBATCH --output={{ log_file | /dev/null }} # you can add .%a for array index
 #SBATCH --error={{ log_file | /dev/null }}  # log file
-#SBATCH --mem-per-cpu={{ memory | 32768 }}  # memory
+#SBATCH --mem-per-cpu={{ memory | 16384 }}  # memory
 #SBATCH --cpus-per-task 4                   # for parallelization
 #SBATCH --array=1-{{ n_jobs }}              # job array
 #SBATCH --time 36:00:00                     # time
