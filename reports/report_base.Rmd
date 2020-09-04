@@ -83,7 +83,7 @@ colnames(dictkey)[colnames(dictkey) == gsub("-", "", tolower(stratachar))] <- "s
 ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
                                        what = "IFRparams", by_chain = FALSE)
 ifrs <- dplyr::left_join(dictkey, ifrs) %>% 
-  dplyr::mutate(strata = forcats::fct_reorder(strata, as.numeric(param)))
+  dplyr::mutate(strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(param, "[0-9]+"))))
 
 #...................... 
 # get crude ifrs 
@@ -175,8 +175,8 @@ demogwi <- modout$inputs$IFRmodel$demog %>%
   dplyr::mutate(wi = popN/sum(popN))
 
 modout$mcmcout$output %>%
-  dplyr::filter(stage == "sampling" & rung == whichrung) %>%
-  tidyr::pivot_longer(., cols = IFRmodel_inf$inputs$IFRmodel$IFRparams, # if chain isn't included in vector, grepl won't do anything
+  dplyr::filter(stage == "sampling" & rung == "rung1") %>%
+  tidyr::pivot_longer(., cols = modout$inputs$IFRmodel$IFRparams, # if chain isn't included in vector, grepl won't do anything
                       names_to = "Strata", values_to = "est") %>%
   dplyr::left_join(., demogwi, by = "Strata") %>%
   dplyr::mutate(est = est*wi) %>%
@@ -188,8 +188,7 @@ modout$mcmcout$output %>%
   ylab("Global IFR") + xlab("Iteration") + 
   theme_bw() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.position = "bottom",
-        legend.title = element_blank())
+        legend.position = "none")
 
 ```
 
@@ -207,8 +206,10 @@ seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
                                                    by_chain = F)
 
 serocurvedat <- seropnts %>% 
-  dplyr::select(c("sim", "ObsDay", dplyr::starts_with("RG_pd_"), dplyr::starts_with("crude_pd_"))) %>% 
-  tidyr::gather(., key = "seroprev_strata_lvl", value = "seroprev", 3:ncol(.)) %>% 
+  dplyr::select(c("sim", "ObsDay", dplyr::starts_with("RG_pd_"),
+                  dplyr::starts_with("crude_pd_"))) %>% 
+  tidyr::pivot_longer(., cols = -c("sim", "ObsDay"),
+                      names_to = "seroprev_strata_lvl", values_to = "seroprev") %>% 
   dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG Corr.", "Crude"),
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
   dplyr::left_join(., dictkey) %>% 

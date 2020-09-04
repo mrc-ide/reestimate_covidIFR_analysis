@@ -147,7 +147,7 @@ quick_sero_diagnostics <- function(modout) {
   senschain <- drjacoby::plot_par(modout$mcmcout, "sens", display = FALSE)
   modchain <- drjacoby::plot_par(modout$mcmcout, "mod", display = FALSE)
   sodchain <- drjacoby::plot_par(modout$mcmcout, "sod", display = FALSE)
-  seroratechain <- drjacoby::plot_par(modout$mcmcout, "sero_rate", display = FALSE)
+  seroratechain <- drjacoby::plot_par(modout$mcmcout, "sero_con_rate", display = FALSE)
 
   maxmachain <- maxmachain[[1]][["trace"]] + theme(legend.position = "none")
   spechain <- spechain[[1]][["trace"]] + theme(legend.position = "none")
