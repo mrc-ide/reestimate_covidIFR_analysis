@@ -120,7 +120,7 @@ rgn_mod_seroprevs <- rgn_fit_map %>%
 #............................................................
 # Read in and get global IFR for single unit models (i.e. agebands summed up)
 #...........................................................
-ab_mod_paths <- list.files("results/ModFits/", pattern = ".RDS", full.names = TRUE)
+ab_mod_paths <- list.files("results/Modfits_noserorev/", pattern = ".RDS", full.names = TRUE)
 ab_mod_fits <- tibble::tibble(
   study_id = toupper(stringr::str_split(basename(ab_mod_paths), "_age|_rgn", simplify = T)[,1]),
   path = ab_mod_paths) %>%
@@ -168,7 +168,7 @@ rgn_mod_seroprevs <- dplyr::left_join(rgn_mod_seroprevs, liftover, by = "strata"
 # TODO
 midpt <- max(plotdat$seromidpt)
 rgn_mod_seroprevs_mid <- rgn_mod_seroprevs %>%
-  dplyr::filter(ObsDay == midpt) %>%
+  dplyr::filter(ObsDay == midpt)
 
 
 plotdat_mid <- plotdat %>%
