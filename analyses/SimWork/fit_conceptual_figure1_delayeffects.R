@@ -38,7 +38,9 @@ infxns <- infxns %>%
   dplyr::mutate_if(is.numeric, round, 0) %>%
   dplyr::rename(time = step)
 
-
+#............................................................
+# setup fatality data
+#............................................................
 # make up fatality data
 fatalitydata <- tibble::tibble(Strata = "ma1",
                                IFR = 0.1,
@@ -57,7 +59,8 @@ dat <- COVIDCurve::Aggsim_infxn_2_death(
   simulate_seroreversion = FALSE,
   sens = 0.85,
   spec = 0.95,
-  sero_delay_rate = 18.3)
+  sero_delay_rate = 18.3,
+  return_linelist = FALSE)
 
 serorev_dat <- COVIDCurve::Aggsim_infxn_2_death(
   fatalitydata = fatalitydata,
@@ -71,7 +74,8 @@ serorev_dat <- COVIDCurve::Aggsim_infxn_2_death(
   sero_rev_scale = 200,
   sens = 0.85,
   spec = 0.95,
-  sero_delay_rate = 18.3)
+  sero_delay_rate = 18.3,
+  return_linelist = FALSE)
 
 
 
@@ -81,22 +85,22 @@ serorev_dat <- COVIDCurve::Aggsim_infxn_2_death(
 #......................
 # wrangle input data from non-seroreversion fit
 #......................
-# sero tidy up
+# liftover obs serology
 sero_day <- 150
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
-  dplyr::filter(ObsDay == sero_day) %>%
+  dplyr::filter(ObsDay %in% sero_day) %>%
   dplyr::mutate(
-    SeroPos = round(ObsPrev * popN),
-    SeroN = popN ) %>%
+    SeroPos = round(ObsPrev * testedN),
+    SeroN = testedN ) %>%
   dplyr::rename(
-    SeroDay = ObsDay,
     SeroPrev = ObsPrev) %>%
   dplyr::mutate(SeroStartSurvey = sero_day - 5,
                 SeroEndSurvey = sero_day + 5) %>%
   dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
   dplyr::ungroup(.) %>%
   dplyr::arrange(SeroStartSurvey, Strata)
+
 
 # proportion deaths
 prop_deaths <- dat$StrataAgg_TimeSeries_Death %>%
@@ -159,12 +163,12 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens",  "spec"),
                                 dsc2 =  c(150.5,    10.5))
 
 # delay priors
-tod_paramsdf <- tibble::tibble(name = c("mod", "sod",  "sero_con_rate"),
-                               min  = c(0,      0,      0),
-                               init = c(19,     0.7,    18),
-                               max =  c(Inf,    1,      Inf),
-                               dsc1 = c(19.26,  79,     18.3),
-                               dsc2 = c(1,      21,     1))
+tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
+                               min  = c(17,     0,     16),
+                               init = c(19,     0.79,  18),
+                               max =  c(22,     1,     21),
+                               dsc1 = c(19.26,  2370,  18.3),
+                               dsc2 = c(0.5,    630,   0.5))
 # seroreversion
 empty <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
                         min  = c(NA, NA),
@@ -242,6 +246,7 @@ fit_map <- tibble::tibble(
   burnin = 1e4,
   samples = 1e4,
   thinning = 10)
+
 
 #......................
 # fitmap out

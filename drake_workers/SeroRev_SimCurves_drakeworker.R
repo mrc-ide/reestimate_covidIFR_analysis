@@ -131,7 +131,9 @@ wrap_sim <- function(curve, sens, spec, mod, sero_rate, fatalitydata, demog, ser
     sens = sens,
     spec = spec,
     sero_delay_rate = 18.3,
-    demog = demog)
+    demog = demog,
+    smplfrac = 0.25,
+    return_linelist = FALSE)
 
   # liftover proprtion deaths
   totdeaths <- sum(dat$StrataAgg_TimeSeries_Death$Deaths)
