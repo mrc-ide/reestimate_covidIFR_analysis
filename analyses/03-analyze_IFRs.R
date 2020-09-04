@@ -6,46 +6,20 @@
 library(tidyverse)
 library(COVIDCurve)
 source("R/my_themes.R")
-# quick functions
-get_strata_IFRs <- function(path) {
-  modout <- readRDS(path)
-  stratachar <- ifelse(grepl("age", basename(path)), "ageband",
-                       ifelse(grepl("rgn", basename(path)), "region", NA))
-  dictkey <- modout$inputs$IFRmodel$IFRdictkey %>%
-    dplyr::rename(param = Strata)
-  colnames(dictkey)[colnames(dictkey) == stratachar] <- "strata"
-  # get ifrs
-  ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
-                                         what = "IFRparams", by_chain = FALSE)
-  # out
-  dplyr::left_join(dictkey, ifrs) %>%
-    dplyr::mutate(param = factor(param, levels = paste0("ma", 1:nrow(dictkey))),
-                  strata = forcats::fct_reorder(strata, as.numeric(param)))
-}
-
-get_overall_IFRs <- function(path) {
-  modout <- readRDS(path)
-  out <- COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout,
-                                                  whichrung = "rung1",
-                                                  by_chain = FALSE)
-  return(out)
-}
-
-
-
+source("R/covidcurve_helper_functions.R")
 
 #......................
 # read in data
 #......................
-regrets <- list.files("results/ModFits/", full.names = T)
+regrets <- list.files("results/Modfits_noserorev/", full.names = T)
 regretmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(regrets), "_age|_rgn", simplify = T)[,1]),
                             lvl =  ifelse(grepl("age", basename(regrets)), "Age-Band", "Region"),
                             sero = "reg",
                             path = regrets)
 
-serorevrets <- list.files("results/ModFits_SeroRev//", full.names = T)
-serorevretmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(regrets), "_age|_rgn", simplify = T)[,1]),
-                                lvl =  ifelse(grepl("age", basename(regrets)), "Age-Band", "Region"),
+serorevrets <- list.files("results/ModFits_SeroRev/", full.names = T)
+serorevretmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(serorevrets), "_age|_rgn", simplify = T)[,1]),
+                                lvl =  ifelse(grepl("age", basename(serorevrets)), "Age-Band", "Region"),
                                 sero = "serorev",
                                 path = serorevrets)
 # bring together
@@ -67,7 +41,9 @@ tbl2 <- retmap %>%
     c("Study ID", "Seroreversion", "Min.", "LCI", "Med.", "Mean", "UCI", "Max", "ESS"))
 
 dir.create("tables/final_tables", recursive = T)
-readr::write_csv(tbl2, path = "tables/final_tables/overall_IFRs.csv")
+tbl2 %>%
+  dplyr::mutate_if(is.numeric, round, 2) %>%
+  readr::write_csv(., path = "tables/final_tables/overall_IFRs.csv")
 
 #............................................................
 #---- Age Specific Results #----
@@ -75,7 +51,7 @@ readr::write_csv(tbl2, path = "tables/final_tables/overall_IFRs.csv")
 colormap <- readr::read_csv("data/plot_aesthetics/color_studyid_map.csv")
 retmap_age <- retmap %>%
   tidyr::unnest(cols = "strataIFRret") %>%
-  dplyr::filter(lvl == "ageband") %>%
+  dplyr::filter(lvl == "Age-Band") %>%
   dplyr::left_join(., colormap, by = "study_id") %>%
   dplyr::mutate(age_mid = purrr::map_dbl(strata, function(x){
     nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))

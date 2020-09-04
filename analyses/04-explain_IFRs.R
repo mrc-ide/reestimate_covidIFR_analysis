@@ -6,14 +6,7 @@
 library(tidyverse)
 library(COVIDCurve)
 source("R/my_themes.R")
-get_overall_IFRs <- function(path) {
-  modout <- readRDS(path)
-  out <- COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout,
-                                                  whichrung = "rung1",
-                                                  by_chain = FALSE)
-  return(out)
-}
-
+source("R/covidcurve_helper_functions.R")
 
 #............................................................
 # read in data
@@ -21,15 +14,15 @@ get_overall_IFRs <- function(path) {
 #......................
 # results
 #......................
-regrets <- list.files("results/ModFits/", full.names = T)
+regrets <- list.files("results/Modfits_noserorev/", full.names = T)
 regretmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(regrets), "_age|_rgn", simplify = T)[,1]),
                             lvl =  ifelse(grepl("age", basename(regrets)), "Age-Band", "Region"),
                             sero = "reg",
                             path = regrets)
 
-serorevrets <- list.files("results/ModFits_SeroRev//", full.names = T)
-serorevretmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(regrets), "_age|_rgn", simplify = T)[,1]),
-                                lvl =  ifelse(grepl("age", basename(regrets)), "Age-Band", "Region"),
+serorevrets <- list.files("results/ModFits_SeroRev/", full.names = T)
+serorevretmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(serorevrets), "_age|_rgn", simplify = T)[,1]),
+                                lvl =  ifelse(grepl("age", basename(serorevrets)), "Age-Band", "Region"),
                                 sero = "serorev",
                                 path = serorevrets)
 # bring together
@@ -94,13 +87,16 @@ prop65 <- dscdat %>%
 # plotObj
 #......................
 prop65rgnIFR_plotObj <- retmap %>%
+  dplyr::filter(lvl == "Age-Band") %>%
   dplyr::left_join(., y = prop65, by = "study_id") %>%
   dplyr::left_join(., plotmap, by = "study_id") %>%
+  dplyr::mutate(sero = factor(sero, levels = c("reg", "serorev"), labels = c("SeroInf.", "SeroRev"))) %>%
   ggplot() +
   geom_pointrange(aes(x = prop65, y = median, ymin = LCI, ymax = UCI,
                       color =  study_id), alpha = 0.5) +
+  facet_wrap(.~sero) +
   scale_color_manual("Study ID", values = unique(plotmap$cols)) +
-  ylab("Regional IFR (95% Cred. Int.)") + xlab("Prop. of Population Over 65-Years") +
+  ylab("Overall IFR (95% Cred. Int.)") + xlab("Prop. of Population Over 65-Years") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
@@ -109,36 +105,34 @@ prop65rgnIFR_plotObj <- retmap %>%
 #---- Heatlh Care Capacity  #----
 # get proxy for healthcare capacity through OWID
 #...........................................................
-
+# https://github.com/owid/covid-19-data/tree/master/public/data
+# https://github.com/owid/covid-19-data/blob/master/public/data/owid-covid-codebook.csv
 #......................
 #plotObj
 #......................
 health_cap_rgnIFR_plotObj <- retmap %>%
+  dplyr::mutate(drop = ifelse(study_id %in% c("DNK1", "GBR3", "ESP1-2", "BRA1")
+                              & lvl == "Region", T, F),
+                sero = factor(sero, levels = c("reg", "serorev"), labels = c("SeroInf.", "SeroRev."))) %>%
+  dplyr::filter(!drop) %>%
   dplyr::left_join(., plotmap, by = "study_id") %>%
   dplyr::inner_join(., y = owid_covid, by = c("iso_code")) %>%
   ggplot() +
   geom_pointrange(aes(x = maxnewdeaths_per_hospbed, y = median, ymin = LCI, ymax = UCI,
-                      group = region, color =  study_id), alpha = 0.5) +
-  scale_color_manual("Study ID", values = unique(retmap_age$cols)) +
-  ylab("Regional IFR (95% Cred. Int.)") + xlab("Max. Prop. of Daily Deaths per Hospital Bed") +
+                      color =  study_id), alpha = 0.5) +
+  facet_wrap(.~sero) +
+  scale_color_manual("Study ID", values = unique(plotmap$cols)) +
+  ylab("Overall IFR (95% Cred. Int.)") + xlab("Max. Ratio of Daily Deaths per Hospital Bed") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 #............................................................
 # Main Figure
 #...........................................................
-# get common legend
-commlegend <- cowplot::get_legend(health_cap_rgnIFR_plotObj +  guides(color = guide_legend(nrow = 1)) +
-                                    theme(legend.box.margin = margin(12, 0, 0, 0),
-                                          legend.position = "bottom"))
-
-# remove legends
-prop65rgnIFR_plotObj <- prop65rgnIFR_plotObj + theme(legend.position = "none")
-health_cap_rgnIFR_plotObj <- health_cap_rgnIFR_plotObj + theme(legend.position = "none")
 
 # bring together
 (main_fig <- cowplot::plot_grid(prop65rgnIFR_plotObj, health_cap_rgnIFR_plotObj,
-                                 align = "h", nrow = 1, labels = c("(A)", "(B)")))
+                                 align = "h", ncol = 1, nrow = 2, labels = c("(A)", "(B)")))
 # out
 jpeg("figures/final_figures/Figure4.jpg", width = 10, height = 7, units = "in", res = 500)
 plot(main_fig)
@@ -150,6 +144,13 @@ graphics.off()
 #............................................................
 #---- IFR-Death Comparisons #----
 #...........................................................
+ifr_compar_map <- retmap %>%
+  dplyr::mutate(drop = ifelse(study_id %in% c("DNK1", "GBR3", "ESP1-2", "BRA1")
+                              & lvl == "Region", T, F)) %>%
+  dplyr::filter(!drop) %>%
+  dplyr::mutate(sero = factor(sero, levels = c("reg", "serorev"), labels = c("SeroInf.", "SeroRev.")))
+
+
 # TODO --> don't have excess or care home deaths? --> but tell Lucy easiest way to link is by study_id
 percap_deaths <- dscdat %>%
   dplyr::filter(!duplicated(study_id)) %>%
@@ -172,17 +173,20 @@ ext_deaths <- percap_deaths %>%
   #dplyr::left_join(., y = carehome_deaths, by = "study_id") %>%
   tidyr::pivot_longer(., cols = -c("study_id"), names_to = "param", values_to = "est") %>%
   dplyr::mutate(param = factor(param,
-                               levels = c("crude", "capita", "excess"),
-                               labels = c("Crude", "Per Capita", "Excess")
+                               levels = c("crude", "capita", "excess", "carehome"),
+                               labels = c("Crude", "Per Capita", "Excess", "Care-Home")
   ))
+
 
 # plot out
 (death_type_plot <- ggplot() +
   geom_point(data = ext_deaths, aes(x = study_id, y = est, fill = param, shape = param),
              size = 6.5, alpha = 0.8) +
-  geom_pointrange(data = retmap,
-                  aes(x = study_id, ymin = LCI, y = median, ymax = UCI), size = 0.75, alpha = 0.5) +
+  geom_pointrange(data = ifr_compar_map,
+                  aes(x = study_id, ymin = LCI, y = median, ymax = UCI, color = sero),
+                  size = 0.75, alpha = 0.5) +
   scale_shape_manual("Death Type", values = c(22, 23, 24, 25)) +
+  scale_color_manual("SeroType", values = c("#4285F4", "#EA4335")) +
   scale_fill_manual("Death Type", values = c(wesanderson::wes_palette("IsleofDogs2", type = "discrete"))) +
   ylab("Infection Fatality Rate") +
   coord_flip() +
@@ -195,6 +199,7 @@ ext_deaths <- percap_deaths %>%
     legend.title = element_text(family = "Helvetica", face = "bold", vjust = 0.5, hjust = 0.5, size = 16),
     legend.text = element_text(family = "Helvetica", vjust = 0.8, hjust = 0.5, size = 14, angle = 0),
     legend.position = "right",
+    legend.key = element_blank(),
     axis.line.x = element_line(color = "black", size = 1.5),
     axis.line.y = element_line(color = "black", size = 1.5),
     axis.ticks.y = element_blank(),
