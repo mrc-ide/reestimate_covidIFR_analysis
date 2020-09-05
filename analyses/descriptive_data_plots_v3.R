@@ -100,7 +100,7 @@ ageplotdat <- dplyr::filter(ageplotdat, obsdaymax == max_day)
 
 
 #......................
-# age adj seroprevalence
+# age raw seroprevalence
 #......................
 age_seroplot <- ageplotdat %>%
   dplyr::select(c("study_id", "age_mid", "seroprev")) %>%
@@ -157,7 +157,7 @@ jpgsnapshot(outpath = "figures/descriptive_figures/age_IFRraw_plot.jpg",
             plot = age_IFRraw_plot)
 
 
-### probably a neater way to do this. TODO correct legend.
+### probably a neater way to do this.
 col_vec<-study_cols$study_cols
 names(col_vec) <- levels(study_cols$study_id)
 
