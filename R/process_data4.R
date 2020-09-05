@@ -343,7 +343,7 @@ process_population_data <- function(population, cum_tp_deaths, death_agebreaks, 
 
   # make sure factor order perserved which can be overwritten in the group_by_at, so for safety
   if (groupingvar == "ageband") {
-    population <- population %>%
+    pop_prop.summ <- pop_prop.summ %>%
       dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
       dplyr::arrange(age_low) %>%
       dplyr::mutate(ageband = forcats::fct_reorder(.f = ageband, .x = age_low)) %>%
@@ -472,14 +472,18 @@ process_death_data <- function(cum_tp_deaths, time_series_totdeaths_df, time_ser
     cum_tp_deaths.prop <- cum_tp_deaths.prop %>%
       dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
       dplyr::arrange(age_low) %>%
-      dplyr::mutate(ageband = forcats::fct_reorder(.f = ageband, .x = age_low)) %>%
+      #dplyr::mutate(ageband = forcats::fct_reorder(.f = ageband, .x = age_low)) %>%
       dplyr::select(-c("age_low"))
   }
   # store group names
-  groupvarnames <- cum_tp_deaths %>%
-    dplyr::group_by_at(c(groupingvar)) %>%
-    group_keys(.)
+  groupvarnames <- cum_tp_deaths.prop %>%
+    dplyr::group_by_at(c(groupingvar))  %>%
+    dplyr::select(groupingvar) %>%
+    dplyr::ungroup()
 
+  #group_keys(.)
+
+  #groupvarnames <- cum_tp_deaths[[groupingvar]]
 
   if (get_descriptive_dat){
     # consider whther to get multiple proportions to get time series for descriptive data
@@ -497,7 +501,7 @@ process_death_data <- function(cum_tp_deaths, time_series_totdeaths_df, time_ser
       }
     }
     # need to round to nearest person
-    cum_tp_deaths.summ <- round(cum_tp_deaths.summ)
+    #cum_tp_deaths.summ <- round(cum_tp_deaths.summ)
     # tidy out to long format
     cum_tp_deaths.summ <- cum_tp_deaths.summ %>%
       cbind.data.frame(groupvarnames, .)
