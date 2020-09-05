@@ -272,8 +272,9 @@ process_population_data <- function(population, cum_tp_deaths, death_agebreaks, 
       ageband = cut(age_high,
                     breaks = agebrks,
                     labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
-      ageband = as.character(ageband),
-      ageband = forcats::fct_reorder(.f = ageband, .x = age_low)
+      ageband = as.character(ageband)
+      # ,
+      # ageband = forcats::fct_reorder(.f = ageband, .x = age_low)
     )
   # do any neccesary age filtering
   if (groupingvar == "ageband") {
@@ -412,8 +413,9 @@ process_death_data <- function(cum_tp_deaths, time_series_totdeaths_df, time_ser
       ageband = cut(age_high,
                     breaks = agebrks,
                     labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
-      ageband = as.character(ageband),
-      ageband = forcats::fct_reorder(.f = ageband, .x = age_low)
+      ageband = as.character(ageband)
+      # ,
+      # ageband = forcats::fct_reorder(.f = ageband, .x = age_low)
     )
 
   # do any neccesary age filtering
