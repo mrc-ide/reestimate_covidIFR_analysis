@@ -214,7 +214,7 @@ mod1_serorev$set_rcensor_day(.Machine$integer.max)
 #............................................................
 #---- Come Together #----
 #...........................................................
-bvec <- seq(5, 2.5, length.out = 50)
+bvec <- seq(5, 3.5, length.out = 50)
 
 fit_map <- tibble::tibble(
   name = c("reg_mod", "serorev_mod"),
