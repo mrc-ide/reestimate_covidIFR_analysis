@@ -337,7 +337,7 @@ datclean <-  deathrecast %>%
 # liftover name
 colnames(datclean)[colnames(datclean) == gsub("-", "", tolower(stratachar))] <- "strata"
 datclean <- datclean %>% 
-  dplyr::mutate(strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(param, "[0-9]+"))))
+  dplyr::mutate(strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(Strata, "[0-9]+"))))
 
 
 
