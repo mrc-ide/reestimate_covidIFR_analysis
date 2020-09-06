@@ -27,12 +27,41 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
 # seroreversion weibull scale/shape for various assay
 # (for later rbinds)
 #......................
-empty <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-                        min  = c(NA,                 NA),
-                        init = c(NA,                 NA),
-                        max =  c(NA,                 NA),
-                        dsc1 = c(NA,                 NA),
-                        dsc2 = c(NA,                 NA))
+pooled <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
+                         min  = c(2,                 255),
+                         init = c(4.5,               270),
+                         max =  c(7,                 285),
+                         dsc1 = c(4.5,               272),
+                         dsc2 = c(0.5,               1))
+
+abbott <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
+                         min  = c(2,                 255),
+                         init = c(4.5,               270),
+                         max =  c(7,                 285),
+                         dsc1 = c(4.5,               272),
+                         dsc2 = c(0.5,               1))
+
+# roche <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
+#                         min  = c(2,                 255),
+#                         init = c(4.5,               270),
+#                         max =  c(7,                 285),
+#                         dsc1 = c(4.5,               272),
+#                         dsc2 = c(0.5,               1))
+#
+# siemens <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
+#                           min  = c(2,                 255),
+#                           init = c(4.5,               270),
+#                           max =  c(7,                 285),
+#                           dsc1 = c(4.5,               272),
+#                           dsc2 = c(0.5,               1))
+#
+# diasorin <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
+#                            min  = c(2,                 255),
+#                            init = c(4.5,               270),
+#                            max =  c(7,                 285),
+#                            dsc1 = c(4.5,               272),
+#                            dsc2 = c(0.5,               1))
+
 
 #............................................................
 #---- BRA1 #----
@@ -43,7 +72,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(850.5,   990.5),
                                 dsc2 =  c(150.5,    10.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # regions
@@ -53,7 +82,7 @@ BRA1_rgn_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma2", # Northern Region
                                    groupvar = "region",  dat = rawrgn,
                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 175, init = 181, max = 189, dsc1 = 175, dsc2 = 189),
                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
-                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                   sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 #......................
 # agebands
 #......................
@@ -62,7 +91,7 @@ BRA1_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                    groupvar = "ageband",  dat = rawage,
                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 175, init = 181, max = 189, dsc1 = 175, dsc2 = 189),
                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
-                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                   sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 #............................................................
 #---- BRA4 #----
@@ -73,7 +102,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(447.5,   515.5),
                                 dsc2 =  c(80.5,    5.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # basic
@@ -83,7 +112,7 @@ BRA4_rgn_mod <- make_IFR_model_fit(num_mas = 1, maxMa = "ma1",
                                    groupvar = "region",  dat = rawbase,
                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 175, init = 181, max = 189, dsc1 = 175, dsc2 = 189),
                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
-                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                   sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
@@ -95,7 +124,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(447.5,   515.5),
                                 dsc2 =  c(80.5,    5.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # basic
@@ -105,7 +134,7 @@ BRA5_rgn_mod <- make_IFR_model_fit(num_mas = 1, maxMa = "ma1",
                                    groupvar = "region",  dat = rawbase,
                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 175, init = 181, max = 189, dsc1 = 175, dsc2 = 189),
                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
-                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                   sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
@@ -117,7 +146,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(156.5,   176.5),
                                 dsc2 =  c(25.5,    0.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # agebands
@@ -127,7 +156,7 @@ CHE1_age_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                    groupvar = "ageband",  dat = rawage,
                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 134, init = 140, max = 146, dsc1 = 134, dsc2 = 146),
                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.12, dsc1 = 0, dsc2 = 13.12),
-                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                   sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
@@ -139,7 +168,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(49.5,   5497.5),
                                 dsc2 =  c(5.5,    6.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # agebands
@@ -149,7 +178,7 @@ CHE2_age_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                    groupvar = "ageband",  dat = rawage,
                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 199, init = 206, max = 213, dsc1 = 199, dsc2 = 213),
                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14.24, dsc1 = 0, dsc2 = 14.24),
-                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                   sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
@@ -161,7 +190,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(128.5,   647.5),
                                 dsc2 =  c(27.5,    4.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # regions
@@ -171,7 +200,7 @@ DNK_rgn_mod <- make_IFR_model_fit(num_mas = 3, maxMa = "ma1", # Capital Region
                                   groupvar = "region",  dat = rawrgn,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
-                                  sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                  sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 #......................
 # agebands
 #......................
@@ -180,7 +209,7 @@ DNK_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
-                                  sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                  sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
@@ -194,7 +223,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 dsc2 =  c(30.5,    0.5))
 # https://www.thelancet.com/cms/10.1016/S0140-6736(20)31483-5/attachment/25c80941-a8c5-470e-a6a8-fde7397b9547/mmc1.pdf
 # based on supp table 3
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # regions
@@ -205,7 +234,7 @@ ESP_rgn_mod <- make_IFR_model_fit(num_mas = 17, maxMa = "ma17", # La Rioja Regio
                                   groupvar = "region",  dat = rawrgn,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 17.66),
-                                  sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                  sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 #......................
 # agebands
@@ -215,7 +244,7 @@ ESP_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 17.66),
-                                  sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                  sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 #...........................................................
@@ -227,7 +256,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(38.5,   493.5),
                                 dsc2 =  c(10.5,    7.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # regions
@@ -237,7 +266,7 @@ GBR3_rgn_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma4",
                                    groupvar = "region",  dat = rawrgn,
                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 206, init = 210, max = 213, dsc1 = 199, dsc2 = 213),
                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
-                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                   sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 #......................
 # agebands
@@ -247,7 +276,7 @@ GBR3_age_mod <- make_IFR_model_fit(num_mas = 4, maxMa = "ma4",
                                    groupvar = "ageband",  dat = rawage,
                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 206, init = 210, max = 213, dsc1 = 199, dsc2 = 213),
                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
-                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                   sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
@@ -259,7 +288,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(171.5,   281.5),
                                 dsc2 =  c(3.5,     1.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # agebands
@@ -269,7 +298,7 @@ NLD_age_mod <- make_IFR_model_fit(num_mas = 6, maxMa = "ma6",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.67, dsc1 = 0, dsc2 = 16.67),
-                                  sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                  sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 
@@ -282,7 +311,7 @@ NLD_age_mod <- make_IFR_model_fit(num_mas = 6, maxMa = "ma6",
 #                                 max =   c(1.00,    1.00,     30),
 #                                 dsc1 =  c(90.5,   95.5,      2.8),
 #                                 dsc2 =  c(10.5,     5.5,      0.1))
-# sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+# sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 # #......................
 # #regions
 # #......................
@@ -291,7 +320,7 @@ NLD_age_mod <- make_IFR_model_fit(num_mas = 6, maxMa = "ma6",
 #                                   groupvar = "region",  dat = rawrgn,
 #                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
 #                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.91, dsc1 = 0, dsc2 = 17.91),
-#                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+#                                   sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 #
 # #......................
 # # agebands
@@ -301,7 +330,7 @@ NLD_age_mod <- make_IFR_model_fit(num_mas = 6, maxMa = "ma6",
 #                                   groupvar = "ageband",  dat = rawage,
 #                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
 #                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.91, dsc1 = 0, dsc2 = 17.91),
-#                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+#                                   sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
@@ -313,7 +342,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(12.5,    181.5),
                                 dsc2 =  c(2.5,     4.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # agebands
@@ -323,7 +352,7 @@ LUX_age_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.34, dsc1 = 0, dsc2 = 13.34),
-                                  sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                  sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 #............................................................
 #---- Los Angeles County #----
@@ -334,7 +363,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(27.5,    30.5),
                                 dsc2 =  c(10.5,    0.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # agebands
@@ -344,7 +373,7 @@ LACA_basic_mod <- make_IFR_model_fit(num_mas = 1, maxMa = "ma1",
                                      groupvar = "region",  dat = rawbase,
                                      num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                      num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.12, dsc1 = 0, dsc2 = 16.12),
-                                     sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                     sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
@@ -356,7 +385,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(204.5,   92.5),
                                 dsc2 =  c(30.5,    0.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # agebands
@@ -366,7 +395,7 @@ NYC_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),
-                                  sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                  sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 #............................................................
 #---- Bay Area/San Francisco, CA #----
@@ -377,7 +406,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(1011.5,  41.5),
                                 dsc2 =  c(2.5,     2.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # agebands
@@ -387,7 +416,7 @@ SFCA_basic_mod <- make_IFR_model_fit(num_mas = 1, maxMa = "ma1",
                                      groupvar = "region",  dat = rawbase,
                                      num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                      num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.12, dsc1 = 0, dsc2 = 16.12),
-                                     sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                     sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 #............................................................
 #---- CHN1 #----
@@ -398,7 +427,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(91.5,    198.5),
                                 dsc2 =  c(14.5,    4.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # agebands
@@ -408,7 +437,7 @@ CHN_age_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 199, init = 206, max = 213, dsc1 = 199, dsc2 = 213),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.20, dsc1 = 0, dsc2 = 16.20),
-                                  sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                  sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
@@ -420,7 +449,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(15.5,    901.5),
                                 dsc2 =  c(3.4,     9.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
 # agebands
@@ -430,7 +459,7 @@ KEN1_age_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                    groupvar = "ageband",  dat = rawage,
                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.11, dsc1 = 0, dsc2 = 17.11),
-                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                   sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 
@@ -487,9 +516,9 @@ fit_map$GTI_pow[grepl("BRA1", fit_map$name)] <- list(seq(5, 3.5, length.out = 50
 # fitmap out
 #......................
 # select what we need for fits and make outpaths
-dir.create("data/param_map/Modfits_noserorev/", recursive = T)
+dir.create("data/param_map/Modfits_serorev/", recursive = T)
 lapply(split(fit_map, 1:nrow(fit_map)), function(x){
-  saveRDS(x, paste0("data/param_map/Modfits_noserorev/",
+  saveRDS(x, paste0("data/param_map/Modfits_serorev/",
                     x$name, "_rung", x$rungs, "_burn", x$burnin, "_smpl", x$samples, ".RDS"))
 })
 
@@ -548,9 +577,9 @@ run_MCMC <- function(path) {
   gc()
 
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits_noserorev/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits_noserorev/",
-                   mod$name, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, ".RDS")
+  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits_serorev/", recursive = TRUE)
+  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits_serorev/",
+                   mod$name, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, "_SeroRev.RDS")
   saveRDS(fit, file = outpath)
   return(0)
 }
@@ -565,7 +594,7 @@ run_MCMC <- function(path) {
 
 # read files in after sleeping to account for file lag
 Sys.sleep(60)
-file_param_map <- list.files(path = "data/param_map/Modfits_noserorev/",
+file_param_map <- list.files(path = "data/param_map/Modfits_serorev/",
                              pattern = "*.RDS",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)

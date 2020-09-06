@@ -3,6 +3,7 @@
 ##
 ## Notes:
 ####################################################################################
+setwd("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/")
 set.seed(48)
 library(COVIDCurve)
 library(tidyverse)
@@ -37,7 +38,9 @@ infxns <- infxns %>%
   dplyr::mutate_if(is.numeric, round, 0) %>%
   dplyr::rename(time = step)
 
-
+#............................................................
+# setup fatality data
+#............................................................
 # make up fatality data
 fatalitydata <- tibble::tibble(Strata = "ma1",
                                IFR = 0.1,
@@ -54,11 +57,10 @@ dat <- COVIDCurve::Aggsim_infxn_2_death(
   curr_day = 300,
   infections = infxns$infxns,
   simulate_seroreversion = FALSE,
-  sero_rev_shape = 4.6,
-  sero_rev_scale = 270,
   sens = 0.85,
   spec = 0.95,
-  sero_delay_rate = 18.3)
+  sero_delay_rate = 18.3,
+  return_linelist = FALSE)
 
 serorev_dat <- COVIDCurve::Aggsim_infxn_2_death(
   fatalitydata = fatalitydata,
@@ -68,11 +70,12 @@ serorev_dat <- COVIDCurve::Aggsim_infxn_2_death(
   curr_day = 300,
   infections = infxns$infxns,
   simulate_seroreversion = TRUE,
-  sero_rev_shape = 4.6,
-  sero_rev_scale = 270,
+  sero_rev_shape = 4.5,
+  sero_rev_scale = 200,
   sens = 0.85,
   spec = 0.95,
-  sero_delay_rate = 18.3)
+  sero_delay_rate = 18.3,
+  return_linelist = FALSE)
 
 
 
@@ -82,22 +85,22 @@ serorev_dat <- COVIDCurve::Aggsim_infxn_2_death(
 #......................
 # wrangle input data from non-seroreversion fit
 #......................
-# sero tidy up
+# liftover obs serology
 sero_day <- 150
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
-  dplyr::filter(ObsDay == sero_day) %>%
+  dplyr::filter(ObsDay %in% sero_day) %>%
   dplyr::mutate(
-    SeroPos = round(ObsPrev * popN),
-    SeroN = popN ) %>%
+    SeroPos = round(ObsPrev * testedN),
+    SeroN = testedN ) %>%
   dplyr::rename(
-    SeroDay = ObsDay,
     SeroPrev = ObsPrev) %>%
   dplyr::mutate(SeroStartSurvey = sero_day - 5,
                 SeroEndSurvey = sero_day + 5) %>%
   dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
   dplyr::ungroup(.) %>%
   dplyr::arrange(SeroStartSurvey, Strata)
+
 
 # proportion deaths
 prop_deaths <- dat$StrataAgg_TimeSeries_Death %>%
@@ -160,12 +163,33 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens",  "spec"),
                                 dsc2 =  c(150.5,    10.5))
 
 # delay priors
-tod_paramsdf <- tibble::tibble(name = c("mod", "sod",  "sero_rate"),
-                               min  = c(0,      0,      0),
-                               init = c(19,     0.7,    18),
-                               max =  c(Inf,    1,      Inf),
-                               dsc1 = c(19.26,  79,     18.3),
-                               dsc2 = c(1,      21,     1))
+tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
+                               min  = c(17,     0,     16),
+                               init = c(19,     0.79,  18),
+                               max =  c(22,     1,     21),
+                               dsc1 = c(19.26,  2370,  18.3),
+                               dsc2 = c(0.5,    630,   0.5))
+# seroreversion
+empty <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
+                        min  = c(NA, NA),
+                        init = c(NA, NA),
+                        max =  c(NA, NA),
+                        dsc1 = c(NA, NA),
+                        dsc2 = c(NA, NA))
+
+serorev <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
+                          min  = c(2,                 190),
+                          init = c(4.5,               200),
+                          max =  c(7,                 210),
+                          dsc1 = c(4.5,               200),
+                          dsc2 = c(0.5,               1))
+# combine
+tod_paramsdf_empty <- rbind(tod_paramsdf, empty)
+tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
+
+
+
+# make param dfs
 ifr_paramsdf <- make_ma_reparamdf(num_mas = 1, upperMa = 0.4)
 knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
                                         num_xs = 4)
@@ -173,7 +197,9 @@ infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0,
                                          num_ys = 5)
 noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 1, min = 1, init = 1, max = 1)
 # bring together
-df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
+df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf_empty)
+df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf_serorev)
+
 
 # make mod
 mod1 <- COVIDCurve::make_IFRmodel_agg$new()
@@ -185,7 +211,7 @@ mod1$set_relKnot("x4")
 mod1$set_Infxnparams(paste0("y", 1:5))
 mod1$set_relInfxn("y3")
 mod1$set_Noiseparams("Ne1")
-mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
+mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
 
 #......................
 # make model for serorev and regular
@@ -195,13 +221,13 @@ mod1_serorev <- mod1
 # reg
 mod1_reg$set_data(reginputdata)
 mod1_reg$set_demog(demog)
-mod1_reg$set_paramdf(df_params)
+mod1_reg$set_paramdf(df_params_reg)
 mod1_reg$set_rho(demog$popN/sum(demog$popN)) # 1 but for consistency
 mod1_reg$set_rcensor_day(.Machine$integer.max)
 # serorev
 mod1_serorev$set_data(serorev_inputdata)
 mod1_serorev$set_demog(demog)
-mod1_serorev$set_paramdf(df_params)
+mod1_serorev$set_paramdf(df_params_serorev)
 mod1_serorev$set_rho(demog$popN/sum(demog$popN)) # 1 but for consistency
 mod1_serorev$set_rcensor_day(.Machine$integer.max)
 
@@ -220,6 +246,7 @@ fit_map <- tibble::tibble(
   burnin = 1e4,
   samples = 1e4,
   thinning = 10)
+
 
 #......................
 # fitmap out
@@ -252,19 +279,19 @@ run_MCMC <- function(path) {
 
   cl <- parallel::makeCluster(mkcores)
 
-    fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod$modelobj[[1]],
-                                        reparamIFR = FALSE,
-                                        reparamInfxn = TRUE,
-                                        reparamKnots = TRUE,
-                                        reparamDelays = FALSE,
-                                        reparamNe = FALSE,
-                                        chains = n_chains,
-                                        burnin = mod$burnin,
-                                        samples = mod$samples,
-                                        rungs = mod$rungs,
-                                        GTI_pow = mod$GTI_pow[[1]],
-                                        cluster = cl,
-                                        thinning = 10)
+  fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod$modelobj[[1]],
+                                      reparamIFR = FALSE,
+                                      reparamInfxn = TRUE,
+                                      reparamKnots = TRUE,
+                                      reparamDelays = FALSE,
+                                      reparamNe = FALSE,
+                                      chains = n_chains,
+                                      burnin = mod$burnin,
+                                      samples = mod$samples,
+                                      rungs = mod$rungs,
+                                      GTI_pow = mod$GTI_pow[[1]],
+                                      cluster = cl,
+                                      thinning = 10)
   parallel::stopCluster(cl)
   gc()
 

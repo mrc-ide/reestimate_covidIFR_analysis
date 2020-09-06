@@ -125,7 +125,9 @@ wrap_sim <- function(curve, sens, spec, mod, sero_rate, fatalitydata, demog, ser
     s_od = 0.79,
     curr_day = 200,
     infections = curve$infxns,
-    simulate_seroreversion = FALSE,
+    simulate_seroreversion = TRUE,
+    sero_rev_shape = 4.5,
+    sero_rev_scale = 200,
     sens = sens,
     spec = spec,
     sero_delay_rate = 18.3,
@@ -157,8 +159,8 @@ wrap_sim <- function(curve, sens, spec, mod, sero_rate, fatalitydata, demog, ser
     dplyr::arrange(SeroStartSurvey, Strata)
 
   inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
-                   prop_deaths = prop_strata_obs_deaths,
-                   obs_serology = obs_serology)
+                    prop_deaths = prop_strata_obs_deaths,
+                    obs_serology = obs_serology)
   out <- list(simdat = dat,
               inputdata = inputdata)
   return(out)
@@ -176,11 +178,12 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_day = 150)
 # sens/spec
 get_sens_spec_tbl <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",        "sero_rev_shape",    "sero_rev_scale"),
-                 min =   c(0.5,              0.5,           NA,                  NA),
-                 init =  c(0.9,              0.99,          NA,                  NA),
-                 max =   c(1,                1,             NA,                  NA),
-                 dsc1 =  c(sens*1e3,        spec*1e3,       NA,                  NA),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), NA,                  NA))
+                 min =   c(0.5,              0.5,           2,                   190),
+                 init =  c(0.9,              0.99,          4.5,                 200),
+                 max =   c(1,                1,             7,                   210),
+                 dsc1 =  c(sens*1e3,        spec*1e3,       4.5,                 200),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 0.5,                 1))
+
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec_tbl)
 
@@ -246,14 +249,14 @@ fit_map <- map %>%
 # Come Together
 #...........................................................
 # save out full for later manips
-dir.create("data/param_map/SimCurves_noserorev/", recursive = TRUE)
-saveRDS(fit_map, "data/param_map/SimCurves_noserorev/simfit_param_map.RDS")
+dir.create("data/param_map/SimCurves_serorev/", recursive = TRUE)
+saveRDS(fit_map, "data/param_map/SimCurves_serorev/simfit_param_map.RDS")
 
 # select what we need for fits and make outpaths
 fit_map_modelobj <- fit_map %>%
   dplyr::select(c("sim", "modelobj"))
 lapply(split(fit_map_modelobj, 1:nrow(fit_map_modelobj)), function(x){
-  saveRDS(x, paste0("data/param_map/SimCurves_noserorev/",
+  saveRDS(x, paste0("data/param_map/SimCurves_serorev/",
                     x$sim, ".RDS"))
 })
 
@@ -294,9 +297,9 @@ run_MCMC <- function(path) {
   gc()
 
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_noserorev/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_noserorev/",
-                   mod$sim, ".RDS")
+  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_serorev/", recursive = TRUE)
+  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_serorev/",
+                   mod$sim, "_SeroRev.RDS")
   saveRDS(fit, file = outpath)
 
   return(0)
@@ -312,11 +315,12 @@ run_MCMC <- function(path) {
 
 # read files in after sleeping to account for file lag
 Sys.sleep(60)
-file_param_map <- list.files(path = "data/param_map/SimCurves_noserorev/",
+file_param_map <- list.files(path = "data/param_map/SimCurves_serorev/",
                              pattern = "*.RDS",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)
 # remove non-fit items that are for carrying forward simulations
+file_param_map <- file_param_map[!grepl("small_param_map.RDS", file_param_map$path),]
 file_param_map <- file_param_map[!grepl("simfit_param_map.RDS", file_param_map$path),]
 
 
