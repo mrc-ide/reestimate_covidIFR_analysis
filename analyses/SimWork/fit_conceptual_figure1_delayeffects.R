@@ -8,36 +8,16 @@ set.seed(48)
 library(COVIDCurve)
 library(tidyverse)
 library(drake)
-source("R/simple_seir_model.R")
 source("R/covidcurve_helper_functions.R")
 source("R/my_themes.R")
 
 #............................................................
-#----- Simulation #-----
-# run simple SEIR
+# Read in Various Scenarios for Incidence Curves
 #...........................................................
-# make infxns from exponential growth followed by intervetions
-nsims <- 100
-popN <- 3e6
-infxns <- lapply(1:nsims, function(x){
-  run_simple_seir(N = popN,
-                  E0 = 50,
-                  R0 = 0,
-                  betas = c(0.33, 0.13, 0.12, 0.11),
-                  beta_changes = c(1, 130, 140, 150),
-                  sigma = 0.2,
-                  gamma = 0.2,
-                  time = 300)
-})
-infxns <- infxns %>%
-  dplyr::bind_rows(.) %>%
-  dplyr::group_by(step) %>%
-  dplyr::summarise(
-    infxns = mean(I)
-  ) %>%
-  dplyr::mutate_if(is.numeric, round, 0) %>%
-  dplyr::rename(time = step)
-
+infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
+interveneflat <- infxn_shapes$intervene
+interveneflat <- c(interveneflat, round(seq(from = interveneflat[200],
+                                      to = 10, length.out = 100)))
 #............................................................
 # setup fatality data
 #............................................................
@@ -46,7 +26,7 @@ fatalitydata <- tibble::tibble(Strata = "ma1",
                                IFR = 0.1,
                                Rho = 1)
 demog <- tibble::tibble(Strata = "ma1",
-                        popN = popN)
+                        popN = 3e6)
 
 # run COVIDCurve sims for no seroreversion and seroreversion
 dat <- COVIDCurve::Aggsim_infxn_2_death(
@@ -55,7 +35,7 @@ dat <- COVIDCurve::Aggsim_infxn_2_death(
   m_od = 19.26,
   s_od = 0.76,
   curr_day = 300,
-  infections = infxns$infxns,
+  infections = interveneflat,
   simulate_seroreversion = FALSE,
   sens = 0.85,
   spec = 0.95,
@@ -68,7 +48,7 @@ serorev_dat <- COVIDCurve::Aggsim_infxn_2_death(
   m_od = 19.26,
   s_od = 0.76,
   curr_day = 300,
-  infections = infxns$infxns,
+  infections = interveneflat,
   simulate_seroreversion = TRUE,
   sero_rev_shape = 4.5,
   sero_rev_scale = 200,

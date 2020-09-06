@@ -590,7 +590,7 @@ plan <- drake::drake_plan(
 options(clustermq.scheduler = "slurm",
         clustermq.template = "drake_workers/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
-     log_make = "Modfits_drake.log", verbose = 2,
+     log_make = "Modfits_drake_noserorev.log", verbose = 2,
      log_progress = TRUE,
      log_build_times = FALSE,
      recoverable = FALSE,

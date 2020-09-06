@@ -8,93 +8,19 @@ library(drake)
 library(tidyverse)
 library(COVIDCurve)
 source("R/covidcurve_helper_functions.R")
-source("R/simple_seir_model.R")
 set.seed(48)
 
 
+
 #............................................................
-# Run Various Scenarios for Incidence Curves
+# Read in Various Scenarios for Incidence Curves
 #...........................................................
-nsims <- 100
-popN <- 3e6 # pop slightly smaller, so infxns don't "run" away
-#......................
-# exponential growth
-#.......... ............
-expgrowth <- lapply(1:nsims, function(x){
-  run_simple_seir(N = popN,
-                  E0 = 50,
-                  R0 = 0,
-                  betas = 0.3,
-                  beta_changes = 1,
-                  sigma = 0.2,
-                  gamma = 0.2,
-                  time = 200)})
-expgrowth <- expgrowth %>%
-  dplyr::bind_rows(.) %>%
-  dplyr::group_by(step) %>%
-  dplyr::summarise(
-    infxns = mean(I)
-  ) %>%
-  dplyr::mutate_if(is.numeric, round, 0) %>%
-  dplyr::rename(time = step) %>%
-  dplyr::mutate(nm = "expgrowth")
-
-
-#......................
-# exponential growth with intervetions
-#......................
-intervene <- lapply(1:nsims, function(x){
-  run_simple_seir(N = popN,
-                  E0 = 50,
-                  R0 = 0,
-                  betas = c(0.33, 0.13, 0.12, 0.11),
-                  beta_changes = c(1, 130, 140, 150),
-                  sigma = 0.2,
-                  gamma = 0.2,
-                  time = 200)
-})
-intervene <- intervene %>%
-  dplyr::bind_rows(.) %>%
-  dplyr::group_by(step) %>%
-  dplyr::summarise(
-    infxns = mean(I)
-  ) %>%
-  dplyr::mutate_if(is.numeric, round, 0) %>%
-  dplyr::rename(time = step) %>%
-  dplyr::mutate(nm = "intervene")
-
-
-
-#......................
-# exponential growth with implementations and then second wave
-#......................
-secondwave <- lapply(1:nsims, function(x){
-  run_simple_seir(N = popN,
-                  E0 = 50,
-                  R0 = 0,
-                  betas = c(0.37, 0.13, 0.12, 0.18, 0.2, 0.21),
-                  beta_changes = c(1, 100, 110, 120, 130, 140),
-                  sigma = 0.2,
-                  gamma = 0.2,
-                  time = 200)
-})
-secondwave <- secondwave %>%
-  dplyr::bind_rows(.) %>%
-  dplyr::group_by(step) %>%
-  dplyr::summarise(
-    infxns = mean(I)
-  ) %>%
-  dplyr::mutate_if(is.numeric, round, 0) %>%
-  dplyr::rename(time = step) %>%
-  dplyr::mutate(nm = "secondwave")
-
+infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
 
 
 #............................................................
 # setup fatality data
 #............................................................
-# redefine popN for update demog
-popN <- sum(c(1.2e6, 1.1e6, 1e6, 9e5, 8e5))
 # make up fatality data
 fatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
                                IFR = c(1e-3, 1e-3, 0.05, 0.1, 0.2),
@@ -106,7 +32,10 @@ demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
 #............................................................
 # Simulate Under Model
 #...........................................................
-map <- expand.grid(curve = list(expgrowth, intervene, secondwave),
+map <- expand.grid(nm = c("expgrowth", "intervene", "secondwave"),
+                   curve = list(infxn_shapes$expgrowth,
+                                infxn_shapes$intervene,
+                                infxn_shapes$secondwave),
                    sens = c(0.85, 0.90),
                    spec = c(0.95, 0.99))
 
@@ -117,14 +46,14 @@ map <- tibble::as_tibble(map) %>%
 #......................
 # rung covidcurve simulator
 #......................
-wrap_sim <- function(curve, sens, spec, mod, sero_rate, fatalitydata, demog, sero_day) {
+wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog, sero_day) {
 
   dat <- COVIDCurve::Aggsim_infxn_2_death(
     fatalitydata = fatalitydata,
     m_od = 19.26,
     s_od = 0.79,
     curr_day = 200,
-    infections = curve$infxns,
+    infections = curve,
     simulate_seroreversion = TRUE,
     sero_rev_shape = 4.5,
     sero_rev_scale = 200,
@@ -196,12 +125,12 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                dsc2 = c(0.5,    630,   0.5))
 
 # everything else for region
-wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
+wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   ifr_paramsdf <- make_ma_reparamdf(num_mas = 5, upperMa = 0.4)
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
                                           num_xs = 4)
 
-  if (curve$nm[1] == "expgrowth") {
+  if (nm == "expgrowth") {
     infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y5", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
                                              num_ys = 5)
   } else {
@@ -234,7 +163,7 @@ wrap_make_IFR_model <- function(curve, inputdata, sens_spec_tbl, demog) {
   mod1
 }
 
-map$modelobj <-  purrr::pmap(map[,c("curve", "inputdata", "sens_spec_tbl", "demog")], wrap_make_IFR_model)
+map$modelobj <-  purrr::pmap(map[,c("nm", "curve", "inputdata", "sens_spec_tbl", "demog")], wrap_make_IFR_model)
 
 #......................
 # names
@@ -320,7 +249,6 @@ file_param_map <- list.files(path = "data/param_map/SimCurves_serorev/",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)
 # remove non-fit items that are for carrying forward simulations
-file_param_map <- file_param_map[!grepl("small_param_map.RDS", file_param_map$path),]
 file_param_map <- file_param_map[!grepl("simfit_param_map.RDS", file_param_map$path),]
 
 
@@ -344,7 +272,7 @@ options(clustermq.scheduler = "slurm",
         clustermq.template = "drake_workers/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq",
      jobs = nrow(file_param_map),
-     log_make = "SimCurves.log", verbose = 2,
+     log_make = "SimCurves_serorev.log", verbose = 2,
      log_progress = TRUE,
      log_build_times = FALSE,
      recoverable = FALSE,

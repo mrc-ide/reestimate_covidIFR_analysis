@@ -21,8 +21,8 @@ dat_map <- tibble::tibble(lvl = c("reg", "serorev"),
   tidyr::unnest(cols = mod)
 
 fits <- tibble::tibble(lvl = c("reg", "serorev"),
-                       fit = c("results/Sep3/Fig1_ConceptualFits/reg_mod_rung50_burn10000_smpl10000.RDS",
-                               "results/Sep3/Fig1_ConceptualFits/serorev_mod_rung50_burn10000_smpl10000.RDS")) %>%
+                       fit = c("results/Fig1_ConceptualFits/reg_mod_rung50_burn10000_smpl10000.RDS",
+                               "results/Fig1_ConceptualFits/serorev_mod_rung50_burn10000_smpl10000.RDS")) %>%
   dplyr::mutate(fit = purrr::map(fit, readRDS))
 
 # bring together
@@ -133,7 +133,7 @@ cumplotdat <- param_map$plotdat[[1]]$cumdat %>%
   dplyr::select(c("ObsDay", "RGIFR", "CrudeIFR")) %>%
   dplyr::filter(ObsDay >= 50) %>%
   tidyr::pivot_longer(., cols = c("RGIFR", "CrudeIFR"), names_to = "IFRlvl", values_to = "IFR") %>%
-  dplyr::mutate(IFRlvl = factor(IFRlvl, levels = c("RGIFR", "CrudeIFR"), labels = c("Rogan-Gladen", "Crude")))
+  dplyr::mutate(IFRlvl = factor(IFRlvl, levels = c("RGIFR", "CrudeIFR"), labels = c("Test-Adj.", "Crude")))
 
 infplotdat <- param_map$plotdat[[1]]$infIFR
 
@@ -168,7 +168,7 @@ cumplotdat <- param_map$plotdat[[2]]$cumdat %>%
   dplyr::select(c("ObsDay", "RGIFR", "CrudeIFR")) %>%
   dplyr::filter(ObsDay >= 50) %>%
   tidyr::pivot_longer(., cols = c("RGIFR", "CrudeIFR"), names_to = "IFRlvl", values_to = "IFR") %>%
-  dplyr::mutate(IFRlvl = factor(IFRlvl, levels = c("RGIFR", "CrudeIFR"), labels = c("Rogan-Gladen", "Crude")))
+  dplyr::mutate(IFRlvl = factor(IFRlvl, levels = c("RGIFR", "CrudeIFR"), labels = c("Test Adj.", "Crude")))
 
 infplotdat <- param_map$plotdat[[2]]$infIFR
 

@@ -188,8 +188,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(128.5,   647.5),
-                                dsc2 =  c(27.5,    4.5))
+                                dsc1 =  c(128.5,   648.5),
+                                dsc2 =  c(27.5,    3.5))
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
 
 #......................
@@ -619,7 +619,7 @@ plan <- drake::drake_plan(
 options(clustermq.scheduler = "slurm",
         clustermq.template = "drake_workers/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
-     log_make = "Modfits_drake.log", verbose = 2,
+     log_make = "Modfits_drake_serorev.log", verbose = 2,
      log_progress = TRUE,
      log_build_times = FALSE,
      recoverable = FALSE,

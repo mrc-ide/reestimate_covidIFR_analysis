@@ -510,8 +510,8 @@ DNK.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                   get_descriptive_dat = TRUE,
                                   groupingvar = "ageband",
                                   study_ids = "DNK1",
-                                  death_agebreaks = c(0, 59, 69, 79, 89, 999),
-                                  sero_agebreaks = c(0, 59, 69, 79, 89, 999))
+                                  death_agebreaks = c(0, 59, 69, 79, 999),
+                                  sero_agebreaks = c(0, 59, 69, 79, 999))
 
 
 #......................
@@ -533,9 +533,14 @@ dnk_adj_seroprev$n_positive[1] <- sum(DNK.agebands.dat$seroprev_group$n_positive
 dnk_adj_seroprev$n_tested[1] <- sum(DNK.agebands.dat$seroprev_group$n_tested[1:4])
 dnk_adj_seroprev$SeroPrev[1] <- mean(DNK.agebands.dat$seroprev_group$seroprevalence_unadjusted[1:4])
 
-dnk_adj_seroprev$n_positive[2:5] <- DNK.agebands.dat$seroprev_group$n_positive[5]
-dnk_adj_seroprev$n_tested[2:5] <- DNK.agebands.dat$seroprev_group$n_tested[5]
-dnk_adj_seroprev$SeroPrev[2:5] <- DNK.agebands.dat$seroprev_group$seroprevalence_unadjusted[5]
+# dnk_adj_seroprev$n_positive[2:5] <- DNK.agebands.dat$seroprev_group$n_positive[5]
+# dnk_adj_seroprev$n_tested[2:5] <- DNK.agebands.dat$seroprev_group$n_tested[5]
+# dnk_adj_seroprev$SeroPrev[2:5] <- DNK.agebands.dat$seroprev_group$seroprevalence_unadjusted[5]
+dnk_adj_seroprev$n_positive[2:4] <- DNK.agebands.dat$seroprev_group$n_positive[5]
+dnk_adj_seroprev$n_tested[2:4] <- DNK.agebands.dat$seroprev_group$n_tested[5]
+dnk_adj_seroprev$SeroPrev[2:4] <- DNK.agebands.dat$seroprev_group$seroprevalence_unadjusted[5]
+
+
 DNK.agebands.dat$seroprevMCMC <- dnk_adj_seroprev
 
 #......................
@@ -683,8 +688,8 @@ NLD.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                   get_descriptive_dat = TRUE,
                                   groupingvar = "ageband",
                                   study_ids = "NLD1",
-                                  death_agebreaks = c(0, 49, 59, 69, 79, 89, 999),
-                                  sero_agebreaks = c(0, 49, 59, 69, 79, 89, 999))
+                                  death_agebreaks = c(0, 49, 59, 69, 79, 999),
+                                  sero_agebreaks = c(0, 49, 59, 69, 79, 999))
 
 
 #......................
@@ -697,12 +702,21 @@ NLD.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
 #   Let 60-72 stand in for 59-69, 69-79, 79-89, and 89++ ageband
 # TODO ages changed and regions contact authors
 agebands <- unique(NLD.agebands.dat$deaths_propMCMC$ageband)
+# nld_adj_seroprev <- tibble::tibble(
+#   ObsDaymin = unique(NLD.agebands.dat$seroprevMCMC$ObsDaymin),
+#   ObsDaymax = unique(NLD.agebands.dat$seroprevMCMC$ObsDaymax),
+#   ageband = c("79-89", "89-999"),
+#   age_low = as.numeric(stringr::str_split_fixed(ageband, "-[0-9]+", n=2)[,1]),
+#   age_high = as.numeric(stringr::str_split_fixed(ageband, "[0-9]+-", n=2)[,2]),
+#   n_positive = 47,
+#   n_tested = 1742) %>%
+#   dplyr::mutate(SeroPrev = n_positive/n_tested) %>%
+#   dplyr::arrange(age_low)
+
 nld_adj_seroprev <- tibble::tibble(
   ObsDaymin = unique(NLD.agebands.dat$seroprevMCMC$ObsDaymin),
   ObsDaymax = unique(NLD.agebands.dat$seroprevMCMC$ObsDaymax),
-  ageband = c("79-89", "89-999"),
-  age_low = as.numeric(stringr::str_split_fixed(ageband, "-[0-9]+", n=2)[,1]),
-  age_high = as.numeric(stringr::str_split_fixed(ageband, "[0-9]+-", n=2)[,2]),
+  ageband = c("79-999"),
   n_positive = 47,
   n_tested = 1742) %>%
   dplyr::mutate(SeroPrev = n_positive/n_tested) %>%
