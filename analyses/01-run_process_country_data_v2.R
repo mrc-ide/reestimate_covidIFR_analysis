@@ -1210,53 +1210,27 @@ saveRDS(KEN.agebands.dat, "data/derived/KEN/KEN_agebands.RDS")
 ## CARE HOME DATA PROCESSING
 #############################################
 
-### DNK1
-remove_ch_deaths<-function(agebands.dat, study_id) {
-  deaths_propMCMC_adj<-agebands.dat$deaths_propMCMC %>%
-    dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)")))
-  inds<-which(deaths_propMCMC_adj$age_low>64)
-  lower_age_old<-min(deaths_propMCMC_adj$age_low[inds])
-  deaths_propMCMC_adj$ageband2<-deaths_propMCMC_adj$ageband
-  deaths_propMCMC_adj$ageband2[inds]<-paste0(lower_age_old,"-999")
-  agebands.dat$prop_pop$ageband2<-deaths_propMCMC_adj$ageband2  ## save new agebands
-  inds<-which(deaths_ch$study_id==study_id)
-  deaths_propMCMC_adj<-deaths_propMCMC_adj %>%
-    dplyr::group_by(ageband2) %>%
-    dplyr::summarise(death_num=sum(death_num),
-                     death_denom=mean(death_denom),
-                     ch_deaths = death_denom*(1-deaths_ch$percent_deaths[inds]/100),
-                     death_prop=NA)
-  deaths_propMCMC_adj$death_num[nrow(deaths_propMCMC_adj)]<-
-    deaths_propMCMC_adj$death_num[nrow(deaths_propMCMC_adj)] -  deaths_propMCMC_adj$ch_deaths[1]
-  deaths_propMCMC_adj<-deaths_propMCMC_adj %>%
-    mutate(death_denom_noch=death_denom - ch_deaths,
-           death_prop=death_num/death_denom_noch)
 
-  agebands_noCH.dat<-agebands.dat
-  agebands_noCH.dat$deaths_propMCMC <- deaths_propMCMC_adj
-
-  pop_adj<-agebands.dat$prop_pop %>%
-    dplyr::group_by(ageband2) %>%
-    dplyr::summarise(popN=sum(popN),
-                     pop_prop=sum(pop_prop))
-  agebands_noCH.dat$prop_pop<-pop_adj
-
-  return(agebands_noCH.dat)
-}
-
-### Some manual processing
+### Run
 ## DNK
 DNK.agebands_noCH.dat<-remove_ch_deaths(DNK.agebands.dat,"DNK1")
-DNK.agebands_noCH.dat$seroprevMCMC <-DNK.agebands_noCH.dat$seroprevMCMC[1:3,]
-DNK.agebands_noCH.dat$seroprevMCMC$ageband[nrow(DNK.agebands_noCH.dat$seroprevMCMC)]<-paste0(lower_age_old,"-999")
-
 saveRDS(DNK.agebands_noCH.dat, "data/derived/DNK1/DNK1_agebands_noCH.RDS")
-
 
 ### ESP1-2
 ESP.agebands_noCH.dat<-remove_ch_deaths(ESP.agebands.dat,"ESP1-2")
-ESP.agebands_noCH.dat$seroprevMCMC <-ESP.agebands_noCH.dat$seroprevMCMC %>%
+saveRDS(ESP.agebands_noCH.dat, "data/derived/ESP1-2/ESP1_agebands_noCH.RDS")
 
-ESP.agebands_noCH.dat$seroprevMCMC$ageband[nrow(ESP.agebands_noCH.dat$seroprevMCMC)]<-paste0(lower_age_old,"-999")
+### GBR3
+GBR3.agebands_noCH.dat<-remove_ch_deaths(GBR3.agebands.dat,"GBR3")
+saveRDS(GBR3.agebands_noCH.dat, "data/derived/GBR3/GBR3_agebands_noCH.RDS")
 
-saveRDS(ESP.agebands_noCH.dat, "data/derived/ESP1/ESP1_agebands_noCH.RDS")
+### CHE1
+CHE1.agebands_noCH.dat<-remove_ch_deaths(CHE1.agebands.dat,"CHE1")
+saveRDS(CHE1.agebands_noCH.dat, "data/derived/CHE1/CHE1_agebands_noCH.RDS")
+### CHE2
+CHE2.agebands_noCH.dat<-remove_ch_deaths(CHE2.agebands.dat,"CHE2")
+saveRDS(CHE2.agebands_noCH.dat, "data/derived/CHE2/CHE2_agebands_noCH.RDS")
+### NYC_NY_1
+NYC_NY_1.agebands_noCH.dat<-remove_ch_deaths(NYC_NY_1.agebands.dat,"NYC_NY_1")
+saveRDS(NYC_NY_1.agebands_noCH.dat, "data/derived/USA/NYC_NY_1_agebands_noCH.RDS")
+

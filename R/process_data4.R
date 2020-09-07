@@ -521,3 +521,63 @@ process_death_data <- function(cum_tp_deaths, time_series_totdeaths_df, time_ser
     deaths_TSMCMC = time_series_totdeaths_df)
   return(ret)
 }
+
+
+
+### function to remove care home deaths from older age groups, any containing >65
+remove_ch_deaths<-function(agebands.dat, study_id) {
+  deaths_propMCMC_adj<-agebands.dat$deaths_propMCMC %>%
+    dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)")),
+                  age_high = as.numeric(gsub( "(.*)-(.*)", "\\2",  ageband)))
+  inds<-which(deaths_propMCMC_adj$age_high>65)
+  lower_age_old<-min(deaths_propMCMC_adj$age_low[inds])
+  deaths_propMCMC_adj$ageband2<-deaths_propMCMC_adj$ageband
+  deaths_propMCMC_adj$ageband2[inds]<-paste0(lower_age_old,"-999")
+  new_age<-deaths_propMCMC_adj %>%
+    select(ageband,ageband2)  ## save new agebands
+  inds<-which(deaths_ch$study_id==study_id)
+  deaths_propMCMC_adj<-deaths_propMCMC_adj %>%
+    dplyr::group_by(ageband2) %>%
+    dplyr::summarise(death_num=sum(death_num),
+                     death_denom=mean(death_denom)) %>%
+    dplyr::mutate(ch_deaths = death_denom*deaths_ch$percent_deaths[inds]/100,
+                  death_prop=NA,
+                  prop_chd_oldest=ifelse(ageband2==new_age$ageband2[nrow(new_age)],ch_deaths/death_num,0),
+                  death_num=ifelse(ageband2==new_age$ageband2[nrow(new_age)],death_num-ch_deaths,death_num),
+                  death_denom_noch=death_denom - ch_deaths,
+                  death_prop=death_num/death_denom_noch
+    )
+
+  agebands_noCH.dat<-agebands.dat
+  agebands_noCH.dat$deaths_propMCMC <- deaths_propMCMC_adj
+
+  deaths_group_adj<-full_join(agebands.dat$deaths_group,new_age,by="ageband")
+  high_ageband<-new_age$ageband2[nrow(new_age)]
+  deaths_group_adj <- deaths_group_adj %>%
+    dplyr::group_by(ObsDay,ageband2) %>%
+    dplyr::summarise(Deaths=sum(Deaths)) %>%
+    dplyr::mutate(Deaths=ifelse(ageband2==high_ageband,
+                                Deaths*(1-deaths_propMCMC_adj$prop_chd_oldest[nrow(deaths_propMCMC_adj)]),
+                                Deaths))
+
+  agebands_noCH.dat$deaths_group<-deaths_group_adj
+
+  pop_adj<- full_join(agebands.dat$prop_pop,new_age,by="ageband")
+  pop_adj<-pop_adj %>%
+    dplyr::group_by(ageband2) %>%
+    dplyr::summarise(popN=sum(popN),
+                     pop_prop=sum(pop_prop))
+  agebands_noCH.dat$prop_pop<-pop_adj
+
+  seroprevMCMC_adj<- full_join(agebands.dat$seroprevMCMC,new_age,by="ageband")
+  seroprevMCMC_adj<-seroprevMCMC_adj %>%
+    dplyr::filter(!duplicated(cbind(SeroPrev,ageband2)))  %>%
+    dplyr::group_by(ObsDaymin,ObsDaymax,ageband2) %>%
+    dplyr::summarise(n_positive=sum(n_positive),
+                     n_tested=sum(n_tested)) %>%
+    dplyr::mutate(SeroPrev=n_positive/n_tested)
+
+  agebands_noCH.dat$seroprevMCMC<-seroprevMCMC_adj
+
+  return(agebands_noCH.dat)
+}
