@@ -545,8 +545,8 @@ remove_ch_deaths<-function(agebands.dat, study_id) {
                   prop_chd_oldest=ifelse(ageband2==new_age$ageband2[nrow(new_age)],ch_deaths/death_num,0),
                   death_num=ifelse(ageband2==new_age$ageband2[nrow(new_age)],death_num-ch_deaths,death_num),
                   death_denom_noch=death_denom - ch_deaths,
-                  death_prop=death_num/death_denom_noch
-    )
+                  death_prop=death_num/death_denom_noch) %>%
+  dplyr::rename(ageband=ageband2)
 
   agebands_noCH.dat<-agebands.dat
   agebands_noCH.dat$deaths_propMCMC <- deaths_propMCMC_adj
@@ -554,11 +554,12 @@ remove_ch_deaths<-function(agebands.dat, study_id) {
   deaths_group_adj<-full_join(agebands.dat$deaths_group,new_age,by="ageband")
   high_ageband<-new_age$ageband2[nrow(new_age)]
   deaths_group_adj <- deaths_group_adj %>%
-    dplyr::group_by(ObsDay,ageband2) %>%
+    dplyr::group_by(ageband2,ObsDay) %>%
     dplyr::summarise(Deaths=sum(Deaths)) %>%
     dplyr::mutate(Deaths=ifelse(ageband2==high_ageband,
                                 Deaths*(1-deaths_propMCMC_adj$prop_chd_oldest[nrow(deaths_propMCMC_adj)]),
-                                Deaths))
+                                Deaths)) %>%
+    dplyr::rename(ageband=ageband2)
 
   agebands_noCH.dat$deaths_group<-deaths_group_adj
 
@@ -566,7 +567,9 @@ remove_ch_deaths<-function(agebands.dat, study_id) {
   pop_adj<-pop_adj %>%
     dplyr::group_by(ageband2) %>%
     dplyr::summarise(popN=sum(popN),
-                     pop_prop=sum(pop_prop))
+                     pop_prop=sum(pop_prop)) %>%
+    dplyr::rename(ageband=ageband2)
+
   agebands_noCH.dat$prop_pop<-pop_adj
 
   seroprevMCMC_adj<- full_join(agebands.dat$seroprevMCMC,new_age,by="ageband")
@@ -575,7 +578,8 @@ remove_ch_deaths<-function(agebands.dat, study_id) {
     dplyr::group_by(ObsDaymin,ObsDaymax,ageband2) %>%
     dplyr::summarise(n_positive=sum(n_positive),
                      n_tested=sum(n_tested)) %>%
-    dplyr::mutate(SeroPrev=n_positive/n_tested)
+    dplyr::mutate(SeroPrev=n_positive/n_tested) %>%
+    dplyr::rename(ageband=ageband2)
 
   agebands_noCH.dat$seroprevMCMC<-seroprevMCMC_adj
 

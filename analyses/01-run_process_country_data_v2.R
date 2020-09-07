@@ -1218,7 +1218,7 @@ saveRDS(DNK.agebands_noCH.dat, "data/derived/DNK1/DNK1_agebands_noCH.RDS")
 
 ### ESP1-2
 ESP.agebands_noCH.dat<-remove_ch_deaths(ESP.agebands.dat,"ESP1-2")
-saveRDS(ESP.agebands_noCH.dat, "data/derived/ESP1-2/ESP1_agebands_noCH.RDS")
+saveRDS(ESP.agebands_noCH.dat, "data/derived/ESP1-2/ESP1-2_agebands_noCH.RDS")
 
 ### GBR3
 GBR3.agebands_noCH.dat<-remove_ch_deaths(GBR3.agebands.dat,"GBR3")
