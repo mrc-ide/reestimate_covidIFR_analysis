@@ -83,8 +83,7 @@ colnames(dictkey)[colnames(dictkey) == gsub("-", "", tolower(stratachar))] <- "s
 ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
                                        what = "IFRparams", by_chain = FALSE)
 ifrs <- dplyr::left_join(dictkey, ifrs) %>% 
-  dplyr::mutate(param = factor(param, levels = paste0("ma", 1:nrow(dictkey))),
-                strata = forcats::fct_reorder(strata, as.numeric(param)))
+  dplyr::mutate(strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(param, "[0-9]+"))))
 
 #...................... 
 # get crude ifrs 
@@ -102,7 +101,7 @@ crudeplotdat <- crudedat %>%
   dplyr::mutate(infxns = popn * seroprev,
                 crudeIFR =  cumdeaths/infxns,
                 crudeIFR = ifelse(crudeIFR > 1, NA, crudeIFR) # protect against small denom
-                ) %>% 
+  ) %>% 
   dplyr::select(c("strata", "crudeIFR")) %>% 
   dplyr::group_by(strata) %>% 
   dplyr::mutate(serodayfct = factor(1:dplyr::n())) %>% 
@@ -153,7 +152,7 @@ ifrs %>%
 ```
 
 ##### Overall IFR
-```{r, results='asis'}
+```{r, results='asis', fig.height=3, fig.width=8}
 # overall
 COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout, 
                                          whichrung = "rung1", 
@@ -168,8 +167,28 @@ COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout,
   dplyr::mutate_if(is.numeric, round, 4) %>% 
   knitr::kable(.)
 
+#...................... 
+# global ifr iteration plot
+#......................
+# make weighted demog
+demogwi <- modout$inputs$IFRmodel$demog %>%
+  dplyr::mutate(wi = popN/sum(popN))
 
-
+modout$mcmcout$output %>%
+  dplyr::filter(stage == "sampling" & rung == "rung1") %>%
+  tidyr::pivot_longer(., cols = modout$inputs$IFRmodel$IFRparams, # if chain isn't included in vector, grepl won't do anything
+                      names_to = "Strata", values_to = "est") %>%
+  dplyr::left_join(., demogwi, by = "Strata") %>%
+  dplyr::mutate(est = est*wi) %>%
+  dplyr::group_by(iteration, chain, rung) %>% # need to make sure we capture only the strata levels
+  dplyr::summarise(est = sum(est)) %>% 
+  ggplot() +
+  geom_line(aes(x = iteration, y = est, color = chain), size = 0.25, alpha = 0.8) +
+  scale_color_viridis_d() +
+  ylab("Global IFR") + xlab("Iteration") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")
 
 ```
 
@@ -187,14 +206,15 @@ seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
                                                    by_chain = F)
 
 serocurvedat <- seropnts %>% 
-  dplyr::select(c("sim", "ObsDay", dplyr::starts_with("RG_pd_"), dplyr::starts_with("crude_pd_"))) %>% 
-  tidyr::gather(., key = "seroprev_strata_lvl", value = "seroprev", 3:ncol(.)) %>% 
+  dplyr::select(c("sim", "ObsDay", dplyr::starts_with("RG_pd_"),
+                  dplyr::starts_with("crude_pd_"))) %>% 
+  tidyr::pivot_longer(., cols = -c("sim", "ObsDay"),
+                      names_to = "seroprev_strata_lvl", values_to = "seroprev") %>% 
   dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG Corr.", "Crude"),
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
   dplyr::left_join(., dictkey) %>% 
   dplyr::left_join(., demog) %>% 
-  dplyr::mutate(param = factor(param, levels = paste0("ma", 1:nrow(dictkey))),
-                strata = forcats::fct_reorder(strata, as.numeric(param)))
+  dplyr::mutate(strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(param, "[0-9]+"))))
 
 # crude data
 SeroPrevObs <- crudedat %>% 
@@ -268,8 +288,7 @@ seropost_midday <- serocurvedat %>%
   dplyr::ungroup() %>% 
   dplyr::left_join(., death_midday) %>% 
   dplyr::mutate(std_deaths = cumdeaths/popN * 1e6,
-                param = factor(param, levels = paste0("ma", 1:nrow(dictkey))),
-                strata = forcats::fct_reorder(strata, as.numeric(param)))
+                strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(param, "[0-9]+"))))
 
 SeroPrevObs_midday <- SeroPrevObs %>% 
   dplyr::left_join(., death_midday) %>% 
@@ -308,8 +327,7 @@ postdat_long <- postdat %>%
   tidyr::gather(., key = "param", value = "deaths", 3:ncol(.)) %>%
   dplyr::mutate(param = gsub("deaths_", "", param)) %>% 
   dplyr::left_join(., y = dictkey) %>% 
-  dplyr::mutate(param = factor(param, levels = paste0("ma", 1:nrow(dictkey))),
-                strata = forcats::fct_reorder(strata, as.numeric(param)))
+  dplyr::mutate(strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(param, "[0-9]+"))))
 
 #......................
 # get deaths posterior pred check
@@ -319,8 +337,7 @@ datclean <-  deathrecast %>%
 # liftover name
 colnames(datclean)[colnames(datclean) == gsub("-", "", tolower(stratachar))] <- "strata"
 datclean <- datclean %>% 
-  dplyr::mutate(param = factor(Strata, levels = paste0("ma", 1:nrow(dictkey))),
-                strata = forcats::fct_reorder(strata, as.numeric(param)))
+  dplyr::mutate(strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(Strata, "[0-9]+"))))
 
 
 
@@ -337,7 +354,7 @@ ppc_plot <- ggplot() +
   labs(caption = "Grey Lines are Draws from Posterior, Blue Line is Observed Data (from ECDC)") +
   xlab("Time") + ylab("Deaths") + 
   theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
-      plot.subtitle = element_text(hjust = 0.5, vjust = 0.5)) 
+        plot.subtitle = element_text(hjust = 0.5, vjust = 0.5)) 
 
 jpgsnapshot(paste0("figures/", studyidchar, "-", stratachar, "_PPCplot.jpg"), 
             plot = ppc_plot)
@@ -354,7 +371,7 @@ plot(ppc_plot)
 ```{r}
 # knots ifrs 
 knots <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
-                                       what = "Knotparams", by_chain = FALSE)
+                                        what = "Knotparams", by_chain = FALSE)
 
 ypos <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
                                        what = "Infxnparams", by_chain = FALSE)

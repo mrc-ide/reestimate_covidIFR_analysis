@@ -1,0 +1,242 @@
+---
+output: 
+  pdf_document:
+params:
+   path: ""
+editor_options: 
+  chunk_output_type: console
+---
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, 
+                      message = FALSE, eval = TRUE, 
+                      results = 'hide', fig.align = 'center', dpi = 200)
+knitr::opts_knit$set(root.dir = here::here())
+
+```
+```{r}
+library(COVIDCurve)
+library(tidyverse)
+source("R/my_themes.R")
+```
+```{r}
+quick_sim_sero_diagnostics <- function(modout, spec, sens) {
+  maxmachain <- drjacoby::plot_par(modout$mcmcout, modout$inputs$IFRmodel$maxMa, display = FALSE)
+  spechain <- drjacoby::plot_par(modout$mcmcout, "spec", display = FALSE)
+  senschain <- drjacoby::plot_par(modout$mcmcout, "sens", display = FALSE)
+  modchain <- drjacoby::plot_par(modout$mcmcout, "mod", display = FALSE)
+  sodchain <- drjacoby::plot_par(modout$mcmcout, "sod", display = FALSE)
+  seroratechain <- drjacoby::plot_par(modout$mcmcout, "sero_con_rate", display = FALSE)
+  
+  maxmachain <- maxmachain[[1]][["trace"]] + theme(legend.position = "none")
+  spechain <- spechain[[1]][["trace"]] + geom_hline(yintercept = spec, linetype = "dashed", size = 1.25) +
+    labs(caption = paste0("Prior was Beta(",
+                          paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "spec", c("dsc1", "dsc2")], collapse = ","),
+                          ")")) +
+    theme(legend.position = "none")
+  senschain <- senschain[[1]][["trace"]] + geom_hline(yintercept = sens, linetype = "dashed", size = 1.25) +
+    labs(caption = paste0("Prior was Beta(",
+                          paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sens", c("dsc1", "dsc2")], collapse = ","),
+                          ")")) +
+    theme(legend.position = "none")
+  modchain <- modchain[[1]][["trace"]] + 
+    labs(caption = paste0("Prior was Norm+(",
+                          paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "mod", c("dsc1", "dsc2")], collapse = ","),
+                          ")")) +
+    theme(legend.position = "none")
+  sodchain <- sodchain[[1]][["trace"]] +
+    labs(caption = paste0("Prior was Beta(",
+                          paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sod", c("dsc1", "dsc2")], collapse = ","),
+                          ")")) +
+    theme(legend.position = "none")
+  seroratechain <- seroratechain[[1]][["trace"]] +
+    labs(caption = paste0("Prior was Norm+(",
+                          paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sero_con_rate", c("dsc1", "dsc2")], collapse = ","),
+                          ")")) +
+    theme(legend.position = "none")
+  # get legend
+  legend_bt <- cowplot::get_legend(maxmachain + theme(legend.position = "bottom",
+                                                      legend.title = element_blank()))
+  
+  if (modout$inputs$account_seroreversion) {
+    revshapechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_shape", display = FALSE)
+    revscalechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_scale", display = FALSE)
+    revshapechain <- revshapechain[[1]][["trace"]] +
+      labs(caption = paste0("Prior was Norm+(",  paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sero_rev_shape", c("dsc1", "dsc2")], collapse = ","),
+                            ")")) +
+      theme(legend.position = "none")
+    
+    revscalechain <- revscalechain[[1]][["trace"]] +
+      labs(caption = paste0("Prior was Norm+(", paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sero_rev_scale", c("dsc1", "dsc2")], collapse = ","),
+                            ")")) +
+      theme(legend.position = "none")
+    
+    topp <- cowplot::plot_grid(spechain, senschain, modchain, sodchain, maxmachain, seroratechain,
+                               revshapechain, revscalechain,
+                               ncol = 2, nrow = 4)
+  } else {
+    # out
+    topp <- cowplot::plot_grid(spechain, senschain, modchain, sodchain, maxmachain, seroratechain,
+                               ncol = 2, nrow = 3)
+    
+  }
+  
+  cowplot::plot_grid(title, topp, legend_bt, nrow = 3, rel_heights = c(0.1, 1, 0.1))
+  
+}
+
+```
+
+
+```{r}
+#...................... 
+# read in data
+#......................
+modout <- readRDS(params$path)
+
+# get sim details
+simnm <- sub(".RDS", "", basename(params$path))
+if (modout$inputs$account_seroreversion) {
+  sim_param_map <- readRDS("data/param_map/SimCurves/simfit_param_map.RDS") %>% 
+  dplyr::filter(sim == simnm)
+} else {
+  sim_param_map <- readRDS("data/param_map/SimCurves_noserorev/simfit_param_map.RDS") %>%
+  dplyr::filter(sim == simnm)
+}
+
+truecurve <- sim_param_map %>% 
+  dplyr::pull("curve")
+# pull out of list
+truecurve <- truecurve[[1]]
+
+trueseroprev <- sim_param_map %>% 
+  dplyr::pull("simdat")
+trueseroprev <- trueseroprev[[1]]$StrataAgg_Seroprev
+
+```
+
+# `r paste0("Simulation run: ", sim)`
+
+## Fit Diagnostics
+#### Log Plot & Metropolis Coupling Acceptance Plot
+```{r, results='asis', fig.width=7.5, fig.height=9.5}
+#......................
+# like and mc accept
+#......................
+likeplot <- modout$mcmcout$output %>%
+  dplyr::filter(rung == "rung1") %>%
+  dplyr::filter(stage == "sampling") %>%
+  dplyr::select(c("chain", "iteration", "loglikelihood", "logprior")) %>%
+  tidyr::gather(., key = "like", value = "val", 3:4) %>%
+  ggplot() +
+  geom_line(aes(x = iteration, y = val, color = chain), size = 0.25, alpha = 0.8) +
+  scale_color_viridis_d() +
+  ylab("") + xlab("Iteration") +
+  facet_wrap(.~like, scales = "free_y") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom",
+        legend.title = element_blank())
+mcaccplot <- drjacoby::plot_mc_acceptance(modout$mcmcout)
+
+cowplot::plot_grid(likeplot, mcaccplot, ncol = 1, rel_heights = c(1, 0.4))
+
+```
+
+\pagebreak
+#### Serological Mixing/Prior Diagnostics 
+```{r, results='asis', fig.width=7.5, fig.height=9.5}
+quick_sim_sero_diagnostics(modout, 
+                           spec = sim_param_map$spec, 
+                           sens = sim_param_map$sens)
+```
+
+\pagebreak
+#### IFRs & Incidence Curve
+
+```{r, results='asis', fig.width=8, fig.height=7.5}
+# truth fatality data from simulation workers
+fatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
+                               IFR = c(1e-3, 1e-3, 0.05, 0.1, 0.2),
+                               Rho = 1) %>% 
+  dplyr::rename(param = Strata)
+
+#...................... 
+# get ifrs 
+#......................
+ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
+                                       what = "IFRparams", by_chain = FALSE) %>% 
+  dplyr::left_join(., fatalitydata, by = "param")
+
+ifrs %>% 
+  ggplot() +
+  geom_pointrange(aes(x = param, ymin = LCI, ymax = UCI, y = median), 
+                  color = "#969696", size = 1.2) +
+  geom_hline(aes(yintercept = IFR),
+             color = "#3182bd", size = 3, alpha = 0.75, show.legend = F) +
+  facet_wrap(~param, scales = "free") + 
+  theme_bw() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "right") +
+  xlab("") + ylab("Median (95% CIs)") +
+  labs(caption = "Grey points delineate model fits with Median and 95% Credible Intervals. Blue horizontal line is true simulated value.")
+
+
+```
+
+\pagebreak
+```{r, results='asis', fig.width=8, fig.height=9.5}
+#.......................
+# infection curve and serology
+#.......................
+infxncurve <- COVIDCurve::draw_posterior_infxn_cubic_splines(IFRmodel_inf = modout,
+                                                             dwnsmpl = 1e2,
+                                                             by_chain = TRUE,
+                                                             by_strata = TRUE)$curvedata
+pA <- infxncurve %>%
+  dplyr::select(c("chain", "sim", "time", dplyr::starts_with("infxns_"))) %>%
+  tidyr::pivot_longer(., cols =  dplyr::starts_with("infxns_"),
+                      names_to = "strata", values_to = "infxns") %>%
+  dplyr::mutate(strata = sub("infxns_", "", strata)) %>%
+  ggplot() +
+  geom_line(aes(x = time, y = infxns, group = sim, color = chain), alpha = 0.8, size = 0.8) +
+  geom_line(data = truecurve, aes(x = time, y = infxns), color = "#000000", linetype = "dashed", size = 1.1) +
+  scale_color_viridis_d("Chain") +
+  labs(caption = "Viridis is inferred, Black is Truth") +
+  xlab("Time") + ylab("Num. Infxns") +
+  xyaxis_plot_theme
+
+#...................... 
+# seroprev plot
+#......................
+seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
+                                                   dwnsmpl = 1e2,
+                                                   by_chain = F)
+serocurvedat <- seropnts %>% 
+  dplyr::select(c("sim", "ObsDay", dplyr::starts_with("RG_pd_"),
+                  dplyr::starts_with("crude_pd_"))) %>% 
+  tidyr::pivot_longer(., cols = -c("sim", "ObsDay"),
+                      names_to = "seroprev_strata_lvl", values_to = "seroprev") %>% 
+  dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG Corr.", "Crude"),
+                param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
+  dplyr::filter(seroprevlvl == "Crude")
+
+# plot
+pB <- serocurvedat %>% 
+  dplyr::left_join(., trueseroprev) %>% 
+  ggplot() +
+  geom_line(aes(x = ObsDay, y = seroprev), alpha = 0.5, color = "#bdbdbd") +
+  geom_line(aes(x = ObsDay, y = TruePrev), alpha = 0.5, color = "#000000") +
+  facet_wrap(~Strata) + 
+  xyaxis_plot_theme + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold")) +
+  labs(caption = "Grey is inferred, Black is Truth") +
+  ylab("Seroprevalence") + xlab("Time")
+
+#...................... 
+# full out
+#......................
+cowplot::plot_grid(pA, pB, ncol = 1)
+
+```
+

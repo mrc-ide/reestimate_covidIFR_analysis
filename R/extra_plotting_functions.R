@@ -147,7 +147,7 @@ quick_sero_diagnostics <- function(modout) {
   senschain <- drjacoby::plot_par(modout$mcmcout, "sens", display = FALSE)
   modchain <- drjacoby::plot_par(modout$mcmcout, "mod", display = FALSE)
   sodchain <- drjacoby::plot_par(modout$mcmcout, "sod", display = FALSE)
-  seroratechain <- drjacoby::plot_par(modout$mcmcout, "sero_rate", display = FALSE)
+  seroratechain <- drjacoby::plot_par(modout$mcmcout, "sero_con_rate", display = FALSE)
 
   maxmachain <- maxmachain[[1]][["trace"]] + theme(legend.position = "none")
   spechain <- spechain[[1]][["trace"]] + theme(legend.position = "none")
@@ -158,9 +158,22 @@ quick_sero_diagnostics <- function(modout) {
   # get legend
   legend_bt <- cowplot::get_legend(maxmachain + theme(legend.position = "bottom",
                                                       legend.title = element_blank()))
-  # out
-  topp <- cowplot::plot_grid(spechain, senschain, modchain, sodchain, maxmachain, seroratechain,
-                     ncol = 2, nrow = 3)
+
+  if (modout$inputs$account_seroreversion) {
+    revshapechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_shape", display = FALSE)
+    revscalechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_scale", display = FALSE)
+    revshapechain <- revshapechain[[1]][["trace"]] + theme(legend.position = "none")
+    revscalechain <- revscalechain[[1]][["trace"]] + theme(legend.position = "none")
+
+    topp <- cowplot::plot_grid(spechain, senschain, modchain, sodchain, maxmachain, seroratechain,
+                               revshapechain, revscalechain,
+                               ncol = 2, nrow = 4)
+  } else {
+    # out
+    topp <- cowplot::plot_grid(spechain, senschain, modchain, sodchain, maxmachain, seroratechain,
+                               ncol = 2, nrow = 3)
+
+  }
   cowplot::plot_grid(topp, legend_bt, nrow = 2, rel_heights = c(1, 0.1))
 
 }

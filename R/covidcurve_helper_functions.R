@@ -2,6 +2,48 @@ source("R/assertions_v5.R")
 library(tidyverse)
 library(stringr)
 
+#' @title Calculate seroprevalens from a path
+#' @details goal here is to be memory light
+
+get_overall_seroprevs <- function(path, dwnsmpl = 1e2) {
+  modout <- readRDS(path)
+  seroprevs <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
+                                                      whichrung = "rung1",
+                                                      dwnsmpl = dwnsmpl,
+                                                      by_chain = FALSE)
+  return(seroprevs)
+}
+
+#' @title Calculate stratified IFR from a path
+#' @details goal here is to be memory light
+get_strata_IFRs <- function(path) {
+  modout <- readRDS(path)
+  stratachar <- ifelse(grepl("age", basename(path)), "ageband",
+                       ifelse(grepl("rgn", basename(path)), "region", NA))
+  dictkey <- modout$inputs$IFRmodel$IFRdictkey %>%
+    dplyr::rename(param = Strata)
+  colnames(dictkey)[colnames(dictkey) == stratachar] <- "strata"
+  # get ifrs
+  ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
+                                         what = "IFRparams", by_chain = FALSE)
+  # out
+  dplyr::left_join(dictkey, ifrs) %>%
+    dplyr::mutate(param = factor(param, levels = paste0("ma", 1:nrow(dictkey))),
+                  strata = forcats::fct_reorder(strata, as.numeric(param)))
+}
+
+#' @title Calculate overall IFR from a path
+#' @details goal here is to be memory light
+get_overall_IFRs <- function(path) {
+  modout <- readRDS(path)
+  out <- COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout,
+                                                  whichrung = "rung1",
+                                                  by_chain = FALSE)
+  return(out)
+}
+
+
+
 #' @title Make IFR Model for MCMC Fitting
 make_IFR_model_fit <- function(num_mas, maxMa,
                                groupvar, dat,
@@ -10,14 +52,8 @@ make_IFR_model_fit <- function(num_mas, maxMa,
                                sens_spec_tbl, tod_paramsdf,
                                serodayparams) {
 
-  # make dfs
-  if (groupvar == "ageband") {
-    ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.4)
-  } else if (groupvar == "region") {
-    ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.1)
-  } else {
-    stop("Grouping var option not available")
-  }
+
+  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.4)
 
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
@@ -87,12 +123,12 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   mod1$set_relKnot(max_xveclist[["name"]])
   mod1$set_Infxnparams(paste0("y", 1:num_ys))
   mod1$set_relInfxn(max_yveclist[["name"]])
-  mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
+  mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_scale", "sero_rev_shape"))
   mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rho(demog$popN/sum(demog$popN))
+  mod1$set_rho(demog$popN)
   mod1$set_rcensor_day(.Machine$integer.max)
   mod1$set_IFRdictkey(dictkey)
   # out
