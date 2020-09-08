@@ -269,7 +269,7 @@ plan <- drake::drake_plan(
 # call drake to send out to slurm
 #......................
 options(clustermq.scheduler = "slurm",
-        clustermq.template = "drake_workers/slurm_clustermq_LL.tmpl")
+        clustermq.template = "drake_clst/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq",
      jobs = nrow(file_param_map),
      log_make = "SimCurves_serorev.log", verbose = 2,

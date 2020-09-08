@@ -788,7 +788,7 @@ saveRDS(NLD.agebands.dat, "data/derived/NLD1/NLD1_agebands.RDS")
 #......................
 ## add in approximate sample size by region in order for this to run properly.
 # we don't have data, but for now split total sample size equally across regions.
-# TODO - use CI from the report.
+# o are using CI from the report.
 inds<-which(sero_prevdf$study_id=="ITA1" & sero_prevdf$for_regional_analysis==1)
 sero_prevdf$n_tested[inds]<- 64660/length(inds) ## total sample size of italian serosurvey.
 sero_prevdf$n_positive[inds]<-round(sero_prevdf$n_tested[inds]*sero_prevdf$seroprevalence_unadjusted[inds])
