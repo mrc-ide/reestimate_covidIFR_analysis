@@ -273,7 +273,7 @@ saveRDS(BRA.basic.dat, "data/derived/BRA5/BRA5_regions.RDS")
 #---- Preprocess European Data #----
 #..................................................................................
 #............................................................
-#---- CHE1 #----
+#---- CHE1, Geneva #----
 #...........................................................
 #......................
 # ages
@@ -469,7 +469,8 @@ che2_adj_seroprev <- tidyr::expand_grid(che2_adj_seroprev, ageband) %>%
   dplyr::arrange(age_low)
 
 che2_adj_seroprev <- che2_adj_seroprev %>%
-  dplyr::arrange(ObsDaymin, ObsDaymax, ageband)
+  dplyr::arrange(ObsDaymin, ObsDaymax, ageband) %>%
+  dplyr::select(-c("age_low", "age_high"))
 
 # bring together
 CHE2.agebands.dat$seroprevMCMC <- che2_adj_seroprev
@@ -894,7 +895,7 @@ lux_adj_seroprev <- tibble::tibble(
   ObsDaymin = unique(LUX.agebands.dat$seroprevMCMC$ObsDaymin),
   ObsDaymax = unique(LUX.agebands.dat$seroprevMCMC$ObsDaymax),
   ageband = agebands,
-  n_postive = NA,
+  n_positive = NA,
   n_tested = NA,
   SeroPrev = NA)
 lux_adj_seroprev$n_positive <- LUX.agebands.dat$seroprev_group$n_positive
@@ -1315,10 +1316,12 @@ saveRDS(GBR3.agebands_noCH.dat, "data/derived/carehomes/GBR3_agebands_noCH.RDS")
 
 ### CHE1
 CHE1.agebands_noCH.dat<-remove_ch_deaths(CHE1.agebands.dat,"CHE1")
-saveRDS(CHE1.agebands_noCH.dat, "data/derived/carehomes/CHE1/CHE1_agebands_noCH.RDS")
+saveRDS(CHE1.agebands_noCH.dat, "data/derived/carehomes/CHE1_agebands_noCH.RDS")
+
 ### CHE2
 CHE2.agebands_noCH.dat<-remove_ch_deaths(CHE2.agebands.dat,"CHE2")
 saveRDS(CHE2.agebands_noCH.dat, "data/derived/carehomes/CHE2_agebands_noCH.RDS")
+
 ### NYC_NY_1
 NYC_NY_1.agebands_noCH.dat<-remove_ch_deaths(NYC_NY_1.agebands.dat,"NYC_NY_1")
 saveRDS(NYC_NY_1.agebands_noCH.dat, "data/derived/carehomes/NYC_NY_1_agebands_noCH.RDS")
