@@ -203,12 +203,12 @@ Brazil	BRA4	0706_RiodeJaneiro	18	69	Rio de Janeiro City	both	2857	114	0.03990199
 Brazil	BRA5	0708_RioGrande	0	999	Rio Grande do Sul state (cities = Uruguaiana, Ijui, Santa Maria, Passo Fundo, Santa Cruz do Sul, Pelotas, Caxias, Canoas and Porto Alegre)	both	4151	2	0.0004818116117					2020-04-11	2020-04-13	0	0	1	??	https://www.nature.com/articles/s41591-020-0992-3#Sec14	Contains information for each of the 9 cities in the Supplementary Information
 Brazil	BRA5	0708_RioGrande	0	999	Rio Grande do Sul state (cities = Uruguaiana, Ijui, Santa Maria, Passo Fundo, Santa Cruz do Sul, Pelotas, Caxias, Canoas and Porto Alegre)	both	4460	6	0.00134529148					2020-04-25	2020-04-27	0	0	1	??	https://www.nature.com/articles/s41591-020-0992-3#Sec14	Contains information for each of the 9 cities in the Supplementary Information
 Brazil	BRA5	0708_RioGrande	0	999	Rio Grande do Sul state (cities = Uruguaiana, Ijui, Santa Maria, Passo Fundo, Santa Cruz do Sul, Pelotas, Caxias, Canoas and Porto Alegre)	both	4500	10	0.002222222222					2020-05-09	2020-05-11	0	0	1	??	https://www.nature.com/articles/s41591-020-0992-3#Sec14	Contains information for each of the 9 cities in the Supplementary Information
-Italy	ITA1		0	17	all	both			0.022					2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf	total sample size
-Italy	ITA1		18	34	all	both			0.021					2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1		35	49	all	both			0.024					2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1		50	59	all	both			0.031					2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1		60	69	all	both			0.026					2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1		70	999	all	both			0.025					2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1		0	17	all	both			0.022	0.017	0.028			2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf	total sample size
+Italy	ITA1		18	34	all	both			0.021	0.017	0.024			2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1		35	49	all	both			0.024	0.021	0.028			2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1		50	59	all	both			0.031	0.027	0.035			2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1		60	69	all	both			0.026	0.021	0.029			2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1		70	999	all	both			0.025	0.021	0.029			2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
 Italy	ITA1		0	999	Piemonte	both			0.030051936					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
 Italy	ITA1		0	999	Valle D'Aosta	both			0.040183284					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
 Italy	ITA1		0	999	Liguria	both			0.031047951					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
@@ -230,7 +230,7 @@ Italy	ITA1		0	999	Basilicata	both			0.007591805					2020-05-25	2020-07-15	0	0	1	
 Italy	ITA1		0	999	Clabria	both			0.005821159					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
 Italy	ITA1		0	999	Sicilia	both			0.00334543					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
 Italy	ITA1		0	999	Sardegna	both			0.003310658					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Luxembourg	LUX1	0518_Luxembourg	18	79	all	both	1807	35				0.020947		2020-04-15	2020-05-05	1	0	0	0	https://www.medrxiv.org/content/10.1101/2020.05.11.20092916v1.full.pdf
+Luxembourg	LUX1	0518_Luxembourg	18	79	all	both	1807	35	0.01936912009			0.020947		2020-04-15	2020-05-05	1	0	0	0	https://www.medrxiv.org/content/10.1101/2020.05.11.20092916v1.full.pdf
 China	CHN1	0619_Wuhan	16	19	Wuhan	both	52	0				0		2020-03-26	2020-04-28	1	0	0	0	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v2.supplementary-material
 China	CHN1	0619_Wuhan	20	24	Wuhan	both	652	19				0.02975		2020-03-26	2020-04-28	1	0	0	0	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v2.supplementary-material
 China	CHN1	0619_Wuhan	25	29	Wuhan	both	2330	61				0.0262		2020-03-26	2020-04-28	1	0	0	0	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v2.supplementary-material
@@ -274,4 +274,4 @@ USA	NYC_NY_1		35	44	New York City, New York, United States (New York State Depar
 USA	NYC_NY_1		45	54	New York City, New York, United States (New York State Department of Health)	both	1328	334	0.251506024		0.235			2020-04-19	2020-04-28	1	0	0	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf
 USA	NYC_NY_1		55	999	New York City, New York, United States (New York State Department of Health)	both	2217	490	0.221019396		0.191			2020-04-19	2020-04-28	1	0	0	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf
 USA	NYC_NY_1		0	999	New York City, New York, United States (New York State Department of Health)	male	2727	629	0.230656399		0.209			2020-04-19	2020-04-28	0	1	0	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf
-USA	NYC_NY_1		0	999	New York City, New York, United States (New York State Department of Health)	female	3219	690	0.214352283		0.196			2020-04-19	2020-04-28	0	1	0	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf
+USA	NYC_NY_1		0	999	New York City, New York, United States (New York State Department of Health)	female	3219	690	0.214352283		0.196			2020-04-19	2020-04-28	0	1	0	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf		

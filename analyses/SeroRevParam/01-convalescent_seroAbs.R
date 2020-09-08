@@ -182,6 +182,10 @@ sero_sub_final %>%
   ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") + ggtitle("Final Included") +
   xyaxis_plot_theme
 
+# save out
+dir.create("results/sero_reversion/", recursive = T)
+saveRDS(sero_sub_final, file = "results/sero_reversion/sero_reversion_incld_data.RDS")
+
 
 #......................
 # modeling functions
@@ -292,7 +296,6 @@ brms::model_weights(sero_sub_mods$mod[[10]], sero_sub_mods$mod[[11]],
 # all models favor RE w/ symptoms (no surprise)
 
 # save out
-dir.create("results/sero_reversion/", recursive = T)
 saveRDS(sero_sub_mods, file = "results/sero_reversion/sero_reversion_model_fits.RDS")
 
 #......................
@@ -351,6 +354,9 @@ PredPlotObj <- post_mods %>%
 
 jpgsnapshot(plot = PredPlotObj, outpath = "figures/Seroreversion_posterior_interpolations.jpg")
 
+# save out
+saveRDS(post_mods, file = "results/sero_reversion/Seroreversion_posterior_interpolations.RDS")
+
 
 
 #............................................................
@@ -382,7 +388,8 @@ post_mods_optim <- dplyr::left_join(post_mods, thresholds, by = "assay") %>%
   dplyr::ungroup(.)
 
 post_mods_optim$serorevert_times <- furrr::future_pmap_dbl(post_mods_optim[, c("mod", "donor_ids", "threshold")],
-                                                           find_cutoff_response_time_per_donor)
+                                                           find_cutoff_response_time_per_donor) %>%
+  dplyr::select(c("donor_ids", "serorevert_times"))
 # save out
 saveRDS(post_mods_optim, file = "results/sero_reversion/sero_reversion_optim_times_extrapolated.RDS")
 
@@ -445,3 +452,8 @@ plot(density(wb_fit_boot$estim$scale))
 # save out
 saveRDS(wb_fit_boot, file = "results/sero_reversion/sero_reversion_abbott_bootstrapped_weibull_params.RDS")
 
+# for priors
+summary(wb_fit_boot$estim$shape)
+sd(wb_fit_boot$estim$shape)
+summary(wb_fit_boot$estim$scale)
+sd(wb_fit_boot$estim$scale)

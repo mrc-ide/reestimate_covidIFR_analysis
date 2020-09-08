@@ -70,33 +70,35 @@ make_IFR_model_fit <- function(num_mas, maxMa,
   dictkey <- tibble::tibble(groupvar = as.character(unlist(unique(dat$seroprevMCMC[, groupvar]))), "Strata" = paste0("ma", 1:num_mas))
   colnames(dictkey) <- c(paste(groupvar), "Strata")
 
-  # time series deaths
-  obs_deaths <- dat$deaths_TSMCMC %>%
-    dplyr::select(c("ObsDay", "deaths")) %>%
-    dplyr::rename(Deaths = deaths)
-  # sanity check
-  if( any(duplicated(obs_deaths$ObsDay)) ) {
-    stop("Time series has duplicated observed days")
-  }
+    # time series deaths
+    obs_deaths <- dat$deaths_TSMCMC %>%
+      dplyr::select(c("ObsDay", "deaths")) %>%
+      dplyr::rename(Deaths = deaths)
+    # sanity check
+    if( any(duplicated(obs_deaths$ObsDay)) ) {
+      stop("Time series has duplicated observed days")
+    }
 
-  # prop deaths
-  prop_deaths <- dplyr::left_join(dat$deaths_propMCMC, dictkey) %>%
-    dplyr::select(c("Strata", "death_prop"))  %>%
-    dplyr::rename(PropDeaths = death_prop) %>%
-    dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
-    dplyr::arrange(Strata) %>%
-    dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
+    # prop deaths
+    prop_deaths <- dplyr::left_join(dat$deaths_propMCMC, dictkey) %>%
+      dplyr::select(c("Strata", "death_prop"))  %>%
+      dplyr::rename(PropDeaths = death_prop) %>%
+      dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
+      dplyr::arrange(Strata) %>%
+      dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
 
-  # seroprev
-  obs_serology <- dplyr::left_join(dat$seroprevMCMC, dictkey) %>%
-    dplyr::rename(SeroPos = n_positive,
-                  SeroN = n_tested,
-                  SeroStartSurvey = ObsDaymin,
-                  SeroEndSurvey = ObsDaymax) %>%
-    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
-    dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
-    dplyr::arrange(SeroStartSurvey, Strata) %>%
-    dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
+    # seroprev
+    obs_serology <- dplyr::left_join(dat$seroprevMCMC, dictkey) %>%
+      dplyr::rename(SeroPos = n_positive,
+                    SeroN = n_tested,
+                    SeroStartSurvey = ObsDaymin,
+                    SeroEndSurvey = ObsDaymax) %>%
+      dplyr::mutate(SeroLCI = NA,
+                    SeroUCI = NA) %>%
+      dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
+      dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
+      dplyr::arrange(SeroStartSurvey, Strata) %>%
+      dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
 
 
   inputdata <- list(obs_deaths = obs_deaths,

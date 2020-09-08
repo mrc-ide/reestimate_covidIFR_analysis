@@ -46,15 +46,6 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
 
 #......................
-# regions
-#......................
-rawrgn <- readRDS("data/derived/BRA1/BRA1_regions.RDS")
-BRA1_rgn_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma2", # Northern Region
-                                   groupvar = "region",  dat = rawrgn,
-                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 175, init = 181, max = 189, dsc1 = 175, dsc2 = 189),
-                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
-                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
-#......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/BRA1/BRA1_agebands.RDS")
@@ -63,6 +54,7 @@ BRA1_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 175, init = 181, max = 189, dsc1 = 175, dsc2 = 189),
                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
                                    sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+
 
 #............................................................
 #---- BRA4 #----
@@ -164,15 +156,6 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
 
 #......................
-# regions
-#......................
-rawrgn <- readRDS("data/derived/DNK1/DNK1_regions.RDS")
-DNK_rgn_mod <- make_IFR_model_fit(num_mas = 3, maxMa = "ma1", # Capital Region
-                                  groupvar = "region",  dat = rawrgn,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
-                                  sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
-#......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/DNK1/DNK1_agebands.RDS")
@@ -196,16 +179,6 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 # based on supp table 3
 sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
 
-#......................
-# regions
-#......................
-# NB in ecdc data, DNK was one day "ahead" of ESP
-rawrgn <- readRDS("data/derived/ESP1-2/ESP1-2_regions.RDS")
-ESP_rgn_mod <- make_IFR_model_fit(num_mas = 17, maxMa = "ma17", # La Rioja Region
-                                  groupvar = "region",  dat = rawrgn,
-                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
-                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 17.66),
-                                  sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
 
 #......................
 # agebands
@@ -229,15 +202,6 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 dsc2 =  c(10.5,    7.5))
 sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
 
-#......................
-# regions
-#......................
-rawrgn <- readRDS("data/derived/GBR3/GBR3_regions.RDS")
-GBR3_rgn_mod <- make_IFR_model_fit(num_mas = 9, maxMa = "ma4",
-                                   groupvar = "region",  dat = rawrgn,
-                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 206, init = 210, max = 213, dsc1 = 199, dsc2 = 213),
-                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
-                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
 
 #......................
 # agebands
@@ -273,36 +237,26 @@ NLD_age_mod <- make_IFR_model_fit(num_mas = 6, maxMa = "ma6",
 
 
 
-# #............................................................
-# #---- ITA1 #----
-# #...........................................................
-# sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
-#                                 min =   c(0.50,    0.50,     10),
-#                                 init =  c(0.85,    0.99,     15),
-#                                 max =   c(1.00,    1.00,     30),
-#                                 dsc1 =  c(90.5,   95.5,      2.8),
-#                                 dsc2 =  c(10.5,     5.5,      0.1))
-# sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
-# #......................
-# #regions
-# #......................
-# rawrgn <- readRDS("data/derived/ITA/ITA_regions.RDS")
-# ITA_rgn_mod <- make_IFR_model_fit(num_mas = 21, maxMa = "ma10", # Lombardia (Lombardy) Region
-#                                   groupvar = "region",  dat = rawrgn,
-#                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
-#                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.91, dsc1 = 0, dsc2 = 17.91),
-#                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
-#
-# #......................
-# # agebands
-# #......................
-# rawage <- readRDS("data/derived/ITA/ITA_agebands.RDS")
-# ITA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
-#                                   groupvar = "ageband",  dat = rawage,
-#                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
-#                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.91, dsc1 = 0, dsc2 = 17.91),
-#                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+#............................................................
+#---- ITA1 #----
+#...........................................................
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
+                                min =   c(0.50,    0.50,     10),
+                                init =  c(0.85,    0.99,     15),
+                                max =   c(1.00,    1.00,     30),
+                                dsc1 =  c(90.5,   95.5,      2.8),
+                                dsc2 =  c(10.5,     5.5,      0.1))
+sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
 
+#......................
+# agebands
+#......................
+rawage <- readRDS("data/derived/ITA1/ITA1_agebands.RDS")
+ITA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+                                  groupvar = "ageband",  dat = rawage,
+                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
+                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.91, dsc1 = 0, dsc2 = 17.91),
+                                  sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
 
 #............................................................
 #---- LUX1 #----
@@ -434,38 +388,38 @@ KEN1_age_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
 
 
 
-
-
 #............................................................
 #---- Come Together #----
 #...........................................................
 bvec <- seq(5, 2.5, length.out = 50)
 
 fit_map <- tibble::tibble(
-  name = c("BRA1_age", "BRA1_rgn",
-           "BRA4_rgn", "BRA5_rgn",
+  name = c("BRA1_age",
+           "BRA4_rgn",
+           "BRA5_rgn",
            "CHE1_age",
            "CHE2_age",
-           "DNK1_age", "DNK1_rgn",
-           "ESP1-2_age", "ESP1-2_rgn",
-           "GBR3_age", "GBR3_rgn",
+           "DNK1_age",
+           "ESP1-2_age",
+           "GBR3_age",
            "NLD1_age",
-           #"ITA1_age", "ITA1_rgn",
+           "ITA1_age",
            "LUX1_age",
            "LA_CA1_rgn", # basic but use region for splitting
            "NYC_NY_1_age",
            "SF_CA1_rgn", # basic but use region for splitting
            "CHN1_age",
            "KEN1_age"),
-  modelobj = list(BRA1_age_mod, BRA1_rgn_mod,
-                  BRA4_rgn_mod, BRA5_rgn_mod,
+  modelobj = list(BRA1_age_mod,
+                  BRA4_rgn_mod,
+                  BRA5_rgn_mod,
                   CHE1_age_mod,
                   CHE2_age_mod,
-                  DNK_age_mod, DNK_rgn_mod,
-                  ESP_age_mod, ESP_rgn_mod,
-                  GBR3_age_mod, GBR3_rgn_mod,
+                  DNK_age_mod,
+                  ESP_age_mod,
+                  GBR3_age_mod,
                   NLD_age_mod,
-                  #ITA_age_mod, ITA_rgn_mod,
+                  ITA_age_mod,
                   LUX_age_mod,
                   LACA_basic_mod,
                   NYC_age_mod,
@@ -514,13 +468,14 @@ run_MCMC <- function(path) {
 
   cl <- parallel::makeCluster(mkcores)
 
-  if (grepl("age", basename(path))) {
+  if (grepl("ITA", basename(path))) {
     fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
                                         reparamInfxn = TRUE,
                                         reparamKnots = TRUE,
                                         reparamDelays = FALSE,
                                         reparamNe = FALSE,
+                                        binomial_likelihood = FALSE,
                                         chains = n_chains,
                                         burnin = mod$burnin,
                                         samples = mod$samples,
@@ -531,11 +486,12 @@ run_MCMC <- function(path) {
   } else {
 
     fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod$modelobj[[1]],
-                                        reparamIFR = FALSE,
+                                        reparamIFR = TRUE,
                                         reparamInfxn = TRUE,
                                         reparamKnots = TRUE,
                                         reparamDelays = FALSE,
                                         reparamNe = FALSE,
+                                        binomial_likelihood = TRUE,
                                         chains = n_chains,
                                         burnin = mod$burnin,
                                         samples = mod$samples,
@@ -588,7 +544,7 @@ plan <- drake::drake_plan(
 # call drake to send out to slurm
 #......................
 options(clustermq.scheduler = "slurm",
-        clustermq.template = "drake_workers/slurm_clustermq_LL.tmpl")
+        clustermq.template = "drake_clst/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
      log_make = "Modfits_drake_noserorev.log", verbose = 2,
      log_progress = TRUE,
