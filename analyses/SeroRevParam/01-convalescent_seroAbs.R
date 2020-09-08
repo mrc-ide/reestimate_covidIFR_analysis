@@ -1,70 +1,93 @@
 #....................................................................................................
-## Purpose:
+## Purpose: Determine the distribution for the onset-of-symptoms to seroreversion
 ##
-## Notes:
+## Notes: Data shared from Muecksch et. al 2020
 #....................................................................................................
 library(tidyverse)
 library(brms)
 source("R/my_themes.R")
-
+source("R/extra_plotting_functions.R")
 
 #......................
 # read data
 #......................
-serotime <- readr::read_csv("data/raw/convalescent_plasma_longitudinal.csv")
-serotime <- serotime %>%
+serotime <- readxl::read_excel("data/raw/shared/2020_08_06_SR1407_meta_analysis.xlsx", sheet = 2) %>%
+  magrittr::set_colnames(tolower(colnames(.))) %>%
+  magrittr::set_colnames(gsub(" ", "_", colnames(.))) %>%
+  magrittr::set_colnames(gsub("/", "_", colnames(.))) %>%
+  magrittr::set_colnames(gsub("≥1", "gt1", colnames(.))) %>%
+  dplyr::rename(sex = gender,
+                donor_id = sr1407,
+                days_post_symptoms = post_sx_days) %>%
   dplyr::mutate(sex = factor(sex, levels = c("F", "M")),
-                days_post_symptoms = as.numeric( lubridate::mdy(date_sample_collected) - lubridate::mdy(date_symptom_onset)),
-                months_post_symptoms = days_post_symptoms/30)  # re-center days to something more central
+                donor_id = factor(donor_id),
+                months_post_symptoms = days_post_symptoms/30)    # re-center days to months
+# take to long format
+serotime <- serotime %>%
+  dplyr::select(-c("siemens")) %>%
+  tidyr::pivot_longer(., cols = c("abbott_s_c", "diasorin_au_ml", "siemens_no.", "roche_gt1"),
+                      names_to = "assay", values_to = "titres") %>%
+  dplyr::mutate(assay = stringr::str_split_fixed(assay, "_", n = 2)[,1],
+                assay = factor(assay, levels = c("diasorin", "siemens", "abbott", "roche"),
+                               labels = c("Diasorin", "Siemens", "Abbott", "Roche")))
+# drop hospitalized
+serotime <- serotime %>%
+  dplyr::filter(hosp == "N")
 
 #............................................................
-# Explore Data and Summarize Dist
+#---- Explore Data and Summarize Dist #----
 #...........................................................
 summary(serotime)
 
+# look at post pcr -- figure 1
 serotime %>%
   ggplot() +
-  geom_line(aes(x = days_post_symptoms, y = abbott_sc, group = donor_id)) +
+  geom_line(aes(x = post_pcr_days, y = titres, group = donor_id, color = assay)) +
+  scale_color_manual(values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
+  facet_wrap(~assay, scales = "free_y") +
   xyaxis_plot_theme
-
+# look at post sx instead of pcr (but now keep everyone)
+serotime %>%
+  ggplot() +
+  geom_line(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay)) +
+  scale_color_manual(values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
+  facet_wrap(~assay, scales = "free_y") +
+  ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") +
+  xyaxis_plot_theme
 
 # sex pattern not apparent
 serotime %>%
   ggplot() +
-  geom_line(aes(x = days_post_symptoms, y = abbott_sc, group = donor_id)) +
-  facet_wrap(. ~ sex) +
+  geom_line(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay)) +
+  scale_color_manual(values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
+  facet_grid(assay ~ sex, scales = "free_y") +
   xyaxis_plot_theme
 
 
-# lose more in hospitalized
+# very few in hospital but may have higher starting baseline
 serotime %>%
-  dplyr::group_by(donor_id) %>%
-  dplyr::mutate(diffAb = max(abbott_sc) - min(abbott_sc)) %>%
   ggplot() +
-  geom_histogram(aes(x = abbott_sc, y = ..density..)) +
-  facet_wrap(. ~ hospitalized) +
+  geom_line(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay)) +
+  scale_color_manual(values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
+  facet_grid(assay ~ hosp, scales = "free_y") +
   xyaxis_plot_theme
 
-
-# lose more in hospitalized
+# function of start -- most decline
 serotime %>%
-  dplyr::group_by(donor_id) %>%
-  dplyr::mutate(diffAb = max(abbott_sc) - min(abbott_sc),
-                difftime = max(days_post_symptoms),
-                age = mean(age)) %>%
+  dplyr::group_by(donor_id, assay) %>%
+  dplyr::mutate(diffAb = log2(min(titres)/max(titres)),
+                difftime = max(days_post_symptoms)) %>%
   ggplot() +
-  geom_point(aes(x = difftime, y = diffAb, color = age)) +
-  scale_color_gradientn("Age",
-                        colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
-  ylab("Diff") +
-  facet_wrap(. ~ hospitalized) +
+  geom_point(aes(x = difftime, y = diffAb, color = assay)) +
+  scale_color_manual(values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
+  facet_wrap(~assay, scales = "free_y") +
+  ylab("Fold Change") +
   xyaxis_plot_theme
 
-
-# function of start
+# function of start and end important by age?
 serotime %>%
-  dplyr::group_by(donor_id) %>%
-  dplyr::mutate(diffAb = log2(min(abbott_sc)/max(abbott_sc)),
+  dplyr::group_by(donor_id, assay) %>%
+  dplyr::mutate(diffAb = log2(min(titres)/max(titres)),
                 difftime = max(days_post_symptoms),
                 age = mean(age)) %>%
   ggplot() +
@@ -72,115 +95,261 @@ serotime %>%
   ylab("Fold Change") +
   scale_color_gradientn("Age",
                         colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
-  facet_wrap(. ~ hospitalized) +
+  facet_wrap(~assay, scales = "free_y") +
+  xyaxis_plot_theme
+
+#............................................................
+#---- Multilevel Modeling #----
+#...........................................................
+#......................
+# data wrangling for modeling
+#......................
+# must have at least three timepoints (since can fit any line through two)
+sero_nobs <- serotime %>%
+  dplyr::filter(!is.na(days_post_symptoms)) %>%
+  dplyr::group_by(donor_id, assay) %>%
+  dplyr::summarise(nobs = sum(!is.na(titres)))
+sero_sub <- dplyr::left_join(serotime, sero_nobs, by = c("donor_id", "assay")) %>%
+  dplyr::filter(nobs >= 3) %>%
+  dplyr::select(-c("nobs"))
+
+# look at followup
+unlft <- sero_sub %>%
+  dplyr::select(c("donor_id", "assay")) %>%
+  dplyr::filter(!duplicated(.))
+xtabs(~assay, data = unlft)
+
+fuptims <- sero_sub %>%
+  dplyr::group_by(donor_id) %>%
+  dplyr::summarise(max_obs_sx = max(days_post_symptoms, na.rm = TRUE),
+                   max_obs_pcr = max(post_pcr_days, na.rm = TRUE))
+summary(fuptims)
+
+# look at characteristics of first pass
+incld <- sero_sub %>%
+  dplyr::select(c("donor_id", "sex", "age", "hosp")) %>%
+  dplyr::filter(!duplicated(.))
+summary(incld)
+table(incld$sex)
+table(incld$hosp)
+
+# must be positive at baseline
+thresholds <- tibble::tibble(assay = c("Diasorin", "Siemens", "Abbott", "Roche"),
+                             threshold = c(15, 1, 1.4, 1))
+
+neg_at_baseline <-  sero_sub %>%
+  dplyr::group_by(donor_id, assay) %>%
+  dplyr::filter(days_post_symptoms == min(days_post_symptoms, na.rm = TRUE)) %>%
+  dplyr::left_join(., thresholds, by = c("assay")) %>%
+  dplyr::mutate(neg_at_baseline = titres < threshold)
+
+neg_at_baseline %>%
+  ungroup(.) %>%
+  dplyr::filter(neg_at_baseline == T) %>%
+  dplyr::select(c("assay", "donor_id")) %>%
+  dplyr::filter(!duplicated(.)) %>%
+  dplyr::group_by(assay) %>%
+  dplyr::summarise(
+    n_donors = dplyr::n()
+  )
+neg_at_baseline <- neg_at_baseline %>%
+  dplyr::ungroup(.) %>%
+  dplyr::filter(neg_at_baseline == T) %>%
+  dplyr::select(c("assay", "donor_id")) %>%
+  dplyr::filter(!duplicated(.)) %>%
+  dplyr::mutate(drop = TRUE)
+
+# drop those individuals negative at baseline
+sero_sub_final <- sero_sub %>%
+  dplyr::left_join(., neg_at_baseline, by = c("assay", "donor_id")) %>%
+  dplyr::filter(is.na(drop)) %>%
+  dplyr::select(-c("drop"))
+
+
+# drop to information that we need
+sero_sub_final <- sero_sub_final %>%
+  dplyr::select(c("donor_id", "assay", "titres", "months_post_symptoms")) %>%
+  dplyr::filter(!is.na(titres))
+
+
+
+# quick look at finals
+sero_sub_final %>%
+  ggplot() +
+  geom_line(aes(x = months_post_symptoms, y = titres, group = donor_id, color = assay)) +
+  scale_color_manual(values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
+  facet_wrap(~assay, scales = "free_y") +
+  ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") + ggtitle("Final Included") +
   xyaxis_plot_theme
 
 
+#......................
+# modeling functions
+#......................
+base_model <- function(dat) {
+  brms::brm(data = dat, family = lognormal,
+            titres ~ 1,
+            prior = c(prior(normal(0, 5), class = "Intercept")),
+            iter = 1e4, warmup = 5e3, chains = 5, cores = 1,
+            seed = 48)
+}
 
-#............................................................
-# MLModeling
-#...........................................................
-# lognormal, just intercept
-fit.ln.1 <- brm(data = serotime, family = lognormal,
-                abbott_sc ~ 1   + (1 | donor_id),
-                prior = c(prior(normal(0, 5), class = "Intercept"),
-                          prior(cauchy(0, 1), class = "sd")),
-                iter = 3000, warmup = 1000, chains = 3, cores = 1,
-                seed = 48)
-summary(fit.ln.1, waic = TRUE)
-# launch_shinystan(fit.ln.1)
+RE_intercept_only_model <- function(dat) {
+  brms::brm(data = dat, family = lognormal,
+            titres ~ 1   + (1 | donor_id),
+            prior = c(prior(normal(0, 5), class = "Intercept"),
+                      prior(cauchy(0, 1), class = "sd")),
+            iter = 1e4, warmup = 5e3, chains = 5, cores = 1,
+            seed = 48)
+}
 
+RE_sxtime_model <- function(dat) {
+  brms::brm(data = dat, family = lognormal,
+            titres ~ months_post_symptoms   + (1 | donor_id),
+            prior = c(prior(normal(0, 5), class = "Intercept"),
+                      prior(normal(0, 5), class = "b", coef = "months_post_symptoms"),
+                      prior(cauchy(0, 1), class = "sd")),
+            iter = 1e4, warmup = 5e3, chains = 5, cores = 1,
+            seed = 48)
+}
 
-# lognormal, just time random intercept
-fit.ln.2 <- brm(data = serotime, family = lognormal,
-                abbott_sc ~ months_post_symptoms   + (1 | donor_id),
-                prior = c(prior(normal(0, 5), class = "Intercept"),
-                          prior(normal(0, 5), class = "b", coef = "months_post_symptoms"),
-                          prior(cauchy(0, 1), class = "sd")),
-                iter = 3000, warmup = 1000, chains = 3, cores = 1,
-                seed = 48)
-summary(fit.ln.2, waic = TRUE)
-# launch_shinystan(fit.ln.2)
+#......................
+# modeling
+#......................
+#note sigma here is just for constant
+#https://discourse.mc-stan.org/t/understanding-a-simple-brms-model-using-the-make-stancode-function/5505/2
 
-# lognormal, time and hospital random intercept
-fit.ln.3 <- brm(data = serotime, family = lognormal,
-                abbott_sc ~ months_post_symptoms + hospitalized + (1 | donor_id),
-                prior = c(prior(normal(0, 5), class = "Intercept"),
-                          prior(normal(0, 5), class = "b"),
-                          prior(cauchy(0, 1), class = "sd")),
-                iter = 3000, warmup = 1000, chains = 3, cores = 1,
-                seed = 48)
-summary(fit.ln.3, waic = TRUE)
-# launch_shinystan(fit.ln.3)
-
-# time random slope
-fit.ln.4 <- brm(data = serotime, family = lognormal,
-                abbott_sc ~ 1 + (months_post_symptoms | donor_id),
-                prior = c(prior(normal(0, 5), class = "Intercept"),
-                          prior(cauchy(0, 1), class = "sd")),
-                iter = 3000, warmup = 1000, chains = 3, cores = 1,
-                seed = 48)
-summary(fit.ln.4, waic = TRUE)
-# launch_shinystan(fit.ln.4)
+sero_sub_mods <- sero_sub_final %>%
+  dplyr::group_by(assay) %>%
+  tidyr::nest() %>%
+  dplyr::mutate(
+    basemod = furrr::future_map(data, base_model),
+    interceptonly = furrr::future_map(data, RE_intercept_only_model),
+    sxtime = furrr::future_map(data, RE_sxtime_model)
+  )
 
 
-# time random slope, fixed hospital
-fit.ln.5 <- brm(data = serotime, family = lognormal,
-                abbott_sc ~ hospitalized + (months_post_symptoms | donor_id),
-                prior = c(prior(normal(0, 5), class = "Intercept"),
-                          prior(normal(0, 5), class = "b"),
-                          prior(cauchy(0, 1), class = "sd")),
-                iter = 2000, warmup = 1000, chains = 3, cores = 1,
-                seed = 48)
-summary(fit.ln.5, waic = TRUE)
-# launch_shinystan(fit.ln.5)
+#......................
+# model convergence
+#......................
+sero_sub_mods <- sero_sub_mods %>%
+  tidyr::pivot_longer(., cols = -c("assay", "data"),
+                      names_to = "modlvl", values_to = "mod") %>%
+  dplyr::mutate(rhat = purrr::map(mod, brms::rhat))
 
+checkrhat <- sero_sub_mods %>%
+  dplyr::filter(modlvl == "sxtime") %>%
+  dplyr::select(c("assay", "rhat")) %>%
+  unnest(cols = rhat)
 
-# compare
-fit.ln.1 <- add_criterion(fit.ln.1, "waic")
-fit.ln.1 <- add_criterion(fit.ln.1, "loo")
-fit.ln.2 <- add_criterion(fit.ln.2, "waic")
-fit.ln.2 <- add_criterion(fit.ln.2, "loo")
-fit.ln.3 <- add_criterion(fit.ln.3, "waic")
-fit.ln.3 <- add_criterion(fit.ln.3, "loo")
-fit.ln.4 <- add_criterion(fit.ln.4, "waic")
-fit.ln.4 <- add_criterion(fit.ln.4, "loo")
-fit.ln.5 <- add_criterion(fit.ln.5, "waic")
-fit.ln.5 <- add_criterion(fit.ln.5, "loo")
+#......................
+# model comparison
+#......................
+sero_sub_mods <- sero_sub_mods %>%
+  dplyr::mutate(mod = purrr::map(mod, brms::add_criterion, "waic"),
+                mod = purrr::map(mod, brms::add_criterion, "loo"))
 
-
-
-
-loo_compare(fit.ln.1, fit.ln.2, fit.ln.3, fit.ln.4, fit.ln.5, criterion = "loo") %>%
+# abbott
+brms::loo_compare(sero_sub_mods$mod[[1]], sero_sub_mods$mod[[2]],
+                  sero_sub_mods$mod[[3]],
+                  criterion = "loo") %>%
   print(simplify = F)
-loo_compare(fit.ln.1, fit.ln.2, fit.ln.3, fit.ln.4, fit.ln.5, criterion = "waic") %>%
-  print(simplify = F)
-
-model_weights(fit.ln.1, fit.ln.2, fit.ln.3, fit.ln.4, fit.ln.5,
-              weights = "waic") %>%
+brms::model_weights(sero_sub_mods$mod[[1]], sero_sub_mods$mod[[2]],
+                    sero_sub_mods$mod[[3]],
+                    weights = "waic") %>%
   round(digits = 2)
 
+# diasorin
+brms::loo_compare(sero_sub_mods$mod[[4]], sero_sub_mods$mod[[5]],
+                  sero_sub_mods$mod[[6]],
+                  criterion = "loo") %>%
+  print(simplify = F)
+brms::model_weights(sero_sub_mods$mod[[4]], sero_sub_mods$mod[[5]],
+                    sero_sub_mods$mod[[6]],
+                    weights = "waic") %>%
+  round(digits = 2)
+
+# siemens
+brms::loo_compare(sero_sub_mods$mod[[7]], sero_sub_mods$mod[[8]],
+                  sero_sub_mods$mod[[9]],
+                  criterion = "loo") %>%
+  print(simplify = F)
+brms::model_weights(sero_sub_mods$mod[[7]], sero_sub_mods$mod[[8]],
+                    sero_sub_mods$mod[[9]],
+                    weights = "waic") %>%
+  round(digits = 2)
+
+# diasorin
+brms::loo_compare(sero_sub_mods$mod[[10]], sero_sub_mods$mod[[11]],
+                  sero_sub_mods$mod[[12]],
+                  criterion = "loo") %>%
+  print(simplify = F)
+brms::model_weights(sero_sub_mods$mod[[10]], sero_sub_mods$mod[[11]],
+                    sero_sub_mods$mod[[12]],
+                    weights = "waic") %>%
+  round(digits = 2)
+
+# all models favor RE w/ symptoms (no surprise)
+
+# save out
+dir.create("results/sero_reversion/", recursive = T)
+saveRDS(sero_sub_mods, file = "results/sero_reversion/sero_reversion_model_fits.RDS")
+
+#......................
+# model results
+#......................
+sero_sub_mods_sxtime <- sero_sub_mods %>%
+  dplyr::filter(modlvl == "sxtime")
+lapply(sero_sub_mods_sxtime$mod, summary)
 
 #............................................................
-# Posterior Predictions from best model
+#---- Extrapolation #----
 #...........................................................
-donorids <- unique(serotime$donor_id)
-newdat <- lapply(donorids, function(x){
-  tibble::tibble(donor_id = x,
-                 months_post_symptoms = seq(min(serotime$days_post_symptoms)/30, max(serotime$days_post_symptoms)/30,
-                                            length.out = 10))}) %>%
-  dplyr::bind_rows()
+donor_ids <- sero_sub_final %>%
+  dplyr::group_by(assay) %>%
+  tidyr::nest(.) %>%
+  dplyr::mutate(donor_ids = map(data, function(x){unique(x$donor_id)})) %>%
+  dplyr::ungroup(.) %>%
+  dplyr::select(-c("data"))
 
-preds <- fitted(fit.ln.4, newdata = newdat, type = "response")
-preds <- cbind.data.frame(newdat, preds)
-preds %>%
+get_new_dat <- function(data, donor_ids){
+  lapply(donor_ids, function(x){ # donor ids from global
+    tibble::tibble(donor_id = x,
+                   months_post_symptoms = seq(min(data$months_post_symptoms), max(data$months_post_symptoms),
+                                              length.out = 10))}) %>%
+    dplyr::bind_rows()}
+
+#......................
+# Posterior Predictions from best model
+#......................
+post_mods <- sero_sub_mods %>%
+  dplyr::filter(modlvl == "sxtime") %>%
+  dplyr::left_join(., donor_ids, by = "assay")
+post_mods$newdat <- purrr::pmap(post_mods[, c("donor_ids", "data")], get_new_dat)
+# now use model fits
+get_preds <- function(mod, newdat) {
+  ret <- fitted(mod, newdata = newdat, type = "response")
+  ret <- cbind.data.frame(newdat, ret)
+  return(ret)
+}
+post_mods$preds <- purrr::pmap(post_mods[, c("mod", "newdat")], get_preds)
+
+# plot out
+PredPlotObj <- post_mods %>%
+  dplyr::select(c("assay", "preds")) %>%
+  tidyr::unnest(cols = "preds") %>%
+  dplyr::ungroup(.) %>%
   ggplot() +
   geom_line(aes(x = months_post_symptoms, y = Estimate, group = factor(donor_id)), alpha = 0.8, color = "#bdbdbd") +
-  geom_line(data = serotime, aes(x = months_post_symptoms, y = abbott_sc, group = donor_id), color = "#0000F9", alpha = 0.5) +
+  geom_line(data = sero_sub_final, aes(x = months_post_symptoms, y = titres,
+                                       group = donor_id, color = assay), alpha = 0.5) +
+  scale_color_manual("Assay", values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
+  facet_wrap(~assay, scales = "free_y") +
   xyaxis_plot_theme +
-  ylab("Pred Abott SC") +
+  ylab("Pred Titres") +
   xlab("Months Post-Sxs")
 
+jpgsnapshot(plot = PredPlotObj, outpath = "figures/Seroreversion_posterior_interpolations.jpg")
 
 
 
@@ -189,61 +358,90 @@ preds %>%
 # that is closest to the time of cutoff for seroreversion
 # based on a prior assumption of best model fit
 #...........................................................
-
 # internal function
-find_cutoff_response_time_per_donor <- function(cutoff, donorrow, mod) {
-  if (!all(colnames(donorrow) %in% c("donor_id", "months_post_symptoms")) ) {
-    stop("Assumed we were fitting the model with only the donor_id and months_post_sx variables.
-         This function is not generalizable")
-  }
+find_cutoff_response_time_per_donor <- function(threshold, donor_ids, mod) {
+  # Assumed we were fitting the model with only the donor_id and months_post_sx variables
+  # This function is not generalizable
   # internal cost function
-  cost <- function(par, mod, dat, cutoff) {
-    dat[,"months_post_symptoms"] <- par
+  cost <- function(par, mod, donor_row, threshold) {
+    dat <- tibble::tibble(donor_id = donor_row,
+                          months_post_symptoms = par)
     pred <- fitted(mod, newdata = dat, type = "response")[1, "Estimate"]
-    cost <- (cutoff - pred)^2
+    cost <- (threshold - pred)^2
     return(cost)
   }
-  out <- optim(par = 1, fn = cost, mod = mod, dat = donorrow, cutoff = cutoff,
+  out <- optim(par = 1, fn = cost, mod = mod, donor_row = donor_ids, threshold = threshold,
                method = "L-BFGS-B", lower = .Machine$double.xmin)$par
   return(out)
 }
 
-# split data for run
-donor_id_dat <- tibble::tibble(
-  donor_id = unique(serotime$donor_id),
-  months_post_symptoms = 0)
-donor_id_dat <- split(donor_id_dat, 1:nrow(donor_id_dat))
+# get cutoffs
+post_mods_optim <- dplyr::left_join(post_mods, thresholds, by = "assay") %>%
+  dplyr::select(c("assay", "mod", "donor_ids", "threshold")) %>%
+  tidyr::unnest(cols = "donor_ids") %>%
+  dplyr::ungroup(.)
 
-# run
-serorevert_times <- furrr::future_map_dbl(donor_id_dat, find_cutoff_response_time_per_donor,
-                                          cutoff = 1.4, mod = fit.ln.2)
-serorevert_times <- serorevert_times * 30 # back to days
+post_mods_optim$serorevert_times <- furrr::future_pmap_dbl(post_mods_optim[, c("mod", "donor_ids", "threshold")],
+                                                           find_cutoff_response_time_per_donor)
+# save out
+saveRDS(post_mods_optim, file = "results/sero_reversion/sero_reversion_optim_times_extrapolated.RDS")
+
+
 #............................................................
-# fitdistr
+#---- Fit Distributions #----
 #...........................................................
-wb_fit <- fitdistrplus::fitdist(serorevert_times, distr = "weibull")
-gm_fit <- fitdistrplus::fitdist(serorevert_times, distr = "gamma")
-lg_fit <- fitdistrplus::fitdist(serorevert_times, distr = "lnorm")
-exp_fit <- fitdistrplus::fitdist(serorevert_times, distr = "exp")
+# tidy out
+post_mods_optim_fits <- post_mods_optim %>%
+  dplyr::mutate(serorevert_times = serorevert_times * 30) %>% # convert to days for seroreversion framework
+  dplyr::select(c("assay", serorevert_times)) %>%
+  dplyr::group_by(assay) %>%
+  tidyr::nest(.)
+
+lapply(post_mods_optim_fits$data, summary)
+
+#......................
+# fit
+#......................
+post_mods_optim_fits <- post_mods_optim_fits %>%
+  dplyr::filter(assay == "Abbott") %>% # subset to Abbott which is only one that really decays
+  dplyr::mutate(wb_fit = purrr::map(data, function(x){fitdistrplus::fitdist(x$serorevert_times, distr = "weibull")}),
+                gm_fit = purrr::map(data, function(x){fitdistrplus::fitdist(x$serorevert_times, distr = "gamma")}),
+                lg_fit = purrr::map(data, function(x){fitdistrplus::fitdist(x$serorevert_times, distr = "lnorm")}),
+                exp_fit = purrr::map(data, function(x){fitdistrplus::fitdist(x$serorevert_times, distr = "exp")}))
 
 # compare
-par(mfrow = c(2, 2))
-plot.legend <- c("Weibull", "gamma", "lognormal", "exponential")
-fitdistrplus::denscomp(list(wb_fit, gm_fit, lg_fit, exp_fit), legendtext = plot.legend)
-fitdistrplus::qqcomp(list(wb_fit, gm_fit, lg_fit, exp_fit), legendtext = plot.legend)
-fitdistrplus::cdfcomp(list(wb_fit, gm_fit, lg_fit, exp_fit), legendtext = plot.legend)
-fitdistrplus::ppcomp(list(wb_fit, gm_fit, lg_fit, exp_fit), legendtext = plot.legend)
-# gof stat
-fitdistrplus::gofstat(list(wb_fit, gm_fit, lg_fit, exp_fit),
-        fitnames =  c("Weibull", "gamma", "lognormal", "exponential"))
+compare_fits <- function(wb_fit, gm_fit, lg_fit, exp_fit) {
+  par(mfrow = c(2, 2))
+  plot.legend <- c("Weibull", "gamma", "lognormal", "exponential")
+  fitdistrplus::denscomp(list(wb_fit, gm_fit, lg_fit, exp_fit), legendtext = plot.legend)
+  fitdistrplus::qqcomp(list(wb_fit, gm_fit, lg_fit, exp_fit), legendtext = plot.legend)
+  fitdistrplus::cdfcomp(list(wb_fit, gm_fit, lg_fit, exp_fit), legendtext = plot.legend)
+  fitdistrplus::ppcomp(list(wb_fit, gm_fit, lg_fit, exp_fit), legendtext = plot.legend)
+  # gof stat
+  ret <- fitdistrplus::gofstat(list(wb_fit, gm_fit, lg_fit, exp_fit),
+                               fitnames =  c("Weibull", "gamma", "lognormal", "exponential"))
+  return(ret)
+}
+
+post_mods_optim_fits$gof <- purrr::pmap(post_mods_optim_fits[c("wb_fit", "gm_fit", "lg_fit", "exp_fit")],
+                                        compare_fits)
+
+# save out
+saveRDS(post_mods_optim_fits, file = "results/sero_reversion/sero_reversion_extrapolated_dist_fits.RDS")
+
+
+#......................
 # weibull best
-wb_fit_boot <- fitdistrplus::bootdist(wb_fit, niter = 1e3)
+#......................
+wb_fit_boot <- fitdistrplus::bootdist(post_mods_optim_fits$wb_fit[[1]], niter = 1e3)
 summary(wb_fit_boot)
+mixdist::weibullparinv(shape = wb_fit_boot$fitpart$estimate["shape"],
+                       scale =  wb_fit_boot$fitpart$estimate["scale"])
+
 plot(wb_fit_boot)
 par(mfrow = c(1, 2))
 plot(density(wb_fit_boot$estim$shape))
 plot(density(wb_fit_boot$estim$scale))
-# looks like normal distributions to me
-# just for fun what does the sd look like
-fitdistrplus::fitdist(wb_fit_boot$estim$scale, "norm")
-fitdistrplus::fitdist(wb_fit_boot$estim$shape, "norm")
+# save out
+saveRDS(wb_fit_boot, file = "results/sero_reversion/sero_reversion_abbott_bootstrapped_weibull_params.RDS")
+
