@@ -1297,32 +1297,29 @@ saveRDS(SF_CA.regions.dat, "data/derived/USA/SF_CA1_regions.RDS")
 
 
 
-
-#############################################
-## CARE HOME DATA PROCESSING
-#############################################
-
-
-### Run
+#..................................................................................
+#---- Care Home Data Processing  #-----
+#..................................................................................
+dir.create("data/derived/carehomes/", recursive = TRUE)
 ## DNK
 DNK.agebands_noCH.dat<-remove_ch_deaths(DNK.agebands.dat,"DNK1")
-saveRDS(DNK.agebands_noCH.dat, "data/derived/DNK1/DNK1_agebands_noCH.RDS")
+saveRDS(DNK.agebands_noCH.dat, "data/derived/carehomes/DNK1_agebands_noCH.RDS")
 
 ### ESP1-2
 ESP.agebands_noCH.dat<-remove_ch_deaths(ESP.agebands.dat,"ESP1-2")
-saveRDS(ESP.agebands_noCH.dat, "data/derived/ESP1-2/ESP1-2_agebands_noCH.RDS")
+saveRDS(ESP.agebands_noCH.dat, "data/derived/carehomes/ESP1-2_agebands_noCH.RDS")
 
 ### GBR3
 GBR3.agebands_noCH.dat<-remove_ch_deaths(GBR3.agebands.dat,"GBR3")
-saveRDS(GBR3.agebands_noCH.dat, "data/derived/GBR3/GBR3_agebands_noCH.RDS")
+saveRDS(GBR3.agebands_noCH.dat, "data/derived/carehomes/GBR3_agebands_noCH.RDS")
 
 ### CHE1
 CHE1.agebands_noCH.dat<-remove_ch_deaths(CHE1.agebands.dat,"CHE1")
-saveRDS(CHE1.agebands_noCH.dat, "data/derived/CHE1/CHE1_agebands_noCH.RDS")
+saveRDS(CHE1.agebands_noCH.dat, "data/derived/carehomes/CHE1/CHE1_agebands_noCH.RDS")
 ### CHE2
 CHE2.agebands_noCH.dat<-remove_ch_deaths(CHE2.agebands.dat,"CHE2")
-saveRDS(CHE2.agebands_noCH.dat, "data/derived/CHE2/CHE2_agebands_noCH.RDS")
+saveRDS(CHE2.agebands_noCH.dat, "data/derived/carehomes/CHE2_agebands_noCH.RDS")
 ### NYC_NY_1
 NYC_NY_1.agebands_noCH.dat<-remove_ch_deaths(NYC_NY_1.agebands.dat,"NYC_NY_1")
-saveRDS(NYC_NY_1.agebands_noCH.dat, "data/derived/USA/NYC_NY_1_agebands_noCH.RDS")
+saveRDS(NYC_NY_1.agebands_noCH.dat, "data/derived/carehomes/NYC_NY_1_agebands_noCH.RDS")
 
