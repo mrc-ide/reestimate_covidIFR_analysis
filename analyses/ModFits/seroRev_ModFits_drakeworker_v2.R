@@ -160,7 +160,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 # agebands
 #......................
 rawage <- readRDS("data/derived/DNK1/DNK1_agebands.RDS")
-DNK_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
+DNK_age_mod <- make_IFR_model_fit(num_mas = 4, maxMa = "ma4",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
@@ -228,7 +228,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 # agebands
 #......................
 rawage <- readRDS("data/derived/NLD1/NLD1_agebands.RDS")
-NLD_age_mod <- make_IFR_model_fit(num_mas = 6, maxMa = "ma6",
+NLD_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.67, dsc1 = 0, dsc2 = 16.67),
@@ -257,6 +257,22 @@ ITA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.91, dsc1 = 0, dsc2 = 17.91),
                                   sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
+# fix ITA
+ITAsero <- ITA_age_mod$data$obs_serology
+ITAsero$SeroLCI[1:2] <- rawage$seroprev_group$range_sero_low[1]
+ITAsero$SeroLCI[3] <- rawage$seroprev_group$range_sero_low[2]
+ITAsero$SeroLCI[4] <- mean(rawage$seroprev_group$range_sero_low[2:3])
+ITAsero$SeroLCI[5] <- rawage$seroprev_group$range_sero_low[3]
+ITAsero$SeroLCI[6:7] <- rawage$seroprev_group$range_sero_low[4:5]
+ITAsero$SeroLCI[8:10] <- rawage$seroprev_group$range_sero_low[6]
+ITAsero$SeroUCI[1:2] <- rawage$seroprev_group$range_sero_high[1]
+ITAsero$SeroUCI[3] <- rawage$seroprev_group$range_sero_high[2]
+ITAsero$SeroUCI[4] <- mean(rawage$seroprev_group$range_sero_high[2:3])
+ITAsero$SeroUCI[5] <- rawage$seroprev_group$range_sero_high[3]
+ITAsero$SeroUCI[6:7] <- rawage$seroprev_group$range_sero_high[4:5]
+ITAsero$SeroUCI[8:10] <- rawage$seroprev_group$range_sero_high[6]
+# overwite
+ITA_age_mod$data$obs_serology <- ITAsero
 
 #............................................................
 #---- LUX1 #----
