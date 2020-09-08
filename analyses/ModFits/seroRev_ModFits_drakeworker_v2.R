@@ -27,40 +27,12 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
 # seroreversion weibull scale/shape for various assay
 # (for later rbinds)
 #......................
-pooled <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-                         min  = c(2,                 255),
-                         init = c(4.5,               270),
-                         max =  c(7,                 285),
-                         dsc1 = c(4.5,               272),
-                         dsc2 = c(0.5,               1))
-
 abbott <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-                         min  = c(2,                 255),
-                         init = c(4.5,               270),
-                         max =  c(7,                 285),
-                         dsc1 = c(4.5,               272),
-                         dsc2 = c(0.5,               1))
-
-# roche <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-#                         min  = c(2,                 255),
-#                         init = c(4.5,               270),
-#                         max =  c(7,                 285),
-#                         dsc1 = c(4.5,               272),
-#                         dsc2 = c(0.5,               1))
-#
-# siemens <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-#                           min  = c(2,                 255),
-#                           init = c(4.5,               270),
-#                           max =  c(7,                 285),
-#                           dsc1 = c(4.5,               272),
-#                           dsc2 = c(0.5,               1))
-#
-# diasorin <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-#                            min  = c(2,                 255),
-#                            init = c(4.5,               270),
-#                            max =  c(7,                 285),
-#                            dsc1 = c(4.5,               272),
-#                            dsc2 = c(0.5,               1))
+                         min  = c(2,                 215),
+                         init = c(3.5,               245),
+                         max =  c(5,                 275),
+                         dsc1 = c(3.1,               246),
+                         dsc2 = c(0.25,              8.75))
 
 
 #............................................................
@@ -72,7 +44,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(850.5,   990.5),
                                 dsc2 =  c(150.5,    10.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # regions
@@ -102,7 +74,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(447.5,   515.5),
                                 dsc2 =  c(80.5,    5.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # basic
@@ -124,7 +96,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(447.5,   515.5),
                                 dsc2 =  c(80.5,    5.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # basic
@@ -146,7 +118,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(156.5,   176.5),
                                 dsc2 =  c(25.5,    0.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # agebands
@@ -168,7 +140,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(49.5,   5497.5),
                                 dsc2 =  c(5.5,    6.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # agebands
@@ -190,7 +162,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(128.5,   648.5),
                                 dsc2 =  c(27.5,    3.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # regions
@@ -223,7 +195,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 dsc2 =  c(30.5,    0.5))
 # https://www.thelancet.com/cms/10.1016/S0140-6736(20)31483-5/attachment/25c80941-a8c5-470e-a6a8-fde7397b9547/mmc1.pdf
 # based on supp table 3
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # regions
@@ -256,7 +228,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(38.5,   493.5),
                                 dsc2 =  c(10.5,    7.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # regions
@@ -288,7 +260,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(171.5,   281.5),
                                 dsc2 =  c(3.5,     1.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # agebands
@@ -342,7 +314,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(12.5,    181.5),
                                 dsc2 =  c(2.5,     4.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # agebands
@@ -363,7 +335,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(27.5,    30.5),
                                 dsc2 =  c(10.5,    0.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # agebands
@@ -385,7 +357,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(204.5,   92.5),
                                 dsc2 =  c(30.5,    0.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # agebands
@@ -427,7 +399,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(91.5,    198.5),
                                 dsc2 =  c(14.5,    4.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # agebands
@@ -449,7 +421,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(15.5,    901.5),
                                 dsc2 =  c(3.4,     9.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, pooled)
+sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # agebands
