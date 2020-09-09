@@ -1315,7 +1315,7 @@ saveRDS(GBR3.agebands_noCH.dat, "data/derived/carehomes/GBR3_agebands_noCH.RDS")
 
 ### CHE1
 CHE1.agebands_noCH.dat<-remove_ch_deaths(CHE1.agebands.dat,"CHE1")
-saveRDS(CHE1.agebands_noCH.dat, "data/derived/carehomes/CHE1/CHE1_agebands_noCH.RDS")
+saveRDS(CHE1.agebands_noCH.dat, "data/derived/carehomes/CHE1_agebands_noCH.RDS")
 ### CHE2
 CHE2.agebands_noCH.dat<-remove_ch_deaths(CHE2.agebands.dat,"CHE2")
 saveRDS(CHE2.agebands_noCH.dat, "data/derived/carehomes/CHE2_agebands_noCH.RDS")
