@@ -310,23 +310,6 @@ get_preds <- function(mod, newdat) {
 }
 post_mods$preds <- purrr::pmap(post_mods[, c("mod", "newdat")], get_preds)
 
-# plot out
-PredPlotObj <- post_mods %>%
-  dplyr::select(c("assay", "preds")) %>%
-  tidyr::unnest(cols = "preds") %>%
-  dplyr::ungroup(.) %>%
-  ggplot() +
-  geom_line(aes(x = months_post_symptoms, y = Estimate, group = factor(donor_id)), alpha = 0.8, color = "#bdbdbd") +
-  geom_line(data = sero_sub_final, aes(x = months_post_symptoms, y = titres,
-                                       group = donor_id, color = assay), alpha = 0.5) +
-  scale_color_manual("Assay", values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
-  facet_wrap(~assay, scales = "free_y") +
-  xyaxis_plot_theme +
-  ylab("Pred Titres") +
-  xlab("Months Post-Sxs")
-
-jpgsnapshot(plot = PredPlotObj, outpath = "figures/Seroreversion_posterior_interpolations.jpg")
-
 # save out
 saveRDS(post_mods, file = "results/sero_reversion/Seroreversion_posterior_interpolations.RDS")
 
