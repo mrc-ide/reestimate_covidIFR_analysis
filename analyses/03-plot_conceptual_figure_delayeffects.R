@@ -15,8 +15,8 @@ source("R/my_themes.R")
 # read results in
 #...........................................................
 dat_map <- tibble::tibble(lvl = c("reg", "serorev"),
-                            mod = c("data/param_map/Fig1_ConceptualFits/reg_mod_rung50_burn10000_smpl10000.RDS",
-                                    "data/param_map/Fig1_ConceptualFits/serorev_mod_rung50_burn10000_smpl10000.RDS")) %>%
+                          mod = c("data/param_map/Fig1_ConceptualFits/reg_mod_rung50_burn10000_smpl10000.RDS",
+                                  "data/param_map/Fig1_ConceptualFits/serorev_mod_rung50_burn10000_smpl10000.RDS")) %>%
   dplyr::mutate(mod = purrr::map(mod, readRDS)) %>%
   tidyr::unnest(cols = mod)
 
@@ -202,7 +202,8 @@ popN <- param_map$modelobj[[1]]$demog$popN # only one strata
 #......................
 # tidy up and combine
 #......................
-cuminxns <-  param_map$infxns[[1]] %>%
+cuminxns <-  tibble::tibble(time = 1:length(param_map$infxns[[1]]),
+                            infxns = param_map$infxns[[1]])%>%
   dplyr::mutate(cumincidence = cumsum(infxns)/popN) %>%
   dplyr::select(-c("infxns"))
 
@@ -231,6 +232,7 @@ datdf <- dplyr::left_join(cumdeaths, cuminxns, by = "time") %>%
 
 # long
 plotdatdf <- datdf %>%
+  dplyr::select(-c("Deaths")) %>%
   tidyr::pivot_longer(., cols = -c("time"), names_to = "datlevel", values_to = "prop") %>%
   dplyr::mutate(datlevel = factor(datlevel,
                                   levels = c("cumincidence", "cumDeaths",
@@ -239,25 +241,25 @@ plotdatdf <- datdf %>%
                                              "Deaths",
                                              "True Seroprev.", "Obs. Seroprev.",
                                              "Obs. Serorev."
-                                             )))
+                                  )))
 
 #......................
 # labels and arrows
 #......................
 arrows <- tibble::tibble(
   lvl =  c("mod", "serocon", "sens", "spec", "serorev"),
-  x =    c(112,    147,       250,    10,     290),
-  xend = c(160,    170.5,     250,    10,     290),
-  y =    c(0.1,    0.5,       0.71,   0,      0.72),
-  yend = c(0.1,    0.5,       0.625,  0.05,   0.62)
+  x =    c(94.5,    139,       250,    10,     290),
+  xend = c(147,    161,     250,    10,     290),
+  y =    c(0.03,    0.4,       0.715,   0,      0.725),
+  yend = c(0.03,    0.4,       0.615,  0.05,   0.52)
 )
 
 
 labels <- tibble::tibble(
   lvl =    c("mod",       "serocon",    "sens",    "spec",  "serorev"),
   label =  c("O-D Delay", "O-S Delay",  "Sens.",   "Spec.",  "O-R Delay"),
-  x =      c(185,          195,          265,       12,       220),
-  y =      c(0.1,          0.5,         0.6675,    0.07,      0.55),
+  x =      c(178,          193,          230,       12,       280),
+  y =      c(0.02,          0.4,         0.6675,    0.07,      0.5),
 )
 
 
@@ -292,11 +294,13 @@ delay_plotObj <- plotdatdf %>%
         panel.border = element_blank(),
         axis.line = element_line(color = "#000000", size = 1))
 
+
+
 #............................................................
 #----- Inset with Posteriors #-----
 #...........................................................
-true_incidence <- param_map$infxns[[1]] %>%
-  dplyr::filter(infxns != -1) %>%  # remove missing
+true_incidence <- tibble::tibble(time = 1:length(param_map$infxns[[1]]),
+                                 infxns = param_map$infxns[[1]]) %>%
   dplyr::mutate(incidence = infxns/popN)
 
 infxninset_plotObj <- ggplot() +
@@ -319,7 +323,7 @@ infxninset_plotObj <- ggplot() +
 #......................
 (toprow <- cowplot::ggdraw() +
     cowplot::draw_plot(delay_plotObj, x = 0, y = 0, width = 1, height = 1, scale = 1) +
-    cowplot::draw_plot(infxninset_plotObj, x = 0.085, y= 0.65, width = 0.3, height = 0.3))
+    cowplot::draw_plot(infxninset_plotObj, x = 0.095, y= 0.65, width = 0.25, height = 0.25))
 
 #......................
 # bottom row
@@ -337,10 +341,10 @@ bottomrow <- cowplot::plot_grid(no_serorev_infIFR_plotObj, serorev_infIFR_plotOb
 # bring together
 #......................
 (mainfig <- cowplot::plot_grid(toprow, bottomrow, labels = c("(A)", ""),
-                              nrow = 2, rel_heights = c(1, 0.6)))
+                               nrow = 2, rel_heights = c(1, 0.6)))
 
 dir.create("figures/final_figures/", recursive = TRUE)
-jpeg("figures/final_figures/Fig1.jpg",
+jpeg("figures/final_figures/Fig_concept_diagram.jpg",
      height = 9, width = 8, units = "in", res = 500)
 plot(mainfig)
 graphics.off()

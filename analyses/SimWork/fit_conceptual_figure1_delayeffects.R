@@ -16,8 +16,13 @@ source("R/my_themes.R")
 #...........................................................
 infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
 interveneflat <- infxn_shapes$intervene
+# note need more infxns for sensitivity to be apparent on conceptual diagrams
+interveneflat <- interveneflat * 3
 interveneflat <- c(interveneflat, round(seq(from = interveneflat[200],
                                       to = 10, length.out = 100)))
+
+
+
 #............................................................
 # setup fatality data
 #............................................................
