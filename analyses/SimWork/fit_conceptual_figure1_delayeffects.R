@@ -72,12 +72,14 @@ obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::filter(ObsDay %in% sero_day) %>%
   dplyr::mutate(
     SeroPos = round(ObsPrev * testedN),
-    SeroN = testedN ) %>%
+    SeroN = testedN,
+    SeroLCI = NA,
+    SeroUCI = NA) %>%
   dplyr::rename(
     SeroPrev = ObsPrev) %>%
   dplyr::mutate(SeroStartSurvey = sero_day - 5,
                 SeroEndSurvey = sero_day + 5) %>%
-  dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
+  dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
   dplyr::ungroup(.) %>%
   dplyr::arrange(SeroStartSurvey, Strata)
 
@@ -104,14 +106,16 @@ obs_serology <- serorev_dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay == sero_day) %>%
   dplyr::mutate(
-    SeroPos = round(ObsPrev * popN),
-    SeroN = popN ) %>%
+    SeroPos = round(ObsPrev * testedN),
+    SeroN = testedN,
+    SeroLCI = NA,
+    SeroUCI = NA) %>%
   dplyr::rename(
     SeroDay = ObsDay,
     SeroPrev = ObsPrev) %>%
   dplyr::mutate(SeroStartSurvey = sero_day - 5,
                 SeroEndSurvey = sero_day + 5) %>%
-  dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
+  dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
   dplyr::ungroup(.) %>%
   dplyr::arrange(SeroStartSurvey, Strata)
 
@@ -218,7 +222,7 @@ bvec <- seq(5, 3.5, length.out = 50)
 
 fit_map <- tibble::tibble(
   name = c("reg_mod", "serorev_mod"),
-  infxns = list(infxns, NULL), # Null sinse same infections
+  infxns = list(interveneflat, NULL), # Null sinse same infections
   simdat = list(dat, serorev_dat),
   modelobj = list(mod1_reg, mod1_serorev),
   rungs = 50,
@@ -259,7 +263,7 @@ run_MCMC <- function(path) {
 
   cl <- parallel::makeCluster(mkcores)
 
-  fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod$modelobj[[1]],
+  fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = FALSE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,

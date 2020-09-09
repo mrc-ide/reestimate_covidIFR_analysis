@@ -78,12 +78,14 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     dplyr::filter(ObsDay %in% sero_day) %>%
     dplyr::mutate(
       SeroPos = round(ObsPrev * testedN),
-      SeroN = testedN ) %>%
+      SeroN = testedN,
+      SeroLCI = NA,
+      SeroUCI = NA) %>%
     dplyr::rename(
       SeroPrev = ObsPrev) %>%
     dplyr::mutate(SeroStartSurvey = sero_day - 5,
                   SeroEndSurvey = sero_day + 5) %>%
-    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
+    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
     dplyr::ungroup(.) %>%
     dplyr::arrange(SeroStartSurvey, Strata)
 
@@ -169,8 +171,7 @@ map$modelobj <-  purrr::pmap(map[,c("nm", "curve", "inputdata", "sens_spec_tbl",
 # names
 #......................
 fit_map <- map %>%
-  dplyr::mutate(sim = paste0("sim", 1:nrow(.)),
-                nm = purrr::map_chr(curve, function(x){unique(x$nm)})) %>%
+  dplyr::mutate(sim = paste0("sim", 1:nrow(.))) %>%
   dplyr::select(c("sim", "nm", dplyr::everything()))
 
 
@@ -209,7 +210,7 @@ run_MCMC <- function(path) {
   }
 
   cl <- parallel::makeCluster(mkcores)
-  fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod$modelobj[[1]],
+  fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,

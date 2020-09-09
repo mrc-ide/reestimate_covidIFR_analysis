@@ -50,12 +50,11 @@ sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
 # carehomes
 #......................
 rawch <- readRDS("data/derived/carehomes/CHE1_agebands_noCH.RDS")
-CHE1_carehome_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
+CHE1_carehomes_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                         groupvar = "ageband",  dat = rawch,
                                         num_xs = 4, max_xveclist = list("name" = "x4", min = 134, init = 140, max = 146, dsc1 = 134, dsc2 = 146),
                                         num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.12, dsc1 = 0, dsc2 = 13.12),
                                         sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
-
 
 #............................................................
 #---- CHE2 #-----
@@ -72,12 +71,11 @@ sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
 # carehomes
 #......................
 rawch <- readRDS("data/derived/carehomes/CHE2_agebands_noCH.RDS")
-CHE2_carehome_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
+CHE2_carehomes_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                         groupvar = "ageband",  dat = rawch,
                                         num_xs = 4, max_xveclist = list("name" = "x4", min = 199, init = 206, max = 213, dsc1 = 199, dsc2 = 213),
                                         num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14.24, dsc1 = 0, dsc2 = 14.24),
                                         sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
-
 
 #............................................................
 #---- DNK1 #-----
@@ -99,7 +97,6 @@ DNK_carehomes_mod <- make_IFR_model_fit(num_mas = 2, maxMa = "ma2",
                                         num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                         num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
                                         sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
-
 
 #............................................................
 #---- ESP1-2 #-----
@@ -126,6 +123,7 @@ ESP_carehomes_mod <- make_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                         sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
 
 
+
 #...........................................................
 #---- GBR3 #-----
 #...........................................................
@@ -147,8 +145,6 @@ GBR3_carehomes_mod <- make_IFR_model_fit(num_mas = 3, maxMa = "ma3",
                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 206, init = 210, max = 213, dsc1 = 199, dsc2 = 213),
                                          num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
                                          sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
-
-
 
 #............................................................
 #---- New York City #----
@@ -227,7 +223,7 @@ run_MCMC <- function(path) {
 
   cl <- parallel::makeCluster(mkcores)
 
-  fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod$modelobj[[1]],
+  fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,

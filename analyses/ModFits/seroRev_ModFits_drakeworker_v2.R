@@ -239,18 +239,18 @@ NLD_age_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
 #............................................................
 #---- ITA1 #----
 #...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec", "sero_rate"),
-                                min =   c(0.50,    0.50,     10),
-                                init =  c(0.85,    0.99,     15),
-                                max =   c(1.00,    1.00,     30),
-                                dsc1 =  c(90.5,   95.5,      2.8),
-                                dsc2 =  c(10.5,     5.5,      0.1))
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.85,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(90.5,   95.5),
+                                dsc2 =  c(10.5,     5.5))
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # agebands
 #......................
-rawage <- readRDS("data/derived/ITA/ITA_agebands.RDS")
+rawage <- readRDS("data/derived/ITA1/ITA1_agebands.RDS")
 ITA_age_mod <- make_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                   groupvar = "ageband",  dat = rawage,
                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),

@@ -104,12 +104,15 @@ serotime %>%
 #......................
 # data wrangling for modeling
 #......................
+# subsetting just to the abbott assay
+serotime <- serotime %>%
+  dplyr::filter(assay == "Abbott")
 # must have at least three timepoints (since can fit any line through two)
 sero_nobs <- serotime %>%
   dplyr::filter(!is.na(days_post_symptoms)) %>%
-  dplyr::group_by(donor_id, assay) %>%
+  dplyr::group_by(donor_id) %>%
   dplyr::summarise(nobs = sum(!is.na(titres)))
-sero_sub <- dplyr::left_join(serotime, sero_nobs, by = c("donor_id", "assay")) %>%
+sero_sub <- dplyr::left_join(serotime, sero_nobs, by = c("donor_id")) %>%
   dplyr::filter(nobs >= 3) %>%
   dplyr::select(-c("nobs"))
 
@@ -263,37 +266,7 @@ brms::model_weights(sero_sub_mods$mod[[1]], sero_sub_mods$mod[[2]],
                     weights = "waic") %>%
   round(digits = 2)
 
-# diasorin
-brms::loo_compare(sero_sub_mods$mod[[4]], sero_sub_mods$mod[[5]],
-                  sero_sub_mods$mod[[6]],
-                  criterion = "loo") %>%
-  print(simplify = F)
-brms::model_weights(sero_sub_mods$mod[[4]], sero_sub_mods$mod[[5]],
-                    sero_sub_mods$mod[[6]],
-                    weights = "waic") %>%
-  round(digits = 2)
-
-# siemens
-brms::loo_compare(sero_sub_mods$mod[[7]], sero_sub_mods$mod[[8]],
-                  sero_sub_mods$mod[[9]],
-                  criterion = "loo") %>%
-  print(simplify = F)
-brms::model_weights(sero_sub_mods$mod[[7]], sero_sub_mods$mod[[8]],
-                    sero_sub_mods$mod[[9]],
-                    weights = "waic") %>%
-  round(digits = 2)
-
-# diasorin
-brms::loo_compare(sero_sub_mods$mod[[10]], sero_sub_mods$mod[[11]],
-                  sero_sub_mods$mod[[12]],
-                  criterion = "loo") %>%
-  print(simplify = F)
-brms::model_weights(sero_sub_mods$mod[[10]], sero_sub_mods$mod[[11]],
-                    sero_sub_mods$mod[[12]],
-                    weights = "waic") %>%
-  round(digits = 2)
-
-# all models favor RE w/ symptoms (no surprise)
+#  models favor RE w/ symptoms (no surprise)
 
 # save out
 saveRDS(sero_sub_mods, file = "results/sero_reversion/sero_reversion_model_fits.RDS")
