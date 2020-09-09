@@ -532,7 +532,7 @@ remove_ch_deaths<-function(agebands.dat, study_id) {
     dplyr::group_by(ageband2) %>%
     dplyr::summarise(death_num=sum(death_num),
                      death_denom=mean(death_denom)) %>%
-    dplyr::mutate(ch_deaths = round(death_denom*deaths_ch$percent_deaths[inds])/100,
+    dplyr::mutate(ch_deaths = round(death_denom*deaths_ch$percent_deaths[inds]/100),
                   death_prop=NA,
                   prop_chd_oldest=ifelse(ageband2==new_age$ageband2[nrow(new_age)],ch_deaths/death_num,0),
                   death_num=ifelse(ageband2==new_age$ageband2[nrow(new_age)],death_num-ch_deaths,death_num),
