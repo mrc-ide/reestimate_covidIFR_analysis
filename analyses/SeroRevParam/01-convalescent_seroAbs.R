@@ -104,12 +104,15 @@ serotime %>%
 #......................
 # data wrangling for modeling
 #......................
+# subsetting just to the abbott assay
+serotime <- serotime %>%
+  dplyr::filter(assay == "Abbott")
 # must have at least three timepoints (since can fit any line through two)
 sero_nobs <- serotime %>%
   dplyr::filter(!is.na(days_post_symptoms)) %>%
-  dplyr::group_by(donor_id, assay) %>%
+  dplyr::group_by(donor_id) %>%
   dplyr::summarise(nobs = sum(!is.na(titres)))
-sero_sub <- dplyr::left_join(serotime, sero_nobs, by = c("donor_id", "assay")) %>%
+sero_sub <- dplyr::left_join(serotime, sero_nobs, by = c("donor_id")) %>%
   dplyr::filter(nobs >= 3) %>%
   dplyr::select(-c("nobs"))
 
@@ -181,6 +184,10 @@ sero_sub_final %>%
   facet_wrap(~assay, scales = "free_y") +
   ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") + ggtitle("Final Included") +
   xyaxis_plot_theme
+
+# save out
+dir.create("results/sero_reversion/", recursive = T)
+saveRDS(sero_sub_final, file = "results/sero_reversion/sero_reversion_incld_data.RDS")
 
 
 #......................
@@ -259,40 +266,9 @@ brms::model_weights(sero_sub_mods$mod[[1]], sero_sub_mods$mod[[2]],
                     weights = "waic") %>%
   round(digits = 2)
 
-# diasorin
-brms::loo_compare(sero_sub_mods$mod[[4]], sero_sub_mods$mod[[5]],
-                  sero_sub_mods$mod[[6]],
-                  criterion = "loo") %>%
-  print(simplify = F)
-brms::model_weights(sero_sub_mods$mod[[4]], sero_sub_mods$mod[[5]],
-                    sero_sub_mods$mod[[6]],
-                    weights = "waic") %>%
-  round(digits = 2)
-
-# siemens
-brms::loo_compare(sero_sub_mods$mod[[7]], sero_sub_mods$mod[[8]],
-                  sero_sub_mods$mod[[9]],
-                  criterion = "loo") %>%
-  print(simplify = F)
-brms::model_weights(sero_sub_mods$mod[[7]], sero_sub_mods$mod[[8]],
-                    sero_sub_mods$mod[[9]],
-                    weights = "waic") %>%
-  round(digits = 2)
-
-# diasorin
-brms::loo_compare(sero_sub_mods$mod[[10]], sero_sub_mods$mod[[11]],
-                  sero_sub_mods$mod[[12]],
-                  criterion = "loo") %>%
-  print(simplify = F)
-brms::model_weights(sero_sub_mods$mod[[10]], sero_sub_mods$mod[[11]],
-                    sero_sub_mods$mod[[12]],
-                    weights = "waic") %>%
-  round(digits = 2)
-
-# all models favor RE w/ symptoms (no surprise)
+#  models favor RE w/ symptoms (no surprise)
 
 # save out
-dir.create("results/sero_reversion/", recursive = T)
 saveRDS(sero_sub_mods, file = "results/sero_reversion/sero_reversion_model_fits.RDS")
 
 #......................
@@ -351,6 +327,9 @@ PredPlotObj <- post_mods %>%
 
 jpgsnapshot(plot = PredPlotObj, outpath = "figures/Seroreversion_posterior_interpolations.jpg")
 
+# save out
+saveRDS(post_mods, file = "results/sero_reversion/Seroreversion_posterior_interpolations.RDS")
+
 
 
 #............................................................
@@ -382,7 +361,8 @@ post_mods_optim <- dplyr::left_join(post_mods, thresholds, by = "assay") %>%
   dplyr::ungroup(.)
 
 post_mods_optim$serorevert_times <- furrr::future_pmap_dbl(post_mods_optim[, c("mod", "donor_ids", "threshold")],
-                                                           find_cutoff_response_time_per_donor)
+                                                           find_cutoff_response_time_per_donor) %>%
+  dplyr::select(c("donor_ids", "serorevert_times"))
 # save out
 saveRDS(post_mods_optim, file = "results/sero_reversion/sero_reversion_optim_times_extrapolated.RDS")
 
@@ -445,3 +425,8 @@ plot(density(wb_fit_boot$estim$scale))
 # save out
 saveRDS(wb_fit_boot, file = "results/sero_reversion/sero_reversion_abbott_bootstrapped_weibull_params.RDS")
 
+# for priors
+summary(wb_fit_boot$estim$shape)
+sd(wb_fit_boot$estim$shape)
+summary(wb_fit_boot$estim$scale)
+sd(wb_fit_boot$estim$scale)

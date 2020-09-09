@@ -4,24 +4,6 @@
 ## Notes:
 #................................................................................................
 #......................
-# discrete colors inspired by https://www.schemecolor.com/
-#......................
-discrete_colors <- c("#CB00FF", # vivid orchid
-                     "#E59500", # harvest gold
-                     "#002642", # oxford blue
-                     "#761EF8", # electric indigo
-                     "#3EF944", # neon green
-                     "#F61843", # crayola red
-                     "#271F8E", # Cosmic Cobalt
-                     "#5945AA", # plump purple
-                     "#82AA96", # morning blue-green
-                     "#66678E", # Dark Blue-Gray
-                     "#840032", # burgundy
-                     "#895B51" # spicy mix brown
-                     )
-
-
-#......................
 # setup
 #......................
 library(tidyverse)
@@ -29,25 +11,23 @@ source("R/crude_plot_summ.R")
 source("R/my_themes.R")
 source("R/extra_plotting_functions.R")
 dir.create("figures/descriptive_figures/", recursive = TRUE)
-deaths_ch <- readr::read_csv("data/raw/care_home_deaths.csv")
 
 write2file<-F
 
 #............................................................
-# read in data map
+#---- Read in and Wrangle Data #----
 #...........................................................
+# colors
+study_cols <- readr::read_csv("data/plot_aesthetics/color_studyid_map.csv")
+mycolors <- study_cols$cols
+names(mycolors) <- study_cols$study_id
+
+# care homes
+deaths_ch <- readr::read_csv("data/raw/care_home_deaths.csv")
+# data map
 datmap <- readxl::read_excel("data/derived/derived_data_map.xlsx")
 datmap <- datmap %>%
   dplyr::mutate(data = purrr::map(relpath, readRDS))
-
-## assign constant colours to each study
-study_cols<-data.frame(study_id=unique(datmap$study_id[datmap$care_home_deaths=="yes"]), study_cols=discrete_colors[1:length(unique(datmap$study_id[datmap$care_home_deaths=="yes"]))])
-study_cols<-left_join(study_cols, select(datmap,study_id,country),by="study_id")
-#fix colours in care home data
-cols_ch<-study_cols %>%
-  dplyr::filter(study_id %in% deaths_ch$study_id) %>%
-  dplyr::mutate(study_id=paste0(study_id,"_nch"))
-study_cols<-rbind(study_cols,cols_ch)
 
 #......................
 # wrangle & extract sero data
@@ -89,11 +69,12 @@ saveRDS(datmap, file = "data/derived/descriptive_results_datamap.RDS")
 
 
 #............................................................
-# Age Bands Plots/Descriptions
+#---- Age Bands Plots/Descriptions #----
+#...........................................................
 #...........................................................
 # GBR4 Jersey, GBR2 Scotland, SF_CA - no age data or too early in epidemic to have age data.
 # LA_CA1, GBR2 TODO
-#-------------------------------------------------------
+#...........................................................
 ageplotdat <- datmap %>%
   dplyr::filter(breakdown == "ageband") %>%
   dplyr::select(c("study_id","care_home_deaths", "plotdat")) %>%
@@ -359,10 +340,9 @@ age_std_daily_deaths_plot <- ageplotdat %>%
 if(write2file) jpgsnapshot(outpath = "figures/descriptive_figures/age_std_daily_deaths_plot.jpg",
             plot = age_std_daily_deaths_plot)
 
-
 #............................................................
-# Regional Plots/Descriptions
-#............................................................
+#----  Regional Plots/Descriptions #----
+#...........................................................
 rgnplotdat <- datmap %>%
   dplyr::filter(breakdown == "region" & care_home_deaths=="yes") %>%
   dplyr::select(c("study_id", "plotdat")) %>%
@@ -485,7 +465,7 @@ std_deaths_seroplot <- std_deaths_seroplotdat %>%
   geom_point(aes(x = seroprevadj, y = std_cum_deaths, fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
   scale_fill_manual(values = col_vec, name = "study_id") +
   xlab("Adjusted Seroprevalence (%).") + ylab("Cumulative Deaths per Million") +
-#  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
+  #  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
   xyaxis_plot_theme
 if(write2file) ggsave(filename = "results/descriptive_figures/std_deaths_rgn_seroplot.tiff", plot = std_deaths_seroplot, width = 7, height = 5)
 
@@ -624,6 +604,118 @@ ifr0<-full_join(ifr0,prop_deaths_70,by="study_id")
 par(mfrow=c(1,1))
 plot(ifr0$prop_pop,ifr0$ifr*100,ylab="IFR (%)",xlab="proportion of population over 80",pch=19)
 
-## TODO add England back to this plot
-ifr_prop_plot<-filter(ifr0,study_id!="GBR3" & study_id!="NYC_NY_1")
-plot(ifr_prop_plot$prop_deaths_std,ifr_prop_plot$ifr*100,ylab="IFR (%)",xlab="proportion of deaths in 70+",pch=19)
+
+#............................................................
+#---- Figure 1 #----
+#...........................................................
+datmap <- readRDS("data/derived/descriptive_results_datamap.RDS")
+# SeroPrevalences by age portion
+SeroPrevPlotDat <- datmap %>%
+  dplyr::filter(breakdown == "ageband") %>%
+  dplyr::filter(!grepl("_nch", study_id)) %>%
+  dplyr::select(c("study_id", "seroprev_adjdat")) %>%
+  tidyr::unnest(cols = "seroprev_adjdat") %>%
+  dplyr::left_join(., study_cols, by="study_id")
+
+# filter to latest date if multiple serosurveys
+SeroPrevPlotDat <- SeroPrevPlotDat %>%
+  dplyr::group_by(study_id, ageband) %>%
+  dplyr::filter(obsdaymax == max(obsdaymax))
+
+# add uncertainty in raw seroprevalence based on binomial
+SeroPrevPlotDat <- SeroPrevPlotDat %>%
+  dplyr::filter(!is.na(n_positive)) %>%
+  dplyr::filter(!is.na(n_tested)) %>%
+  dplyr::mutate(crude_seroprev_obj = purrr::map2(n_positive, n_tested, .f = function(x,n){ binom.test(x,n) }),
+                crude_seroprev_CI = purrr::map(crude_seroprev_obj, "conf.int"),
+                crude_seroprevLCI = purrr::map_dbl(crude_seroprev_CI, function(x){x[[1]]}),
+                crude_seroprevUCI = purrr::map_dbl(crude_seroprev_CI, function(x){x[[2]]}),
+                crude_seroprev = purrr::map_dbl(crude_seroprev_obj, "estimate"))
+# plot out part A
+FigA <- SeroPrevPlotDat %>%
+  dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,1]),
+                age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,2]),
+                age_high = ifelse(age_high == 999, 100, age_high),
+                age_mid = (age_high + age_low)/2) %>%
+  ggplot() +
+  geom_pointrange(aes(x = age_mid, y = crude_seroprev, ymin = crude_seroprevLCI, ymax = crude_seroprevUCI,
+                      color = study_id)) +
+  geom_line(aes(x = age_mid, y = seroprev, color = study_id),
+            alpha = 0.8, size = 1.2, show.legend = F) +
+  scale_color_manual("Study ID", values = mycolors) +
+  xlab("Age (yrs).") + ylab("Raw Seroprevalence (%)") +
+  xyaxis_plot_theme +
+  theme(legend.position = "bottom") +
+  theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+
+#......................
+# SeroReversion Portion
+#......................
+# posterior predictions
+sero_sub_final <- readRDS("results/sero_reversion/sero_reversion_incld_data.RDS") %>%
+  dplyr::filter(assay == "Abbott") %>%
+  dplyr::mutate(days_post_symptoms = months_post_symptoms * 30)
+post_mods <- readRDS("results/sero_reversion/Seroreversion_posterior_interpolations.RDS")
+
+FigB <- post_mods %>%
+  dplyr::ungroup(.) %>%
+  dplyr::filter(assay == "Abbott") %>%
+  dplyr::select("preds") %>%
+  tidyr::unnest(cols = "preds") %>%
+  dplyr::ungroup(.) %>%
+  dplyr::mutate(days_post_symptoms = months_post_symptoms * 30) %>%
+  ggplot() +
+  geom_line(aes(x = days_post_symptoms, y = Estimate, group = factor(donor_id)),
+            alpha = 0.8, color = "#bdbdbd") +
+  geom_line(data = sero_sub_final, aes(x = days_post_symptoms, y = titres, group = donor_id),
+            color = "#3182bd", alpha = 0.9, size = 0.4) +
+  xyaxis_plot_theme +
+  ylab("Abbott S/C Titres") +
+  xlab("Post-Symptoms (Days)") +
+  theme(plot.margin = unit(c(0.05, 0.05, 1.5, 1),"cm"))
+
+# weibull distribution
+post_mods_optim <- readRDS("results/sero_reversion/sero_reversion_optim_times_extrapolated.RDS") %>%
+  dplyr::filter(assay == "Abbott") %>%
+  dplyr::select(c("donor_ids", "serorevert_times")) %>%
+  dplyr::mutate(serorevert_times = serorevert_times * 30)
+wb_fit_boot <- readRDS("results/sero_reversion/sero_reversion_abbott_bootstrapped_weibull_params.RDS")
+# get wb_fit draws
+wbfits <- tibble::tibble(shape = wb_fit_boot$estim$shape,
+                         scale = wb_fit_boot$estim$scale) %>%
+  dplyr::mutate(draws = purrr::map2(.x = shape, .y = scale, function(x, y){
+    ret <- dweibull(x = seq(0, 400),
+                    shape = x, scale = y)
+    ret <- cbind.data.frame(time = seq(0, 400),
+                            dwb = ret)
+    return(ret)
+  })) %>%
+  dplyr::mutate(iter = 1:nrow(.)) %>%
+  tidyr::unnest(cols = "draws")
+
+# fig out
+FigC <- ggplot() +
+  geom_histogram(data = post_mods_optim,
+                 aes(x = serorevert_times, y = ..density..),
+                 fill = "#3182bd", alpha = 0.9) +
+  geom_line(data = wbfits,
+            aes(x = time, y = dwb, group = iter),
+            size = 0.1, alpha = 0.4, color = "#bdbdbd") +
+  xyaxis_plot_theme +
+  ylab("Density") +
+  xlab("Seroreversion Times (Days)") +
+  theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+
+# bring together
+rght <- cowplot::plot_grid(FigB, FigC,
+                           ncol = 1, nrow = 2, align = "v",
+                           labels = c("(B)", "(C)"))
+
+mainFig <- cowplot::plot_grid(FigA, rght,
+                              ncol = 2, nrow = 1,
+                              labels = c("(A)", ""))
+
+jpeg("figures/final_figures/Fig1_dscdat.jpg",
+     width = 11, height = 8, units = "in", res = 500)
+plot(mainFig)
+graphics.off()

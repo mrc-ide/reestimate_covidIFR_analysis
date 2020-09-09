@@ -78,12 +78,14 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     dplyr::filter(ObsDay %in% sero_day) %>%
     dplyr::mutate(
       SeroPos = round(ObsPrev * testedN),
-      SeroN = testedN ) %>%
+      SeroN = testedN,
+      SeroLCI = NA,
+      SeroUCI = NA) %>%
     dplyr::rename(
       SeroPrev = ObsPrev) %>%
     dplyr::mutate(SeroStartSurvey = sero_day - 5,
                   SeroEndSurvey = sero_day + 5) %>%
-    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
+    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
     dplyr::ungroup(.) %>%
     dplyr::arrange(SeroStartSurvey, Strata)
 
@@ -107,11 +109,11 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_day = 150)
 # sens/spec
 get_sens_spec_tbl <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",        "sero_rev_shape",    "sero_rev_scale"),
-                 min =   c(0.5,              0.5,           2,                   190),
-                 init =  c(0.9,              0.99,          4.5,                 200),
-                 max =   c(1,                1,             7,                   210),
-                 dsc1 =  c(sens*1e3,        spec*1e3,       4.5,                 200),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 0.5,                 1))
+                 min =   c(0.5,              0.5,           2,                   215),
+                 init =  c(0.9,              0.99,          3.5,                 245),
+                 max =   c(1,                1,             5,                   275),
+                 dsc1 =  c(sens*1e3,        spec*1e3,       3.1,                 246),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 0.25,                8.75))
 
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec_tbl)
@@ -169,8 +171,7 @@ map$modelobj <-  purrr::pmap(map[,c("nm", "curve", "inputdata", "sens_spec_tbl",
 # names
 #......................
 fit_map <- map %>%
-  dplyr::mutate(sim = paste0("sim", 1:nrow(.)),
-                nm = purrr::map_chr(curve, function(x){unique(x$nm)})) %>%
+  dplyr::mutate(sim = paste0("sim", 1:nrow(.))) %>%
   dplyr::select(c("sim", "nm", dplyr::everything()))
 
 
@@ -209,7 +210,7 @@ run_MCMC <- function(path) {
   }
 
   cl <- parallel::makeCluster(mkcores)
-  fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod$modelobj[[1]],
+  fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
@@ -269,7 +270,7 @@ plan <- drake::drake_plan(
 # call drake to send out to slurm
 #......................
 options(clustermq.scheduler = "slurm",
-        clustermq.template = "drake_workers/slurm_clustermq_LL.tmpl")
+        clustermq.template = "drake_clst/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq",
      jobs = nrow(file_param_map),
      log_make = "SimCurves_serorev.log", verbose = 2,
