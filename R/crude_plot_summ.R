@@ -19,7 +19,7 @@ adjust_seroprev <- function(seroprevdat, sens, spec) {
   seroprevdat <- seroprevdat %>%
     magrittr::set_colnames(tolower(colnames(.))) %>%
     dplyr::mutate(seroprevadj = purrr::map_dbl(seroprev, rogan_gladen, sens = sens, spec = spec),
-                  seromidpt = round(mean(c(obsdaymin, obsdaymax))))
+                  seromidpt = round( (obsdaymin + obsdaymax)/2 ) )
   return(seroprevdat)
 }
 
@@ -94,7 +94,7 @@ get_crude_summarydf <- function(IFRmodinput, groupingvar) {
       dplyr::mutate(
         age_mid = purrr::map_dbl(ageband, function(x){
           nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
-          nums[nums == 999] <- 95
+          nums[nums == 999] <- 100
           return(mean(nums))
         }),
         inf_pop_crude = seroprevalence_adj * popN,
@@ -121,7 +121,7 @@ get_crude_summarydf <- function(IFRmodinput, groupingvar) {
       dplyr::mutate(
         age_mid = purrr::map_dbl(ageband, function(x){
           nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
-          nums[nums == 999] <- 95
+          nums[nums == 999] <- 100
           return(mean(nums))
         }),
         inf_pop_crude = seroprevalence * popN,

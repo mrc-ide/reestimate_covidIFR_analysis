@@ -12,7 +12,7 @@ source("R/my_themes.R")
 source("R/extra_plotting_functions.R")
 dir.create("figures/descriptive_figures/", recursive = TRUE)
 
-write2file<-F
+write2file <- F
 
 #............................................................
 #---- Read in and Wrangle Data #----
@@ -24,6 +24,7 @@ names(mycolors) <- study_cols$study_id
 
 # care homes
 deaths_ch <- readr::read_csv("data/raw/care_home_deaths.csv")
+
 # data map
 datmap <- readxl::read_excel("data/derived/derived_data_map.xlsx")
 datmap <- datmap %>%
@@ -65,7 +66,8 @@ datmap <- datmap %>%
   dplyr::mutate(plotdat = purrr::map2(.x = std_deaths, .y = seroprev_adjdat, dplyr::left_join)) # let dplyr find strata
 
 # save out
-saveRDS(datmap, file = "data/derived/descriptive_results_datamap.RDS")
+dir.create("results/descriptive_results/", recursive = TRUE)
+saveRDS(datmap, file = "results/descriptive_results/descriptive_results_datamap.RDS")
 
 
 #............................................................
@@ -608,7 +610,7 @@ plot(ifr0$prop_pop,ifr0$ifr*100,ylab="IFR (%)",xlab="proportion of population ov
 #............................................................
 #---- Figure 1 #----
 #...........................................................
-datmap <- readRDS("data/derived/descriptive_results_datamap.RDS")
+datmap <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS")
 # SeroPrevalences by age portion
 SeroPrevPlotDat <- datmap %>%
   dplyr::filter(breakdown == "ageband") %>%
@@ -643,7 +645,7 @@ FigA <- SeroPrevPlotDat %>%
   geom_line(aes(x = age_mid, y = seroprev, color = study_id),
             alpha = 0.8, size = 1.2, show.legend = F) +
   scale_color_manual("Study ID", values = mycolors) +
-  xlab("Age (yrs).") + ylab("Raw Seroprevalence (%)") +
+  xlab("Age (yrs).") + ylab("Seroprevalence (%)") +
   xyaxis_plot_theme +
   theme(legend.position = "bottom") +
   theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
@@ -669,14 +671,14 @@ FigB <- post_mods %>%
             alpha = 0.8, color = "#bdbdbd") +
   geom_line(data = sero_sub_final, aes(x = days_post_symptoms, y = titres, group = donor_id),
             color = "#3182bd", alpha = 0.9, size = 0.4) +
+  geom_hline(yintercept = 1.4, color = "#e31a1c", alpha = 0.8, linetype = "dashed") +
   xyaxis_plot_theme +
   ylab("Abbott S/C Titres") +
   xlab("Post-Symptoms (Days)") +
-  theme(plot.margin = unit(c(0.05, 0.05, 1.5, 1),"cm"))
+  theme(plot.margin = unit(c(0.05, 0.05, 1.5, 1), "cm"))
 
 # weibull distribution
 post_mods_optim <- readRDS("results/sero_reversion/sero_reversion_optim_times_extrapolated.RDS") %>%
-  dplyr::filter(assay == "Abbott") %>%
   dplyr::select(c("donor_ids", "serorevert_times")) %>%
   dplyr::mutate(serorevert_times = serorevert_times * 30)
 wb_fit_boot <- readRDS("results/sero_reversion/sero_reversion_abbott_bootstrapped_weibull_params.RDS")
@@ -715,7 +717,7 @@ mainFig <- cowplot::plot_grid(FigA, rght,
                               ncol = 2, nrow = 1,
                               labels = c("(A)", ""))
 
-jpeg("figures/final_figures/Fig1_dscdat.jpg",
+jpeg("figures/final_figures/Figure_dscdat.jpg",
      width = 11, height = 8, units = "in", res = 500)
 plot(mainFig)
 graphics.off()

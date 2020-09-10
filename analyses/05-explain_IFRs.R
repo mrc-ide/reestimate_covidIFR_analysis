@@ -11,6 +11,13 @@ source("R/covidcurve_helper_functions.R")
 #............................................................
 # read in data
 #...........................................................
+dscdat <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS") %>%
+  dplyr::mutate(drop = ifelse(study_id %in% c("DNK1", "GBR3", "ESP1-2", "BRA1", "CHE1", "ITA1")
+                              & breakdown == "region", T, # drop regions that aren't basic
+                              ifelse(grepl("_nch", study_id), T, F)) # drop carehomes
+  ) %>%
+  dplyr::filter(!drop)
+
 #......................
 # results
 #......................
@@ -134,83 +141,7 @@ health_cap_rgnIFR_plotObj <- retmap %>%
 (main_fig <- cowplot::plot_grid(prop65rgnIFR_plotObj, health_cap_rgnIFR_plotObj,
                                  align = "h", ncol = 1, nrow = 2, labels = c("(A)", "(B)")))
 # out
-jpeg("figures/final_figures/Figure4.jpg", width = 10, height = 7, units = "in", res = 500)
+jpeg("figures/final_figures/Figure_explain_IFRs.jpg", width = 10, height = 7, units = "in", res = 500)
 plot(main_fig)
-graphics.off()
-
-
-
-
-#............................................................
-#---- IFR-Death Comparisons #----
-#...........................................................
-ifr_compar_map <- retmap %>%
-  dplyr::mutate(drop = ifelse(study_id %in% c("DNK1", "GBR3", "ESP1-2", "BRA1")
-                              & lvl == "Region", T, F)) %>%
-  dplyr::filter(!drop) %>%
-  dplyr::mutate(sero = factor(sero, levels = c("reg", "serorev"), labels = c("SeroInf.", "SeroRev.")))
-
-
-# TODO --> don't have excess or care home deaths? --> but tell Lucy easiest way to link is by study_id
-percap_deaths <- dscdat %>%
-  dplyr::filter(!duplicated(study_id)) %>%
-  dplyr::select(c("study_id", "data")) %>%
-  group_by(study_id) %>%
-  dplyr::mutate(deaths = purrr::map(data, "deaths_TSMCMC"),
-                deaths = purrr::map_dbl(deaths, function(x){sum(x$deaths)}),
-                popN = purrr::map(data, "prop_pop"),
-                popN = purrr::map_dbl(popN, function(x){sum(x$popN)})) %>%
-  tidyr::unnest(cols = c("deaths", "popN")) %>%
-  dplyr::summarise(cumdeaths = sum(deaths),
-                   popN = sum(popN)) %>%
-  dplyr::mutate(capita = cumdeaths/popN) %>%
-  dplyr::select(c("study_id", "capita"))
-
-
-# bring together others deaths
-ext_deaths <- percap_deaths %>%
-  #dplyr::left_join(., y = excess_deaths, by = "study_id") %>%
-  #dplyr::left_join(., y = carehome_deaths, by = "study_id") %>%
-  tidyr::pivot_longer(., cols = -c("study_id"), names_to = "param", values_to = "est") %>%
-  dplyr::mutate(param = factor(param,
-                               levels = c("crude", "capita", "excess", "carehome"),
-                               labels = c("Crude", "Per Capita", "Excess", "Care-Home")
-  ))
-
-
-# plot out
-(death_type_plot <- ggplot() +
-  geom_point(data = ext_deaths, aes(x = study_id, y = est, fill = param, shape = param),
-             size = 6.5, alpha = 0.8) +
-  geom_pointrange(data = ifr_compar_map,
-                  aes(x = study_id, ymin = LCI, y = median, ymax = UCI, color = sero),
-                  size = 0.75, alpha = 0.5) +
-  scale_shape_manual("Death Type", values = c(22, 23, 24, 25)) +
-  scale_color_manual("SeroType", values = c("#4285F4", "#EA4335")) +
-  scale_fill_manual("Death Type", values = c(wesanderson::wes_palette("IsleofDogs2", type = "discrete"))) +
-  ylab("Infection Fatality Rate") +
-  coord_flip() +
-  theme(
-    plot.title =  element_blank(),
-    axis.title.y = element_blank(),
-    axis.title.x = element_text(family = "Helvetica", face = "bold", vjust = 0.5, hjust = 0.5, size = 16),
-    axis.text.x = element_text(family = "Helvetica", color = "#000000", vjust = 0.5, hjust = 0.5, size = 14),
-    axis.text.y = element_text(family = "Helvetica", color = "#000000", face = "bold", vjust = 0.5, hjust = 1, size = 14),
-    legend.title = element_text(family = "Helvetica", face = "bold", vjust = 0.5, hjust = 0.5, size = 16),
-    legend.text = element_text(family = "Helvetica", vjust = 0.8, hjust = 0.5, size = 14, angle = 0),
-    legend.position = "right",
-    legend.key = element_blank(),
-    axis.line.x = element_line(color = "black", size = 1.5),
-    axis.line.y = element_line(color = "black", size = 1.5),
-    axis.ticks.y = element_blank(),
-    panel.background = element_rect(fill = "transparent"),
-    plot.background = element_rect(fill = "transparent"),
-    panel.grid = element_blank(),
-    panel.border = element_blank()
-  ))
-
-# out
-jpeg("figures/final_figures/Figure5.jpg", width = 10, height = 7, units = "in", res = 500)
-plot(death_type_plot)
 graphics.off()
 

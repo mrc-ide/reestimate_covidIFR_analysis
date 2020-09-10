@@ -770,7 +770,7 @@ saveRDS(NLD.agebands.dat, "data/derived/NLD1/NLD1_agebands.RDS")
 #---- ITA1 #----
 #...........................................................
 #......................
-# regions
+# ages
 #......................
 ## add in approximate sample size by region in order for this to run properly.
 # we don't have data, but for now split total sample size equally across regions.
@@ -778,19 +778,7 @@ saveRDS(NLD.agebands.dat, "data/derived/NLD1/NLD1_agebands.RDS")
 inds<-which(sero_prevdf$study_id=="ITA1" & sero_prevdf$for_regional_analysis==1)
 sero_prevdf$n_tested[inds]<- 64660/length(inds) ## total sample size of italian serosurvey.
 sero_prevdf$n_positive[inds]<-round(sero_prevdf$n_tested[inds]*sero_prevdf$seroprevalence_unadjusted[inds])
-ITA.regions.dat <- process_data4(cum_tp_deaths = deathsdf,
-                                 time_series_totdeaths_df = JHUdf,
-                                 time_series_totdeaths_geocode = "ITA",
-                                 population = populationdf,
-                                 sero_val = sero_valdf,
-                                 seroprev = sero_prevdf,
-                                 get_descriptive_dat = TRUE,
-                                 groupingvar = "region",
-                                 study_ids = "ITA1")
 
-#......................
-# ages
-#......................
 ITA.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                   time_series_totdeaths_df = JHUdf,
                                   time_series_totdeaths_geocode = "ITA",
@@ -1256,7 +1244,7 @@ SF_CA.regions.dat <- process_data4(cum_tp_deaths = SF_CAdeathsdf,
 # liftover counties from bay area
 prop_pop_adj <- tibble::tibble(
   region = "California_San-Francisco",
-  ageband = 0-999,
+  ageband = "0-999",
   popN = sum(SF_CA.regions.dat$prop_pop$popN),
   pop_prop = 1
 )

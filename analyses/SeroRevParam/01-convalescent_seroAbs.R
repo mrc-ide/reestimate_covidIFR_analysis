@@ -7,6 +7,7 @@ library(tidyverse)
 library(brms)
 source("R/my_themes.R")
 source("R/extra_plotting_functions.R")
+set.seed(48)
 
 #......................
 # read data
@@ -276,8 +277,7 @@ saveRDS(sero_sub_mods, file = "results/sero_reversion/sero_reversion_model_fits.
 #......................
 sero_sub_mods_sxtime <- sero_sub_mods %>%
   dplyr::filter(modlvl == "sxtime")
-lapply(sero_sub_mods_sxtime$mod, summary)
-
+summary(sero_sub_mods_sxtime$mod[[1]])
 #............................................................
 #---- Extrapolation #----
 #...........................................................
@@ -344,10 +344,12 @@ post_mods_optim <- dplyr::left_join(post_mods, thresholds, by = "assay") %>%
   dplyr::ungroup(.)
 
 post_mods_optim$serorevert_times <- furrr::future_pmap_dbl(post_mods_optim[, c("mod", "donor_ids", "threshold")],
-                                                           find_cutoff_response_time_per_donor) %>%
-  dplyr::select(c("donor_ids", "serorevert_times"))
+                                                           find_cutoff_response_time_per_donor)
+
 # save out
-saveRDS(post_mods_optim, file = "results/sero_reversion/sero_reversion_optim_times_extrapolated.RDS")
+post_mods_optim %>%
+  dplyr::select(c("donor_ids", "assay", "serorevert_times")) %>%
+  saveRDS(., file = "results/sero_reversion/sero_reversion_optim_times_extrapolated.RDS")
 
 
 #............................................................
@@ -355,18 +357,19 @@ saveRDS(post_mods_optim, file = "results/sero_reversion/sero_reversion_optim_tim
 #...........................................................
 # tidy out
 post_mods_optim_fits <- post_mods_optim %>%
-  dplyr::mutate(serorevert_times = serorevert_times * 30) %>% # convert to days for seroreversion framework
-  dplyr::select(c("assay", serorevert_times)) %>%
-  dplyr::group_by(assay) %>%
-  tidyr::nest(.)
+  dplyr::mutate(serorevert_times = serorevert_times * 30)  # convert to days for seroreversion framework
 
-lapply(post_mods_optim_fits$data, summary)
+summary(post_mods_optim_fits$serorevert_times)
+
+
+
 
 #......................
 # fit
 #......................
 post_mods_optim_fits <- post_mods_optim_fits %>%
-  dplyr::filter(assay == "Abbott") %>% # subset to Abbott which is only one that really decays
+  dplyr::group_by(assay) %>%
+  tidyr::nest(.) %>%
   dplyr::mutate(wb_fit = purrr::map(data, function(x){fitdistrplus::fitdist(x$serorevert_times, distr = "weibull")}),
                 gm_fit = purrr::map(data, function(x){fitdistrplus::fitdist(x$serorevert_times, distr = "gamma")}),
                 lg_fit = purrr::map(data, function(x){fitdistrplus::fitdist(x$serorevert_times, distr = "lnorm")}),

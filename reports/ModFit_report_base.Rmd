@@ -88,7 +88,7 @@ ifrs <- dplyr::left_join(dictkey, ifrs) %>%
 #...................... 
 # get crude ifrs 
 #......................
-dscdat <- readRDS("data/derived/descriptive_results_datamap.RDS") 
+dscdat <- readRDS("data/results/descriptive_results_datamap.RDS") 
 crudedat <- dscdat %>% 
   dplyr::filter(study_id == studyidchar & breakdown == gsub("-", "", tolower(stratachar)))  %>%
   dplyr::select(c("study_id", "plotdat")) %>%
