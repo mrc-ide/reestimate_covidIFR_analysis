@@ -3,47 +3,35 @@
 ##
 ## Notes:
 ####################################################################################
+setwd("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/")
 set.seed(48)
 library(COVIDCurve)
 library(tidyverse)
 library(drake)
-source("R/simple_seir_model.R")
 source("R/covidcurve_helper_functions.R")
 source("R/my_themes.R")
 
 #............................................................
-#----- Simulation #-----
-# run simple SEIR
+# Read in Various Scenarios for Incidence Curves
 #...........................................................
-# make infxns from exponential growth followed by intervetions
-nsims <- 100
-popN <- 3e6
-infxns <- lapply(1:nsims, function(x){
-  run_simple_seir(N = popN,
-                  E0 = 50,
-                  R0 = 0,
-                  betas = c(0.33, 0.13, 0.12, 0.11),
-                  beta_changes = c(1, 130, 140, 150),
-                  sigma = 0.2,
-                  gamma = 0.2,
-                  time = 300)
-})
-infxns <- infxns %>%
-  dplyr::bind_rows(.) %>%
-  dplyr::group_by(step) %>%
-  dplyr::summarise(
-    infxns = mean(I)
-  ) %>%
-  dplyr::mutate_if(is.numeric, round, 0) %>%
-  dplyr::rename(time = step)
+infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
+interveneflat <- infxn_shapes$intervene
+# note need more infxns for sensitivity to be apparent on conceptual diagrams
+interveneflat <- interveneflat * 3
+interveneflat <- c(interveneflat, round(seq(from = interveneflat[200],
+                                      to = 10, length.out = 100)))
 
 
+
+#............................................................
+# setup fatality data
+#............................................................
 # make up fatality data
 fatalitydata <- tibble::tibble(Strata = "ma1",
                                IFR = 0.1,
                                Rho = 1)
 demog <- tibble::tibble(Strata = "ma1",
-                        popN = popN)
+                        popN = 3e6)
 
 # run COVIDCurve sims for no seroreversion and seroreversion
 dat <- COVIDCurve::Aggsim_infxn_2_death(
@@ -52,13 +40,12 @@ dat <- COVIDCurve::Aggsim_infxn_2_death(
   m_od = 19.26,
   s_od = 0.76,
   curr_day = 300,
-  infections = infxns$infxns,
+  infections = interveneflat,
   simulate_seroreversion = FALSE,
-  sero_rev_shape = 4.6,
-  sero_rev_scale = 270,
   sens = 0.85,
   spec = 0.95,
-  sero_delay_rate = 18.3)
+  sero_delay_rate = 18.3,
+  return_linelist = FALSE)
 
 serorev_dat <- COVIDCurve::Aggsim_infxn_2_death(
   fatalitydata = fatalitydata,
@@ -66,13 +53,14 @@ serorev_dat <- COVIDCurve::Aggsim_infxn_2_death(
   m_od = 19.26,
   s_od = 0.76,
   curr_day = 300,
-  infections = infxns$infxns,
+  infections = interveneflat,
   simulate_seroreversion = TRUE,
-  sero_rev_shape = 4.6,
-  sero_rev_scale = 270,
+  sero_rev_shape = 4.5,
+  sero_rev_scale = 200,
   sens = 0.85,
   spec = 0.95,
-  sero_delay_rate = 18.3)
+  sero_delay_rate = 18.3,
+  return_linelist = FALSE)
 
 
 
@@ -82,22 +70,24 @@ serorev_dat <- COVIDCurve::Aggsim_infxn_2_death(
 #......................
 # wrangle input data from non-seroreversion fit
 #......................
-# sero tidy up
+# liftover obs serology
 sero_day <- 150
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
-  dplyr::filter(ObsDay == sero_day) %>%
+  dplyr::filter(ObsDay %in% sero_day) %>%
   dplyr::mutate(
-    SeroPos = round(ObsPrev * popN),
-    SeroN = popN ) %>%
+    SeroPos = round(ObsPrev * testedN),
+    SeroN = testedN,
+    SeroLCI = NA,
+    SeroUCI = NA) %>%
   dplyr::rename(
-    SeroDay = ObsDay,
     SeroPrev = ObsPrev) %>%
   dplyr::mutate(SeroStartSurvey = sero_day - 5,
                 SeroEndSurvey = sero_day + 5) %>%
-  dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
+  dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
   dplyr::ungroup(.) %>%
   dplyr::arrange(SeroStartSurvey, Strata)
+
 
 # proportion deaths
 prop_deaths <- dat$StrataAgg_TimeSeries_Death %>%
@@ -121,14 +111,16 @@ obs_serology <- serorev_dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay == sero_day) %>%
   dplyr::mutate(
-    SeroPos = round(ObsPrev * popN),
-    SeroN = popN ) %>%
+    SeroPos = round(ObsPrev * testedN),
+    SeroN = testedN,
+    SeroLCI = NA,
+    SeroUCI = NA) %>%
   dplyr::rename(
     SeroDay = ObsDay,
     SeroPrev = ObsPrev) %>%
   dplyr::mutate(SeroStartSurvey = sero_day - 5,
                 SeroEndSurvey = sero_day + 5) %>%
-  dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
+  dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
   dplyr::ungroup(.) %>%
   dplyr::arrange(SeroStartSurvey, Strata)
 
@@ -160,12 +152,33 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens",  "spec"),
                                 dsc2 =  c(150.5,    10.5))
 
 # delay priors
-tod_paramsdf <- tibble::tibble(name = c("mod", "sod",  "sero_rate"),
-                               min  = c(0,      0,      0),
-                               init = c(19,     0.7,    18),
-                               max =  c(Inf,    1,      Inf),
-                               dsc1 = c(19.26,  79,     18.3),
-                               dsc2 = c(1,      21,     1))
+tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
+                               min  = c(18,     0,     16),
+                               init = c(19,     0.79,  18),
+                               max =  c(20,     1,     21),
+                               dsc1 = c(19.26,  2370,  18.3),
+                               dsc2 = c(0.1,    630,   0.1))
+# seroreversion
+empty <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
+                        min  = c(NA, NA),
+                        init = c(NA, NA),
+                        max =  c(NA, NA),
+                        dsc1 = c(NA, NA),
+                        dsc2 = c(NA, NA))
+
+serorev <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
+                          min  = c(2,                 190),
+                          init = c(4.5,               200),
+                          max =  c(7,                 210),
+                          dsc1 = c(4.5,               200),
+                          dsc2 = c(0.5,               1))
+# combine
+tod_paramsdf_empty <- rbind(tod_paramsdf, empty)
+tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
+
+
+
+# make param dfs
 ifr_paramsdf <- make_ma_reparamdf(num_mas = 1, upperMa = 0.4)
 knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
                                         num_xs = 4)
@@ -173,7 +186,9 @@ infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0,
                                          num_ys = 5)
 noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 1, min = 1, init = 1, max = 1)
 # bring together
-df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
+df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf_empty)
+df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf_serorev)
+
 
 # make mod
 mod1 <- COVIDCurve::make_IFRmodel_agg$new()
@@ -185,7 +200,7 @@ mod1$set_relKnot("x4")
 mod1$set_Infxnparams(paste0("y", 1:5))
 mod1$set_relInfxn("y3")
 mod1$set_Noiseparams("Ne1")
-mod1$set_Serotestparams(c("sens", "spec", "sero_rate"))
+mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
 
 #......................
 # make model for serorev and regular
@@ -195,24 +210,24 @@ mod1_serorev <- mod1
 # reg
 mod1_reg$set_data(reginputdata)
 mod1_reg$set_demog(demog)
-mod1_reg$set_paramdf(df_params)
+mod1_reg$set_paramdf(df_params_reg)
 mod1_reg$set_rho(demog$popN/sum(demog$popN)) # 1 but for consistency
 mod1_reg$set_rcensor_day(.Machine$integer.max)
 # serorev
 mod1_serorev$set_data(serorev_inputdata)
 mod1_serorev$set_demog(demog)
-mod1_serorev$set_paramdf(df_params)
+mod1_serorev$set_paramdf(df_params_serorev)
 mod1_serorev$set_rho(demog$popN/sum(demog$popN)) # 1 but for consistency
 mod1_serorev$set_rcensor_day(.Machine$integer.max)
 
 #............................................................
 #---- Come Together #----
 #...........................................................
-bvec <- seq(5, 2.5, length.out = 50)
+bvec <- seq(5, 3.5, length.out = 50)
 
 fit_map <- tibble::tibble(
   name = c("reg_mod", "serorev_mod"),
-  infxns = list(infxns, NULL), # Null sinse same infections
+  infxns = list(interveneflat, NULL), # Null sinse same infections
   simdat = list(dat, serorev_dat),
   modelobj = list(mod1_reg, mod1_serorev),
   rungs = 50,
@@ -220,6 +235,7 @@ fit_map <- tibble::tibble(
   burnin = 1e4,
   samples = 1e4,
   thinning = 10)
+
 
 #......................
 # fitmap out
@@ -252,19 +268,19 @@ run_MCMC <- function(path) {
 
   cl <- parallel::makeCluster(mkcores)
 
-    fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod$modelobj[[1]],
-                                        reparamIFR = FALSE,
-                                        reparamInfxn = TRUE,
-                                        reparamKnots = TRUE,
-                                        reparamDelays = FALSE,
-                                        reparamNe = FALSE,
-                                        chains = n_chains,
-                                        burnin = mod$burnin,
-                                        samples = mod$samples,
-                                        rungs = mod$rungs,
-                                        GTI_pow = mod$GTI_pow[[1]],
-                                        cluster = cl,
-                                        thinning = 10)
+  fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
+                                      reparamIFR = FALSE,
+                                      reparamInfxn = TRUE,
+                                      reparamKnots = TRUE,
+                                      reparamDelays = FALSE,
+                                      reparamNe = FALSE,
+                                      chains = n_chains,
+                                      burnin = mod$burnin,
+                                      samples = mod$samples,
+                                      rungs = mod$rungs,
+                                      GTI_pow = mod$GTI_pow[[1]],
+                                      cluster = cl,
+                                      thinning = 10)
   parallel::stopCluster(cl)
   gc()
 
@@ -309,9 +325,9 @@ plan <- drake::drake_plan(
 # call drake to send out to slurm
 #......................
 options(clustermq.scheduler = "slurm",
-        clustermq.template = "drake_workers/slurm_clustermq_LL.tmpl")
+        clustermq.template = "drake_clst/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
-     log_make = "Modfits_drake.log", verbose = 2,
+     log_make = "ConceptFig1_drake.log", verbose = 2,
      log_progress = TRUE,
      log_build_times = FALSE,
      recoverable = FALSE,

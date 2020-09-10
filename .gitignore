@@ -13,6 +13,9 @@ results/
 figures/
 data/param_map/
 .drake
+# shared data 
+data/raw/shared
+
 
 # knitr and R markdown default cache directories
 /*_cache/

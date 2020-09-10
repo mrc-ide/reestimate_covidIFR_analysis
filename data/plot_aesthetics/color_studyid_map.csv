@@ -1,13 +1,23 @@
-study_id,cols,details
-ESP1-2,#CB00FF, vivid orchid
-NLD1,#E59500, harvest gold
-DNK1,#002642, oxford blue
-CHE1,#761EF8, electric indigo
-BRA1,#3EF944, neon green
-NYC_NY_1,#F61843, crayola red
-ITA1,#271F8E, Cosmic Cobalt
-CHN1,#5945AA, plump purple
-LUX1,#82AA96, morning blue-green
-GBR3,#66678E, Dark Blue-Gray
-CHE2,#840032, burgundy
-LA_CA1,#895B51, spicy mix brown
+study_id,cols,details,national_georegion,names
+ESP1-2,#CB00FF, vivid orchid,ESP,Spain
+NLD1,#E59500, harvest gold,NLD,Netherlands
+DNK1,#002642, oxford blue,DNK,Denmark
+CHE1,#761EF8, electric indigo,,"Geneva, Switzerland"
+BRA1,#3EF944, neon green,BRA,Brazil
+NYC_NY_1,#F61843, crayola red,,"New York City, USA"
+ITA1,#271F8E, Cosmic Cobalt,ITA,Italy
+CHN1,#5945AA, plump purple,,"Wuhan, China"
+LUX1,#82AA96, morning blue-green,LUX,Luxembourg
+GBR3,#3BABFD,Brilliant Azure,,England
+CHE2,#840032, burgundy,,"Zurich, Switzerland"
+LA_CA1,#895B51, spicy mix brown,,"Los Angeles County, USA"
+SF_CA1,#271F8E, Cosmic Cobalt,,"Bay Area, USA"
+BRA4,#5945AA, plump purple,,"Rio de Janeiro, Brazil"
+BRA5,#82AA96, morning blue-green,,"Rio Grande do Sul, Brazil"
+KEN1,#238b45,dark green,KEN,Kenya
+DNK1_nch,#000000,black,,
+ESP1-2_nch,#000000,black,,
+GBR3_nch,#000000,black,,
+CHE1_nch,#000000,black,,
+CHE2_nch,#000000,black,,
+NYC_NY_1_nch,#000000,black,,
