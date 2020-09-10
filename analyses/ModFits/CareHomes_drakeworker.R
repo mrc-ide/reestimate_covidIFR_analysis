@@ -18,11 +18,11 @@ source("R/covidcurve_helper_functions.R")
 # onset to deaths
 #......................
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
-                               min  = c(17,     0,     16),
+                               min  = c(18,     0,     16),
                                init = c(19,     0.79,  18),
-                               max =  c(22,     1,     21),
+                               max =  c(20,     1,     21),
                                dsc1 = c(19.26,  2370,  18.3),
-                               dsc2 = c(0.5,    630,   0.5))
+                               dsc2 = c(0.1,    630,   0.1))
 #......................
 # seroreversion weibull scale/shape for various assay
 # (for later rbinds)
