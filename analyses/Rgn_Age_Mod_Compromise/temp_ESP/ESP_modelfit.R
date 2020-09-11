@@ -1,6 +1,7 @@
 library(drjacoby)
 library(tidyverse)
-setwd("/proj/ideel/meshnick/users/NickB/Sandbox/rgnl_age_model_sandbox_v2/")
+setwd("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/analyses/Rgn_Age_Mod_Compromise/temp_ESP")
+
 #............................................................
 # likelihoods
 #...........................................................
@@ -73,18 +74,24 @@ misc_list = list(rcensor_day = .Machine$integer.max,
                  demog = demog_rgn,
                  agestratlen = 10,
                  rgnstratlen = 17,
-                # account_serorev = FALSE,
+                 # account_serorev = FALSE,
                  rho = rho)
 
 # param df
-ifr_paramsdf <- readr::read_csv("ESP1-2_ifr_credint.csv") %>%
-  dplyr::select(c("param", "min", "max")) %>%
-  dplyr::rename(name = param) %>%
-  dplyr::mutate(name = factor(name, levels = paste0("ma", 1:10)),
-                init = (min + max)/2) %>%
-  dplyr::arrange(name) %>%
-  dplyr::mutate(name = as.character(name)) %>%
-  dplyr::select(c("name", "min", "init", "max"))
+# ifr_paramsdf <- readr::read_csv("ESP1-2_ifr_credint.csv") %>%
+#   dplyr::select(c("param", "min", "max")) %>%
+#   dplyr::rename(name = param) %>%
+#   dplyr::mutate(name = factor(name, levels = paste0("ma", 1:10)),
+#                 init = (min + max)/2) %>%
+#   dplyr::arrange(name) %>%
+#   dplyr::mutate(name = as.character(name)) %>%
+#   dplyr::select(c("name", "min", "init", "max"))
+
+ifr_paramsdf <- tibble::tibble(name = paste0("ma", 1:10),
+                               min  = rep(0, 10),
+                               init = rep(0.1, 10),
+                               max = rep(0.4, 10))
+
 
 Rne_paramsdf <- tibble::tibble(name = paste0("Rne", 1:17),
                                min  = rep(0.1, 17),
