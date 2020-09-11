@@ -427,3 +427,22 @@ summary(wb_fit_boot$estim$shape)
 sd(wb_fit_boot$estim$shape)
 summary(wb_fit_boot$estim$scale)
 sd(wb_fit_boot$estim$scale)
+
+
+
+#............................................................
+#---- Alternative Survival Analysis #----
+#...........................................................
+library(survival)
+sero_sub_final_survival <- sero_sub_final %>%
+  dplyr::group_by(donor_id) %>%
+  dplyr::filter(months_post_symptoms == max(months_post_symptoms)) %>%
+  dplyr::mutate(status = ifelse(titres < 1.4, 1, 0))
+
+SurvMod <- survival::survreg(survival::Surv(months_post_symptoms, status) ~
+                               1 + survival::frailty.gaussian(donor_id),
+                             dist="weibull",
+                             data = sero_sub_final_survival)
+
+summary(SurvMod)
+str(SurvMod)
