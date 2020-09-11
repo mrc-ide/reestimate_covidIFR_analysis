@@ -59,7 +59,7 @@ dat <- COVIDCurve::Agesim_infxn_2_death(
 sero_day <- 150
 OneDayobs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
-  dplyr::filter(ObsDay %in% sero_days) %>%
+  dplyr::filter(ObsDay %in% sero_day) %>%
   dplyr::mutate(
     SeroPos = round(ObsPrev * testedN),
     SeroN = testedN,
@@ -92,9 +92,9 @@ oneday_inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 #......................
 # sero tidy up
 sero_days <- c(140, 160)
-TwoDays_obs_serology <- serorev_dat$StrataAgg_Seroprev %>%
+TwoDays_obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
-  dplyr::filter(ObsDay == sero_days) %>%
+  dplyr::filter(ObsDay %in% sero_days) %>%
   dplyr::mutate(
     SeroPos = round(ObsPrev * testedN),
     SeroN = testedN,
@@ -110,11 +110,11 @@ TwoDays_obs_serology <- serorev_dat$StrataAgg_Seroprev %>%
   dplyr::arrange(SeroStartSurvey, Strata)
 
 # proportion deaths
-prop_deaths <- serorev_dat$StrataAgg_TimeSeries_Death %>%
+prop_deaths <- dat$StrataAgg_TimeSeries_Death %>%
   dplyr::group_by(Strata) %>%
   dplyr::summarise(deaths = sum(Deaths)) %>%
   dplyr::ungroup(.) %>%
-  dplyr::mutate(PropDeaths = deaths/sum(serorev_dat$Agg_TimeSeries_Death$Deaths)) %>%
+  dplyr::mutate(PropDeaths = deaths/sum(dat$Agg_TimeSeries_Death$Deaths)) %>%
   dplyr::select(-c("deaths"))
 
 # make data out
@@ -144,12 +144,6 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                dsc1 = c(19.26,  2370,  18.3),
                                dsc2 = c(0.1,    630,   0.1))
 
-serorev <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-                          min  = c(2,                 190),
-                          init = c(4.5,               200),
-                          max =  c(7,                 210),
-                          dsc1 = c(4.5,               200),
-                          dsc2 = c(0.5,               1))
 
 
 # make param dfs
@@ -158,10 +152,8 @@ knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180
                                         num_xs = 4)
 infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
                                          num_ys = 5)
-noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 1, min = 1, init = 1, max = 1)
 # bring together
-df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
-df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
+df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf)
 
 
 # make mod
@@ -173,7 +165,6 @@ mod1$set_Knotparams(paste0("x", 1:4))
 mod1$set_relKnot("x4")
 mod1$set_Infxnparams(paste0("y", 1:5))
 mod1$set_relInfxn("y3")
-mod1$set_Noiseparams("Ne1")
 mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 
 #......................
@@ -184,14 +175,12 @@ mod1_twodays <- mod1
 # one day
 mod1_oneday$set_data(oneday_inputdata)
 mod1_oneday$set_demog(demog)
-mod1_oneday$set_paramdf(df_params_reg)
-mod1_oneday$set_rho(demog$popN/sum(demog$popN)) # 1 but for consistency
+mod1_oneday$set_paramdf(df_params)
 mod1_oneday$set_rcensor_day(.Machine$integer.max)
 # two days
 mod1_twodays$set_data(twodays_inputdata)
 mod1_twodays$set_demog(demog)
-mod1_twodays$set_paramdf(df_params_serorev)
-mod1_twodays$set_rho(demog$popN/sum(demog$popN)) # 1 but for consistency
+mod1_twodays$set_paramdf(df_params)
 mod1_twodays$set_rcensor_day(.Machine$integer.max)
 
 #............................................................
@@ -202,7 +191,7 @@ bvec <- seq(5, 2.5, length.out = 50)
 fit_map <- tibble::tibble(
   name = c("OneDay_mod", "TwoDays_mod"),
   infxns = list(interveneflat, NULL), # Null sinse same infections
-  simdat = list(dat, serorev_dat),
+  simdat = list(dat, NULL),
   modelobj = list(mod1_oneday, mod1_twodays),
   rungs = 50,
   GTI_pow = list(bvec),

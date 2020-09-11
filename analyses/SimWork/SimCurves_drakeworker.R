@@ -104,12 +104,12 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(140, 160))
 #......................
 # sens/spec
 get_sens_spec_tbl <- function(sens, spec) {
-  tibble::tibble(name =  c("sens",          "spec",        "sero_rev_shape",    "sero_rev_scale"),
-                 min =   c(0.5,              0.5,           NA,                  NA),
-                 init =  c(0.9,              0.99,          NA,                  NA),
-                 max =   c(1,                1,             NA,                  NA),
-                 dsc1 =  c(sens*1e3,        spec*1e3,       NA,                  NA),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), NA,                  NA))
+  tibble::tibble(name =  c("sens",          "spec"),
+                 min =   c(0.5,              0.5),
+                 init =  c(0.9,              0.99),
+                 max =   c(1,                1),
+                 dsc1 =  c(sens*1e3,        spec*1e3),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3)))
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec_tbl)
 
@@ -150,11 +150,10 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_Infxnparams(paste0("y", 1:5))
   mod1$set_relInfxn("y3")
   mod1$set_Noiseparams(c(paste0("Ne", 1:5)))
-  mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
+  mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rho(demog$popN/sum(demog$popN))
   mod1$set_rcensor_day(.Machine$integer.max)
   # out
   mod1

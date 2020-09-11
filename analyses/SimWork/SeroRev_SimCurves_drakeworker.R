@@ -159,7 +159,6 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rho(demog$popN/sum(demog$popN))
   mod1$set_rcensor_day(.Machine$integer.max)
   # out
   mod1

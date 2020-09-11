@@ -109,7 +109,7 @@ reginputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 sero_days <- c(140, 160)
 obs_serology <- serorev_dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
-  dplyr::filter(ObsDay == sero_days) %>%
+  dplyr::filter(ObsDay %in% sero_days) %>%
   dplyr::mutate(
     SeroPos = round(ObsPrev * testedN),
     SeroN = testedN,
@@ -158,13 +158,6 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                max =  c(20,     1,     21),
                                dsc1 = c(19.26,  2370,  18.3),
                                dsc2 = c(0.1,    630,   0.1))
-# seroreversion
-empty <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-                        min  = c(NA, NA),
-                        init = c(NA, NA),
-                        max =  c(NA, NA),
-                        dsc1 = c(NA, NA),
-                        dsc2 = c(NA, NA))
 
 serorev <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
                           min  = c(2,                 190),
@@ -173,7 +166,6 @@ serorev <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
                           dsc1 = c(4.5,               200),
                           dsc2 = c(0.5,               1))
 # combine
-tod_paramsdf_empty <- rbind(tod_paramsdf, empty)
 tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
 
 
@@ -184,10 +176,9 @@ knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180
                                         num_xs = 4)
 infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
                                          num_ys = 5)
-noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 1, min = 1, init = 1, max = 1)
 # bring together
-df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf_empty)
-df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf_serorev)
+df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf)
+df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf_serorev)
 
 
 # make mod
@@ -199,25 +190,22 @@ mod1$set_Knotparams(paste0("x", 1:4))
 mod1$set_relKnot("x4")
 mod1$set_Infxnparams(paste0("y", 1:5))
 mod1$set_relInfxn("y3")
-mod1$set_Noiseparams("Ne1")
-mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
-
 #......................
 # make model for serorev and regular
 #......................
 mod1_reg <- mod1
 mod1_serorev <- mod1
 # reg
+mod1_reg$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_reg$set_data(reginputdata)
 mod1_reg$set_demog(demog)
 mod1_reg$set_paramdf(df_params_reg)
-mod1_reg$set_rho(demog$popN/sum(demog$popN)) # 1 but for consistency
 mod1_reg$set_rcensor_day(.Machine$integer.max)
 # serorev
+mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
 mod1_serorev$set_data(serorev_inputdata)
 mod1_serorev$set_demog(demog)
 mod1_serorev$set_paramdf(df_params_serorev)
-mod1_serorev$set_rho(demog$popN/sum(demog$popN)) # 1 but for consistency
 mod1_serorev$set_rcensor_day(.Machine$integer.max)
 
 #............................................................
