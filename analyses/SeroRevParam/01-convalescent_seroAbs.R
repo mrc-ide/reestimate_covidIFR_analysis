@@ -39,11 +39,16 @@ serotime <- serotime %>%
 #---- Explore Data and Summarize Dist #----
 #...........................................................
 summary(serotime)
-
+# must be positive at baseline
+thresholds <- tibble::tibble(assay = c("Diasorin", "Siemens", "Abbott", "Roche"),
+                             threshold = c(15, 1, 1.4, 1))
 # look at post pcr -- figure 1
 serotime %>%
+  dplyr::left_join(., thresholds, by = "assay") %>%
+  dplyr::filter(assay == "Abbott") %>%
   ggplot() +
   geom_line(aes(x = post_pcr_days, y = titres, group = donor_id, color = assay)) +
+  geom_hline(aes(yintercept = threshold), linetype = "dashed") +
   scale_color_manual(values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
   facet_wrap(~assay, scales = "free_y") +
   xyaxis_plot_theme
@@ -107,35 +112,16 @@ serotime %>%
 #......................
 # subsetting just to the abbott assay
 serotime <- serotime %>%
-  dplyr::filter(assay == "Abbott")
+  dplyr::filter(assay == "Abbott") %>%
+  dplyr::filter(!is.na(days_post_symptoms))
+
 # must have at least three timepoints (since can fit any line through two)
 sero_nobs <- serotime %>%
-  dplyr::filter(!is.na(days_post_symptoms)) %>%
   dplyr::group_by(donor_id) %>%
   dplyr::summarise(nobs = sum(!is.na(titres)))
 sero_sub <- dplyr::left_join(serotime, sero_nobs, by = c("donor_id")) %>%
   dplyr::filter(nobs >= 3) %>%
   dplyr::select(-c("nobs"))
-
-# look at followup
-unlft <- sero_sub %>%
-  dplyr::select(c("donor_id", "assay")) %>%
-  dplyr::filter(!duplicated(.))
-xtabs(~assay, data = unlft)
-
-fuptims <- sero_sub %>%
-  dplyr::group_by(donor_id) %>%
-  dplyr::summarise(max_obs_sx = max(days_post_symptoms, na.rm = TRUE),
-                   max_obs_pcr = max(post_pcr_days, na.rm = TRUE))
-summary(fuptims)
-
-# look at characteristics of first pass
-incld <- sero_sub %>%
-  dplyr::select(c("donor_id", "sex", "age", "hosp")) %>%
-  dplyr::filter(!duplicated(.))
-summary(incld)
-table(incld$sex)
-table(incld$hosp)
 
 # must be positive at baseline
 thresholds <- tibble::tibble(assay = c("Diasorin", "Siemens", "Abbott", "Roche"),
@@ -170,20 +156,45 @@ sero_sub_final <- sero_sub %>%
   dplyr::select(-c("drop"))
 
 
+#......................
+# look at included
+#......................
+# look at followup
+unlft <- sero_sub_final %>%
+  dplyr::select(c("donor_id", "assay")) %>%
+  dplyr::filter(!duplicated(.))
+xtabs(~assay, data = unlft)
+
+fuptims <- sero_sub_final %>%
+  dplyr::group_by(donor_id) %>%
+  dplyr::summarise(max_obs_sx = max(days_post_symptoms, na.rm = TRUE),
+                   max_obs_pcr = max(post_pcr_days, na.rm = TRUE))
+summary(fuptims)
+
+# look at characteristics of included
+incld <- sero_sub_final %>%
+  dplyr::select(c("donor_id", "sex", "age", "hosp")) %>%
+  dplyr::filter(!duplicated(.))
+summary(incld)
+table(sero_sub_final$sex)
+table(sero_sub_final$hosp)
+
+
 # drop to information that we need
 sero_sub_final <- sero_sub_final %>%
   dplyr::select(c("donor_id", "assay", "titres", "months_post_symptoms")) %>%
   dplyr::filter(!is.na(titres))
 
 
-
 # quick look at finals
 sero_sub_final %>%
+  dplyr::left_join(., thresholds, by = "assay") %>%
   ggplot() +
-  geom_line(aes(x = months_post_symptoms, y = titres, group = donor_id, color = assay)) +
-  scale_color_manual(values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
+  geom_line(aes(x = months_post_symptoms, y = titres, group = donor_id, color = assay),
+            color = "#3182bd") +
+  geom_hline(aes(yintercept = threshold), linetype = "dashed") +
   facet_wrap(~assay, scales = "free_y") +
-  ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") + ggtitle("Final Included") +
+  ylab("Ab. Titres") + xlab("Months Post-Symptom Onset") + ggtitle("Final Included") +
   xyaxis_plot_theme
 
 # save out

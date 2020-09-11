@@ -95,6 +95,9 @@ modout <- readRDS(params$path)
 
 # get sim details
 simnm <- sub(".RDS", "", basename(params$path))
+simnm <- sub("_SeroRev.RDS", "", basename(params$path))
+simnm <- sub("_NoSeroRev.RDS", "", basename(params$path))
+
 if (modout$inputs$account_seroreversion) {
   sim_param_map <- readRDS("data/param_map/SimCurves/simfit_param_map.RDS") %>% 
   dplyr::filter(sim == simnm)

@@ -47,21 +47,6 @@ dat <- COVIDCurve::Agesim_infxn_2_death(
   sero_delay_rate = 18.3,
   return_linelist = FALSE)
 
-serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
-  fatalitydata = fatalitydata,
-  demog = demog,
-  m_od = 19.26,
-  s_od = 0.76,
-  curr_day = 300,
-  infections = interveneflat,
-  simulate_seroreversion = TRUE,
-  sero_rev_shape = 4.5,
-  sero_rev_scale = 200,
-  sens = 0.85,
-  spec = 0.95,
-  sero_delay_rate = 18.3,
-  return_linelist = FALSE)
-
 
 
 #............................................................
@@ -71,8 +56,8 @@ serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
 # wrangle input data from non-seroreversion fit
 #......................
 # liftover obs serology
-sero_days <- c(140, 160)
-obs_serology <- dat$StrataAgg_Seroprev %>%
+sero_day <- 150
+OneDayobs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay %in% sero_days) %>%
   dplyr::mutate(
@@ -82,8 +67,8 @@ obs_serology <- dat$StrataAgg_Seroprev %>%
     SeroUCI = NA) %>%
   dplyr::rename(
     SeroPrev = ObsPrev) %>%
-  dplyr::mutate(SeroStartSurvey = sero_days - 5,
-                SeroEndSurvey = sero_days + 5) %>%
+  dplyr::mutate(SeroStartSurvey = sero_day - 5,
+                SeroEndSurvey = sero_day + 5) %>%
   dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
   dplyr::ungroup(.) %>%
   dplyr::arrange(SeroStartSurvey, Strata)
@@ -98,16 +83,16 @@ prop_deaths <- dat$StrataAgg_TimeSeries_Death %>%
   dplyr::select(-c("deaths"))
 
 # make data out
-reginputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
+oneday_inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
                      prop_deaths = prop_deaths,
-                     obs_serology = obs_serology)
+                     obs_serology = OneDayobs_serology)
 
 #......................
 # wrangle input data from non-seroreversion fit
 #......................
 # sero tidy up
 sero_days <- c(140, 160)
-obs_serology <- serorev_dat$StrataAgg_Seroprev %>%
+TwoDays_obs_serology <- serorev_dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay == sero_days) %>%
   dplyr::mutate(
@@ -133,9 +118,9 @@ prop_deaths <- serorev_dat$StrataAgg_TimeSeries_Death %>%
   dplyr::select(-c("deaths"))
 
 # make data out
-serorev_inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
+twodays_inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
                           prop_deaths = prop_deaths,
-                          obs_serology = obs_serology)
+                          obs_serology = TwoDays_obs_serology)
 
 
 
@@ -158,13 +143,6 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                max =  c(20,     1,     21),
                                dsc1 = c(19.26,  2370,  18.3),
                                dsc2 = c(0.1,    630,   0.1))
-# seroreversion
-empty <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-                        min  = c(NA, NA),
-                        init = c(NA, NA),
-                        max =  c(NA, NA),
-                        dsc1 = c(NA, NA),
-                        dsc2 = c(NA, NA))
 
 serorev <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
                           min  = c(2,                 190),
@@ -172,10 +150,6 @@ serorev <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
                           max =  c(7,                 210),
                           dsc1 = c(4.5,               200),
                           dsc2 = c(0.5,               1))
-# combine
-tod_paramsdf_empty <- rbind(tod_paramsdf, empty)
-tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
-
 
 
 # make param dfs
@@ -186,8 +160,8 @@ infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0,
                                          num_ys = 5)
 noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 1, min = 1, init = 1, max = 1)
 # bring together
-df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf_empty)
-df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf_serorev)
+df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
+df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
 
 
 # make mod
@@ -200,36 +174,36 @@ mod1$set_relKnot("x4")
 mod1$set_Infxnparams(paste0("y", 1:5))
 mod1$set_relInfxn("y3")
 mod1$set_Noiseparams("Ne1")
-mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
+mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 
 #......................
 # make model for serorev and regular
 #......................
-mod1_reg <- mod1
-mod1_serorev <- mod1
-# reg
-mod1_reg$set_data(reginputdata)
-mod1_reg$set_demog(demog)
-mod1_reg$set_paramdf(df_params_reg)
-mod1_reg$set_rho(demog$popN/sum(demog$popN)) # 1 but for consistency
-mod1_reg$set_rcensor_day(.Machine$integer.max)
-# serorev
-mod1_serorev$set_data(serorev_inputdata)
-mod1_serorev$set_demog(demog)
-mod1_serorev$set_paramdf(df_params_serorev)
-mod1_serorev$set_rho(demog$popN/sum(demog$popN)) # 1 but for consistency
-mod1_serorev$set_rcensor_day(.Machine$integer.max)
+mod1_oneday <- mod1
+mod1_twodays <- mod1
+# one day
+mod1_oneday$set_data(oneday_inputdata)
+mod1_oneday$set_demog(demog)
+mod1_oneday$set_paramdf(df_params_reg)
+mod1_oneday$set_rho(demog$popN/sum(demog$popN)) # 1 but for consistency
+mod1_oneday$set_rcensor_day(.Machine$integer.max)
+# two days
+mod1_twodays$set_data(twodays_inputdata)
+mod1_twodays$set_demog(demog)
+mod1_twodays$set_paramdf(df_params_serorev)
+mod1_twodays$set_rho(demog$popN/sum(demog$popN)) # 1 but for consistency
+mod1_twodays$set_rcensor_day(.Machine$integer.max)
 
 #............................................................
 #---- Come Together #----
 #...........................................................
-bvec <- seq(5, 3.5, length.out = 50)
+bvec <- seq(5, 2.5, length.out = 50)
 
 fit_map <- tibble::tibble(
-  name = c("reg_mod", "serorev_mod"),
+  name = c("OneDay_mod", "TwoDays_mod"),
   infxns = list(interveneflat, NULL), # Null sinse same infections
   simdat = list(dat, serorev_dat),
-  modelobj = list(mod1_reg, mod1_serorev),
+  modelobj = list(mod1_oneday, mod1_twodays),
   rungs = 50,
   GTI_pow = list(bvec),
   burnin = 1e4,
@@ -241,9 +215,9 @@ fit_map <- tibble::tibble(
 # fitmap out
 #......................
 # select what we need for fits and make outpaths
-dir.create("data/param_map/Fig1_ConceptualFits/", recursive = T)
+dir.create("data/param_map/SeroDays_Concept/", recursive = T)
 lapply(split(fit_map, 1:nrow(fit_map)), function(x){
-  saveRDS(x, paste0("data/param_map/Fig1_ConceptualFits/",
+  saveRDS(x, paste0("data/param_map/SeroDays_Concept/",
                     x$name, "_rung", x$rungs, "_burn", x$burnin, "_smpl", x$samples, ".RDS"))
 })
 
@@ -283,8 +257,8 @@ run_MCMC <- function(path) {
   gc()
 
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Fig1_ConceptualFits/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Fig1_ConceptualFits/",
+  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SeroDays_Concept/", recursive = TRUE)
+  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SeroDays_Concept/",
                    mod$name, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, ".RDS")
   saveRDS(fit, file = outpath)
   return(0)
@@ -300,7 +274,7 @@ run_MCMC <- function(path) {
 
 # read files in after sleeping to account for file lag
 Sys.sleep(60)
-file_param_map <- list.files(path = "data/param_map/Fig1_ConceptualFits/",
+file_param_map <- list.files(path = "data/param_map/SeroDays_Concept/",
                              pattern = "*.RDS",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)
@@ -325,7 +299,7 @@ plan <- drake::drake_plan(
 options(clustermq.scheduler = "slurm",
         clustermq.template = "drake_clst/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
-     log_make = "ConceptFig1_drake.log", verbose = 2,
+     log_make = "SeroDays_drake.log", verbose = 2,
      log_progress = TRUE,
      log_build_times = FALSE,
      recoverable = FALSE,

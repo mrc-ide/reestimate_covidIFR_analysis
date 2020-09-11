@@ -490,8 +490,6 @@ run_MCMC <- function(path) {
                                         reparamIFR = TRUE,
                                         reparamInfxn = TRUE,
                                         reparamKnots = TRUE,
-                                        reparamDelays = FALSE,
-                                        reparamNe = FALSE,
                                         binomial_likelihood = FALSE,
                                         chains = n_chains,
                                         burnin = mod$burnin,

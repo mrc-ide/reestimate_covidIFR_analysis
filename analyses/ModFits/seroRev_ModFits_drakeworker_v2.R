@@ -487,12 +487,10 @@ run_MCMC <- function(path) {
   cl <- parallel::makeCluster(mkcores)
 
   if (grepl("ITA", basename(path))) {
-    fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod$modelobj[[1]],
+    fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
                                         reparamInfxn = TRUE,
                                         reparamKnots = TRUE,
-                                        reparamDelays = FALSE,
-                                        reparamNe = FALSE,
                                         binomial_likelihood = FALSE,
                                         chains = n_chains,
                                         burnin = mod$burnin,
@@ -503,12 +501,10 @@ run_MCMC <- function(path) {
                                         thinning = 10)
   } else {
 
-    fit <- COVIDCurve::run_IFRmodel_agg(IFRmodel = mod$modelobj[[1]],
+    fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
                                         reparamInfxn = TRUE,
                                         reparamKnots = TRUE,
-                                        reparamDelays = FALSE,
-                                        reparamNe = FALSE,
                                         binomial_likelihood = TRUE,
                                         chains = n_chains,
                                         burnin = mod$burnin,

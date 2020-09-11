@@ -44,9 +44,9 @@ map <- tibble::as_tibble(map) %>%
 #......................
 # run covidcurve simulator
 #......................
-wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog, sero_day) {
+wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog, sero_days) {
 
-  dat <- COVIDCurve::Aggsim_infxn_2_death(
+  dat <- COVIDCurve::Agesim_infxn_2_death(
     fatalitydata = fatalitydata,
     m_od = 19.26,
     s_od = 0.79,
@@ -71,7 +71,7 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
   # liftover obs serology
   obs_serology <- dat$StrataAgg_Seroprev %>%
     dplyr::group_by(Strata) %>%
-    dplyr::filter(ObsDay %in% sero_day) %>%
+    dplyr::filter(ObsDay %in% sero_days) %>%
     dplyr::mutate(
       SeroPos = round(ObsPrev * testedN),
       SeroN = testedN,
@@ -79,8 +79,8 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
       SeroUCI = NA) %>%
     dplyr::rename(
       SeroPrev = ObsPrev) %>%
-    dplyr::mutate(SeroStartSurvey = sero_day - 5,
-                  SeroEndSurvey = sero_day + 5) %>%
+    dplyr::mutate(SeroStartSurvey = sero_days - 5,
+                  SeroEndSurvey = sero_days + 5) %>%
     dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
     dplyr::ungroup(.) %>%
     dplyr::arrange(SeroStartSurvey, Strata)
@@ -95,9 +95,9 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
 }
 
 # run simdat and extract results into separate pieces
-map$simdat <- purrr::pmap(map, wrap_sim, sero_day = 150)
+map$simdat <- purrr::pmap(map, wrap_sim, sero_days = c(140, 160))
 map$inputdata <- purrr::map(map$simdat, "inputdata")
-map$simdat <- purrr::map(map$simdat, "simdat", sero_day = 150)
+map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(140, 160))
 
 #......................
 # make IFR model
@@ -134,13 +134,13 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
     infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
                                              num_ys = 5)
   }
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 1, init = 1, max = 11)
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 0.5, init = 1, max = 1.5)
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
 
   # make mod
-  mod1 <- COVIDCurve::make_IFRmodel_agg$new()
+  mod1 <- COVIDCurve::make_IFRmodel_age$new()
   mod1$set_MeanTODparam("mod")
   mod1$set_CoefVarOnsetTODparam("sod")
   mod1$set_IFRparams(paste0("ma", 1:5))
@@ -209,8 +209,6 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      reparamDelays = FALSE,
-                                      reparamNe = FALSE,
                                       chains = n_chains,
                                       burnin = 1e4,
                                       samples = 1e4,
@@ -224,7 +222,7 @@ run_MCMC <- function(path) {
   # out
   dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_noserorev/", recursive = TRUE)
   outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_noserorev/",
-                   mod$sim, ".RDS")
+                   mod$sim, "_NoSeroRev.RDS")
   saveRDS(fit, file = outpath)
 
   return(0)
