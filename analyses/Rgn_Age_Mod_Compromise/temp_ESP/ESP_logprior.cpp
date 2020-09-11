@@ -82,7 +82,8 @@ SEXP logprior(Rcpp::NumericVector params, int param_i, Rcpp::List misc) {
     R::dnorm(mod,19.5,1,true) +
     R::dbeta(sod,79,21,true) +
     3*log(x4) +
-    4*log(y3);
+    4*log(y3) +
+    9*log(ma10);
   if (!std::isfinite(ret)) {
     const double OVERFLO_DOUBLE = DBL_MAX/100.0;
     ret = -OVERFLO_DOUBLE;
