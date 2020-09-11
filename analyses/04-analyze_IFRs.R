@@ -234,7 +234,7 @@ death_type_plot <- ggplot() +
     scale_color_manual("Sero. Type", values = c("#4285F4", "#EA4335")) +
     scale_shape_manual("Death Type", values = c(23, 22, 24, 25)) +
     scale_fill_manual("Death Type", values = c(wesanderson::wes_palette("IsleofDogs2", type = "discrete"))) +
-    ylab("Infection Fatality Rate (%)") +
+    ylab("Infection Fatality Ratio (%)") +
     coord_flip() +
     theme(
       plot.title =  element_blank(),
