@@ -5,6 +5,8 @@
 #....................................................................................................
 library(tidyverse)
 library(brms)
+library(survival)
+library(survminer)
 source("R/my_themes.R")
 source("R/extra_plotting_functions.R")
 set.seed(48)
@@ -19,7 +21,8 @@ serotime <- readxl::read_excel("data/raw/shared/2020_08_06_SR1407_meta_analysis.
   magrittr::set_colnames(gsub("≥1", "gt1", colnames(.))) %>%
   dplyr::rename(sex = gender,
                 donor_id = sr1407,
-                days_post_symptoms = post_sx_days) %>%
+                days_post_symptoms = post_sx_days,
+                roche_gt1 = `roche_≥1`) %>%
   dplyr::mutate(sex = factor(sex, levels = c("F", "M")),
                 donor_id = factor(donor_id),
                 months_post_symptoms = days_post_symptoms/30)    # re-center days to months
@@ -31,6 +34,7 @@ serotime <- serotime %>%
   dplyr::mutate(assay = stringr::str_split_fixed(assay, "_", n = 2)[,1],
                 assay = factor(assay, levels = c("diasorin", "siemens", "abbott", "roche"),
                                labels = c("Diasorin", "Siemens", "Abbott", "Roche")))
+
 # drop hospitalized
 serotime <- serotime %>%
   dplyr::filter(hosp == "N")
@@ -116,18 +120,18 @@ serotime <- serotime %>%
   dplyr::filter(!is.na(days_post_symptoms))
 
 # must have at least three timepoints (since can fit any line through two)
-sero_nobs <- serotime %>%
-  dplyr::group_by(donor_id) %>%
-  dplyr::summarise(nobs = sum(!is.na(titres)))
-sero_sub <- dplyr::left_join(serotime, sero_nobs, by = c("donor_id")) %>%
-  dplyr::filter(nobs >= 3) %>%
-  dplyr::select(-c("nobs"))
+# sero_nobs <- serotime %>%
+#   dplyr::group_by(donor_id) %>%
+#   dplyr::summarise(nobs = sum(!is.na(titres)))
+# sero_sub <- dplyr::left_join(serotime, sero_nobs, by = c("donor_id")) %>%
+#   dplyr::filter(nobs >= 3) %>%
+#   dplyr::select(-c("nobs"))
 
 # must be positive at baseline
 thresholds <- tibble::tibble(assay = c("Diasorin", "Siemens", "Abbott", "Roche"),
                              threshold = c(15, 1, 1.4, 1))
 
-neg_at_baseline <-  sero_sub %>%
+neg_at_baseline <-  serotime %>%
   dplyr::group_by(donor_id, assay) %>%
   dplyr::filter(days_post_symptoms == min(days_post_symptoms, na.rm = TRUE)) %>%
   dplyr::left_join(., thresholds, by = c("assay")) %>%
@@ -150,7 +154,7 @@ neg_at_baseline <- neg_at_baseline %>%
   dplyr::mutate(drop = TRUE)
 
 # drop those individuals negative at baseline
-sero_sub_final <- sero_sub %>%
+sero_sub_final <- serotime %>%
   dplyr::left_join(., neg_at_baseline, by = c("assay", "donor_id")) %>%
   dplyr::filter(is.na(drop)) %>%
   dplyr::select(-c("drop"))
@@ -182,7 +186,7 @@ table(sero_sub_final$hosp)
 
 # drop to information that we need
 sero_sub_final <- sero_sub_final %>%
-  dplyr::select(c("donor_id", "assay", "titres", "months_post_symptoms")) %>%
+  dplyr::select(c("donor_id", "assay", "titres", "days_post_symptoms")) %>%
   dplyr::filter(!is.na(titres))
 
 
@@ -190,11 +194,11 @@ sero_sub_final <- sero_sub_final %>%
 sero_sub_final %>%
   dplyr::left_join(., thresholds, by = "assay") %>%
   ggplot() +
-  geom_line(aes(x = months_post_symptoms, y = titres, group = donor_id, color = assay),
+  geom_line(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay),
             color = "#3182bd") +
   geom_hline(aes(yintercept = threshold), linetype = "dashed") +
   facet_wrap(~assay, scales = "free_y") +
-  ylab("Ab. Titres") + xlab("Months Post-Symptom Onset") + ggtitle("Final Included") +
+  ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") + ggtitle("Final Included") +
   xyaxis_plot_theme
 
 # save out
@@ -436,13 +440,95 @@ sd(wb_fit_boot$estim$scale)
 library(survival)
 sero_sub_final_survival <- sero_sub_final %>%
   dplyr::group_by(donor_id) %>%
-  dplyr::filter(months_post_symptoms == max(months_post_symptoms)) %>%
-  dplyr::mutate(status = ifelse(titres < 1.4, 1, 0))
+  dplyr::mutate(status = ifelse(titres < 1.4, 1, 0),
+                status2=ifelse(min(titres,na.rm=T)<1.4,1,0),
+                max_time = ifelse(days_post_symptoms==max(days_post_symptoms),1,0)) %>%
+  dplyr::arrange(donor_id,days_post_symptoms)
 
-SurvMod <- survival::survreg(survival::Surv(months_post_symptoms, status) ~
-                               1 + survival::frailty.gaussian(donor_id),
+## those without event. Time1 is final observation time, time2 is missing.
+sero_pos<-sero_sub_final_survival %>%
+  dplyr::filter(status2==0,days_post_symptoms == max(days_post_symptoms)) %>%
+  dplyr::mutate(time1=days_post_symptoms,
+                time2=NA)
+
+## those who serorevert
+sero_rev<-sero_sub_final_survival %>%
+  dplyr::filter(status2==1)
+## extract last time observed postiive
+sero_rev_time1<- sero_rev %>%
+  dplyr::filter(status==0) %>%
+  dplyr::filter(days_post_symptoms==max(days_post_symptoms)) %>%
+  dplyr::mutate(time1=days_post_symptoms)
+#extract first time observed seroreverted (checked that no one becomes positive again after first being negative)
+sero_rev_time2<- sero_rev %>%
+  dplyr::filter(status==1) %>%
+  dplyr::filter(days_post_symptoms==min(days_post_symptoms)) %>%
+  dplyr::mutate(time2=days_post_symptoms) %>%
+  dplyr::select(donor_id,time2)
+## combine serorev
+sero_rev_comb<-left_join(sero_rev_time1,sero_rev_time2)
+
+#### combine seropos and serorev
+sero_sub_final_survival<-rbind(sero_pos,sero_rev_comb)
+sero_sub_final_survival <-sero_sub_final_survival %>%
+  dplyr::mutate(time_obs_fail = ifelse(status2==1,time2,time1))
+
+########### Regression
+## Not interval censored:
+survobj<-Surv(time=sero_sub_final_survival$time_obs_fail, event=sero_sub_final_survival$status2)
+
+#make kaplan meier object
+fit1<-survfit(survobj ~1,data = sero_sub_final_survival)
+# fit weibull
+SurvMod <- survival::survreg(survobj ~ 1,
+                             dist="weibull",
+                             data = sero_sub_final_survival)
+summary(SurvMod)
+
+## extract weibull params
+# survreg's scale = 1/(rweibull shape)
+wshape<-as.numeric(1/exp(SurvMod$icoef[2]))
+
+# survreg's intercept = log(rweibull scale)
+wscale<-exp(SurvMod$icoef[1])
+
+## fitted 'survival'
+t<-seq(0,max(sero_sub_final_survival$days_post_symptoms),0.5)
+weib<-exp(-(t/wscale)^wshape)   # cumulative weibull
+
+#str(SurvMod)
+ggsurvplot(fit1,data=sero_sub_final_survival,ylab="prob still positive",xlab="days")
+par(mfrow=c(1,2))
+hist(rweibull(10000,shape=wshape,scale=wscale),xlab="days",main="")
+plot(t,weib,type="l",xlab="days",ylab="fitted weibull curve",ylim=c(0,1))
+
+
+
+############## With interval censoring
+### don't need to specify event as we know that if time2 is missing, there was no event.
+survobj<-Surv(time=sero_sub_final_survival$time1, time2=sero_sub_final_survival$time1, type = "interval2" )
+fit1<-survfit(survobj ~1,data = sero_sub_final_survival)
+SurvMod <- survival::survreg(survobj ~ 1,
                              dist="weibull",
                              data = sero_sub_final_survival)
 
 summary(SurvMod)
-str(SurvMod)
+
+## extract weibull params
+# survreg's scale = 1/(rweibull shape)
+wshape<-as.numeric(1/exp(SurvMod$icoef[2]))
+
+# survreg's intercept = log(rweibull scale)
+wscale<-exp(SurvMod$icoef[1])
+
+## fitted 'survival'
+t<-seq(0,max(sero_sub_final_survival$days_post_symptoms),0.5)
+weib<-exp(-(t/wscale)^wshape)   # cumulative weibull
+
+#str(SurvMod)
+ggsurvplot(fit1,data=sero_sub_final_survival,ylab="prob still positive",xlab="days")
+par(mfrow=c(1,2))
+hist(rweibull(10000,shape=wshape,scale=wscale),xlab="days",main="")
+plot(t,weib,type="l",xlab="days",ylab="fitted weibull curve",ylim=c(0,1))
+
+
