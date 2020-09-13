@@ -42,6 +42,7 @@ dat <- COVIDCurve::Agesim_infxn_2_death(
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = FALSE,
+  smplfrac = 1e-3,
   sens = 0.85,
   spec = 0.95,
   sero_delay_rate = 18.3,
@@ -57,6 +58,7 @@ serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
   simulate_seroreversion = TRUE,
   sero_rev_shape = 4.5,
   sero_rev_scale = 200,
+  smplfrac = 1e-3,
   sens = 0.85,
   spec = 0.95,
   sero_delay_rate = 18.3,
@@ -181,31 +183,36 @@ df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, s
 df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf_serorev)
 
 
-# make mod
-mod1 <- COVIDCurve::make_IFRmodel_age$new()
-mod1$set_MeanTODparam("mod")
-mod1$set_CoefVarOnsetTODparam("sod")
-mod1$set_IFRparams("ma1")
-mod1$set_Knotparams(paste0("x", 1:4))
-mod1$set_relKnot("x4")
-mod1$set_Infxnparams(paste0("y", 1:5))
-mod1$set_relInfxn("y3")
 #......................
 # make model for serorev and regular
 #......................
-mod1_reg <- mod1
-mod1_serorev <- mod1
 # reg
+mod1_reg <- COVIDCurve::make_IFRmodel_age$new()
+mod1_reg$set_MeanTODparam("mod")
+mod1_reg$set_CoefVarOnsetTODparam("sod")
+mod1_reg$set_IFRparams("ma1")
+mod1_reg$set_Knotparams(paste0("x", 1:4))
+mod1_reg$set_relKnot("x4")
+mod1_reg$set_Infxnparams(paste0("y", 1:5))
+mod1_reg$set_relInfxn("y3")
 mod1_reg$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_reg$set_data(reginputdata)
 mod1_reg$set_demog(demog)
 mod1_reg$set_paramdf(df_params_reg)
 mod1_reg$set_rcensor_day(.Machine$integer.max)
 # serorev
-mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
-mod1_serorev$set_data(serorev_inputdata)
+mod1_serorev <- COVIDCurve::make_IFRmodel_age$new()
+mod1_serorev$set_MeanTODparam("mod")
+mod1_serorev$set_CoefVarOnsetTODparam("sod")
+mod1_serorev$set_IFRparams("ma1")
+mod1_serorev$set_Knotparams(paste0("x", 1:4))
+mod1_serorev$set_relKnot("x4")
+mod1_serorev$set_Infxnparams(paste0("y", 1:5))
+mod1_serorev$set_relInfxn("y3")
+mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
+mod1_serorev$set_data(reginputdata)
 mod1_serorev$set_demog(demog)
-mod1_serorev$set_paramdf(df_params_serorev)
+mod1_serorev$set_paramdf(df_params_reg)
 mod1_serorev$set_rcensor_day(.Machine$integer.max)
 
 #............................................................

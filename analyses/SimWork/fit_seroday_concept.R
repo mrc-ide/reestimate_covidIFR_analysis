@@ -42,6 +42,7 @@ dat <- COVIDCurve::Agesim_infxn_2_death(
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = FALSE,
+  smplfrac = 1e-3,
   sens = 0.85,
   spec = 0.95,
   sero_delay_rate = 18.3,
@@ -156,28 +157,33 @@ infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0,
 df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf)
 
 
-# make mod
-mod1 <- COVIDCurve::make_IFRmodel_age$new()
-mod1$set_MeanTODparam("mod")
-mod1$set_CoefVarOnsetTODparam("sod")
-mod1$set_IFRparams("ma1")
-mod1$set_Knotparams(paste0("x", 1:4))
-mod1$set_relKnot("x4")
-mod1$set_Infxnparams(paste0("y", 1:5))
-mod1$set_relInfxn("y3")
-mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
-
 #......................
-# make model for serorev and regular
+# make model for one day and to day
 #......................
-mod1_oneday <- mod1
-mod1_twodays <- mod1
 # one day
+mod1_oneday <- COVIDCurve::make_IFRmodel_age$new()
+mod1_oneday$set_MeanTODparam("mod")
+mod1_oneday$set_CoefVarOnsetTODparam("sod")
+mod1_oneday$set_IFRparams("ma1")
+mod1_oneday$set_Knotparams(paste0("x", 1:4))
+mod1_oneday$set_relKnot("x4")
+mod1_oneday$set_Infxnparams(paste0("y", 1:5))
+mod1_oneday$set_relInfxn("y3")
+mod1_oneday$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_oneday$set_data(oneday_inputdata)
 mod1_oneday$set_demog(demog)
 mod1_oneday$set_paramdf(df_params)
 mod1_oneday$set_rcensor_day(.Machine$integer.max)
 # two days
+mod1_twodays <- COVIDCurve::make_IFRmodel_age$new()
+mod1_twodays$set_MeanTODparam("mod")
+mod1_twodays$set_CoefVarOnsetTODparam("sod")
+mod1_twodays$set_IFRparams("ma1")
+mod1_twodays$set_Knotparams(paste0("x", 1:4))
+mod1_twodays$set_relKnot("x4")
+mod1_twodays$set_Infxnparams(paste0("y", 1:5))
+mod1_twodays$set_relInfxn("y3")
+mod1_twodays$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_twodays$set_data(twodays_inputdata)
 mod1_twodays$set_demog(demog)
 mod1_twodays$set_paramdf(df_params)

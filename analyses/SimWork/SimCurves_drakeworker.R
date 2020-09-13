@@ -57,7 +57,7 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     spec = spec,
     sero_delay_rate = 18.3,
     demog = demog,
-    smplfrac = 0.25,
+    smplfrac = 1e-3,
     return_linelist = FALSE)
 
   # liftover proprtion deaths
