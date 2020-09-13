@@ -506,7 +506,7 @@ plot(t,weib,type="l",xlab="days",ylab="fitted weibull curve",ylim=c(0,1))
 
 ############## With interval censoring
 ### don't need to specify event as we know that if time2 is missing, there was no event.
-survobj<-Surv(time=sero_sub_final_survival$time1, time2=sero_sub_final_survival$time1, type = "interval2" )
+survobj<-Surv(time=sero_sub_final_survival$time1, time2=sero_sub_final_survival$time2, type = "interval2" )
 fit1<-survfit(survobj ~1,data = sero_sub_final_survival)
 SurvMod <- survival::survreg(survobj ~ 1,
                              dist="weibull",
@@ -531,4 +531,33 @@ par(mfrow=c(1,2))
 hist(rweibull(10000,shape=wshape,scale=wscale),xlab="days",main="")
 plot(t,weib,type="l",xlab="days",ylab="fitted weibull curve",ylim=c(0,1))
 
+
+## Sanity check - what would the earliest possible failure time graph look like?
+#Not interval censored:
+survobj<-Surv(time=sero_sub_final_survival$time1, event=sero_sub_final_survival$status2)
+
+#make kaplan meier object
+fit1<-survfit(survobj ~1,data = sero_sub_final_survival)
+# fit weibull
+SurvMod <- survival::survreg(survobj ~ 1,
+                             dist="weibull",
+                             data = sero_sub_final_survival)
+summary(SurvMod)
+
+## extract weibull params
+# survreg's scale = 1/(rweibull shape)
+wshape<-as.numeric(1/exp(SurvMod$icoef[2]))
+
+# survreg's intercept = log(rweibull scale)
+wscale<-exp(SurvMod$icoef[1])
+
+## fitted 'survival'
+t<-seq(0,max(sero_sub_final_survival$days_post_symptoms),0.5)
+weib<-exp(-(t/wscale)^wshape)   # cumulative weibull
+
+#str(SurvMod)
+ggsurvplot(fit1,data=sero_sub_final_survival,ylab="prob still positive",xlab="days")
+par(mfrow=c(1,2))
+hist(rweibull(10000,shape=wshape,scale=wscale),xlab="days",main="")
+plot(t,weib,type="l",xlab="days",ylab="fitted weibull curve",ylim=c(0,1))
 
