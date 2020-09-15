@@ -345,6 +345,6 @@ bottomrow <- cowplot::plot_grid(no_serorev_infIFR_plotObj, serorev_infIFR_plotOb
 
 dir.create("figures/final_figures/", recursive = TRUE)
 jpeg("figures/final_figures/Fig_concept_diagram.jpg",
-     height = 9, width = 8, units = "in", res = 500)
+     height = 9, width = 8, units = "in", res = 800)
 plot(mainfig)
 graphics.off()
