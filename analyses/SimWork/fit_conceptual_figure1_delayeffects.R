@@ -73,7 +73,7 @@ serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
 # wrangle input data from non-seroreversion fit
 #......................
 # liftover obs serology
-sero_days <- c(140, 200)
+sero_days <- c(115, 155)
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay %in% sero_days) %>%
@@ -108,23 +108,28 @@ reginputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 # wrangle input data from non-seroreversion fit
 #......................
 # sero tidy up
-sero_days <- c(140, 200)
-obs_serology <- serorev_dat$StrataAgg_Seroprev %>%
+sero_days <- c(115, 155)
+sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
+obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
-  dplyr::filter(ObsDay %in% sero_days) %>%
+  dplyr::filter(ObsDay %in% unlist(sero_days)) %>%
+  dplyr::mutate(serodaynum = sort(rep(1:length(sero_days), 11))) %>%
   dplyr::mutate(
-    SeroPos = round(ObsPrev * testedN),
-    SeroN = testedN,
-    SeroLCI = NA,
-    SeroUCI = NA) %>%
-  dplyr::rename(
-    SeroDay = ObsDay,
-    SeroPrev = ObsPrev) %>%
-  dplyr::mutate(SeroStartSurvey = sero_days - 5,
-                SeroEndSurvey = sero_days + 5) %>%
-  dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
+    SeroPos = ObsPrev * testedN,
+    SeroN = testedN ) %>%
+  dplyr::group_by(Strata, serodaynum) %>%
+  dplyr::summarise(SeroPos = mean(SeroPos),
+                   SeroN = mean(SeroN)) %>% # seroN doesn't change
+  dplyr::mutate(SeroStartSurvey = sapply(sero_days, median) - 5,
+                SeroEndSurvey = sapply(sero_days, median) + 5,
+                SeroPos = round(SeroPos),
+                SeroPrev = SeroPos/SeroN) %>%
+  dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
   dplyr::ungroup(.) %>%
-  dplyr::arrange(SeroStartSurvey, Strata)
+  dplyr::arrange(SeroStartSurvey, Strata) %>%
+  dplyr::mutate(SeroLCI = SeroPrev - 0.01,
+                SeroUCI = SeroPrev + 0.01) # make up some tight CIs
+
 
 # proportion deaths
 prop_deaths <- serorev_dat$StrataAgg_TimeSeries_Death %>%
@@ -175,7 +180,7 @@ tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
 
 # make param dfs
 ifr_paramsdf <- make_ma_reparamdf(num_mas = 1, upperMa = 0.4)
-knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
+knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 160, init = 170, max = 180, dsc1 = 160, dsc2 = 180),
                                         num_xs = 4)
 infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
                                          num_ys = 5)
@@ -200,7 +205,7 @@ mod1_reg$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_reg$set_data(reginputdata)
 mod1_reg$set_demog(demog)
 mod1_reg$set_paramdf(df_params_reg)
-mod1_reg$set_rcensor_day(.Machine$integer.max)
+mod1_reg$set_rcensor_day(180)
 # serorev
 mod1_serorev <- COVIDCurve::make_IFRmodel_age$new()
 mod1_serorev$set_MeanTODparam("mod")
@@ -214,7 +219,7 @@ mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_serorev$set_data(reginputdata)
 mod1_serorev$set_demog(demog)
 mod1_serorev$set_paramdf(df_params_reg)
-mod1_serorev$set_rcensor_day(.Machine$integer.max)
+mod1_serorev$set_rcensor_day(180)
 
 #............................................................
 #---- Come Together #----
