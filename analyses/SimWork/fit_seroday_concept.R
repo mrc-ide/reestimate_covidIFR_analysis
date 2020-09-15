@@ -92,7 +92,7 @@ oneday_inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 # wrangle input data from non-seroreversion fit
 #......................
 # sero tidy up
-sero_days <- c(140, 160)
+sero_days <- c(140, 200)
 TwoDays_obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay %in% sero_days) %>%

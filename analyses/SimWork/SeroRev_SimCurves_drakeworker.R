@@ -55,8 +55,8 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     curr_day = 200,
     infections = curve,
     simulate_seroreversion = TRUE,
-    sero_rev_shape = 4.5,
-    sero_rev_scale = 200,
+    sero_rev_shape = 3.74,
+    sero_rev_scale = 143.37,
     sens = sens,
     spec = spec,
     sero_delay_rate = 18.3,
@@ -99,9 +99,9 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
 }
 
 # run simdat and extract results into separate pieces
-map$simdat <- purrr::pmap(map, wrap_sim, sero_days = c(140, 160))
+map$simdat <- purrr::pmap(map, wrap_sim, sero_days = c(140, 200))
 map$inputdata <- purrr::map(map$simdat, "inputdata")
-map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(140, 160))
+map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(140, 200))
 
 #......................
 # make IFR model
@@ -109,11 +109,11 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(140, 160))
 # sens/spec
 get_sens_spec_tbl <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",        "sero_rev_shape",    "sero_rev_scale"),
-                 min =   c(0.5,              0.5,           2,                   215),
-                 init =  c(0.9,              0.99,          3.5,                 245),
-                 max =   c(1,                1,             5,                   275),
-                 dsc1 =  c(sens*1e3,        spec*1e3,       3.1,                 246),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 0.25,                8.75))
+                 min =   c(0.5,              0.5,           2,                   128),
+                 init =  c(0.9,              0.99,          3.5,                 143),
+                 max =   c(1,                1,             5,                   158),
+                 dsc1 =  c(sens*1e3,        spec*1e3,       3.74,                143.37),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 1,                   5))
 
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec_tbl)
@@ -121,10 +121,10 @@ map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec_tbl)
 # delay priors
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                min  = c(18,     0,     16),
-                               init = c(19,     0.79,  18),
+                               init = c(19,     0.90,  18),
                                max =  c(20,     1,     21),
-                               dsc1 = c(19.26,  2370,  18.3),
-                               dsc2 = c(0.1,    630,   0.1))
+                               dsc1 = c(19.66,  2700,  18.3),
+                               dsc2 = c(0.1,    300,   0.1))
 
 # everything else for region
 wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {

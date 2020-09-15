@@ -19,7 +19,7 @@ interveneflat <- infxn_shapes$intervene
 # note need more infxns for sensitivity to be apparent on conceptual diagrams
 interveneflat <- interveneflat * 3
 interveneflat <- c(interveneflat, round(seq(from = interveneflat[200],
-                                      to = 10, length.out = 100)))
+                                            to = 10, length.out = 100)))
 
 
 
@@ -37,8 +37,8 @@ demog <- tibble::tibble(Strata = "ma1",
 dat <- COVIDCurve::Agesim_infxn_2_death(
   fatalitydata = fatalitydata,
   demog = demog,
-  m_od = 19.26,
-  s_od = 0.76,
+  m_od = 19.66,
+  s_od = 0.90,
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = FALSE,
@@ -51,8 +51,8 @@ dat <- COVIDCurve::Agesim_infxn_2_death(
 serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
   fatalitydata = fatalitydata,
   demog = demog,
-  m_od = 19.26,
-  s_od = 0.76,
+  m_od = 19.66,
+  s_od = 0.90,
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = TRUE,
@@ -73,7 +73,7 @@ serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
 # wrangle input data from non-seroreversion fit
 #......................
 # liftover obs serology
-sero_days <- c(140, 160)
+sero_days <- c(140, 200)
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay %in% sero_days) %>%
@@ -108,7 +108,7 @@ reginputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 # wrangle input data from non-seroreversion fit
 #......................
 # sero tidy up
-sero_days <- c(140, 160)
+sero_days <- c(140, 200)
 obs_serology <- serorev_dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay %in% sero_days) %>%
@@ -148,25 +148,26 @@ serorev_inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 # sens/spec
 sens_spec_tbl <- tibble::tibble(name =  c("sens",  "spec"),
                                 min =   c(0.5,      0.5),
-                                init =  c(0.85,     0.99),
+                                init =  c(0.85,     0.95),
                                 max =   c(1,        1),
-                                dsc1 =  c(850.5,    990.5),
-                                dsc2 =  c(150.5,    10.5))
+                                dsc1 =  c(850.5,    950.5),
+                                dsc2 =  c(150.5,    50.5))
 
 # delay priors
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                min  = c(18,     0,     16),
-                               init = c(19,     0.79,  18),
+                               init = c(19,     0.90,  18),
                                max =  c(20,     1,     21),
-                               dsc1 = c(19.26,  2370,  18.3),
-                               dsc2 = c(0.1,    630,   0.1))
+                               dsc1 = c(19.66,  2700,  18.3),
+                               dsc2 = c(0.1,    300,   0.1))
 
 serorev <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-                          min  = c(2,                 190),
-                          init = c(4.5,               200),
-                          max =  c(7,                 210),
-                          dsc1 = c(4.5,               200),
-                          dsc2 = c(0.5,               1))
+                          min  = c(2,                 128),
+                          init = c(3.5,               143),
+                          max =  c(5,                 158),
+                          dsc1 = c(3.74,              143.37),
+                          dsc2 = c(1,                 3))
+
 # combine
 tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
 
@@ -218,11 +219,11 @@ mod1_serorev$set_rcensor_day(.Machine$integer.max)
 #............................................................
 #---- Come Together #----
 #...........................................................
-bvec <- seq(5, 3.5, length.out = 50)
+bvec <- seq(5, 2.5, length.out = 50)
 
 fit_map <- tibble::tibble(
   name = c("reg_mod", "serorev_mod"),
-  infxns = list(interveneflat, NULL), # Null sinse same infections
+  infxns = list(interveneflat, NULL), # Null since same infections
   simdat = list(dat, serorev_dat),
   modelobj = list(mod1_reg, mod1_serorev),
   rungs = 50,
