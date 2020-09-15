@@ -97,11 +97,11 @@ modout <- readRDS(params$path)
 
 # get sim details
 simnm <- sub(".RDS", "", basename(params$path))
-simnm <- sub("_SeroRev.RDS", "", basename(params$path))
-simnm <- sub("_NoSeroRev.RDS", "", basename(params$path))
+simnm <- sub("_SeroRev", "", simnm)
+simnm <- sub("_NoSeroRev", "", simnm)
 
 if (modout$inputs$account_seroreversion) {
-  sim_param_map <- readRDS("data/param_map/SimCurves/simfit_param_map.RDS") %>% 
+  sim_param_map <- readRDS("data/param_map/SimCurves_serorev/simfit_param_map.RDS") %>% 
   dplyr::filter(sim == simnm)
 } else {
   sim_param_map <- readRDS("data/param_map/SimCurves_noserorev/simfit_param_map.RDS") %>%
@@ -231,9 +231,9 @@ pB <- serocurvedat %>%
   geom_line(aes(x = ObsDay, y = seroprev), alpha = 0.5, color = "#9ecae1") +
   geom_line(aes(x = ObsDay, y = TruePrev), color = "#000000") +
   geom_rect(aes(xmin = 135, xmax = 145, ymin = 0, ymax = Inf), 
-            alpha = 0.3, color = "#bdbdbd", fill = "#bdbdbd") + 
+            alpha = 0.1, color = "#bdbdbd", fill = "#bdbdbd") + 
   geom_rect(aes(xmin = 155, xmax = 165, ymin = 0, ymax = Inf), 
-            alpha = 0.3, color = "#bdbdbd", fill = "#bdbdbd") + 
+            alpha = 0.1, color = "#bdbdbd", fill = "#bdbdbd") + 
   facet_wrap(~Strata) + 
   xyaxis_plot_theme + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold")) +
