@@ -101,8 +101,8 @@ age_seroplot <- ageplotdat %>%
   ggplot() + theme_bw() +
   geom_point(aes(x = age_mid, y = seroprev, fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
   geom_line(aes(x = age_mid, y = seroprev, group=study_id,color=study_id), size = 0.3) +
-  scale_fill_manual(values = col_vec, name = "study_id") +
-  scale_color_manual(values = col_vec, name = "study_id") +
+  scale_fill_manual(values = mycolors, name = "study_id") +
+  scale_color_manual(values = mycolors, name = "study_id") +
   xlab("Age (yrs).") + ylab("Raw Seroprevalence (%)") +
   xyaxis_plot_theme
 if(write2file) ggsave(filename = "results/descriptive_figures/age_raw_seroplot.tiff",
@@ -118,7 +118,7 @@ age_seroplot <- ageplotdat %>%
   ggplot() +
   geom_line(aes(x = age_mid, y = seroprevadj, color = study_id), alpha = 0.8, size = 1.2) +
   geom_point(aes(x = age_mid, y = seroprevadj, color = study_id)) +
-  scale_color_manual("Study ID", values = discrete_colors) +
+  scale_color_manual("Study ID", values = mycolors) +
   xlab("Age (yrs).") + ylab("Adj. Seroprevalence (%)") +
   xyaxis_plot_theme
 if(write2file) ggsave(filename = "results/descriptive_figures/age_adj_seroplot.tiff",
@@ -130,7 +130,7 @@ if(write2file) ggsave(filename = "results/descriptive_figures/age_adj_seroplot.t
 # raw serology
 age_IFRraw_plot0 <- ageplotdat %>%
   dplyr::filter(seromidpt == obsday) %>%
-  dplyr::select(c("study_id","n_positive","n_tested","ageband","age_low","age_high", "age_mid", "cumdeaths", "popn", "seroprev", "seroprevadj","study_cols","care_home_deaths","country")) %>%
+  dplyr::select(c("study_id","n_positive","n_tested","ageband", "age_mid", "cumdeaths", "popn", "seroprev", "seroprevadj","care_home_deaths")) %>%
   dplyr::mutate(infxns = popn * seroprev,
                 crudeIFR =  cumdeaths/(infxns+cumdeaths),
                 crudeIFR = ifelse(crudeIFR > 1, 1, crudeIFR),
@@ -146,7 +146,7 @@ age_IFRraw_plot <- age_IFRraw_plot0 %>%
   ggplot() +
   geom_line(aes(x = age_mid, y = crudeIFR, color = study_id), alpha = 0.8, size = 1.2) +
   geom_point(aes(x = age_mid, y = crudeIFR, fill = seroprev), color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
-  scale_color_manual("Study ID", values = discrete_colors) +
+  scale_color_manual("Study ID", values = mycolors) +
   scale_fill_gradientn("Raw Seroprev.",
                        colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
   xlab("Age (yrs).") + ylab("Crude Infection Fatality Rate") +
@@ -162,8 +162,8 @@ age_IFRraw_plot2 <- age_IFRraw_plot0 %>%
   ggplot() + theme_bw() +
   geom_point(aes(x = age_mid, y = crudeIFR, fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
   geom_line(aes(x = age_mid, y = crudeIFR, group=study_id,color=study_id), size = 0.3) +
-  scale_fill_manual(values = col_vec, name = "study_id") +
-  scale_color_manual(values = col_vec, name = "study_id") +
+  scale_fill_manual(values = mycolors, name = "study_id") +
+  scale_color_manual(values = mycolors, name = "study_id") +
   xlab("Age (years)") + ylab("Crude infection fatality rate") +
   xyaxis_plot_theme
 if(write2file) ggsave(filename = "results/descriptive_figures/age_IFRraw_plot2.pdf", plot = age_IFRraw_plot2, width = 7, height = 5)
@@ -175,7 +175,7 @@ age_IFRraw_plot_log <- age_IFRraw_plot0 %>%
   geom_point(aes(x = age_mid, y = crudeIFR, fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
   geom_line(aes(x = age_mid, y = crudeIFR, group=study_id,color=study_id), size = 0.3) +
   scale_fill_manual(values = col_vec, name = "study_id") +
-  scale_color_manual(values = col_vec, name = "study_id") +
+  scale_color_manual(values = mycolors, name = "study_id") +
   xlab("Age (years)") + ylab("Crude infection fatality rate") +
   xyaxis_plot_theme +
   scale_y_log10()

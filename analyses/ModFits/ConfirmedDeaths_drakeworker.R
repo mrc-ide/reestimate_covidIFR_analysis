@@ -19,10 +19,10 @@ source("R/covidcurve_helper_functions.R")
 #......................
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                min  = c(18,     0,     16),
-                               init = c(19,     0.79,  18),
+                               init = c(19,     0.90,  18),
                                max =  c(20,     1,     21),
-                               dsc1 = c(19.26,  2370,  18.3),
-                               dsc2 = c(0.1,    630,   0.1))
+                               dsc1 = c(19.66,  2700,  18.3),
+                               dsc2 = c(0.1,    300,   0.1))
 #......................
 # seroreversion weibull scale/shape for various assay
 # (for later rbinds)
@@ -51,11 +51,11 @@ sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
 # agebands
 #......................
 rawage <- readRDS("data/derived/confirmeddeaths/GBR3_confirmed_deaths.rds")
-GBR3_confirmeddeaths_mod <- make_IFR_model_fit(num_mas = 4, maxMa = "ma4",
-                                         groupvar = "ageband",  dat = rawage,
-                                         num_xs = 4, max_xveclist = list("name" = "x4", min = 206, init = 210, max = 213, dsc1 = 199, dsc2 = 213),
-                                         num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
-                                         sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+GBR3_confirmeddeaths_mod <- make_noSeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
+                                                         groupvar = "ageband",  dat = rawage,
+                                                         num_xs = 4, max_xveclist = list("name" = "x4", min = 206, init = 210, max = 213, dsc1 = 199, dsc2 = 213),
+                                                         num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
+                                                         sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
 
 
 
@@ -74,11 +74,11 @@ sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
 # agebands
 #......................
 rawage <- readRDS("data/derived/confirmeddeaths/NYC_confirmed_deaths.rds")
-NYC_confirmeddeaths_mod <- make_IFR_model_fit(num_mas = 5, maxMa = "ma5",
-                                        groupvar = "ageband",  dat = rawage,
-                                        num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
-                                        num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),
-                                        sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+NYC_confirmeddeaths_mod <- make_noSeroRev_IFR_model_fit(num_mas = 5, maxMa = "ma5",
+                                                        groupvar = "ageband",  dat = rawage,
+                                                        num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
+                                                        num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),
+                                                        sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
@@ -132,8 +132,6 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      reparamDelays = FALSE,
-                                      reparamNe = FALSE,
                                       binomial_likelihood = TRUE,
                                       chains = n_chains,
                                       burnin = mod$burnin,

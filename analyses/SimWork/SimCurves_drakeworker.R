@@ -44,9 +44,9 @@ map <- tibble::as_tibble(map) %>%
 #......................
 # run covidcurve simulator
 #......................
-wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog, sero_day) {
+wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog, sero_days) {
 
-  dat <- COVIDCurve::Aggsim_infxn_2_death(
+  dat <- COVIDCurve::Agesim_infxn_2_death(
     fatalitydata = fatalitydata,
     m_od = 19.26,
     s_od = 0.79,
@@ -57,7 +57,7 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     spec = spec,
     sero_delay_rate = 18.3,
     demog = demog,
-    smplfrac = 0.25,
+    smplfrac = 1e-3,
     return_linelist = FALSE)
 
   # liftover proprtion deaths
@@ -71,7 +71,7 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
   # liftover obs serology
   obs_serology <- dat$StrataAgg_Seroprev %>%
     dplyr::group_by(Strata) %>%
-    dplyr::filter(ObsDay %in% sero_day) %>%
+    dplyr::filter(ObsDay %in% sero_days) %>%
     dplyr::mutate(
       SeroPos = round(ObsPrev * testedN),
       SeroN = testedN,
@@ -79,8 +79,8 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
       SeroUCI = NA) %>%
     dplyr::rename(
       SeroPrev = ObsPrev) %>%
-    dplyr::mutate(SeroStartSurvey = sero_day - 5,
-                  SeroEndSurvey = sero_day + 5) %>%
+    dplyr::mutate(SeroStartSurvey = sero_days - 5,
+                  SeroEndSurvey = sero_days + 5) %>%
     dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
     dplyr::ungroup(.) %>%
     dplyr::arrange(SeroStartSurvey, Strata)
@@ -95,31 +95,31 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
 }
 
 # run simdat and extract results into separate pieces
-map$simdat <- purrr::pmap(map, wrap_sim, sero_day = 150)
+map$simdat <- purrr::pmap(map, wrap_sim, sero_days = c(140, 200))
 map$inputdata <- purrr::map(map$simdat, "inputdata")
-map$simdat <- purrr::map(map$simdat, "simdat", sero_day = 150)
+map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(140, 200))
 
 #......................
 # make IFR model
 #......................
 # sens/spec
 get_sens_spec_tbl <- function(sens, spec) {
-  tibble::tibble(name =  c("sens",          "spec",        "sero_rev_shape",    "sero_rev_scale"),
-                 min =   c(0.5,              0.5,           NA,                  NA),
-                 init =  c(0.9,              0.99,          NA,                  NA),
-                 max =   c(1,                1,             NA,                  NA),
-                 dsc1 =  c(sens*1e3,        spec*1e3,       NA,                  NA),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), NA,                  NA))
+  tibble::tibble(name =  c("sens",          "spec"),
+                 min =   c(0.5,              0.5),
+                 init =  c(0.9,              0.99),
+                 max =   c(1,                1),
+                 dsc1 =  c(sens*1e3,        spec*1e3),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3)))
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec_tbl)
 
 # delay priors
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                min  = c(18,     0,     16),
-                               init = c(19,     0.79,  18),
+                               init = c(19,     0.90,  18),
                                max =  c(20,     1,     21),
-                               dsc1 = c(19.26,  2370,  18.3),
-                               dsc2 = c(0.1,    630,   0.1))
+                               dsc1 = c(19.66,  2700,  18.3),
+                               dsc2 = c(0.1,    300,   0.1))
 
 # everything else for region
 wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
@@ -134,13 +134,13 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
     infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
                                              num_ys = 5)
   }
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 1, init = 1, max = 11)
+  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 0.5, init = 1, max = 1.5)
 
   # bring together
   df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
 
   # make mod
-  mod1 <- COVIDCurve::make_IFRmodel_agg$new()
+  mod1 <- COVIDCurve::make_IFRmodel_age$new()
   mod1$set_MeanTODparam("mod")
   mod1$set_CoefVarOnsetTODparam("sod")
   mod1$set_IFRparams(paste0("ma", 1:5))
@@ -150,11 +150,10 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_Infxnparams(paste0("y", 1:5))
   mod1$set_relInfxn("y3")
   mod1$set_Noiseparams(c(paste0("Ne", 1:5)))
-  mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
+  mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rho(demog$popN/sum(demog$popN))
   mod1$set_rcensor_day(.Machine$integer.max)
   # out
   mod1
@@ -209,8 +208,6 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      reparamDelays = FALSE,
-                                      reparamNe = FALSE,
                                       chains = n_chains,
                                       burnin = 1e4,
                                       samples = 1e4,
@@ -224,7 +221,7 @@ run_MCMC <- function(path) {
   # out
   dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_noserorev/", recursive = TRUE)
   outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_noserorev/",
-                   mod$sim, ".RDS")
+                   mod$sim, "_NoSeroRev.RDS")
   saveRDS(fit, file = outpath)
 
   return(0)

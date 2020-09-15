@@ -24,11 +24,17 @@ source("R/my_themes.R")
 modout <- readRDS(params$path)
 
 # pieces for below
-studyidchar <- toupper(stringr::str_split(basename(params$path), "_age|_rgn", simplify = T)[[1]])
-stratachar <- ifelse(grepl("age", basename(params$path)), "Age-Band", "Region")
+studyidchar <- title <- toupper(stringr::str_split(basename(params$path), "_age|_rgn|_carehomes", simplify = T)[[1]])
+
+# catch care homes
+if (grepl("_carehomes", basename(params$path))) {
+  title <- paste(title, "with Care Homes Excluded")
+}
+
+stratachar <- ifelse(grepl("age|carehomes", basename(params$path)), "Age-Band", "Region")
 ```
 
-# `r paste(studyidchar)`
+# `r paste(title)`
 
 ## Fit Diagnostics
 #### Log Plot
@@ -88,7 +94,7 @@ ifrs <- dplyr::left_join(dictkey, ifrs) %>%
 #...................... 
 # get crude ifrs 
 #......................
-dscdat <- readRDS("data/results/descriptive_results_datamap.RDS") 
+dscdat <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS") 
 crudedat <- dscdat %>% 
   dplyr::filter(study_id == studyidchar & breakdown == gsub("-", "", tolower(stratachar)))  %>%
   dplyr::select(c("study_id", "plotdat")) %>%

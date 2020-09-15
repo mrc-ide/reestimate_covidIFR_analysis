@@ -27,7 +27,9 @@ quick_sim_sero_diagnostics <- function(modout, spec, sens) {
   sodchain <- drjacoby::plot_par(modout$mcmcout, "sod", display = FALSE)
   seroratechain <- drjacoby::plot_par(modout$mcmcout, "sero_con_rate", display = FALSE)
   
-  maxmachain <- maxmachain[[1]][["trace"]] + theme(legend.position = "none")
+  maxmachain <- maxmachain[[1]][["trace"]] + 
+    geom_hline(yintercept = 0.2, linetype = "dashed", size = 1.25) +
+    theme(legend.position = "none")
   spechain <- spechain[[1]][["trace"]] + geom_hline(yintercept = spec, linetype = "dashed", size = 1.25) +
     labs(caption = paste0("Prior was Beta(",
                           paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "spec", c("dsc1", "dsc2")], collapse = ","),
@@ -95,6 +97,9 @@ modout <- readRDS(params$path)
 
 # get sim details
 simnm <- sub(".RDS", "", basename(params$path))
+simnm <- sub("_SeroRev.RDS", "", basename(params$path))
+simnm <- sub("_NoSeroRev.RDS", "", basename(params$path))
+
 if (modout$inputs$account_seroreversion) {
   sim_param_map <- readRDS("data/param_map/SimCurves/simfit_param_map.RDS") %>% 
   dplyr::filter(sim == simnm)
@@ -106,7 +111,8 @@ if (modout$inputs$account_seroreversion) {
 truecurve <- sim_param_map %>% 
   dplyr::pull("curve")
 # pull out of list
-truecurve <- truecurve[[1]]
+truecurve <- tibble::tibble(time = 1:length(truecurve[[1]]),
+                            infxns = truecurve[[1]])
 
 trueseroprev <- sim_param_map %>% 
   dplyr::pull("simdat")
@@ -114,11 +120,11 @@ trueseroprev <- trueseroprev[[1]]$StrataAgg_Seroprev
 
 ```
 
-# `r paste0("Simulation run: ", sim)`
+# `r paste0("Simulation run: ", simnm)`
 
 ## Fit Diagnostics
 #### Log Plot & Metropolis Coupling Acceptance Plot
-```{r, results='asis', fig.width=7.5, fig.height=9.5}
+```{r, results='asis', fig.width=6.5, fig.height=7.5}
 #......................
 # like and mc accept
 #......................
@@ -192,14 +198,11 @@ ifrs %>%
 infxncurve <- COVIDCurve::draw_posterior_infxn_cubic_splines(IFRmodel_inf = modout,
                                                              dwnsmpl = 1e2,
                                                              by_chain = TRUE,
-                                                             by_strata = TRUE)$curvedata
+                                                             by_strata = FALSE)$curvedata
 pA <- infxncurve %>%
-  dplyr::select(c("chain", "sim", "time", dplyr::starts_with("infxns_"))) %>%
-  tidyr::pivot_longer(., cols =  dplyr::starts_with("infxns_"),
-                      names_to = "strata", values_to = "infxns") %>%
-  dplyr::mutate(strata = sub("infxns_", "", strata)) %>%
+  dplyr::select(c("chain", "sim", "time", "totinfxns")) %>%
   ggplot() +
-  geom_line(aes(x = time, y = infxns, group = sim, color = chain), alpha = 0.8, size = 0.8) +
+  geom_line(aes(x = time, y = totinfxns, group = sim, color = chain), alpha = 0.8, size = 0.8) +
   geom_line(data = truecurve, aes(x = time, y = infxns), color = "#000000", linetype = "dashed", size = 1.1) +
   scale_color_viridis_d("Chain") +
   labs(caption = "Viridis is inferred, Black is Truth") +
@@ -225,8 +228,12 @@ serocurvedat <- seropnts %>%
 pB <- serocurvedat %>% 
   dplyr::left_join(., trueseroprev) %>% 
   ggplot() +
-  geom_line(aes(x = ObsDay, y = seroprev), alpha = 0.5, color = "#bdbdbd") +
-  geom_line(aes(x = ObsDay, y = TruePrev), alpha = 0.5, color = "#000000") +
+  geom_line(aes(x = ObsDay, y = seroprev), alpha = 0.5, color = "#9ecae1") +
+  geom_line(aes(x = ObsDay, y = TruePrev), color = "#000000") +
+  geom_rect(aes(xmin = 135, xmax = 145, ymin = 0, ymax = Inf), 
+            alpha = 0.3, color = "#bdbdbd", fill = "#bdbdbd") + 
+  geom_rect(aes(xmin = 155, xmax = 165, ymin = 0, ymax = Inf), 
+            alpha = 0.3, color = "#bdbdbd", fill = "#bdbdbd") + 
   facet_wrap(~Strata) + 
   xyaxis_plot_theme + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold")) +
