@@ -1200,26 +1200,70 @@ saveRDS(NYC_NY_1.agebands.dat, "data/derived/USA/NYC_NY_1agebands.RDS")
 #......................
 # preprocess New York State
 #......................
+## groupings of seroprevalence in the study:
+wr<-c("New York_Westchester|New York_Rockland")
+long_island<-c("New York_Nassau|New York_Suffolk")
+nyc<-"New York_New-York|New York_Kings|New York_Bronx|New York_Queens|New York_Richmond"
+upstate<-c("Albany|Allegany|Broome|Cattaraugus|Cayuga|Chautauqua|Chemung|Chenango|Clinton|Columbia|Cortland|Delaware|Dutchess|Erie|Essex|Franklin|Fulton|Genessee|Greene|Hamilton|Herkimer|Jefferson|Lewis|Livingston|Madison|Monroe|Montgomery|Niagara|Oneida|Onondaga|Ontario|Orange|Orleans|Oswego|Otsego|Putnam|Rensselaer|St. Lawrence|Saratoga|Schenectady|Schoharie|Schuyler|Seneca|Steuben|Sullivan|Tioga|Tompkins|Ulster|Warren|Washington|Wayne|Wyoming|Yates")
+
 NYSJHU <- JHUdf %>%
-  dplyr::filter(grepl("New York_", georegion)) %>%
-  dplyr::filter(! georegion %in% c("New York_Out-of NY",
-                                   "New York_New-York",
-                                   "New York_Kings",
-                                   "New York_Bronx",
-                                   "New York_Queens",
-                                   "New York_Richmond")) %>%
-  dplyr::group_by(date) %>%
-  dplyr::summarise(deaths = sum(deaths)) %>%
-  dplyr::mutate(georegion = "NYS") %>%
-  dplyr::select(c("date", "georegion", "deaths"))
+  dplyr::filter(grepl("New York_", georegion))
+
+wrd <- NYSJHU %>%
+  dplyr::filter(grepl(wr,georegion)) %>%
+  dplyr::mutate(georegion="Westchester and Rockland")
+long_islandd<-NYSJHU %>%
+  dplyr::filter(grepl(long_island,georegion)) %>%
+  dplyr::mutate(georegion="Long Island")
+nycd<-NYSJHU %>%
+  dplyr::filter(grepl(nyc,georegion)) %>%
+  dplyr::mutate(georegion="New York City")
+upstated<-NYSJHU %>%
+  dplyr::filter(grepl(upstate,georegion)) %>%
+  dplyr::mutate(georegion="Upstate New York")
+NYSJHU <-rbind(wrd,nycd,long_islandd,upstated)
+NYSJHU<- NYSJHU %>%
+  dplyr::group_by(date,georegion) %>%
+  dplyr::summarise(deaths = sum(deaths))
+
+NYSdeathsrgndf<-NYSJHU %>%
+  dplyr::group_by(georegion) %>%
+  dplyr::summarise(n_deaths=sum(deaths)) %>%
+  dplyr::mutate(country="USA",
+                study_id="NYS1",
+                age_low=0,
+                age_high=999,
+                region=georegion,
+                gender="both",
+                age_breakdown=0,
+                for_regional_analysis=1,
+                gender_breakdown=0)
+
+
+
+NYSJHU_tseries<- NYSJHU %>%
+  dplyr::mutate(georegion="NYS") %>%
+  dplyr::group_by(date,georegion) %>%
+  dplyr::summarise(deaths = sum(deaths))
+
 
 NYSpopdf <- populationdf %>%
-  dplyr::filter(! region %in% c("New York_Out-of NY",
-                                "New York_New-York",
-                                "New York_Kings",
-                                "New York_Bronx",
-                                "New York_Queens",
-                                "New York_Richmond")) %>%
+  dplyr::filter(grepl("New York_", region))
+wrp <- NYSpopdf %>%
+  dplyr::filter(grepl(wr,region)) %>%
+  dplyr::mutate(region="Westchester and Rockland")
+long_islandp<-NYSpopdf %>%
+  dplyr::filter(grepl(long_island,region)) %>%
+  dplyr::mutate(region="Long Island")
+nycp<-NYSpopdf %>%
+  dplyr::filter(grepl(nyc,region)) %>%
+  dplyr::mutate(region="New York City")
+upstatep<-NYSpopdf %>%
+  dplyr::filter(grepl(upstate,region)) %>%
+  dplyr::mutate(region="Upstate New York")
+
+NYpopdf<-rbind(wrp,long_islandp,nycp,upstatep)
+NYpopdf<-NYpopdf %>%
   dplyr::group_by(region, age_low, age_high, gender) %>%
   dplyr::summarise(population = sum(population)) %>%
   dplyr::mutate(
@@ -1230,16 +1274,14 @@ NYSpopdf <- populationdf %>%
     gender_breakdown = 1) %>%
   dplyr::ungroup(.)
 
-
 NYSdeathsdf <- deathsdf %>%
   dplyr::filter(study_id == "NYS1") %>%
-  dplyr::summarise(n_deaths = sum(n_deaths)) %>%
   dplyr::mutate(
     country = "USA",
     study_id = "NYS1",
     region = "NYS",
-    age_low = 0,
-    age_high = 999,
+    #age_low = 0,
+    #age_high = 999,
     gender = "both",
     age_breakdown = 1,
     gender_breakdown = 1,
@@ -1247,44 +1289,43 @@ NYSdeathsdf <- deathsdf %>%
 
 
 #......................
-# agebands
+# age
 #......................
-NYS.region.dat <- process_data4(cum_tp_deaths = NYSdeathsdf,
-                                  time_series_totdeaths_df = NYSJHU,
+NYS.age.dat <- process_data4(cum_tp_deaths = NYSdeathsdf,
+                                  time_series_totdeaths_df = NYSJHU_tseries,
                                   time_series_totdeaths_geocode = "NYS",
-                                  population = NYSpopdf,
+                                  population = NYpopdf,
                                   sero_val = sero_valdf,
                                   seroprev = sero_prevdf,
                                   get_descriptive_dat = TRUE,
-                                  groupingvar = "region",
+                                  groupingvar = "ageband",
                                   study_ids = "NYS1",
-                                  death_agebreaks = c(0, 999))
+                                  death_agebreaks = c(0, seq(9,89,10), 999))
+
+#......................
+# regions
+#......................
+NYS.region.dat <- process_data4(cum_tp_deaths = NYSdeathsrgndf,
+                                time_series_totdeaths_df = NYSJHU_tseries,
+                                time_series_totdeaths_geocode = "NYS",
+                                population = NYpopdf,
+                                sero_val = sero_valdf,
+                                seroprev = sero_prevdf,
+                                get_descriptive_dat = TRUE,
+                                groupingvar = "region",
+                                study_ids = "NYS1",
+                                death_agebreaks = c(0, 999))
+
+
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-nys_adj_seroprev <- tibble::tibble(
-  ObsDaymin = unique(NYS.region.dat$seroprevMCMC$ObsDaymin),
-  ObsDaymax = unique(NYS.region.dat$seroprevMCMC$ObsDaymax),
-  region = "NYS",
-  n_positive = sum(NYS.region.dat$seroprevMCMC$n_positive),
-  n_tested = sum(NYS.region.dat$seroprevMCMC$n_tested),
-  SeroPrev = sum(NYS.region.dat$seroprevMCMC$n_positive)/ sum(NYS.region.dat$seroprevMCMC$n_tested))
-
-# overwrite
-NYS.region.dat$seroprevMCMC <- nys_adj_seroprev
-
-
-# fix population for basic study
-NYS.region.dat$prop_pop <- NYS.region.dat$prop_pop %>%
-  dplyr::mutate(region = "NYS",
-                popN = sum(popN),
-                pop_prop = 1) %>%
-  dplyr::filter(!duplicated(.))
-
+# TODO. Age bands exactly non overlapping!
 #......................
 # save out
 #......................
 saveRDS(NYS.region.dat, "data/derived/USA/NYS1_regions.RDS")
+saveRDS(NYS.age.dat, "data/derived/USA/NYS1_agebands.RDS")
 
 
 
