@@ -649,10 +649,77 @@ FigA <- SeroPrevPlotDat %>%
   xyaxis_plot_theme +
   theme(legend.position = "bottom") +
   theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+#............................................................
+# SeroReversion Portion
+#...........................................................
+sero_rev_comb <- readRDS("results/sero_reversion/sero_rev_dat.RDS")
+weibull_params <- readRDS("results/sero_reversion/weibull_params.RDS")
+KM1_mod <- readRDS("results/sero_reversion/KaplanMeierFit.RDS")
+WBmod <- readRDS("results/sero_reversion/WeibullFit.RDS")
+
 
 #......................
-# SeroReversion Portion
+# portion B Kaplan Meier
 #......................
+ggsurvplot(KM1_mod,
+           data = sero_sub_final_survival,
+           ylab = "Prob. of Seropositivity Persistence",
+           xlab = "Time (Days)")
+
+
+
+#......................
+# portion B Weibull
+#......................
+
+## extract weibull params
+# survreg's scale = 1/(rweibull shape)
+wshape<-as.numeric(1/exp(SurvMod$icoef[2]))
+
+# survreg's intercept = log(rweibull scale)
+wscale<-exp(SurvMod$icoef[1])
+
+## fitted 'survival'
+t<-seq(0,max(sero_sub_final_survival$days_post_symptoms),0.5)
+weib<-exp(-(t/wscale)^wshape)   # cumulative weibull
+
+
+
+par(mfrow=c(1,2))
+hist(rweibull(10000,shape=wshape,scale=wscale),xlab="days",main="")
+plot(t,weib,type="l",xlab="days",ylab="fitted weibull curve",ylim=c(0,1))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # posterior predictions
 sero_sub_final <- readRDS("results/sero_reversion/sero_reversion_incld_data.RDS") %>%
   dplyr::filter(assay == "Abbott") %>%
