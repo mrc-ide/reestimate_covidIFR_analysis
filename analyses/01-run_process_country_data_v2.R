@@ -1320,7 +1320,24 @@ NYS.region.dat <- process_data4(cum_tp_deaths = NYSdeathsrgndf,
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-# TODO. Age bands exactly non overlapping!
+# Age bands deaths and seroprev exactly non overlapping. Set all ages to be the weighted population average except:
+# assume 60+ has seroprevalence of 55+
+# weighted pop average from the paper for the whole study area is 0.125
+nys_adj_seroprev<-nyc_adj_seroprev <- tibble::tibble(
+  ObsDaymin = unique(NYS.age.dat$seroprevMCMC$ObsDaymin),
+  ObsDaymax = unique(NYS.age.dat$seroprevMCMC$ObsDaymax),
+  ageband = unique(NYS.age.dat$deaths_propMCMC$ageband),
+  n_positive = NA,
+  n_tested = NA,
+  SeroPrev = NA)
+nys_adj_seroprev <- nys_adj_seroprev %>%
+  dplyr::mutate(SeroPrev = ifelse(ageband=="59-69" | ageband=="69-79" | ageband=="79-89" |
+                                           ageband=="89-999",NYS.age.dat$seroprevMCMC$SeroPrev[4],0.125),
+                n_tested = ifelse(ageband=="59-69" | ageband=="69-79" | ageband=="79-89" |
+                                           ageband=="89-999",NYS.age.dat$seroprevMCMC$n_tested[4],
+                                         sum(NYS.age.dat$seroprevMCMC$n_tested[1:3])),
+                n_positive=round(n_tested*SeroPrev))
+
 #......................
 # save out
 #......................
