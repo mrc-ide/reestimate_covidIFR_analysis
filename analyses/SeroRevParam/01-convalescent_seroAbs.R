@@ -497,10 +497,18 @@ t<-seq(0,max(sero_sub_final_survival$days_post_symptoms),0.5)
 weib<-exp(-(t/wscale)^wshape)   # cumulative weibull
 
 #str(SurvMod)
-ggsurvplot(fit1,data=sero_sub_final_survival,ylab="prob still positive",xlab="days")
+survplot<-ggsurvplot(fit1,data=sero_sub_final_survival,ylab="Probability still seropositive",
+                     xlab="days since onset of symptoms",
+           risk.table = F,censor.size=0.2, legend="none")
+ggsave(filename = "results/descriptive_figures/sero_rev_kaplan_meier.tiff",
+       plot = print(survplot), width = 5, height = 4)
+
+
+
+plot(t,weib)
+
 par(mfrow=c(1,2))
 hist(rweibull(10000,shape=wshape,scale=wscale),xlab="days",main="")
-plot(t,weib,type="l",xlab="days",ylab="fitted weibull curve",ylim=c(0,1))
 
 
 
@@ -521,35 +529,7 @@ wshape<-as.numeric(1/exp(SurvMod$icoef[2]))
 # survreg's intercept = log(rweibull scale)
 wscale<-exp(SurvMod$icoef[1])
 
-## fitted 'survival'
-t<-seq(0,max(sero_sub_final_survival$days_post_symptoms),0.5)
-weib<-exp(-(t/wscale)^wshape)   # cumulative weibull
-
-#str(SurvMod)
-ggsurvplot(fit1,data=sero_sub_final_survival,ylab="prob still positive",xlab="days")
-par(mfrow=c(1,2))
-hist(rweibull(10000,shape=wshape,scale=wscale),xlab="days",main="")
-plot(t,weib,type="l",xlab="days",ylab="fitted weibull curve",ylim=c(0,1))
-
-
-## Sanity check - what would the earliest possible failure time graph look like?
-#Not interval censored:
-survobj<-Surv(time=sero_sub_final_survival$time1, event=sero_sub_final_survival$status2)
-
-#make kaplan meier object
-fit1<-survfit(survobj ~1,data = sero_sub_final_survival)
-# fit weibull
-SurvMod <- survival::survreg(survobj ~ 1,
-                             dist="weibull",
-                             data = sero_sub_final_survival)
-summary(SurvMod)
-
-## extract weibull params
-# survreg's scale = 1/(rweibull shape)
-wshape<-as.numeric(1/exp(SurvMod$icoef[2]))
-
-# survreg's intercept = log(rweibull scale)
-wscale<-exp(SurvMod$icoef[1])
+mean(rweibull(1000000,shape=wshape,scale=wscale))
 
 ## fitted 'survival'
 t<-seq(0,max(sero_sub_final_survival$days_post_symptoms),0.5)
@@ -560,4 +540,5 @@ ggsurvplot(fit1,data=sero_sub_final_survival,ylab="prob still positive",xlab="da
 par(mfrow=c(1,2))
 hist(rweibull(10000,shape=wshape,scale=wscale),xlab="days",main="")
 plot(t,weib,type="l",xlab="days",ylab="fitted weibull curve",ylim=c(0,1))
+
 
