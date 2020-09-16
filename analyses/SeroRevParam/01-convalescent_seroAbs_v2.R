@@ -101,138 +101,74 @@ serotime %>%
 # Here we will subset just the abbot assay, which has the
 # largest declines in sensitivity
 #...........................................................
+#............................................................
+# Wrangle Survival Data
+#...........................................................
+# note donor id 46 and 52 have missing days since symptom onset across board
 sero_final_survival <- serotime %>%
   dplyr::filter(assay == "Abbott") %>%
+  dplyr::filter(!is.na(days_post_symptoms)) %>%  # remove missing day post symptoms
   dplyr::group_by(donor_id) %>%
-  dplyr::mutate(status = ifelse(titres < 1.4, 1, 0),
-                status2 = ifelse(min(titres, na.rm = T) < 1.4, 1, 0),
-                max_time = ifelse(days_post_symptoms == max(days_post_symptoms), 1, 0)) %>%
+  dplyr::mutate(status = ifelse(titres < 1.4, 1, 0)) %>%
   dplyr::arrange(donor_id, days_post_symptoms)
 
-# those without event. Time1 is final observation time, time2 is missing.
-# not donor id 46 and 52 have missing days since symptom onset across board
-sero_pos <- sero_final_survival %>%
-  dplyr::filter(status2 == 0,
-                !is.na(days_post_symptoms)) %>% # remove observations that weren't there
+# get min time to event for positives
+min_time_to_event_pos <- sero_final_survival %>%
   dplyr::group_by(donor_id) %>%
-  dplyr::filter(days_post_symptoms == max(days_post_symptoms)) %>%
-  dplyr::ungroup(.) %>%
-  dplyr::mutate(time1 = days_post_symptoms,
-                time2 = NA)
-
-# those who serorevert
-sero_rev <- sero_final_survival %>%
-  dplyr::filter(status2 == 1) %>%
-  dplyr::filter(!is.na(days_post_symptoms)) # drop observations symtpoms
-
-# extract last time observed postiive
-sero_rev_time1 <- sero_rev %>%
-  dplyr::filter(status == 0) %>%
-  dplyr::group_by(donor_id) %>%
-  dplyr::filter(days_post_symptoms == max(days_post_symptoms)) %>%
-  dplyr::mutate(time1 = days_post_symptoms)
-
-# extract first time observed seroreverted (checked that no one becomes positive again after first being negative)
-sero_rev_time2 <- sero_rev %>%
   dplyr::filter(status == 1) %>%
+  dplyr::summarise(time_to_event = min(days_post_symptoms)) %>%
+  dplyr::mutate(status = 1)
+
+# get last observation date as time to event for never seroreverteds
+max_time_to_event_neg <- sero_final_survival %>%
   dplyr::group_by(donor_id) %>%
-  dplyr::filter(days_post_symptoms == min(days_post_symptoms)) %>%
-  dplyr::mutate(time2=days_post_symptoms) %>%
-  dplyr::select(donor_id,time2)
+  dplyr::filter(status == 1) %>%
+  dplyr::summarise(time_to_event = max(days_post_symptoms)) %>%
+  dplyr::mutate(status = 1)
+
+#......................
+# exclude individuals who serorevert but then become seropositive later
+#......................
+excl_inds <- sero_final_survival %>%
+  dplyr::filter(titres < 1.14) %>%
+  dplyr::group_by(donor_id) %>%
+  dplyr::mutate(lag_time = days_post_symptoms - dplyr::lag(days_post_symptoms))
+# looks good to go
+
 
 # combine serorev
-sero_rev_comb <- dplyr::left_join(sero_rev_time1, sero_rev_time2)
+sero_rev_comb <- dplyr::bind_rows(min_time_to_event_pos, max_time_to_event_neg)
 
-# combine seropos and serorev
-sero_sub_final_survival <- rbind(sero_pos, sero_rev_comb)
-sero_sub_final_survival <-sero_sub_final_survival %>%
-  dplyr::mutate(time_obs_fail = ifelse(status2==1, time2, time1))
 
-########### Regression
+#............................................................
+# Weibull Regression
+#...........................................................
 ## Not interval censored:
-survobj<-Surv(time=sero_sub_final_survival$time_obs_fail, event=sero_sub_final_survival$status2)
+survobj <- survival::Surv(time = sero_rev_comb$time_to_event,
+                          event = sero_rev_comb$status)
 
 #make kaplan meier object
-fit1<-survfit(survobj ~1,data = sero_sub_final_survival)
+KM1_mod <- survival::survfit(survobj ~ 1, data = sero_rev_comb)
+
 # fit weibull
-SurvMod <- survival::survreg(survobj ~ 1,
-                             dist="weibull",
-                             data = sero_sub_final_survival)
-summary(SurvMod)
+WBmod <- survival::survreg(survobj ~ 1,
+                           dist="weibull",
+                           data = sero_rev_comb)
+summary(WBmod)
 
-## extract weibull params
+#............................................................
+# Extract Weibull Params
+#...........................................................
 # survreg's scale = 1/(rweibull shape)
-wshape<-as.numeric(1/exp(SurvMod$icoef[2]))
-
 # survreg's intercept = log(rweibull scale)
-wscale<-exp(SurvMod$icoef[1])
+weibull_params <- list(wshape = 1/exp(SurvMod$icoef[2]),
+                       wscale = exp(SurvMod$icoef[1]))
 
-## fitted 'survival'
-t<-seq(0,max(sero_sub_final_survival$days_post_symptoms),0.5)
-weib<-exp(-(t/wscale)^wshape)   # cumulative weibull
-
-#str(SurvMod)
-ggsurvplot(fit1,data=sero_sub_final_survival,ylab="prob still positive",xlab="days")
-par(mfrow=c(1,2))
-hist(rweibull(10000,shape=wshape,scale=wscale),xlab="days",main="")
-plot(t,weib,type="l",xlab="days",ylab="fitted weibull curve",ylim=c(0,1))
-
-
-
-############## With interval censoring
-### don't need to specify event as we know that if time2 is missing, there was no event.
-survobj<-Surv(time=sero_sub_final_survival$time1, time2=sero_sub_final_survival$time2, type = "interval2" )
-fit1<-survfit(survobj ~1,data = sero_sub_final_survival)
-SurvMod <- survival::survreg(survobj ~ 1,
-                             dist="weibull",
-                             data = sero_sub_final_survival)
-
-summary(SurvMod)
-
-## extract weibull params
-# survreg's scale = 1/(rweibull shape)
-wshape<-as.numeric(1/exp(SurvMod$icoef[2]))
-
-# survreg's intercept = log(rweibull scale)
-wscale<-exp(SurvMod$icoef[1])
-
-## fitted 'survival'
-t<-seq(0,max(sero_sub_final_survival$days_post_symptoms),0.5)
-weib<-exp(-(t/wscale)^wshape)   # cumulative weibull
-
-#str(SurvMod)
-ggsurvplot(fit1,data=sero_sub_final_survival,ylab="prob still positive",xlab="days")
-par(mfrow=c(1,2))
-hist(rweibull(10000,shape=wshape,scale=wscale),xlab="days",main="")
-plot(t,weib,type="l",xlab="days",ylab="fitted weibull curve",ylim=c(0,1))
-
-
-## Sanity check - what would the earliest possible failure time graph look like?
-#Not interval censored:
-survobj<-Surv(time=sero_sub_final_survival$time1, event=sero_sub_final_survival$status2)
-
-#make kaplan meier object
-fit1<-survfit(survobj ~1,data = sero_sub_final_survival)
-# fit weibull
-SurvMod <- survival::survreg(survobj ~ 1,
-                             dist="weibull",
-                             data = sero_sub_final_survival)
-summary(SurvMod)
-
-## extract weibull params
-# survreg's scale = 1/(rweibull shape)
-wshape<-as.numeric(1/exp(SurvMod$icoef[2]))
-
-# survreg's intercept = log(rweibull scale)
-wscale<-exp(SurvMod$icoef[1])
-
-## fitted 'survival'
-t<-seq(0,max(sero_sub_final_survival$days_post_symptoms),0.5)
-weib<-exp(-(t/wscale)^wshape)   # cumulative weibull
-
-#str(SurvMod)
-ggsurvplot(fit1,data=sero_sub_final_survival,ylab="prob still positive",xlab="days")
-par(mfrow=c(1,2))
-hist(rweibull(10000,shape=wshape,scale=wscale),xlab="days",main="")
-plot(t,weib,type="l",xlab="days",ylab="fitted weibull curve",ylim=c(0,1))
+#......................
+# save out results
+#......................
+dir.create(path = "results/sero_reversion/", recursive = TRUE)
+saveRDS(weibull_params, "results/sero_reversion/weibull_params.RDS")
+saveRDS(KM1_mod, "results/sero_reversion/KaplanMeierFit.RDS")
+saveRDS(WBmod, "results/sero_reversion/WeibullFit.RDS")
 
