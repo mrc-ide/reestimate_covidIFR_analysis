@@ -73,19 +73,22 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     dplyr::select(c("Strata", "PropDeaths"))
 
   # liftover obs serology
+  sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
   obs_serology <- dat$StrataAgg_Seroprev %>%
     dplyr::group_by(Strata) %>%
-    dplyr::filter(ObsDay %in% sero_days) %>%
+    dplyr::filter(ObsDay %in% unlist(sero_days)) %>%
+    dplyr::mutate(serodaynum = sort(rep(1:length(sero_days), 11))) %>%
     dplyr::mutate(
-      SeroPos = round(ObsPrev * testedN),
-      SeroN = testedN,
-      SeroLCI = NA,
-      SeroUCI = NA) %>%
-    dplyr::rename(
-      SeroPrev = ObsPrev) %>%
-    dplyr::mutate(SeroStartSurvey = sero_days - 5,
-                  SeroEndSurvey = sero_days + 5) %>%
-    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
+      SeroPos = ObsPrev * testedN,
+      SeroN = testedN ) %>%
+    dplyr::group_by(Strata, serodaynum) %>%
+    dplyr::summarise(SeroPos = mean(SeroPos),
+                     SeroN = mean(SeroN)) %>% # seroN doesn't change
+    dplyr::mutate(SeroStartSurvey = sapply(sero_days, median) - 5,
+                  SeroEndSurvey = sapply(sero_days, median) + 5,
+                  SeroPos = round(SeroPos),
+                  SeroPrev = SeroPos/SeroN) %>%
+    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
     dplyr::ungroup(.) %>%
     dplyr::arrange(SeroStartSurvey, Strata)
 
@@ -99,9 +102,9 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
 }
 
 # run simdat and extract results into separate pieces
-map$simdat <- purrr::pmap(map, wrap_sim, sero_days = c(140, 200))
+map$simdat <- purrr::pmap(map, wrap_sim, sero_days = c(115, 155))
 map$inputdata <- purrr::map(map$simdat, "inputdata")
-map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(140, 200))
+map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(155, 155))
 
 #......................
 # make IFR model
@@ -159,7 +162,7 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rcensor_day(.Machine$integer.max)
+  mod1$set_rcensor_day(180)
   # out
   mod1
 }

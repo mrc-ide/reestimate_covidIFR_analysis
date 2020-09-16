@@ -91,24 +91,27 @@ oneday_inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 #......................
 # wrangle input data from non-seroreversion fit
 #......................
-# sero tidy up
-sero_days <- c(140, 200)
-TwoDays_obs_serology <- dat$StrataAgg_Seroprev %>%
+sero_days <- c(115, 155)
+sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
+obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
-  dplyr::filter(ObsDay %in% sero_days) %>%
+  dplyr::filter(ObsDay %in% unlist(sero_days)) %>%
+  dplyr::mutate(serodaynum = sort(rep(1:length(sero_days), 11))) %>%
   dplyr::mutate(
-    SeroPos = round(ObsPrev * testedN),
-    SeroN = testedN,
-    SeroLCI = NA,
-    SeroUCI = NA) %>%
-  dplyr::rename(
-    SeroDay = ObsDay,
-    SeroPrev = ObsPrev) %>%
-  dplyr::mutate(SeroStartSurvey = sero_days - 5,
-                SeroEndSurvey = sero_days + 5) %>%
-  dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
+    SeroPos = ObsPrev * testedN,
+    SeroN = testedN ) %>%
+  dplyr::group_by(Strata, serodaynum) %>%
+  dplyr::summarise(SeroPos = mean(SeroPos),
+                   SeroN = mean(SeroN)) %>% # seroN doesn't change
+  dplyr::mutate(SeroStartSurvey = sapply(sero_days, median) - 5,
+                SeroEndSurvey = sapply(sero_days, median) + 5,
+                SeroPos = round(SeroPos),
+                SeroPrev = SeroPos/SeroN) %>%
+  dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
   dplyr::ungroup(.) %>%
-  dplyr::arrange(SeroStartSurvey, Strata)
+  dplyr::arrange(SeroStartSurvey, Strata) %>%
+  dplyr::mutate(SeroLCI = SeroPrev - 0.01,
+                SeroUCI = SeroPrev + 0.01) # make up some tight CIs
 
 # proportion deaths
 prop_deaths <- dat$StrataAgg_TimeSeries_Death %>%
@@ -132,19 +135,18 @@ twodays_inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 # sens/spec
 sens_spec_tbl <- tibble::tibble(name =  c("sens",  "spec"),
                                 min =   c(0.5,      0.5),
-                                init =  c(0.85,     0.99),
+                                init =  c(0.85,     0.95),
                                 max =   c(1,        1),
-                                dsc1 =  c(850.5,    990.5),
-                                dsc2 =  c(150.5,    10.5))
+                                dsc1 =  c(850.5,    950.5),
+                                dsc2 =  c(150.5,    50.5))
 
 # delay priors
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                min  = c(18,     0,     16),
-                               init = c(19,     0.79,  18),
+                               init = c(19,     0.90,  18),
                                max =  c(20,     1,     21),
-                               dsc1 = c(19.26,  2370,  18.3),
-                               dsc2 = c(0.1,    630,   0.1))
-
+                               dsc1 = c(19.66,  2700,  18.3),
+                               dsc2 = c(0.1,    300,   0.1))
 
 
 # make param dfs
@@ -173,7 +175,7 @@ mod1_oneday$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_oneday$set_data(oneday_inputdata)
 mod1_oneday$set_demog(demog)
 mod1_oneday$set_paramdf(df_params)
-mod1_oneday$set_rcensor_day(.Machine$integer.max)
+mod1_oneday$set_rcensor_day(180)
 # two days
 mod1_twodays <- COVIDCurve::make_IFRmodel_age$new()
 mod1_twodays$set_MeanTODparam("mod")
@@ -187,7 +189,7 @@ mod1_twodays$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_twodays$set_data(twodays_inputdata)
 mod1_twodays$set_demog(demog)
 mod1_twodays$set_paramdf(df_params)
-mod1_twodays$set_rcensor_day(.Machine$integer.max)
+mod1_twodays$set_rcensor_day(180)
 
 #............................................................
 #---- Come Together #----
