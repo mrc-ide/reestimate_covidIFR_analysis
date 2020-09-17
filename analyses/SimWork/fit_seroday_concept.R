@@ -37,8 +37,8 @@ demog <- tibble::tibble(Strata = "ma1",
 dat <- COVIDCurve::Agesim_infxn_2_death(
   fatalitydata = fatalitydata,
   demog = demog,
-  m_od = 19.26,
-  s_od = 0.76,
+  m_od = 19.66,
+  s_od = 0.90,
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = FALSE,
@@ -93,7 +93,7 @@ oneday_inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 #......................
 sero_days <- c(115, 155)
 sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
-obs_serology <- dat$StrataAgg_Seroprev %>%
+TwoDays_obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay %in% unlist(sero_days)) %>%
   dplyr::mutate(serodaynum = sort(rep(1:length(sero_days), 11))) %>%
@@ -175,7 +175,7 @@ mod1_oneday$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_oneday$set_data(oneday_inputdata)
 mod1_oneday$set_demog(demog)
 mod1_oneday$set_paramdf(df_params)
-mod1_oneday$set_rcensor_day(180)
+mod1_oneday$set_rcensor_day(.Machine$integer.max)
 # two days
 mod1_twodays <- COVIDCurve::make_IFRmodel_age$new()
 mod1_twodays$set_MeanTODparam("mod")
@@ -189,7 +189,7 @@ mod1_twodays$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_twodays$set_data(twodays_inputdata)
 mod1_twodays$set_demog(demog)
 mod1_twodays$set_paramdf(df_params)
-mod1_twodays$set_rcensor_day(180)
+mod1_twodays$set_rcensor_day(.Machine$integer.max)
 
 #............................................................
 #---- Come Together #----

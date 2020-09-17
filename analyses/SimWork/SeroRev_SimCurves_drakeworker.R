@@ -50,8 +50,8 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
 
   dat <- COVIDCurve::Agesim_infxn_2_death(
     fatalitydata = fatalitydata,
-    m_od = 19.26,
-    s_od = 0.79,
+    m_od = 19.66,
+    s_od = 0.90,
     curr_day = 200,
     infections = curve,
     simulate_seroreversion = TRUE,
@@ -115,7 +115,7 @@ get_sens_spec_tbl <- function(sens, spec) {
                  min =   c(0.5,              0.5,           2,                   128),
                  init =  c(0.9,              0.99,          3.5,                 143),
                  max =   c(1,                1,             5,                   158),
-                 dsc1 =  c(sens*1e3,        spec*1e3,       3.74,                143.37),
+                 dsc1 =  c(sens*1e3,        spec*1e3,       3.67,                143.70),
                  dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 1,                   5))
 
 }
@@ -162,7 +162,7 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rcensor_day(180)
+  mod1$set_rcensor_day(.Machine$integer.max)
   # out
   mod1
 }
