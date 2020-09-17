@@ -26,7 +26,7 @@ cpp_logprior <- capture.output(cat(cpp_logprior))
 #............................................................
 # data read in
 #...........................................................
-ESPrgn <- readRDS("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/data/derived/ESP1-2/ESP1-2_agebands.RDS")
+ESPage <- readRDS("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/data/derived/ESP1-2/ESP1-2_agebands.RDS")
 #ESPage <- readRDS("~/Documents/GitHub/reestimate_covidIFR_analysis/data/derived/ESP1-2/ESP1-2_agebands.RDS")
 ESPrgn <- readRDS("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/data/derived/ESP1-2/ESP1-2_regions.RDS")
 #ESPrgn <- readRDS("~/Documents/GitHub/reestimate_covidIFR_analysis/data/derived/ESP1-2/ESP1-2_regions.RDS")
