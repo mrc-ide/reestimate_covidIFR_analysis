@@ -205,7 +205,7 @@ mod1_reg$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_reg$set_data(reginputdata)
 mod1_reg$set_demog(demog)
 mod1_reg$set_paramdf(df_params_reg)
-mod1_reg$set_rcensor_day(180)
+mod1_reg$set_rcensor_day(.Machine$integer.max)
 # serorev
 mod1_serorev <- COVIDCurve::make_IFRmodel_age$new()
 mod1_serorev$set_MeanTODparam("mod")
