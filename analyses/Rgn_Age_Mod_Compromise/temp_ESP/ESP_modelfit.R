@@ -1,7 +1,7 @@
 library(drjacoby)
 library(tidyverse)
-#setwd("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/analyses/Rgn_Age_Mod_Compromise/temp_ESP")
-setwd("~/Documents/GitHub/reestimate_covidIFR_analysis/analyses/Rgn_Age_Mod_Compromise/temp_ESP")
+setwd("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/analyses/Rgn_Age_Mod_Compromise/temp_ESP")
+#setwd("~/Documents/GitHub/reestimate_covidIFR_analysis/analyses/Rgn_Age_Mod_Compromise/temp_ESP")
 
 #............................................................
 # likelihoods
@@ -26,10 +26,10 @@ cpp_logprior <- capture.output(cat(cpp_logprior))
 #............................................................
 # data read in
 #...........................................................
-ESPage <- readRDS("~/Documents/GitHub/reestimate_covidIFR_analysis/data/derived/ESP1-2/ESP1-2_agebands.RDS")
-
-#ESPrgn <- readRDS("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/data/derived/ESP1-2/ESP1-2_regions.RDS")
-ESPrgn <- readRDS("~/Documents/GitHub/reestimate_covidIFR_analysis/data/derived/ESP1-2/ESP1-2_regions.RDS")
+ESPrgn <- readRDS("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/data/derived/ESP1-2/ESP1-2_agebands.RDS")
+#ESPage <- readRDS("~/Documents/GitHub/reestimate_covidIFR_analysis/data/derived/ESP1-2/ESP1-2_agebands.RDS")
+ESPrgn <- readRDS("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/data/derived/ESP1-2/ESP1-2_regions.RDS")
+#ESPrgn <- readRDS("~/Documents/GitHub/reestimate_covidIFR_analysis/data/derived/ESP1-2/ESP1-2_regions.RDS")
 
 # store region names
 rgnnames <- unique(ESPrgn$prop_pop$region)
@@ -143,8 +143,8 @@ mcmcout <- drjacoby::run_mcmc(data = datinput,
                               misc = misc_list,
                               loglike = cpp_loglike,
                               logprior = cpp_logprior,
-                              burnin = 1e3,
-                              samples = 1e3,
+                              burnin = 1e4,
+                              samples = 1e4,
                               chains = 5,
                               rungs = 25,
                               GTI_pow = 3,
