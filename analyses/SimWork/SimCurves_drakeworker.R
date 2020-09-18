@@ -98,9 +98,9 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
 }
 
 # run simdat and extract results into separate pieces
-map$simdat <- purrr::pmap(map, wrap_sim, sero_days = c(115, 155))
+map$simdat <- purrr::pmap(map, wrap_sim, sero_days = c(125, 175))
 map$inputdata <- purrr::map(map$simdat, "inputdata")
-map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(115, 155))
+map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(125, 175))
 
 #......................
 # make IFR model

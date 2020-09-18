@@ -8,11 +8,10 @@ paths <- list.files("results/SimCurves_noserorev/", full.names = TRUE)
 # render
 #......................
 renderMyDocument <- function(path) {
-  countrychar <- stringr::str_split(basename(path), "_", simplify = T)[[1]]
-  stratachar <- ifelse(grepl("age", basename(path)), "Age-Band", "Region")
+  simchar <- stringr::str_split(basename(path), "_", simplify = T)[[1]]
   rmarkdown::render("reports/Sim_report_base.Rmd",
                     params = list( path = path ),
-                    output_file = paste0(here::here(), "/reports/sims/", countrychar, "-", stratachar, "_NoSeroRev_report.pdf"))
+                    output_file = paste0(here::here(), "/reports/sims/", simchar, "_NoSeroRev_report.pdf"))
 }
 
 lapply(paths, renderMyDocument)
@@ -28,11 +27,10 @@ paths <- list.files("results/SimCurves_serorev/", full.names = TRUE)
 # render
 #......................
 renderMyDocument <- function(path) {
-  countrychar <- stringr::str_split(basename(path), "_", simplify = T)[[1]]
-  stratachar <- ifelse(grepl("age", basename(path)), "Age-Band", "Region")
+  simchar <- stringr::str_split(basename(path), "_", simplify = T)[[1]]
   rmarkdown::render("reports/Sim_report_base.Rmd",
                     params = list( path = path ),
-                    output_file = paste0(here::here(), "/reports/sims/", countrychar, "-", stratachar, "_SeroRev_report.pdf"))
+                    output_file = paste0(here::here(), "/reports/sims/", simchar, "_SeroRev_report.pdf"))
 }
 
 lapply(paths, renderMyDocument)
