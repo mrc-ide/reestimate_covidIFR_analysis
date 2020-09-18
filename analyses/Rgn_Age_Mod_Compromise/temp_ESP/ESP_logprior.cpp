@@ -21,6 +21,18 @@ SEXP logprior(Rcpp::NumericVector params, int param_i, Rcpp::List misc) {
   double sens = params["sens"];
   double spec = params["spec"];
   double sero_con_rate = params["sero_con_rate"];
+
+  double Ane1 = params["Ane1"];
+  double Ane2 = params["Ane2"];
+  double Ane3 = params["Ane3"];
+  double Ane4 = params["Ane4"];
+  double Ane5 = params["Ane5"];
+  double Ane6 = params["Ane6"];
+  double Ane7 = params["Ane7"];
+  double Ane8 = params["Ane8"];
+  double Ane9 = params["Ane9"];
+  double Ane10 = params["Ane10"];
+
   double Rne1 = params["Rne1"];
   double Rne2 = params["Rne2"];
   double Rne3 = params["Rne3"];
@@ -40,47 +52,57 @@ SEXP logprior(Rcpp::NumericVector params, int param_i, Rcpp::List misc) {
   double Rne17 = params["Rne17"];
   double mod = params["mod"];
   double sod = params["sod"];
-  double ret = R::dunif(ma1,0,1,true) +
-    R::dunif(ma2,0,1,true) +
-    R::dunif(ma3,0,1,true) +
-    R::dunif(ma4,0,1,true) +
-    R::dunif(ma5,0,1,true) +
-    R::dunif(ma6,0,1,true) +
-    R::dunif(ma7,0,1,true) +
-    R::dunif(ma8,0,1,true) +
-    R::dunif(ma9,0,1,true) +
-    R::dunif(ma10,0,1,true) +
-    R::dunif(x1,0,0.33,true) +
-    R::dunif(x2,0.33,0.66,true) +
-    R::dunif(x3,0.66,0.99,true) +
-    R::dunif(x4,175,200,true) +
+  double ret = R::dunif(ma1,0,0.4,true) +
+    R::dunif(ma2,0,0.4,true) +
+    R::dunif(ma3,0,0.4,true) +
+    R::dunif(ma4,0,0.4,true) +
+    R::dunif(ma5,0,0.4,true) +
+    R::dunif(ma6,0,0.4,true) +
+    R::dunif(ma7,0,0.4,true) +
+    R::dunif(ma8,0,0.4,true) +
+    R::dunif(ma9,0,0.4,true) +
+    R::dunif(ma10,0,0.4,true) +
+    R::dunif(x1,0,1,true) +
+    R::dunif(x2,0,1,true) +
+    R::dunif(x3,0,1,true) +
+    R::dunif(x4,216,230,true) +
     R::dunif(y1,0,1,true) +
     R::dunif(y2,0,1,true) +
     R::dunif(y3,0,1,true) +
     R::dunif(y4,0,1,true) +
-    R::dunif(y5,0,10,true) +
-    R::dnorm(sero_con_rate,18,1, true) +
+    R::dunif(y5,0,18,true) +
+    R::dnorm(sero_con_rate,18.3,1, true) +
     R::dbeta(sens,123.5,30.5, true) +
     R::dbeta(spec,156.5,0.5, true) +
-    R::dnorm(Rne1,1,0.05,true) +
-    R::dnorm(Rne2,1,0.05,true) +
-    R::dnorm(Rne3,1,0.05,true) +
-    R::dnorm(Rne4,1,0.05,true) +
-    R::dnorm(Rne5,1,0.05,true) +
-    R::dnorm(Rne6,1,0.05,true) +
-    R::dnorm(Rne7,1,0.05,true) +
-    R::dnorm(Rne8,1,0.05,true) +
-    R::dnorm(Rne9,1,0.05,true) +
-    R::dnorm(Rne10,1,0.05,true) +
-    R::dnorm(Rne11,1,0.05,true) +
-    R::dnorm(Rne12,1,0.05,true) +
-    R::dnorm(Rne13,1,0.05,true) +
-    R::dnorm(Rne14,1,0.05,true) +
-    R::dnorm(Rne15,1,0.05,true) +
-    R::dnorm(Rne16,1,0.05,true) +
-    R::dnorm(Rne17,1,0.05,true) +
-    R::dnorm(mod,19.5,1,true) +
-    R::dbeta(sod,79,21,true) +
+    R::dnorm(Ane1,1,0.05,true) +
+    R::dnorm(Ane2,1,0.05,true) +
+    R::dnorm(Ane3,1,0.05,true) +
+    R::dnorm(Ane4,1,0.05,true) +
+    R::dnorm(Ane5,1,0.05,true) +
+    R::dnorm(Ane6,1,0.05,true) +
+    R::dnorm(Ane7,1,0.05,true) +
+    R::dnorm(Ane8,1,0.05,true) +
+    R::dnorm(Ane9,1,0.05,true) +
+    R::dnorm(Ane10,1,0.05,true) +
+    R::dnorm(Rne1,1,3,true) +
+    R::dnorm(Rne2,1,3,true) +
+    R::dnorm(Rne3,1,3,true) +
+    R::dnorm(Rne4,1,3,true) +
+    R::dnorm(Rne5,1,3,true) +
+    R::dnorm(Rne6,1,3,true) +
+    R::dnorm(Rne7,1,3,true) +
+    R::dnorm(Rne8,1,3,true) +
+    R::dnorm(Rne9,1,3,true) +
+    R::dnorm(Rne10,1,3,true) +
+    R::dnorm(Rne11,1,3,true) +
+    R::dnorm(Rne12,1,3,true) +
+    R::dnorm(Rne13,1,3,true) +
+    R::dnorm(Rne14,1,3,true) +
+    R::dnorm(Rne15,1,3,true) +
+    R::dnorm(Rne16,1,3,true) +
+    R::dnorm(Rne17,1,3,true) +
+    R::dnorm(mod,19.66,0.05,true) +
+    R::dbeta(sod,2700,300,true) +
     3*log(x4) +
     4*log(y3) +
     9*log(ma10);

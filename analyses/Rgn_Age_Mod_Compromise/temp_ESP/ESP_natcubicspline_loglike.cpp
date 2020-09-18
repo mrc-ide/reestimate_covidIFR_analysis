@@ -7,8 +7,6 @@ SEXP esp_loglike(Rcpp::NumericVector params, int param_i, Rcpp::List data, Rcpp:
   int days_obsd = misc["days_obsd"];
   int agestratlen = misc["agestratlen"];
   int rgnstratlen = misc["rgnstratlen"];
-  // bool account_serorev = misc["account_serorev"];
-  std::vector<double> rho = Rcpp::as< std::vector<double> >(misc["rho"]);
 
   // items needed serology
   int n_sero_obs = misc["n_sero_obs"];
@@ -20,8 +18,6 @@ SEXP esp_loglike(Rcpp::NumericVector params, int param_i, Rcpp::List data, Rcpp:
   double sens = params["sens"];
   double spec = params["spec"];
   double sero_con_rate = params["sero_con_rate"];
-  // double sero_rev_shape = params["sero_rev_shape"];
-  // double sero_rev_scale = params["sero_rev_scale"];
 
   // death delay params
   double mod = params["mod"];
@@ -38,11 +34,13 @@ SEXP esp_loglike(Rcpp::NumericVector params, int param_i, Rcpp::List data, Rcpp:
       iter++;
     }
   }
-  // get marg regional for populationN
-  std::vector<int> demog_margrgn = Rcpp::as< std::vector<int> >(misc["demog"]);
+  // get marg age and regional for populationN
+  std::vector<int> Ademog = Rcpp::as< std::vector<int> >(misc["Ademog"]);
+  std::vector<int> Rdemog = Rcpp::as< std::vector<int> >(misc["Rdemog"]);
 
   // storage items
   std::vector<double> ma(agestratlen);
+  std::vector<double> Ane(agestratlen);
   std::vector<double> Rne(rgnstratlen);
   std::vector<double> node_x(n_knots);
   std::vector<double> node_y(n_knots);
@@ -59,6 +57,16 @@ SEXP esp_loglike(Rcpp::NumericVector params, int param_i, Rcpp::List data, Rcpp:
   node_y[4] = params["y5"] * params["y3"];
 
   // strong prior on mas from posterior of age-specific fits (so no reparam necessary)
+  // ma[0] = params["ma1"] * params["ma10"];
+  // ma[1] = params["ma2"] * params["ma10"];
+  // ma[2] = params["ma3"] * params["ma10"];
+  // ma[3] = params["ma4"] * params["ma10"];
+  // ma[4] = params["ma5"] * params["ma10"];
+  // ma[5] = params["ma6"] * params["ma10"];
+  // ma[6] = params["ma7"] * params["ma10"];
+  // ma[7] = params["ma8"] * params["ma10"];
+  // ma[8] = params["ma9"] * params["ma10"];
+  // ma[9] = params["ma10"];
   ma[0] = params["ma1"];
   ma[1] = params["ma2"];
   ma[2] = params["ma3"];
@@ -69,6 +77,19 @@ SEXP esp_loglike(Rcpp::NumericVector params, int param_i, Rcpp::List data, Rcpp:
   ma[7] = params["ma8"];
   ma[8] = params["ma9"];
   ma[9] = params["ma10"];
+
+  // 10 age groups
+  Ane[0] = params["Ane1"];
+  Ane[1] = params["Ane2"];
+  Ane[2] = params["Ane3"];
+  Ane[3] = params["Ane4"];
+  Ane[4] = params["Ane5"];
+  Ane[5] = params["Ane6"];
+  Ane[6] = params["Ane7"];
+  Ane[7] = params["Ane8"];
+  Ane[8] = params["Ane9"];
+  Ane[9] = params["Ane10"];
+
   // 17 regions in ESP
   Rne[0] = params["Rne1"];
   Rne[1] = params["Rne2"];
@@ -88,36 +109,50 @@ SEXP esp_loglike(Rcpp::NumericVector params, int param_i, Rcpp::List data, Rcpp:
   Rne[15] = params["Rne16"];
   Rne[16] = params["Rne17"];
 
-  //........................................................
-  // Lookup Items
-  //........................................................
-  // rescale Ne by attack rate
-  double nedom = 0.0;
-  for (int i = 0; i < rgnstratlen; i++) {
-    Rne[i] = Rne[i] * rho[i];
-    nedom += Rne[i];
+
+  //.............................
+  // Assume a uniform attack rate but then allow Ne to rescale
+  //.............................
+  // ages
+  double Anedom = 0.0;
+  for (int a = 0; a < agestratlen; a++) {
+    Ane[a] = Ane[a] * Ademog[a];
+    Anedom += Ane[a];
   }
   // Ne as a prop vector
-  for (int i = 0; i < rgnstratlen; i++) {
-    Rne[i] = Rne[i]/nedom;
+  for (int a = 0; a < agestratlen; a++) {
+    Ane[a] = Ane[a]/Anedom;
   }
 
-  // gamma look up table
-  std::vector<double> pgmms(days_obsd + 1);
-  for (int i = 0; i < (days_obsd+1); i++) {
-    pgmms[i] = R::pgamma(i, 1/pow(sod,2), mod*pow(sod,2), true, false);
+  // regions
+  double Rnedom = 0.0;
+  for (int r = 0; r < rgnstratlen; r++) {
+    Rne[r] = Rne[r] * Rdemog[r];
+    Rnedom += Rne[r];
+  }
+  // Ne as a prop vector
+  for (int r = 0; r < rgnstratlen; r++) {
+    Rne[r] = Rne[r]/Rnedom;
   }
 
-  //........................................................
-  // Liftover Ma Section
-  //........................................................
-  // store new region specific Rmas
+  //.............................
+  // Assume age-specific IFR is constant across regions
+  //.............................
   std::vector<double> Rma(rgnstratlen);
   // get IFR weighted by region age-demography
   for (int r = 0; r < rgnstratlen; r++) {
     for (int a = 0; a < agestratlen; a++) {
       Rma[r] += ma[a] * demog_pa[r][a];
     }
+  }
+
+
+  //.............................
+  // gamma look up table
+  //.............................
+  std::vector<double> pgmms(days_obsd + 1);
+  for (int i = 0; i < (days_obsd+1); i++) {
+    pgmms[i] = R::pgamma(i, 1/pow(sod,2), mod*pow(sod,2), true, false);
   }
 
 
@@ -210,15 +245,29 @@ SEXP esp_loglike(Rcpp::NumericVector params, int param_i, Rcpp::List data, Rcpp:
     //.............................
     // check if stratified infections exceed stratified population denominator
     bool popN_pass = true;
-    std::vector<double> cum_infxn_check(rgnstratlen);
+
+    std::vector<double> Acum_infxn_check(agestratlen);
+    for (int i = 0; i < days_obsd; i++) {
+      for (int a = 0; a < agestratlen; a++) {
+        Acum_infxn_check[a] += Ane[a] * infxn_spline[i];
+      }
+    }
+
+    for (int a = 0; a < agestratlen; a++) {
+      if (Acum_infxn_check[a] > Ademog[a]) {
+        popN_pass = false;
+      }
+    }
+
+    std::vector<double> Rcum_infxn_check(rgnstratlen);
     for (int i = 0; i < days_obsd; i++) {
       for (int r = 0; r < rgnstratlen; r++) {
-        cum_infxn_check[r] += Rne[r] * infxn_spline[i];
+        Rcum_infxn_check[r] += Rne[r] * infxn_spline[i];
       }
     }
 
     for (int r = 0; r < rgnstratlen; r++) {
-      if (cum_infxn_check[r] > demog_margrgn[r]) {
+      if (Rcum_infxn_check[r] > Rdemog[r]) {
         popN_pass = false;
       }
     }
@@ -235,51 +284,85 @@ SEXP esp_loglike(Rcpp::NumericVector params, int param_i, Rcpp::List data, Rcpp:
       }
 
       //.............................
-      // L1 Deaths Shape Expectation
+      // L1 Deaths Shape Expectation -- overall
       //.............................
       // items for expectation
       double L1deathshape_loglik = 0.0;
       double texpd = 0.0;
-      std::vector<std::vector<double>> strata_expdailyd(days_obsd, std::vector<double>(rgnstratlen));
+      std::vector<std::vector<double>> agestrata_expdailyd(days_obsd, std::vector<double>(agestratlen));
+      std::vector<std::vector<double>> rgnstrata_expdailyd(days_obsd, std::vector<double>(rgnstratlen));
+
+
+
       std::vector<double> expd(days_obsd);
       // read in observed deaths
       std::vector<int> obsd = Rcpp::as< std::vector<int> >(data["obs_deaths"]);
       // get log-likelihood over all days
       for (int  i = 0; i < days_obsd; i++) {
-        for (int r = 0; r < rgnstratlen; r++) {
+
+        // get age-specific deaths
+        for (int a = 0; a < agestratlen; a++) {
           // store strata deaths for L2
-          strata_expdailyd[i][r] = auc[i] * Rne[r] * Rma[r];
-          // get exp deaths per day by "summing out" strata
-          expd[i] += strata_expdailyd[i][r];
+          agestrata_expdailyd[i][a] = auc[i] * Ane[a] * ma[a];
+          // get exp deaths per day by "summing out" (Age)strata
+          expd[i] += agestrata_expdailyd[i][a];
         }
-        // a+1 to account for 1-based dates
+
+        // get region-specific deaths
+        for (int r = 0; r < rgnstratlen; r++) {
+          // store strata deaths for L3
+          rgnstrata_expdailyd[i][r] = auc[i] * Rne[r] * Rma[r];
+          // note, not summing out deaths again, but by day these should be equal
+        }
+
+        // i+1 to account for 1-based dates
         if ((i+1) < rcensor_day) {
           if (obsd[i] != -1) {
             L1deathshape_loglik += R::dpois(obsd[i], expd[i], true);
           }
         }
-        // store total expected deaths for L2 likelihood
+        // store total expected deaths for L2/L3 likelihood
         texpd += expd[i];
       }
 
       //.............................
-      // L2 Deaths proportions Expectation
+      // L2.1 Deaths Age proportions Expectation
       //.............................
       // items for expectation
-      double L2deathprop_loglik = 0.0;
-      std::vector<double> strata_expd(rgnstratlen);
-      for (int r = 0; r < rgnstratlen; r++) {
+      double L2_age_deathprop_loglik = 0.0;
+      std::vector<double> agestrata_expd(agestratlen);
+      for (int a = 0; a < agestratlen; a++) {
         for (int  i = 0; i < days_obsd; i++) {
           if ((i+1) < rcensor_day) {
-            strata_expd[r] += strata_expdailyd[i][r];
+            agestrata_expd[a] += agestrata_expdailyd[i][a];
           }
         }
       }
 
       // extract observed data
-      std::vector<double> paobsd = Rcpp::as< std::vector<double> >(data["prop_strata_obs_deaths"]);
+      std::vector<double> paobsd = Rcpp::as< std::vector<double> >(data["age_prop_strata_obs_deaths"]);
+      for (int a = 0; a < agestratlen; a++) {
+        L2_age_deathprop_loglik += R::dbinom(round(agestrata_expd[a]), round(texpd), paobsd[a], true);
+      }
+
+      //.............................
+      // L2.2 Deaths Rgn proportions Expectation
+      //.............................
+      // items for expectation
+      double L2_rgn_deathprop_loglik = 0.0;
+      std::vector<double> rgnstrata_expd(rgnstratlen);
       for (int r = 0; r < rgnstratlen; r++) {
-        L2deathprop_loglik += R::dbinom(round(strata_expd[r]), round(texpd), paobsd[r], true);
+        for (int  i = 0; i < days_obsd; i++) {
+          if ((i+1) < rcensor_day) {
+            rgnstrata_expd[r] += rgnstrata_expdailyd[i][r];
+          }
+        }
+      }
+
+      // extract observed data
+      std::vector<double> probsd = Rcpp::as< std::vector<double> >(data["rgn_prop_strata_obs_deaths"]);
+      for (int r = 0; r < rgnstratlen; r++) {
+        L2_rgn_deathprop_loglik += R::dbinom(round(rgnstrata_expd[r]), round(texpd), probsd[r], true);
       }
 
       //........................................................
@@ -291,17 +374,6 @@ SEXP esp_loglike(Rcpp::NumericVector params, int param_i, Rcpp::List data, Rcpp:
       for (int d = 0; d < max_seroday_obsd; d++) {
         cum_serocon_hazard[d] = 1-exp((-(d+1)/sero_con_rate));
       }
-
-      // // get cumulative hazard sero-reversion on given day via a lookup table
-      // std::vector<double> cum_serorev_hazard(max_seroday_obsd);
-      // if (account_serorev) {
-      //   for (int d = 0; d < max_seroday_obsd; d++) {
-      //     cum_serorev_hazard[d] = 1 - R::pweibull(d, sero_rev_shape, sero_rev_scale, false, false);
-      //   }
-      // } else {
-      //   // if not account for serorev, fill with zeroes
-      //   std::fill(cum_serorev_hazard.begin(), cum_serorev_hazard.end(), 0);
-      // }
 
       // seroconversion by strata look up table
       std::vector<std::vector<double>> sero_con_num_full(max_seroday_obsd, std::vector<double>(rgnstratlen));
@@ -331,35 +403,67 @@ SEXP esp_loglike(Rcpp::NumericVector params, int param_i, Rcpp::List data, Rcpp:
       }
 
       //.............................
-      // L3 Serology Proportions Expectation
+      // L3.1 AGE Serology Proportions Expectation
       //.............................
-      double L3sero_loglik = 0.0;
+      double L3_agesero_loglik = 0.0;
       // unpack serology observed data
-      std::vector<double> datpos_raw = Rcpp::as< std::vector<double> >(data["obs_serologypos"]);
-      std::vector<double> datn_raw = Rcpp::as< std::vector<double> >(data["obs_serologyn"]);
+      std::vector<double> age_datpos_raw = Rcpp::as< std::vector<double> >(data["age_obs_serologypos"]);
+      std::vector<double> age_datn_raw = Rcpp::as< std::vector<double> >(data["age_obs_serologyn"]);
       // recast datpos
-      std::vector<std::vector<double>> datpos(n_sero_obs, std::vector<double>(rgnstratlen));
-      std::vector<std::vector<double>> datn(n_sero_obs, std::vector<double>(rgnstratlen));
-      int seroiter = 0;
+      std::vector<std::vector<double>> age_datpos(n_sero_obs, std::vector<double>(agestratlen));
+      std::vector<std::vector<double>> age_datn(n_sero_obs, std::vector<double>(agestratlen));
+      int ageseroiter = 0;
       for (int i = 0; i < n_sero_obs; i++) {
-        for (int j = 0; j < rgnstratlen; j++) {
-          datpos[i][j] = datpos_raw[seroiter];
-          datn[i][j] = datn_raw[seroiter];
-          seroiter++;
+        for (int a = 0; a < agestratlen; a++) {
+          age_datpos[i][a] = age_datpos_raw[ageseroiter];
+          age_datn[i][a] = age_datn_raw[ageseroiter];
+          ageseroiter++;
         }
       }
       // loop through sero likelihood
       for (int i = 0; i < n_sero_obs; i++) {
-        for (int j = 0; j < rgnstratlen; j++) {
-          if (datpos[i][j] != -1 | datn[i][j] != -1 ) {
+        for (int a = 0; a < agestratlen; a++) {
+          if (age_datpos[i][a] != -1 | age_datn[i][a] != -1 ) {
             // Gelman Estimator for numerical stability
-            double obs_prev = sens*(sero_con_num[i][j]/demog_margrgn[j]) + (1-spec)*(1 - (sero_con_num[i][j]/demog_margrgn[j]));
-            L3sero_loglik += R::dbinom(datpos[i][j], datn[i][j], obs_prev, true);
+            double obs_prev = sens*(sero_con_num[i][a]/Ademog[a]) + (1-spec)*(1 - (sero_con_num[i][a]/Ademog[a]));
+            L3_agesero_loglik += R::dbinom(age_datpos[i][a], age_datn[i][a], obs_prev, true);
           }
         }
       }
+
+
+      //.............................
+      // L3.1 RGN Serology Proportions Expectation
+      //.............................
+      double L3_rgnsero_loglik = 0.0;
+      // unpack serology observed data
+      std::vector<double> rgn_datpos_raw = Rcpp::as< std::vector<double> >(data["rgn_obs_serologypos"]);
+      std::vector<double> rgn_datn_raw = Rcpp::as< std::vector<double> >(data["rgn_obs_serologyn"]);
+      // recast datpos
+      std::vector<std::vector<double>> rgn_datpos(n_sero_obs, std::vector<double>(rgnstratlen));
+      std::vector<std::vector<double>> rgn_datn(n_sero_obs, std::vector<double>(rgnstratlen));
+      int rgnseroiter = 0;
+      for (int i = 0; i < n_sero_obs; i++) {
+        for (int r = 0; r < rgnstratlen; r++) {
+          rgn_datpos[i][r] = rgn_datpos_raw[rgnseroiter];
+          rgn_datn[i][r] = rgn_datn_raw[rgnseroiter];
+          rgnseroiter++;
+        }
+      }
+      // loop through sero likelihood
+      for (int i = 0; i < n_sero_obs; i++) {
+        for (int r = 0; r < rgnstratlen; r++) {
+          if (rgn_datpos[i][r] != -1 | rgn_datn[i][r] != -1 ) {
+            // Gelman Estimator for numerical stability
+            double obs_prev = sens*(sero_con_num[i][r]/Rdemog[r]) + (1-spec)*(1 - (sero_con_num[i][r]/Rdemog[r]));
+            L3_rgnsero_loglik += R::dbinom(rgn_datpos[i][r], rgn_datn[i][r], obs_prev, true);
+          }
+        }
+      }
+
+
       // bring together
-      loglik = L1deathshape_loglik + L2deathprop_loglik + L3sero_loglik;
+      loglik = L1deathshape_loglik + L2_age_deathprop_loglik + L2_rgn_deathprop_loglik + L3_agesero_loglik + L3_rgnsero_loglik;
 
       // catch underflow
       if (!std::isfinite(loglik)) {
