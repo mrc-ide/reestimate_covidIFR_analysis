@@ -45,28 +45,6 @@ BRA1_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                              sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
-
-#............................................................
-#---- BRA5 #----
-#...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
-                                min =   c(0.50,    0.50),
-                                init =  c(0.85,    0.99),
-                                max =   c(1.00,    1.00),
-                                dsc1 =  c(447.5,   515.5),
-                                dsc2 =  c(80.5,    5.5))
-
-#......................
-# basic
-#......................
-rawbase <- readRDS("data/derived/BRA5/BRA5_regions.RDS")
-BRA5_rgn_mod <- make_noSeroRev_IFR_model_fit(num_mas = 1, maxMa = "ma1",
-                                             groupvar = "region",  dat = rawbase,
-                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 175, init = 181, max = 189, dsc1 = 175, dsc2 = 189),
-                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
-                                             sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
-
-
 #............................................................
 #---- CHE1 #-----
 #...........................................................
@@ -122,13 +100,19 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 #......................
 # agebands
 #......................
-rawbase <- readRDS("data/derived/DNK1/DNK1_regions.RDS")
-DNK_basic_mod <- make_noSeroRev_IFR_model_fit(num_mas = 1, maxMa = "ma1",
-                                              groupvar = "region",  dat = rawbase,
-                                              num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
-                                              num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
-                                              sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+rawage <- readRDS("data/derived/DNK1/DNK1_agebands.RDS")
+DNK_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
+                                            groupvar = "ageband",  dat = rawage,
+                                            num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
+                                            num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
+                                            sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+# need to account dor duplicate DNK start date
+dnkstart <- DNK_age_mod$data$obs_serology %>%
+  dplyr::filter(SeroStartSurvey != 97 & SeroEndSurvey != 124)
+dnkend <- DNK_age_mod$data$obs_serology %>%
+  dplyr::filter(SeroStartSurvey == 97 & SeroEndSurvey == 124)
 
+DNK_age_mod$data$obs_serology <- dplyr::bind_rows(dnkstart, dnkend)
 
 #............................................................
 #---- ESP1-2 #-----
@@ -174,49 +158,6 @@ GBR3_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
                                              num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
                                              sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
-
-#............................................................
-#---- SWE1 #----
-#...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
-                                min =   c(0.50,    0.50),
-                                init =  c(0.99,    0.99),
-                                max =   c(1.00,    1.00),
-                                dsc1 =  c(156.5,   267.5),
-                                dsc2 =  c(1.5,     3.5))
-#......................
-# agebands
-#......................
-rawbase <- readRDS("data/derived/SWE1/SWE1_regions.RDS")
-SWE_basic_mod <- make_noSeroRev_IFR_model_fit(num_mas = 1, maxMa = "ma1",
-                                              groupvar = "region",  dat = rawbase,
-                                              num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
-                                              num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.15, dsc1 = 0, dsc2 = 16.15),
-                                              sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
-
-
-#............................................................
-#---- NLD1 #----
-#...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
-                                min =   c(0.50,    0.50),
-                                init =  c(0.85,    0.99),
-                                max =   c(1.00,    1.00),
-                                dsc1 =  c(171.5,   281.5),
-                                dsc2 =  c(3.5,     1.5))
-
-#......................
-# agebands
-#......................
-rawage <- readRDS("data/derived/NLD1/NLD1_agebands.RDS")
-NLD_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 5, maxMa = "ma5",
-                                            groupvar = "ageband",  dat = rawage,
-                                            num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
-                                            num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.67, dsc1 = 0, dsc2 = 16.67),
-                                            sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
-
-
-
 #............................................................
 #---- ITA1 #----
 #...........................................................
@@ -260,66 +201,44 @@ LUX_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                             sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 #............................................................
-#---- Los Angeles County #----
+#---- SWE1 #----
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
-                                init =  c(0.73,    0.99),
+                                init =  c(0.99,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(27.5,    30.5),
-                                dsc2 =  c(10.5,    0.5))
-
+                                dsc1 =  c(156.5,   267.5),
+                                dsc2 =  c(1.5,     3.5))
 #......................
 # agebands
 #......................
-rawbase <- readRDS("data/derived/USA/LA_CA1_regions.RDS")
-LACA_basic_mod <- make_noSeroRev_IFR_model_fit(num_mas = 1, maxMa = "ma1",
-                                               groupvar = "region",  dat = rawbase,
-                                               num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
-                                               num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.12, dsc1 = 0, dsc2 = 16.12),
-                                               sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+rawage <- readRDS("data/derived/SWE1/SWE1_agebands.RDS")
+SWE_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+                                              groupvar = "ageband",  dat = rawage,
+                                              num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
+                                              num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.15, dsc1 = 0, dsc2 = 16.15),
+                                              sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
-#---- New York City #----
+#---- NLD1 #----
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(204.5,   92.5),
-                                dsc2 =  c(30.5,    0.5))
+                                dsc1 =  c(171.5,   281.5),
+                                dsc2 =  c(3.5,     1.5))
 
 #......................
 # agebands
 #......................
-rawage <- readRDS("data/derived/USA/NYC_NY_1agebands.RDS")
-NYC_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 5, maxMa = "ma5",
+rawage <- readRDS("data/derived/NLD1/NLD1_agebands.RDS")
+NLD_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                             groupvar = "ageband",  dat = rawage,
                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
-                                            num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),
+                                            num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.67, dsc1 = 0, dsc2 = 16.67),
                                             sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
-
-
-#............................................................
-#---- New York State #----
-#...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
-                                min =   c(0.50,    0.50),
-                                init =  c(0.85,    0.99),
-                                max =   c(1.00,    1.00),
-                                dsc1 =  c(204.5,   92.5),
-                                dsc2 =  c(30.5,    0.5))
-
-#......................
-# basic
-#......................
-rawbase <- readRDS("data/derived/USA/NYS1_regions.RDS")
-NYS_basic_mod <- make_noSeroRev_IFR_model_fit(num_mas = 1, maxMa = "ma1",
-                                              groupvar = "region",  dat = rawbase,
-                                              num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
-                                              num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),
-                                              sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 
@@ -365,6 +284,49 @@ KEN1_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                              sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
+#............................................................
+#---- Los Angeles County #----
+#...........................................................
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.73,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(27.5,    30.5),
+                                dsc2 =  c(10.5,    0.5))
+
+#......................
+# agebands
+#......................
+rawage <- readRDS("data/derived/USA/LA_CA1_agebands.RDS")
+LACA_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 3, maxMa = "ma3",
+                                               groupvar = "ageband",  dat = rawage,
+                                               num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
+                                               num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.12, dsc1 = 0, dsc2 = 16.12),
+                                               sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+
+
+#............................................................
+#---- New York State #----
+#...........................................................
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.85,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(204.5,   92.5),
+                                dsc2 =  c(30.5,    0.5))
+
+#......................
+# agebands
+#......................
+rawage <- readRDS("data/derived/USA/NYS1_agebands.RDS")
+NYS_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+                                            groupvar = "ageband",  dat = rawage,
+                                            num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
+                                            num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),
+                                            sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+
+
+
 
 #............................................................
 #---- Come Together #----
@@ -373,37 +335,33 @@ bvec <- seq(5, 2.5, length.out = 50)
 
 fit_map <- tibble::tibble(
   name = c("BRA1_age",
-           "BRA5_rgn",
            "CHE1_age",
            "CHE2_age",
-           "DNK1_rgn", # basic but use region for splitting
+           "DNK1_age",
            "ESP1-2_age",
            "GBR3_age",
-           "SWE_rgn", # basic but use region for splitting
-           "NLD1_age",
            "ITA1_age",
            "LUX1_age",
-           "LA_CA1_rgn", # basic but use region for splitting
-           "NYC_NY_1_age",
-           "NYS_rgn", # basic but use region for splitting
+           "NLD1_age",
+           "SWE_age",
            "CHN1_age",
-           "KEN1_age"),
+           "KEN1_age",
+           "LA_CA1_age",
+           "NYS_age"),
   modelobj = list(BRA1_age_mod,
-                  BRA5_rgn_mod,
                   CHE1_age_mod,
                   CHE2_age_mod,
-                  DNK_basic_mod,
+                  DNK_age_mod,
                   ESP_age_mod,
                   GBR3_age_mod,
-                  SWE_basic_mod,
-                  NLD_age_mod,
                   ITA_age_mod,
                   LUX_age_mod,
-                  LACA_basic_mod,
-                  NYC_age_mod,
-                  NYS_basic_mod,
+                  NLD_age_mod,
+                  SWE_age_mod,
                   CHN_age_mod,
-                  KEN1_age_mod),
+                  KEN1_age_mod,
+                  LACA_age_mod,
+                  NYS_age_mod),
   rungs = 50,
   GTI_pow = list(bvec),
   burnin = 1e4,
@@ -446,7 +404,7 @@ run_MCMC <- function(path) {
 
   cl <- parallel::makeCluster(mkcores)
 
-  if (grepl("ITA", basename(path))) {
+  if (grepl("ITA|DNK|SWE", basename(path))) {
     # logit case for ITA with multiple age groups
     fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
@@ -460,35 +418,7 @@ run_MCMC <- function(path) {
                                         GTI_pow = mod$GTI_pow[[1]],
                                         cluster = cl,
                                         thinning = 10)
-  } else if (grepl("SWE|DNK", basename(path))) {
-    # logit case where only one age group
-    fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
-                                        reparamIFR = FALSE,
-                                        reparamInfxn = TRUE,
-                                        reparamKnots = TRUE,
-                                        binomial_likelihood = FALSE,
-                                        chains = n_chains,
-                                        burnin = mod$burnin,
-                                        samples = mod$samples,
-                                        rungs = mod$rungs,
-                                        GTI_pow = mod$GTI_pow[[1]],
-                                        cluster = cl,
-                                        thinning = 10)
 
-  } else if (nrow(mod$modelobj[[1]]$IFRdictkey == 1)) {
-    # basic case
-    fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
-                                        reparamIFR = FALSE,
-                                        reparamInfxn = TRUE,
-                                        reparamKnots = TRUE,
-                                        binomial_likelihood = TRUE,
-                                        chains = n_chains,
-                                        burnin = mod$burnin,
-                                        samples = mod$samples,
-                                        rungs = mod$rungs,
-                                        GTI_pow = mod$GTI_pow[[1]],
-                                        cluster = cl,
-                                        thinning = 10)
   } else {
     # normal binomial case
     fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],

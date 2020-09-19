@@ -87,8 +87,10 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     dplyr::mutate(SeroStartSurvey = sapply(sero_days, median) - 5,
                   SeroEndSurvey = sapply(sero_days, median) + 5,
                   SeroPos = round(SeroPos),
-                  SeroPrev = SeroPos/SeroN) %>%
-    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
+                  SeroPrev = SeroPos/SeroN,
+                  SeroLCI = NA,
+                  SeroUCI = NA) %>%
+    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
     dplyr::ungroup(.) %>%
     dplyr::arrange(SeroStartSurvey, Strata)
 
@@ -102,9 +104,9 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
 }
 
 # run simdat and extract results into separate pieces
-map$simdat <- purrr::pmap(map, wrap_sim, sero_days = c(115, 155))
+map$simdat <- purrr::pmap(map, wrap_sim, sero_days = c(125, 175))
 map$inputdata <- purrr::map(map$simdat, "inputdata")
-map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(155, 155))
+map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(125, 175))
 
 #......................
 # make IFR model

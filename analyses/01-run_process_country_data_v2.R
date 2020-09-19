@@ -372,13 +372,17 @@ DNK.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
 # MANUAL ADJUSTMENTS
 #......................
 # Assume DNK blood donors 17-69 years representative of all age groups
-agebands <- unique(DNK.agebands.dat$deaths_propMCMC$ageband)
+dnkagebands <- unique(DNK.agebands.dat$deaths_propMCMC$ageband)
 dnk_adj_seroprev <- tibble::tibble(
-  ObsDaymin = rep(DNK.agebands.dat$seroprevMCMC$ObsDaymin, length(agebands)),
-  ObsDaymax = rep(DNK.agebands.dat$seroprevMCMC$ObsDaymax, length(agebands)),
-  ageband = rep(agebands, length(DNK.agebands.dat$seroprevMCMC$ObsDaymax)),
+  ObsDaymin = DNK.agebands.dat$seroprevMCMC$ObsDaymin,
+  ObsDaymax = DNK.agebands.dat$seroprevMCMC$ObsDaymax,
   n_positive = NA,
-  n_tested = NA) %>%
+  n_tested = NA)
+
+dnk_adj_seroprev <- lapply(dnkagebands, function(x){
+  dnk_adj_seroprev %>%
+    dplyr::mutate(ageband = x)}) %>%
+  dplyr::bind_rows() %>%
   dplyr::arrange(., ObsDaymin, ObsDaymax, ageband)
 
 DNKnatprev <- DNK.agebands.dat$seroprev_group %>%
@@ -742,13 +746,15 @@ ndays <- length(SWE.agebands.dat$seroprevMCMC$ObsDaymin)
 agelen <- length(SWE.agebands.dat$prop_pop$ageband)
 # assume blood donors stand in for all ages
 swe_adj_seroprev <- tibble::tibble(
-  ObsDaymin = rep(SWE.agebands.dat$seroprevMCMC$ObsDaymin, agelen),
-  ObsDaymax = rep(SWE.agebands.dat$seroprevMCMC$ObsDaymax, agelen),
-  ageband = rep(SWE.agebands.dat$prop_pop$ageband, ndays),
+  ObsDaymin = SWE.agebands.dat$seroprevMCMC$ObsDaymin,
+  ObsDaymax = SWE.agebands.dat$seroprevMCMC$ObsDaymax,
   n_positive = NA,
-  n_tested = NA) %>%
+  n_tested = NA)
+swe_adj_seroprev <- lapply(SWE.agebands.dat$prop_pop$ageband, function(x){
+  swe_adj_seroprev %>%
+    dplyr::mutate(ageband = x)}) %>%
+  dplyr::bind_rows() %>%
   dplyr::arrange(ObsDaymin, ObsDaymax, ageband)
-
 
 SWEnatprev <- SWE.agebands.dat$seroprev_group %>%
   dplyr::select(c("ObsDaymin", "ObsDaymax", "seroprevalence_unadjusted", "range_sero_low", "range_sero_high")) %>%
@@ -994,11 +1000,14 @@ laca_adj_seroprev <- tibble::tibble(
   n_tested = LA_CA.agebands.dat$seroprevMCMC$n_tested,
   SeroPrev = LA_CA.agebands.dat$seroprevMCMC$SeroPrev)
 
+# overwrite
+LA_CA.agebands.dat$seroprevMCMC <- laca_adj_seroprev
+
 #......................
 # save out
 #......................
 dir.create("data/derived/USA/", recursive = TRUE)
-saveRDS(LA_CA.regions.dat, "data/derived/USA/LA_CA1_agebands.RDS")
+saveRDS(LA_CA.agebands.dat, "data/derived/USA/LA_CA1_agebands.RDS")
 
 
 
@@ -1052,7 +1061,8 @@ NYSdeathsrgndf <- NYSJHU %>%
 NYSJHU_tseries<- NYSJHU %>%
   dplyr::mutate(georegion="NYS") %>%
   dplyr::group_by(date,georegion) %>%
-  dplyr::summarise(deaths = sum(deaths))
+  dplyr::summarise(deaths = sum(deaths)) %>%
+  dplyr::ungroup()
 
 NYSpopdf <- populationdf %>%
   dplyr::filter(grepl("New York_", region))
@@ -1130,7 +1140,7 @@ NYS.region.dat <- process_data4(cum_tp_deaths = NYSdeathsrgndf,
 # Age bands deaths and seroprev exactly non overlapping. Set all ages to be the weighted population average except:
 # assume 60+ has seroprevalence of 55+
 # weighted pop average from the paper for the whole study area is 0.125
-nys_adj_seroprev<-nyc_adj_seroprev <- tibble::tibble(
+nys_adj_seroprev <- tibble::tibble(
   ObsDaymin = unique(NYS.age.dat$seroprevMCMC$ObsDaymin),
   ObsDaymax = unique(NYS.age.dat$seroprevMCMC$ObsDaymax),
   ageband = unique(NYS.age.dat$deaths_propMCMC$ageband),
@@ -1144,6 +1154,9 @@ nys_adj_seroprev <- nys_adj_seroprev %>%
                                            ageband=="89-999",NYS.age.dat$seroprevMCMC$n_tested[4],
                                          sum(NYS.age.dat$seroprevMCMC$n_tested[1:3])),
                 n_positive=round(n_tested*SeroPrev))
+
+# overwrite
+NYS.age.dat$seroprevMCMC <- nys_adj_seroprev
 
 #......................
 # save out
