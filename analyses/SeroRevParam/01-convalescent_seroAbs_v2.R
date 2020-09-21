@@ -140,8 +140,6 @@ serotime <- serotime %>%
   dplyr::filter(is.na(drop)) %>%
   dplyr::select(-c("drop"))
 
-
-
 # quick look at finals
 serotime %>%
   dplyr::left_join(., thresholds, by = "assay") %>%
@@ -216,6 +214,9 @@ excl_inds <- sero_final_survival %>%
 # combine serorev
 sero_rev_comb <- dplyr::bind_rows(max_time_to_event_neg, min_time_to_event_pos)
 
+# for no interval censoring account for time of faiure
+sero_rev_comb <- sero_rev_comb %>%
+  dplyr::mutate(time_obs_fail = ifelse(status == 1, time_to_event2, time_to_event))
 
 #............................................................
 # Weibull Regression
@@ -223,7 +224,7 @@ sero_rev_comb <- dplyr::bind_rows(max_time_to_event_neg, min_time_to_event_pos)
 #......................
 # NO interval censoring
 #......................
-survobj <- survival::Surv(time = sero_rev_comb$time_to_event,
+survobj <- survival::Surv(time = sero_rev_comb$time_obs_fail,
                           event = sero_rev_comb$status)
 
 #make kaplan meier object
@@ -242,9 +243,6 @@ summary(WBmod)
 survobj <- survival::Surv(time = sero_rev_comb$time_to_event,
                           time2 =sero_rev_comb$time_to_event2,
                           type = "interval2" )
-
-#make kaplan meier object
-KM1_mod <- survival::survfit(survobj ~ 1, data = sero_rev_comb)
 
 # fit weibull
 WBmod <- survival::survreg(survobj ~ 1,
@@ -267,6 +265,7 @@ weibull_params <- list(wshape = 1/exp(WBmod$icoef[2]),
 dir.create(path = "results/sero_reversion/", recursive = TRUE)
 saveRDS(sero_rev_comb, "results/sero_reversion/sero_rev_dat.RDS")
 saveRDS(weibull_params, "results/sero_reversion/weibull_params.RDS")
+# NB -- KM represents the earliest possible failure time graph
 saveRDS(KM1_mod, "results/sero_reversion/KaplanMeierFit.RDS")
 saveRDS(WBmod, "results/sero_reversion/WeibullFit.RDS")
 saveRDS(serotime, file = "results/sero_reversion/sero_reversion_incld_data.RDS")
