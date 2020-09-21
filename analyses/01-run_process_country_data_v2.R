@@ -143,7 +143,16 @@ BRA.agebands.dat <- process_data4(cum_tp_deaths = bra_cumdeaths,
 bra_sero<-read.csv("data/raw/bra1_city_sero.csv") %>%
   dplyr::rename(city=City)
 bra_city_d<-read.csv("data/raw/bra1_city_deaths.csv")
+bra_city_pop<-read.csv("data/raw/bra1_city_pops.csv")
+bra_city_pop_sum<-bra_city_pop %>%
+  dplyr::group_by(city) %>%
+  dplyr::summarise(population=sum(population))
+
 bra_city<-left_join(bra_city_d,bra_sero,by="city")
+bra_city<-left_join(bra_city_pop_sum,bra_city)
+bra_city<-bra_city %>%
+  dplyr::mutate(deaths = deaths_100k*population/100000)
+write.csv(bra_city,file="data/derived/BRA1/BRA1_city.csv")
 
 #......................
 # MANUAL ADJUSTMENTS
