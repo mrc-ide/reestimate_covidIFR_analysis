@@ -367,7 +367,8 @@ DNK.regions.dat <- process_data4(cum_tp_deaths = deathsdf,
                                  seroprev = dnk_sero,
                                  get_descriptive_dat = TRUE,
                                  groupingvar = "region",
-                                 study_ids = "DNK1")
+                                 study_ids = "DNK1",
+                                 death_agebreaks = c(0, 59, 69, 79, 999))
 
 #......................
 # ages
