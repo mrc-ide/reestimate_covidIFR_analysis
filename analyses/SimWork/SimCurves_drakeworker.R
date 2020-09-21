@@ -48,8 +48,8 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
 
   dat <- COVIDCurve::Agesim_infxn_2_death(
     fatalitydata = fatalitydata,
-    m_od = 19.26,
-    s_od = 0.79,
+    m_od = 19.66,
+    s_od = 0.90,
     curr_day = 200,
     infections = curve,
     simulate_seroreversion = FALSE,
@@ -98,9 +98,9 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
 }
 
 # run simdat and extract results into separate pieces
-map$simdat <- purrr::pmap(map, wrap_sim, sero_days = c(115, 155))
+map$simdat <- purrr::pmap(map, wrap_sim, sero_days = c(125, 175))
 map$inputdata <- purrr::map(map$simdat, "inputdata")
-map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(115, 155))
+map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(125, 175))
 
 #......................
 # make IFR model
@@ -157,7 +157,7 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
-  mod1$set_rcensor_day(180)
+  mod1$set_rcensor_day(.Machine$integer.max)
   # out
   mod1
 }

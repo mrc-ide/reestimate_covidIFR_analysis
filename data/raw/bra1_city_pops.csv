@@ -1,0 +1,325 @@
+region,city,age_low,age_high,population,totpop,site
+North,Breves,0,9,24790,92860,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501808__breves/
+North,Breves,10,19,23698,92860,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501808__breves/
+North,Breves,20,29,15792,92860,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501808__breves/
+North,Breves,30,39,11168,92860,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501808__breves/
+North,Breves,40,49,6959,92860,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501808__breves/
+North,Breves,50,59,4922,92860,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501808__breves/
+North,Breves,60,69,3027,92860,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501808__breves/
+North,Breves,70,79,1543,92860,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501808__breves/
+North,Breves,80,89,961,92860,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501808__breves/
+North,Tefé,0,9,16156,61453,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1304203__tef%C3%A9/
+North,Tefé,10,19,14724,61453,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1304203__tef%C3%A9/
+North,Tefé,20,29,11232,61453,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1304203__tef%C3%A9/
+North,Tefé,30,39,7877,61453,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1304203__tef%C3%A9/
+North,Tefé,40,49,4836,61453,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1304203__tef%C3%A9/
+North,Tefé,50,59,3117,61453,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1304203__tef%C3%A9/
+North,Tefé,60,69,1985,61453,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1304203__tef%C3%A9/
+North,Tefé,70,79,1033,61453,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1304203__tef%C3%A9/
+North,Tefé,80,89,493,61453,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1304203__tef%C3%A9/
+North,Castanhal,0,9,31305,173149,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1502400__castanhal/
+North,Castanhal,10,19,35633,173149,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1502400__castanhal/
+North,Castanhal,20,29,35291,173149,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1502400__castanhal/
+North,Castanhal,30,39,27511,173149,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1502400__castanhal/
+North,Castanhal,40,49,19134,173149,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1502400__castanhal/
+North,Castanhal,50,59,12089,173149,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1502400__castanhal/
+North,Castanhal,60,69,6966,173149,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1502400__castanhal/
+North,Castanhal,70,79,3596,173149,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1502400__castanhal/
+North,Castanhal,80,89,1624,173149,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1502400__castanhal/
+North,Belém,0,9,205216,1393399,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501402__bel%C3%A9m/
+North,Belém,10,19,245601,1393399,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501402__bel%C3%A9m/
+North,Belém,20,29,272821,1393399,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501402__bel%C3%A9m/
+North,Belém,30,39,234398,1393399,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501402__bel%C3%A9m/
+North,Belém,40,49,179848,1393399,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501402__bel%C3%A9m/
+North,Belém,50,59,125586,1393399,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501402__bel%C3%A9m/
+North,Belém,60,69,73155,1393399,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501402__bel%C3%A9m/
+North,Belém,70,79,38501,1393399,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501402__bel%C3%A9m/
+North,Belém,80,89,18273,1393399,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1501402__bel%C3%A9m/
+North,Manaus,0,9,328431,1802014,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1302603__manaus/
+North,Manaus,10,19,356046,1802014,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1302603__manaus/
+North,Manaus,20,29,365847,1802014,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1302603__manaus/
+North,Manaus,30,39,306638,1802014,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1302603__manaus/
+North,Manaus,40,49,207900,1802014,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1302603__manaus/
+North,Manaus,50,59,129071,1802014,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1302603__manaus/
+North,Manaus,60,69,63695,1802014,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1302603__manaus/
+North,Manaus,70,79,30595,1802014,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1302603__manaus/
+North,Manaus,80,89,13791,1802014,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1302603__manaus/
+North,Macapá,0,9,79152,398204,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600303__macap%C3%A1/
+North,Macapá,10,19,87873,398204,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600303__macap%C3%A1/
+North,Macapá,20,29,81487,398204,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600303__macap%C3%A1/
+North,Macapá,30,39,64097,398204,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600303__macap%C3%A1/
+North,Macapá,40,49,41050,398204,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600303__macap%C3%A1/
+North,Macapá,50,59,24037,398204,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600303__macap%C3%A1/
+North,Macapá,60,69,11803,398204,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600303__macap%C3%A1/
+North,Macapá,70,79,5965,398204,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600303__macap%C3%A1/
+North,Macapá,80,89,2740,398204,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600303__macap%C3%A1/
+Northeast,Fortaleza,0,9,345177,2452185,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304400__fortaleza/
+Northeast,Fortaleza,10,19,432658,2452185,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304400__fortaleza/
+Northeast,Fortaleza,20,29,494460,2452185,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304400__fortaleza/
+Northeast,Fortaleza,30,39,393220,2452185,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304400__fortaleza/
+Northeast,Fortaleza,40,49,331485,2452185,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304400__fortaleza/
+Northeast,Fortaleza,50,59,217410,2452185,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304400__fortaleza/
+Northeast,Fortaleza,60,69,130239,2452185,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304400__fortaleza/
+Northeast,Fortaleza,70,79,70556,2452185,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304400__fortaleza/
+Northeast,Fortaleza,80,89,36980,2452185,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304400__fortaleza/
+North,Marabá,0,9,48631,233669,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1504208__marab%C3%A1/
+North,Marabá,10,19,48864,233669,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1504208__marab%C3%A1/
+North,Marabá,20,29,49098,233669,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1504208__marab%C3%A1/
+North,Marabá,30,39,35623,233669,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1504208__marab%C3%A1/
+North,Marabá,40,49,23816,233669,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1504208__marab%C3%A1/
+North,Marabá,50,59,14752,233669,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1504208__marab%C3%A1/
+North,Marabá,60,69,7543,233669,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1504208__marab%C3%A1/
+North,Marabá,70,79,3956,233669,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1504208__marab%C3%A1/
+North,Marabá,80,89,1386,233669,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1504208__marab%C3%A1/
+North,Rio Branco,0,9,62424,336038,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200401__rio_branco/
+North,Rio Branco,10,19,69575,336038,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200401__rio_branco/
+North,Rio Branco,20,29,67770,336038,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200401__rio_branco/
+North,Rio Branco,30,39,54212,336038,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200401__rio_branco/
+North,Rio Branco,40,49,36973,336038,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200401__rio_branco/
+North,Rio Branco,50,59,23464,336038,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200401__rio_branco/
+North,Rio Branco,60,69,12366,336038,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200401__rio_branco/
+North,Rio Branco,70,79,6174,336038,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200401__rio_branco/
+North,Rio Branco,80,89,3080,336038,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200401__rio_branco/
+North,Parintins,0,9,24648,102033,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1303403__parintins/
+North,Parintins,10,19,25305,102033,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1303403__parintins/
+North,Parintins,20,29,17230,102033,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1303403__parintins/
+North,Parintins,30,39,12667,102033,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1303403__parintins/
+North,Parintins,40,49,8831,102033,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1303403__parintins/
+North,Parintins,50,59,6199,102033,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1303403__parintins/
+North,Parintins,60,69,3789,102033,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1303403__parintins/
+North,Parintins,70,79,2293,102033,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1303403__parintins/
+North,Parintins,80,89,1071,102033,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amazonas/1303403__parintins/
+North,Boa Vista,0,9,54713,284313,https://www.citypopulation.de/en/brazil/regiaonorte/admin/roraima/1400100__boa_vista/
+North,Boa Vista,10,19,59953,284313,https://www.citypopulation.de/en/brazil/regiaonorte/admin/roraima/1400100__boa_vista/
+North,Boa Vista,20,29,59240,284313,https://www.citypopulation.de/en/brazil/regiaonorte/admin/roraima/1400100__boa_vista/
+North,Boa Vista,30,39,45858,284313,https://www.citypopulation.de/en/brazil/regiaonorte/admin/roraima/1400100__boa_vista/
+North,Boa Vista,40,49,31250,284313,https://www.citypopulation.de/en/brazil/regiaonorte/admin/roraima/1400100__boa_vista/
+North,Boa Vista,50,59,18570,284313,https://www.citypopulation.de/en/brazil/regiaonorte/admin/roraima/1400100__boa_vista/
+North,Boa Vista,60,69,8831,284313,https://www.citypopulation.de/en/brazil/regiaonorte/admin/roraima/1400100__boa_vista/
+North,Boa Vista,70,79,4031,284313,https://www.citypopulation.de/en/brazil/regiaonorte/admin/roraima/1400100__boa_vista/
+North,Boa Vista,80,89,1867,284313,https://www.citypopulation.de/en/brazil/regiaonorte/admin/roraima/1400100__boa_vista/
+North,Oiapoque,0,9,5091,20509,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600501__oiapoque/
+North,Oiapoque,10,19,4663,20509,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600501__oiapoque/
+North,Oiapoque,20,29,3862,20509,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600501__oiapoque/
+North,Oiapoque,30,39,3076,20509,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600501__oiapoque/
+North,Oiapoque,40,49,2043,20509,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600501__oiapoque/
+North,Oiapoque,50,59,1095,20509,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600501__oiapoque/
+North,Oiapoque,60,69,451,20509,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600501__oiapoque/
+North,Oiapoque,70,79,156,20509,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600501__oiapoque/
+North,Oiapoque,80,89,72,20509,https://www.citypopulation.de/en/brazil/regiaonorte/admin/amap%C3%A1/1600501__oiapoque/
+Northeast,Recife,0,9,201823,1537704,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/pernambuco/2611606__recife/
+Northeast,Recife,10,19,245673,1537704,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/pernambuco/2611606__recife/
+Northeast,Recife,20,29,281046,1537704,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/pernambuco/2611606__recife/
+Northeast,Recife,30,39,249987,1537704,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/pernambuco/2611606__recife/
+Northeast,Recife,40,49,216607,1537704,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/pernambuco/2611606__recife/
+Northeast,Recife,50,59,160844,1537704,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/pernambuco/2611606__recife/
+Northeast,Recife,60,69,97500,1537704,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/pernambuco/2611606__recife/
+Northeast,Recife,70,79,55271,1537704,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/pernambuco/2611606__recife/
+Northeast,Recife,80,89,28953,1537704,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/pernambuco/2611606__recife/
+Southeast,São Paulo,0,9,1469206,11253503,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3550308__s%C3%A3o_paulo/
+Southeast,São Paulo,10,19,1709687,11253503,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3550308__s%C3%A3o_paulo/
+Southeast,São Paulo,20,29,2066242,11253503,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3550308__s%C3%A3o_paulo/
+Southeast,São Paulo,30,39,1898760,11253503,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3550308__s%C3%A3o_paulo/
+Southeast,São Paulo,40,49,1555699,11253503,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3550308__s%C3%A3o_paulo/
+Southeast,São Paulo,50,59,1215771,11253503,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3550308__s%C3%A3o_paulo/
+Southeast,São Paulo,60,69,725393,11253503,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3550308__s%C3%A3o_paulo/
+Southeast,São Paulo,70,79,408270,11253503,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3550308__s%C3%A3o_paulo/
+Southeast,São Paulo,80,89,204475,11253503,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3550308__s%C3%A3o_paulo/
+Southeast,Rio de Janeiro,0,9,759791,6320446,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3304557__rio_de_janeiro/
+Southeast,Rio de Janeiro,10,19,930717,6320446,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3304557__rio_de_janeiro/
+Southeast,Rio de Janeiro,20,29,1059810,6320446,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3304557__rio_de_janeiro/
+Southeast,Rio de Janeiro,30,39,992986,6320446,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3304557__rio_de_janeiro/
+Southeast,Rio de Janeiro,40,49,876487,6320446,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3304557__rio_de_janeiro/
+Southeast,Rio de Janeiro,50,59,759804,6320446,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3304557__rio_de_janeiro/
+Southeast,Rio de Janeiro,60,69,485325,6320446,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3304557__rio_de_janeiro/
+Southeast,Rio de Janeiro,70,79,300283,6320446,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3304557__rio_de_janeiro/
+Southeast,Rio de Janeiro,80,89,155243,6320446,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3304557__rio_de_janeiro/
+Northeast,Sobral,0,9,29431,188233,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2312908__sobral/
+Northeast,Sobral,10,19,39193,188233,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2312908__sobral/
+Northeast,Sobral,20,29,39573,188233,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2312908__sobral/
+Northeast,Sobral,30,39,28597,188233,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2312908__sobral/
+Northeast,Sobral,40,49,21694,188233,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2312908__sobral/
+Northeast,Sobral,50,59,13229,188233,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2312908__sobral/
+Northeast,Sobral,60,69,8788,188233,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2312908__sobral/
+Northeast,Sobral,70,79,5044,188233,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2312908__sobral/
+Northeast,Sobral,80,89,2684,188233,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2312908__sobral/
+South,Ponta Grossa,0,9,48075,311611,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4119905__ponta_grossa/
+South,Ponta Grossa,10,19,56943,311611,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4119905__ponta_grossa/
+South,Ponta Grossa,20,29,53572,311611,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4119905__ponta_grossa/
+South,Ponta Grossa,30,39,48407,311611,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4119905__ponta_grossa/
+South,Ponta Grossa,40,49,41151,311611,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4119905__ponta_grossa/
+South,Ponta Grossa,50,59,31143,311611,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4119905__ponta_grossa/
+South,Ponta Grossa,60,69,18539,311611,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4119905__ponta_grossa/
+South,Ponta Grossa,70,79,9672,311611,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4119905__ponta_grossa/
+South,Ponta Grossa,80,89,4109,311611,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4119905__ponta_grossa/
+Northeast,Maceió,0,9,147475,932748,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/alagoas/2704302__macei%C3%B3/
+Northeast,Maceió,10,19,169451,932748,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/alagoas/2704302__macei%C3%B3/
+Northeast,Maceió,20,29,174543,932748,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/alagoas/2704302__macei%C3%B3/
+Northeast,Maceió,30,39,155538,932748,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/alagoas/2704302__macei%C3%B3/
+Northeast,Maceió,40,49,123535,932748,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/alagoas/2704302__macei%C3%B3/
+Northeast,Maceió,50,59,83119,932748,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/alagoas/2704302__macei%C3%B3/
+Northeast,Maceió,60,69,46014,932748,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/alagoas/2704302__macei%C3%B3/
+Northeast,Maceió,70,79,22598,932748,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/alagoas/2704302__macei%C3%B3/
+Northeast,Maceió,80,89,10475,932748,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/alagoas/2704302__macei%C3%B3/
+Southeast,Vitória,0,9,39490,327801,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/esp%C3%ADrito_santo/3205309__vit%C3%B3ria/
+Southeast,Vitória,10,19,49012,327801,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/esp%C3%ADrito_santo/3205309__vit%C3%B3ria/
+Southeast,Vitória,20,29,63399,327801,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/esp%C3%ADrito_santo/3205309__vit%C3%B3ria/
+Southeast,Vitória,30,39,51917,327801,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/esp%C3%ADrito_santo/3205309__vit%C3%B3ria/
+Southeast,Vitória,40,49,45584,327801,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/esp%C3%ADrito_santo/3205309__vit%C3%B3ria/
+Southeast,Vitória,50,59,38929,327801,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/esp%C3%ADrito_santo/3205309__vit%C3%B3ria/
+Southeast,Vitória,60,69,21340,327801,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/esp%C3%ADrito_santo/3205309__vit%C3%B3ria/
+Southeast,Vitória,70,79,12033,327801,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/esp%C3%ADrito_santo/3205309__vit%C3%B3ria/
+Southeast,Vitória,80,89,6097,327801,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/esp%C3%ADrito_santo/3205309__vit%C3%B3ria/
+Northeast,Natal,0,9,108712,803739,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/rio_grande_do_norte/2408102__natal/
+Northeast,Natal,10,19,137235,803739,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/rio_grande_do_norte/2408102__natal/
+Northeast,Natal,20,29,160538,803739,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/rio_grande_do_norte/2408102__natal/
+Northeast,Natal,30,39,126233,803739,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/rio_grande_do_norte/2408102__natal/
+Northeast,Natal,40,49,111251,803739,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/rio_grande_do_norte/2408102__natal/
+Northeast,Natal,50,59,75831,803739,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/rio_grande_do_norte/2408102__natal/
+Northeast,Natal,60,69,45955,803739,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/rio_grande_do_norte/2408102__natal/
+Northeast,Natal,70,79,24159,803739,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/rio_grande_do_norte/2408102__natal/
+Northeast,Natal,80,89,13825,803739,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/rio_grande_do_norte/2408102__natal/
+Southeast,Campinas,0,9,129655,1080113,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3509502__campinas/
+Southeast,Campinas,10,19,160271,1080113,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3509502__campinas/
+Southeast,Campinas,20,29,200879,1080113,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3509502__campinas/
+Southeast,Campinas,30,39,180732,1080113,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3509502__campinas/
+Southeast,Campinas,40,49,152816,1080113,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3509502__campinas/
+Southeast,Campinas,50,59,121959,1080113,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3509502__campinas/
+Southeast,Campinas,60,69,73022,1080113,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3509502__campinas/
+Southeast,Campinas,70,79,41292,1080113,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3509502__campinas/
+Southeast,Campinas,80,89,19487,1080113,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3509502__campinas/
+Northeast,Crateús,0,9,11235,72812,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304103__crate%C3%BAs/
+Northeast,Crateús,10,19,13956,72812,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304103__crate%C3%BAs/
+Northeast,Crateús,20,29,11607,72812,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304103__crate%C3%BAs/
+Northeast,Crateús,30,39,10270,72812,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304103__crate%C3%BAs/
+Northeast,Crateús,40,49,9103,72812,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304103__crate%C3%BAs/
+Northeast,Crateús,50,59,6580,72812,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304103__crate%C3%BAs/
+Northeast,Crateús,60,69,4988,72812,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304103__crate%C3%BAs/
+Northeast,Crateús,70,79,3150,72812,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304103__crate%C3%BAs/
+Northeast,Crateús,80,89,1923,72812,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/cear%C3%A1/2304103__crate%C3%BAs/
+Northeast,Bacabal,0,9,19255,100014,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2101202__bacabal/
+Northeast,Bacabal,10,19,20124,100014,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2101202__bacabal/
+Northeast,Bacabal,20,29,18775,100014,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2101202__bacabal/
+Northeast,Bacabal,30,39,13899,100014,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2101202__bacabal/
+Northeast,Bacabal,40,49,10448,100014,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2101202__bacabal/
+Northeast,Bacabal,50,59,7709,100014,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2101202__bacabal/
+Northeast,Bacabal,60,69,5146,100014,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2101202__bacabal/
+Northeast,Bacabal,70,79,3119,100014,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2101202__bacabal/
+Northeast,Bacabal,80,89,1539,100014,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2101202__bacabal/
+South,Florianópolis,0,9,46812,421240,https://www.citypopulation.de/en/brazil/regiaosud/admin/santa_catarina/4205407__florian%C3%B3polis/
+South,Florianópolis,10,19,61166,421240,https://www.citypopulation.de/en/brazil/regiaosud/admin/santa_catarina/4205407__florian%C3%B3polis/
+South,Florianópolis,20,29,85072,421240,https://www.citypopulation.de/en/brazil/regiaosud/admin/santa_catarina/4205407__florian%C3%B3polis/
+South,Florianópolis,30,39,70742,421240,https://www.citypopulation.de/en/brazil/regiaosud/admin/santa_catarina/4205407__florian%C3%B3polis/
+South,Florianópolis,40,49,60537,421240,https://www.citypopulation.de/en/brazil/regiaosud/admin/santa_catarina/4205407__florian%C3%B3polis/
+South,Florianópolis,50,59,48488,421240,https://www.citypopulation.de/en/brazil/regiaosud/admin/santa_catarina/4205407__florian%C3%B3polis/
+South,Florianópolis,60,69,27712,421240,https://www.citypopulation.de/en/brazil/regiaosud/admin/santa_catarina/4205407__florian%C3%B3polis/
+South,Florianópolis,70,79,13927,421240,https://www.citypopulation.de/en/brazil/regiaosud/admin/santa_catarina/4205407__florian%C3%B3polis/
+South,Florianópolis,80,89,6784,421240,https://www.citypopulation.de/en/brazil/regiaosud/admin/santa_catarina/4205407__florian%C3%B3polis/
+North,Altamira,0,9,19445,99075,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1500602__altamira/
+North,Altamira,10,19,21225,99075,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1500602__altamira/
+North,Altamira,20,29,19240,99075,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1500602__altamira/
+North,Altamira,30,39,15073,99075,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1500602__altamira/
+North,Altamira,40,49,10654,99075,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1500602__altamira/
+North,Altamira,50,59,6900,99075,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1500602__altamira/
+North,Altamira,60,69,3779,99075,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1500602__altamira/
+North,Altamira,70,79,1945,99075,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1500602__altamira/
+North,Altamira,80,89,814,99075,https://www.citypopulation.de/en/brazil/regiaonorte/admin/par%C3%A1/1500602__altamira/
+Southeast,Petrópolis,0,9,36872,295917,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3303906__petr%C3%B3polis/
+Southeast,Petrópolis,10,19,47770,295917,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3303906__petr%C3%B3polis/
+Southeast,Petrópolis,20,29,45869,295917,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3303906__petr%C3%B3polis/
+Southeast,Petrópolis,30,39,44754,295917,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3303906__petr%C3%B3polis/
+Southeast,Petrópolis,40,49,43380,295917,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3303906__petr%C3%B3polis/
+Southeast,Petrópolis,50,59,34587,295917,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3303906__petr%C3%B3polis/
+Southeast,Petrópolis,60,69,23268,295917,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3303906__petr%C3%B3polis/
+Southeast,Petrópolis,70,79,13162,295917,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3303906__petr%C3%B3polis/
+Southeast,Petrópolis,80,89,6255,295917,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/rio_de_janeiro/3303906__petr%C3%B3polis/
+Southeast,Ribeirão Preto,0,9,74015,604682,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3543402__ribeir%C3%A3o_preto/
+Southeast,Ribeirão Preto,10,19,90694,604682,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3543402__ribeir%C3%A3o_preto/
+Southeast,Ribeirão Preto,20,29,115400,604682,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3543402__ribeir%C3%A3o_preto/
+Southeast,Ribeirão Preto,30,39,98114,604682,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3543402__ribeir%C3%A3o_preto/
+Southeast,Ribeirão Preto,40,49,82807,604682,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3543402__ribeir%C3%A3o_preto/
+Southeast,Ribeirão Preto,50,59,67380,604682,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3543402__ribeir%C3%A3o_preto/
+Southeast,Ribeirão Preto,60,69,41259,604682,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3543402__ribeir%C3%A3o_preto/
+Southeast,Ribeirão Preto,70,79,23616,604682,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3543402__ribeir%C3%A3o_preto/
+Southeast,Ribeirão Preto,80,89,11397,604682,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/s%C3%A3o_paulo/3543402__ribeir%C3%A3o_preto/
+Southeast,Teófilo Otoni,0,9,19657,134745,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3168606__te%C3%B3filo_otoni/
+Southeast,Teófilo Otoni,10,19,23866,134745,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3168606__te%C3%B3filo_otoni/
+Southeast,Teófilo Otoni,20,29,23531,134745,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3168606__te%C3%B3filo_otoni/
+Southeast,Teófilo Otoni,30,39,20222,134745,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3168606__te%C3%B3filo_otoni/
+Southeast,Teófilo Otoni,40,49,17508,134745,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3168606__te%C3%B3filo_otoni/
+Southeast,Teófilo Otoni,50,59,12996,134745,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3168606__te%C3%B3filo_otoni/
+Southeast,Teófilo Otoni,60,69,8642,134745,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3168606__te%C3%B3filo_otoni/
+Southeast,Teófilo Otoni,70,79,5516,134745,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3168606__te%C3%B3filo_otoni/
+Southeast,Teófilo Otoni,80,89,2807,134745,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3168606__te%C3%B3filo_otoni/
+South,Cascavel,0,9,40398,286205,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4104808__cascavel/
+South,Cascavel,10,19,51566,286205,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4104808__cascavel/
+South,Cascavel,20,29,53969,286205,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4104808__cascavel/
+South,Cascavel,30,39,46545,286205,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4104808__cascavel/
+South,Cascavel,40,49,40217,286205,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4104808__cascavel/
+South,Cascavel,50,59,27795,286205,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4104808__cascavel/
+South,Cascavel,60,69,15294,286205,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4104808__cascavel/
+South,Cascavel,70,79,7544,286205,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4104808__cascavel/
+South,Cascavel,80,89,2877,286205,https://www.citypopulation.de/en/brazil/regiaosud/admin/paran%C3%A1/4104808__cascavel/
+North,Cruzeiro do Sul,0,9,18043,78507,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200203__cruzeiro_do_sul/
+North,Cruzeiro do Sul,10,19,18800,78507,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200203__cruzeiro_do_sul/
+North,Cruzeiro do Sul,20,29,14943,78507,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200203__cruzeiro_do_sul/
+North,Cruzeiro do Sul,30,39,10842,78507,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200203__cruzeiro_do_sul/
+North,Cruzeiro do Sul,40,49,6460,78507,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200203__cruzeiro_do_sul/
+North,Cruzeiro do Sul,50,59,4381,78507,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200203__cruzeiro_do_sul/
+North,Cruzeiro do Sul,60,69,2787,78507,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200203__cruzeiro_do_sul/
+North,Cruzeiro do Sul,70,79,1490,78507,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200203__cruzeiro_do_sul/
+North,Cruzeiro do Sul,80,89,761,78507,https://www.citypopulation.de/en/brazil/regiaonorte/admin/acre/1200203__cruzeiro_do_sul/
+Northeast,Presidente Dutra,0,9,8028,44731,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2109106__presidente_dutra/
+Northeast,Presidente Dutra,10,19,9440,44731,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2109106__presidente_dutra/
+Northeast,Presidente Dutra,20,29,8502,44731,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2109106__presidente_dutra/
+Northeast,Presidente Dutra,30,39,6333,44731,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2109106__presidente_dutra/
+Northeast,Presidente Dutra,40,49,4792,44731,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2109106__presidente_dutra/
+Northeast,Presidente Dutra,50,59,3479,44731,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2109106__presidente_dutra/
+Northeast,Presidente Dutra,60,69,2193,44731,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2109106__presidente_dutra/
+Northeast,Presidente Dutra,70,79,1304,44731,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2109106__presidente_dutra/
+Northeast,Presidente Dutra,80,89,660,44731,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/maranh%C3%A3o/2109106__presidente_dutra/
+Southeast,Juiz de Fora,0,9,60469,516247,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3136702__juiz_de_fora/
+Southeast,Juiz de Fora,10,19,80160,516247,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3136702__juiz_de_fora/
+Southeast,Juiz de Fora,20,29,89845,516247,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3136702__juiz_de_fora/
+Southeast,Juiz de Fora,30,39,76696,516247,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3136702__juiz_de_fora/
+Southeast,Juiz de Fora,40,49,75481,516247,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3136702__juiz_de_fora/
+Southeast,Juiz de Fora,50,59,63308,516247,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3136702__juiz_de_fora/
+Southeast,Juiz de Fora,60,69,38163,516247,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3136702__juiz_de_fora/
+Southeast,Juiz de Fora,70,79,21240,516247,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3136702__juiz_de_fora/
+Southeast,Juiz de Fora,80,89,10885,516247,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3136702__juiz_de_fora/
+Southeast,Patos de Minas,0,9,17169,138710,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3148004__patos_de_minas/
+Southeast,Patos de Minas,10,19,23046,138710,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3148004__patos_de_minas/
+Southeast,Patos de Minas,20,29,23519,138710,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3148004__patos_de_minas/
+Southeast,Patos de Minas,30,39,21978,138710,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3148004__patos_de_minas/
+Southeast,Patos de Minas,40,49,20869,138710,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3148004__patos_de_minas/
+Southeast,Patos de Minas,50,59,15618,138710,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3148004__patos_de_minas/
+Southeast,Patos de Minas,60,69,9185,138710,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3148004__patos_de_minas/
+Southeast,Patos de Minas,70,79,5114,138710,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3148004__patos_de_minas/
+Southeast,Patos de Minas,80,89,2212,138710,https://www.citypopulation.de/en/brazil/regiaosudeste/admin/minas_gerais/3148004__patos_de_minas/
+Northeast,Teresina,0,9,120551,814230,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/piau%C3%AD/2211001__teresina/
+Northeast,Teresina,10,19,145167,814230,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/piau%C3%AD/2211001__teresina/
+Northeast,Teresina,20,29,170855,814230,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/piau%C3%AD/2211001__teresina/
+Northeast,Teresina,30,39,134107,814230,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/piau%C3%AD/2211001__teresina/
+Northeast,Teresina,40,49,102694,814230,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/piau%C3%AD/2211001__teresina/
+Northeast,Teresina,50,59,71734,814230,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/piau%C3%AD/2211001__teresina/
+Northeast,Teresina,60,69,38760,814230,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/piau%C3%AD/2211001__teresina/
+Northeast,Teresina,70,79,20215,814230,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/piau%C3%AD/2211001__teresina/
+Northeast,Teresina,80,89,10147,814230,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/piau%C3%AD/2211001__teresina/
+South,Passo Fundo,0,9,24472,184826,https://www.citypopulation.de/en/brazil/regiaosud/admin/rio_grande_do_sul/4314100__passo_fundo/
+South,Passo Fundo,10,19,30750,184826,https://www.citypopulation.de/en/brazil/regiaosud/admin/rio_grande_do_sul/4314100__passo_fundo/
+South,Passo Fundo,20,29,34008,184826,https://www.citypopulation.de/en/brazil/regiaosud/admin/rio_grande_do_sul/4314100__passo_fundo/
+South,Passo Fundo,30,39,27679,184826,https://www.citypopulation.de/en/brazil/regiaosud/admin/rio_grande_do_sul/4314100__passo_fundo/
+South,Passo Fundo,40,49,25319,184826,https://www.citypopulation.de/en/brazil/regiaosud/admin/rio_grande_do_sul/4314100__passo_fundo/
+South,Passo Fundo,50,59,20669,184826,https://www.citypopulation.de/en/brazil/regiaosud/admin/rio_grande_do_sul/4314100__passo_fundo/
+South,Passo Fundo,60,69,12121,184826,https://www.citypopulation.de/en/brazil/regiaosud/admin/rio_grande_do_sul/4314100__passo_fundo/
+South,Passo Fundo,70,79,6835,184826,https://www.citypopulation.de/en/brazil/regiaosud/admin/rio_grande_do_sul/4314100__passo_fundo/
+South,Passo Fundo,80,89,2973,184826,https://www.citypopulation.de/en/brazil/regiaosud/admin/rio_grande_do_sul/4314100__passo_fundo/
+Northeast,Aracaju,0,9,81115,571149,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/sergipe/2800308__aracaju/
+Northeast,Aracaju,10,19,95830,571149,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/sergipe/2800308__aracaju/
+Northeast,Aracaju,20,29,117227,571149,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/sergipe/2800308__aracaju/
+Northeast,Aracaju,30,39,97000,571149,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/sergipe/2800308__aracaju/
+Northeast,Aracaju,40,49,75951,571149,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/sergipe/2800308__aracaju/
+Northeast,Aracaju,50,59,52139,571149,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/sergipe/2800308__aracaju/
+Northeast,Aracaju,60,69,29571,571149,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/sergipe/2800308__aracaju/
+Northeast,Aracaju,70,79,14585,571149,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/sergipe/2800308__aracaju/
+Northeast,Aracaju,80,89,7731,571149,https://www.citypopulation.de/en/brazil/regiaonordeste/admin/sergipe/2800308__aracaju/
