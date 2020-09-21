@@ -217,24 +217,6 @@ if(write2file) ggsave(filename = "results/descriptive_figures/age_IFRraw_plot_ch
 
 
 #......................
-# standardized deaths by seroprev
-#......................
-std_deaths_seroplot <- ageplotdat %>%
-  dplyr::filter(care_home_deaths=="yes") %>%
-  dplyr::filter(seromidpt == obsday) %>%
-  dplyr::select(c("study_id", "age_mid", "std_cum_deaths", "popn", "seroprevadj")) %>%
-  dplyr::mutate(seroprevadj = seroprevadj * 100) %>%
-  ggplot() +
-  geom_point(aes(x = seroprevadj, y = std_cum_deaths, color = study_id, size = age_mid), size = 1.2) +
-  scale_color_manual("Study ID", values = discrete_colors) +
-  scale_size("Mid. Age", range = c(0.1, 3)) +
-  xlab("Adj. Seroprevalence (%).") + ylab("Cum. Deaths per Million") +
-  labs(caption = "Cumulative Deaths per Million at midpoint of Seroprevalence Study") +
-  xyaxis_plot_theme
-if(write2file) jpgsnapshot(outpath = "figures/descriptive_figures/std_deaths_age_seroplot.jpg", # had same name as regional data plot previously
-                           plot = std_deaths_seroplot)
-
-#......................
 # standardized deaths by age
 #......................
 age_std_cum_deaths_plot <- ageplotdat %>%
@@ -245,7 +227,7 @@ age_std_cum_deaths_plot <- ageplotdat %>%
   ggplot() +
   geom_line(aes(x = age_mid, y = std_cum_deaths, color = study_id), alpha = 0.8, size = 1.2) +
   geom_point(aes(x = age_mid, y = std_cum_deaths, fill = seroprevadj), color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
-  scale_color_manual("Study ID", values = discrete_colors) +
+  scale_color_manual("Study ID", values = study_id) +
   scale_fill_gradientn("Adj. Seroprevalence (%)",
                        colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
   xlab("Age (yrs).") + ylab("Cum. Deaths per Million") +
@@ -361,8 +343,8 @@ rgnplotdat<-full_join(rgnplotdat,study_cols,by="study_id")
 #......................
 # rgn adj seroprevalence
 #......................
-col_vec<-study_cols$study_cols
-names(col_vec) <- study_cols$study_id
+# col_vec<-study_cols$study_cols
+# names(col_vec) <- study_cols$study_id
 rgn_seroplot <- rgnplotdat %>%
   dplyr::select(c("study_id", "region", "seroprev")) %>%
   dplyr::mutate(seroprev = seroprev * 100) %>%
@@ -457,7 +439,7 @@ if(write2file) jpgsnapshot(outpath = "figures/descriptive_figures/rgn_IFR_adj_pl
 std_deaths_seroplotdat <- rgnplotdat %>%
   dplyr::filter(seromidpt == obsday)
 # write out for later use
-write.csv(std_deaths_seroplot, file = "data/derived/region_summ_IFR.csv")
+write.csv(std_deaths_seroplotdat, file = "data/derived/region_summ_IFR.csv")
 
 # standardized deaths
 std_deaths_seroplot <- std_deaths_seroplotdat %>%
