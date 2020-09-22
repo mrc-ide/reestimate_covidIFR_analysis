@@ -35,6 +35,16 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 dsc2 =  c(150.5,    10.5))
 
 #......................
+# get fits from stan model
+#......................
+# TODO
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sensalpha
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sensbeta
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- specalpha
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- specbeta
+
+
+#......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/BRA1/BRA1_agebands.RDS")
@@ -98,6 +108,16 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 dsc2 =  c(27.5,    4.5))
 
 #......................
+# get fits from stan model
+#......................
+# TODO
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sensalpha
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sensbeta
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- specalpha
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- specbeta
+
+
+#......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/DNK1/DNK1_agebands.RDS")
@@ -126,6 +146,18 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 # https://www.thelancet.com/cms/10.1016/S0140-6736(20)31483-5/attachment/25c80941-a8c5-470e-a6a8-fde7397b9547/mmc1.pdf
 # based on supp table 3
 
+#......................
+# get fits from stan model
+#......................
+espsens <- readr::read_csv("results/stan_rgn_mod_fits/spain_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(espsens), distr = "beta", method = "mme")
+espspec <- readr::read_csv("results/stan_rgn_mod_fits/spain_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(espspec), distr = "beta", method = "mme")
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+
 
 #......................
 # agebands
@@ -149,6 +181,20 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 dsc2 =  c(10.5,    7.5))
 
 #......................
+# get fits from stan model
+#......................
+gbrsens <- readr::read_csv("results/stan_rgn_mod_fits/gbr_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(gbrsens), distr = "beta", method = "mme")
+gbrspec <- readr::read_csv("results/stan_rgn_mod_fits/gbr_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(gbrspec), distr = "beta", method = "mme")
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+
+
+
+#......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/GBR3/GBR3_agebands.RDS")
@@ -167,6 +213,18 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(90.5,   95.5),
                                 dsc2 =  c(10.5,     5.5))
+#......................
+# get fits from stan model
+#......................
+itasens <- readr::read_csv("results/stan_rgn_mod_fits/ita_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(itasens), distr = "beta", method = "mme")
+itaspec <- readr::read_csv("results/stan_rgn_mod_fits/ita_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(itaspec), distr = "beta", method = "mme")
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+
 
 #......................
 # agebands
@@ -316,6 +374,21 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 dsc2 =  c(30.5,    0.5))
 
 #......................
+# get fits from stan model
+#......................
+nyssens <- readr::read_csv("results/stan_rgn_mod_fits/nys_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(nyssens), distr = "beta", method = "mme")
+nysspec <- readr::read_csv("results/stan_rgn_mod_fits/nys_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(nysspec), distr = "beta", method = "mme")
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+
+
+
+
+#......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/USA/NYS1_agebands.RDS")
@@ -368,10 +441,6 @@ fit_map <- tibble::tibble(
   samples = 1e4,
   thinning = 10)
 
-#......................
-# manual adjustments to fit map
-#......................
-fit_map$GTI_pow[grepl("BRA1", fit_map$name)] <- list(seq(6, 4, length.out = 50))
 
 #......................
 # fitmap out

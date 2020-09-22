@@ -231,9 +231,9 @@ pB <- serocurvedat %>%
   geom_line(aes(x = ObsDay, y = seroprev), alpha = 0.5, color = "#9ecae1") +
   geom_line(aes(x = ObsDay, y = TruePrev), color = "#000000") +
   geom_rect(aes(xmin = 135, xmax = 145, ymin = 0, ymax = Inf), 
-            alpha = 0.1, color = "#bdbdbd", fill = "#bdbdbd") + 
+            alpha = 0.05, color = "#bdbdbd", fill = "#bdbdbd") + 
   geom_rect(aes(xmin = 155, xmax = 165, ymin = 0, ymax = Inf), 
-            alpha = 0.1, color = "#bdbdbd", fill = "#bdbdbd") + 
+            alpha = 0.05, color = "#bdbdbd", fill = "#bdbdbd") + 
   facet_wrap(~Strata) + 
   xyaxis_plot_theme + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold")) +

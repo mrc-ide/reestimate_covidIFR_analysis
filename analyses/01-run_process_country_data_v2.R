@@ -20,8 +20,7 @@ JHUdf <- readr::read_csv("data/raw/time_series_covid19_deaths_global.csv") %>%
   dplyr::group_by(georegion) %>% # group by region for daily deaths
   dplyr::rename(cumdeaths = deaths) %>%
   dplyr::mutate(deaths = cumdeaths - dplyr::lag(cumdeaths),
-                deaths = ifelse(is.na(deaths), 0, deaths), # take care of first value
-                deaths = ifelse(deaths < 1, 0, deaths)) %>% # take care of cumulative death correction
+                deaths = ifelse(is.na(deaths), 0, deaths)) %>%  # take care of first value
   dplyr::select(c("date", "georegion", "deaths")) %>%
   dplyr::filter(date <= lubridate::mdy("08-17-2020")) %>%
   dplyr::ungroup(.)
