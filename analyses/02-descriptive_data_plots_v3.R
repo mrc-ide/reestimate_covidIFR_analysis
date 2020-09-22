@@ -593,13 +593,16 @@ plot(ifr0$prop_pop,ifr0$ifr*100,ylab="IFR (%)",xlab="proportion of population ov
 #---- Figure 1 #----
 #...........................................................
 datmap <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS")
+
 # SeroPrevalences by age portion
 SeroPrevPlotDat <- datmap %>%
   dplyr::filter(breakdown == "ageband") %>%
   dplyr::filter(!grepl("_nch", study_id)) %>%
   dplyr::select(c("study_id", "seroprev_adjdat")) %>%
+  dplyr::filter(! study_id %in% c(c("CHE2", "DNK1", "LUX1", "NLD1",
+                                  "SWE1", "LA_CA1"))) %>% # excluding studies w/ constant assumption
   tidyr::unnest(cols = "seroprev_adjdat") %>%
-  dplyr::left_join(., study_cols, by="study_id")
+  dplyr::left_join(., study_cols, by= "study_id")
 
 # filter to latest date if multiple serosurveys
 SeroPrevPlotDat <- SeroPrevPlotDat %>%
@@ -631,6 +634,7 @@ FigA <- SeroPrevPlotDat %>%
   xyaxis_plot_theme +
   theme(legend.position = "bottom") +
   theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+
 #............................................................
 # SeroReversion Portion
 #...........................................................
@@ -650,12 +654,14 @@ KMplot <- survminer::ggsurvplot(
   xlab = "Time (Days)",
   font.x = c(size = 12, face = "bold"),
   font.y = c(size = 12, face = "bold"),
+  size = 1.5,
   conf.int = TRUE,
   conf.int.fill = "#bdbdbd",
-  conf.int.alpha = 0.8,
+  conf.int.alpha = 0.4,
   palette = "#3182bd", # color of line
   censor = TRUE, # add censoring points
   censor.shape = 124,
+  censor.size = 5,
   ylim = c(0.5, 1))
 FigB <- KMplot$plot +
   xyaxis_plot_theme +

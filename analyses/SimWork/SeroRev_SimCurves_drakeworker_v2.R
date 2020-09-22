@@ -11,12 +11,10 @@ source("R/covidcurve_helper_functions.R")
 set.seed(48)
 
 
-
 #............................................................
 # Read in Various Scenarios for Incidence Curves
 #...........................................................
 infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
-
 
 #............................................................
 # setup fatality data
@@ -32,19 +30,19 @@ demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
 #............................................................
 # Simulate Under Model
 #...........................................................
-map <- expand.grid(nm = c("expgrowth", "intervene", "secondwave"),
-                   curve = list(infxn_shapes$expgrowth,
-                                infxn_shapes$intervene,
-                                infxn_shapes$secondwave),
-                   sens = c(0.85, 0.90),
-                   spec = c(0.95, 0.99))
+map <- tibble::tibble(nm = c("expgrowth", "intervene", "secondwave",
+                             "expgrowth", "intervene", "secondwave"),
+                   curve = list(infxn_shapes$expgrowth, infxn_shapes$intervene, infxn_shapes$secondwave,
+                                infxn_shapes$expgrowth, infxn_shapes$intervene, infxn_shapes$secondwave),
+                   sens = 0.85,
+                   spec = c(rep(0.95, 3), rep(0.99, 3)))
 
 
 map <- tibble::as_tibble(map) %>%
   dplyr::mutate(fatalitydata = list(fatalitydata),
                 demog = list(demog))
 #......................
-# rung covidcurve simulator
+# run covidcurve simulator
 #......................
 wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog, sero_days) {
 
@@ -55,8 +53,8 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     curr_day = 200,
     infections = curve,
     simulate_seroreversion = TRUE,
-    sero_rev_shape = 3.74,
-    sero_rev_scale = 143.37,
+    sero_rev_shape = 3.67,
+    sero_rev_scale = 143.70,
     sens = sens,
     spec = spec,
     sero_delay_rate = 18.3,
@@ -95,8 +93,8 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     dplyr::arrange(SeroStartSurvey, Strata)
 
   inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
-                    prop_deaths = prop_strata_obs_deaths,
-                    obs_serology = obs_serology)
+                   prop_deaths = prop_strata_obs_deaths,
+                   obs_serology = obs_serology)
   out <- list(simdat = dat,
               inputdata = inputdata)
   return(out)
@@ -115,7 +113,7 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(125, 175))
 get_sens_spec_tbl <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",        "sero_rev_shape",    "sero_rev_scale"),
                  min =   c(0.5,              0.5,           2,                   128),
-                 init =  c(0.9,              0.99,          3.5,                 143),
+                 init =  c(0.8,              0.8,           3.5,                 143),
                  max =   c(1,                1,             5,                   158),
                  dsc1 =  c(sens*1e3,        spec*1e3,       3.67,                143.70),
                  dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 1,                   5))
@@ -231,7 +229,7 @@ run_MCMC <- function(path) {
   # out
   dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_serorev/", recursive = TRUE)
   outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_serorev/",
-                   mod$sim, "_SeroRev.RDS")
+                   mod$sim, "_NoSeroRev.RDS")
   saveRDS(fit, file = outpath)
 
   return(0)

@@ -133,7 +133,6 @@ BRA.agebands.dat <- process_data4(cum_tp_deaths = bra_cumdeaths,
                                                       79, 999))
 
 
-#..................................................................................
 #............................................................
 #---- BRA1 CITIES #----
 #...........................................................
@@ -450,7 +449,7 @@ DNK.agebands.dat$seroprevMCMC <- dnk_adj_seroprev
 dir.create("data/derived/DNK1", recursive = T)
 saveRDS(DNK.regions.dat, "data/derived/DNK1/DNK1_regions.RDS")
 saveRDS(DNK.agebands.dat, "data/derived/DNK1/DNK1_agebands.RDS")
-### save for age region analysis:
+# save for age region analysis:
 saveRDS(DNK.agebands_age_sero.dat, "data/derived/DNK1/DNK1_agebands_age_sero.dat.RDS")
 
 

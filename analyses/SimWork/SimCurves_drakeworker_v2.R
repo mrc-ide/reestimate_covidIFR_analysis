@@ -30,12 +30,12 @@ demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
 #............................................................
 # Simulate Under Model
 #...........................................................
-map <- expand.grid(nm = c("expgrowth", "intervene", "secondwave"),
-                   curve = list(infxn_shapes$expgrowth,
-                                infxn_shapes$intervene,
-                                infxn_shapes$secondwave),
-                   sens = c(0.85, 0.90),
-                   spec = c(0.95, 0.99))
+map <- tibble::tibble(nm = c("expgrowth", "intervene", "secondwave",
+                             "expgrowth", "intervene", "secondwave"),
+                   curve = list(infxn_shapes$expgrowth, infxn_shapes$intervene, infxn_shapes$secondwave,
+                                infxn_shapes$expgrowth, infxn_shapes$intervene, infxn_shapes$secondwave),
+                   sens = 0.85,
+                   spec = c(rep(0.95, 3), rep(0.99, 3)))
 
 
 map <- tibble::as_tibble(map) %>%
@@ -83,8 +83,10 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     dplyr::mutate(SeroStartSurvey = sapply(sero_days, median) - 5,
                   SeroEndSurvey = sapply(sero_days, median) + 5,
                   SeroPos = round(SeroPos),
-                  SeroPrev = SeroPos/SeroN) %>%
-    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
+                  SeroPrev = SeroPos/SeroN,
+                  SeroLCI = NA,
+                  SeroUCI = NA) %>%
+    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
     dplyr::ungroup(.) %>%
     dplyr::arrange(SeroStartSurvey, Strata)
 
@@ -109,7 +111,7 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(125, 175))
 get_sens_spec_tbl <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec"),
                  min =   c(0.5,              0.5),
-                 init =  c(0.9,              0.99),
+                 init =  c(0.8,              0.8),
                  max =   c(1,                1),
                  dsc1 =  c(sens*1e3,        spec*1e3),
                  dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3)))
