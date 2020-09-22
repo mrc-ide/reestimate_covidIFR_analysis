@@ -57,6 +57,7 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
 
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
+
   infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
                                            num_ys = num_ys)
 
@@ -184,6 +185,7 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
 
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
+
   infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
                                            num_ys = num_ys)
 
@@ -314,9 +316,9 @@ make_ma_reparamdf <- function(num_mas = 10, upperMa) {
   tibble::tibble(name = paste0("ma", 1:num_mas),
                  min  = rep(0, size = num_mas),
                  init = rep(0.1, size = num_mas),
-                 max = rep(upperMa, size = num_mas),
+                 max = c(rep(1, times = num_mas-1), upperMa),
                  dsc1 = rep(0, size = num_mas),
-                 dsc2 = rep(upperMa, size = num_mas))
+                 dsc2 = c(rep(1, times = num_mas-1), upperMa))
 }
 
 

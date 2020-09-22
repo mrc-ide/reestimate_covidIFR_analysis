@@ -23,16 +23,6 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                max =  c(20,     1,     21),
                                dsc1 = c(19.66,  2700,  18.3),
                                dsc2 = c(0.1,    300,   0.1))
-#......................
-# seroreversion weibull scale/shape for various assay
-# (for later rbinds)
-#......................
-empty <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-                        min  = c(NA,                 NA),
-                        init = c(NA,                 NA),
-                        max =  c(NA,                 NA),
-                        dsc1 = c(NA,                 NA),
-                        dsc2 = c(NA,                 NA))
 
 
 #............................................................
@@ -44,7 +34,6 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(156.5,   176.5),
                                 dsc2 =  c(25.5,    0.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
 
 #......................
 # carehomes
@@ -65,7 +54,6 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(49.5,   5497.5),
                                 dsc2 =  c(5.5,    6.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
 
 #......................
 # carehomes
@@ -88,7 +76,17 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 dsc2 =  c(30.5,    0.5))
 # https://www.thelancet.com/cms/10.1016/S0140-6736(20)31483-5/attachment/25c80941-a8c5-470e-a6a8-fde7397b9547/mmc1.pdf
 # based on supp table 3
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+#......................
+# get fits from stan model
+#......................
+espsens <- readr::read_csv("results/stan_rgn_mod_fits/spain_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(espsens), distr = "beta", method = "mme")
+espspec <- readr::read_csv("results/stan_rgn_mod_fits/spain_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(espspec), distr = "beta", method = "mme")
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 
 
 #......................
@@ -112,7 +110,18 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(38.5,   493.5),
                                 dsc2 =  c(10.5,    7.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+
+#......................
+# get fits from stan model
+#......................
+gbrsens <- readr::read_csv("results/stan_rgn_mod_fits/gbr_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(gbrsens), distr = "beta", method = "mme")
+gbrspec <- readr::read_csv("results/stan_rgn_mod_fits/gbr_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(gbrspec), distr = "beta", method = "mme")
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 
 
 #......................
@@ -126,15 +135,27 @@ GBR3_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 3, maxMa = "ma3",
                                                    sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
 
 #............................................................
-#---- New York City #----
+#---- New York State #----
 #...........................................................
+# TODO follow-up w/ Lucy that this is correct to replace
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(204.5,   92.5),
                                 dsc2 =  c(30.5,    0.5))
-sens_spec_tbl_noserorev <- rbind(sens_spec_tbl, empty)
+#......................
+# get fits from stan model
+#......................
+nyssens <- readr::read_csv("results/stan_rgn_mod_fits/nys_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(nyssens), distr = "beta", method = "mme")
+nysspec <- readr::read_csv("results/stan_rgn_mod_fits/nys_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(nysspec), distr = "beta", method = "mme")
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+
 
 #......................
 # agebands
