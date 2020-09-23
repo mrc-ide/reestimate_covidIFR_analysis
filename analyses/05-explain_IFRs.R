@@ -7,6 +7,11 @@ library(tidyverse)
 library(COVIDCurve)
 source("R/my_themes.R")
 source("R/covidcurve_helper_functions.R")
+# colors
+study_cols <- readr::read_csv("data/plot_aesthetics/color_studyid_map.csv")
+mycolors <- study_cols$cols
+names(mycolors) <- study_cols$study_id
+
 
 #............................................................
 # read in data
