@@ -24,14 +24,13 @@ source("R/my_themes.R")
 modout <- readRDS(params$path)
 
 # pieces for below
-studyidchar <- title <- toupper(stringr::str_split(basename(params$path), "_age|_rgn|_carehomes", simplify = T)[[1]])
+studyidchar <- title <- toupper(stringr::str_split(basename(params$path), "_age|_carehomes", simplify = T)[[1]])
 
 # catch care homes
 if (grepl("_carehomes", basename(params$path))) {
   title <- paste(title, "with Care Homes Excluded")
 }
 
-stratachar <- ifelse(grepl("age|carehomes", basename(params$path)), "Age-Band", "Region")
 ```
 
 # `r paste(title)`
@@ -311,7 +310,7 @@ ggplot() +
   ggrepel::geom_text_repel(data = SeroPrevObs_midday, aes(x = obseroprev, y = std_deaths, label = strata)) +
   scale_color_viridis_d("Strata") +
   ylab("Deaths per Million") + xlab("Inferred True Seroprevalence") +
-  labs(caption = "Virids points are posteriors, black is observed") +
+  labs(caption = "Blue/yellow data are posteriors, black is observed") +
   xyaxis_plot_theme + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"))
 
@@ -357,7 +356,7 @@ ppc_plot <- ggplot() +
             color = "#3182bd") +
   facet_wrap(.~strata) +
   theme_bw() +
-  labs(caption = "Grey Lines are Draws from Posterior, Blue Line is Observed Data (from ECDC)") +
+  labs(caption = "Grey Lines are Draws from Posterior, Blue Line is Observed Data (from JHU CSSE COVID-19 Data)") +
   xlab("Time") + ylab("Deaths") + 
   theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5, vjust = 0.5)) 
