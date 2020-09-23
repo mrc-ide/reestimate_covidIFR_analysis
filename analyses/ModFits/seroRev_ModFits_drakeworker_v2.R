@@ -50,11 +50,14 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 #......................
 # get fits from stan model
 #......................
-# TODO
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sensalpha
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sensbeta
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- specalpha
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- specbeta
+brasens <- readr::read_csv("results/stan_rgn_mod_fits/brazil_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(brasens), distr = "beta", method = "mme")
+braspec <- readr::read_csv("results/stan_rgn_mod_fits/brazil_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(braspec), distr = "beta", method = "mme")
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 
 
 
@@ -128,12 +131,14 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 #......................
 # get fits from stan model
 #......................
-# TODO
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sensalpha
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sensbeta
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- specalpha
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- specbeta
-
+dnksens <- readr::read_csv("results/stan_rgn_mod_fits/denmark_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(dnksens), distr = "beta", method = "mme")
+dnkspec <- readr::read_csv("results/stan_rgn_mod_fits/denmark_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(dnkspec), distr = "beta", method = "mme")
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 
 
 #......................
@@ -174,10 +179,10 @@ espsens <- readr::read_csv("results/stan_rgn_mod_fits/spain_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(espsens), distr = "beta", method = "mme")
 espspec <- readr::read_csv("results/stan_rgn_mod_fits/spain_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(espspec), distr = "beta", method = "mme")
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 
 #......................
 # agebands
@@ -208,10 +213,10 @@ gbrsens <- readr::read_csv("results/stan_rgn_mod_fits/gbr_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(gbrsens), distr = "beta", method = "mme")
 gbrspec <- readr::read_csv("results/stan_rgn_mod_fits/gbr_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(gbrspec), distr = "beta", method = "mme")
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 
 
 #......................
@@ -231,8 +236,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(90.5,   95.5),
-                                dsc2 =  c(10.5,     5.5))
+                                dsc1 =  c(41.5,    1011.5),
+                                dsc2 =  c(2.5,     2.5))
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
@@ -242,10 +247,10 @@ itasens <- readr::read_csv("results/stan_rgn_mod_fits/ita_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(itasens), distr = "beta", method = "mme")
 itaspec <- readr::read_csv("results/stan_rgn_mod_fits/ita_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(itaspec), distr = "beta", method = "mme")
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 
 #......................
 # agebands
@@ -409,10 +414,10 @@ nyssens <- readr::read_csv("results/stan_rgn_mod_fits/nys_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(nyssens), distr = "beta", method = "mme")
 nysspec <- readr::read_csv("results/stan_rgn_mod_fits/nys_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(nysspec), distr = "beta", method = "mme")
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 
 
 #......................
@@ -423,7 +428,7 @@ NYS_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                             groupvar = "ageband",  dat = rawage,
                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),
-                                            sens_spec_tbl = sens_spec_tbl_serorev_serorev, tod_paramsdf = tod_paramsdf)
+                                            sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 
@@ -472,9 +477,9 @@ fit_map <- tibble::tibble(
 # fitmap out
 #......................
 # select what we need for fits and make outpaths
-dir.create("data/param_map/Modfits_noserorev/", recursive = T)
+dir.create("data/param_map/Modfits_serorev/", recursive = T)
 lapply(split(fit_map, 1:nrow(fit_map)), function(x){
-  saveRDS(x, paste0("data/param_map/Modfits_noserorev/",
+  saveRDS(x, paste0("data/param_map/Modfits_serorev/",
                     x$name, "_rung", x$rungs, "_burn", x$burnin, "_smpl", x$samples, ".RDS"))
 })
 
@@ -500,7 +505,7 @@ run_MCMC <- function(path) {
   cl <- parallel::makeCluster(mkcores)
 
   if (grepl("ITA|DNK|SWE", basename(path))) {
-    # logit case for ITA with multiple age groups
+    # logit cases
     fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
                                         reparamInfxn = TRUE,
@@ -551,7 +556,7 @@ run_MCMC <- function(path) {
 
 # read files in after sleeping to account for file lag
 Sys.sleep(60)
-file_param_map <- list.files(path = "data/param_map/Modfits_noserorev/",
+file_param_map <- list.files(path = "data/param_map/Modfits_serorev/",
                              pattern = "*.RDS",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)

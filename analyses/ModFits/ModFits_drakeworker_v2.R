@@ -37,11 +37,15 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 #......................
 # get fits from stan model
 #......................
-# TODO
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sensalpha
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sensbeta
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- specalpha
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- specbeta
+brasens <- readr::read_csv("results/stan_rgn_mod_fits/brazil_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(brasens), distr = "beta", method = "mme")
+braspec <- readr::read_csv("results/stan_rgn_mod_fits/brazil_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(braspec), distr = "beta", method = "mme")
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+
 
 
 #......................
@@ -110,11 +114,14 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 #......................
 # get fits from stan model
 #......................
-# TODO
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sensalpha
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sensbeta
-sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- specalpha
-sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- specbeta
+dnksens <- readr::read_csv("results/stan_rgn_mod_fits/denmark_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(dnksens), distr = "beta", method = "mme")
+dnkspec <- readr::read_csv("results/stan_rgn_mod_fits/denmark_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(dnkspec), distr = "beta", method = "mme")
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 
 
 #......................
@@ -474,7 +481,7 @@ run_MCMC <- function(path) {
   cl <- parallel::makeCluster(mkcores)
 
   if (grepl("ITA|DNK|SWE", basename(path))) {
-    # logit case for ITA with multiple age groups
+    # logit cases
     fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
                                         reparamInfxn = TRUE,

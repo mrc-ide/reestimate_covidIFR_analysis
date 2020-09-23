@@ -43,7 +43,7 @@ CHE1_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                                    groupvar = "ageband",  dat = rawch,
                                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 134, init = 140, max = 146, dsc1 = 134, dsc2 = 146),
                                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.12, dsc1 = 0, dsc2 = 13.12),
-                                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 #............................................................
 #---- CHE2 #-----
@@ -63,7 +63,41 @@ CHE2_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                                    groupvar = "ageband",  dat = rawch,
                                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 199, init = 206, max = 213, dsc1 = 199, dsc2 = 213),
                                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14.24, dsc1 = 0, dsc2 = 14.24),
-                                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+
+
+#............................................................
+#---- DNK1 #-----
+#...........................................................
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.85,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(128.5,   647.5),
+                                dsc2 =  c(27.5,    4.5))
+
+#......................
+# get fits from stan model
+#......................
+dnksens <- readr::read_csv("results/stan_rgn_mod_fits/denmark_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(dnksens), distr = "beta", method = "mme")
+dnkspec <- readr::read_csv("results/stan_rgn_mod_fits/denmark_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(dnkspec), distr = "beta", method = "mme")
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+
+#......................
+# agebands
+#......................
+rawch <- readRDS("data/derived/carehomes/DNK1_agebands_noCH.RDS")
+DNK_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 2, maxMa = "ma2",
+                                                  groupvar = "ageband",  dat = rawch,
+                                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
+                                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
+                                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+
 
 #............................................................
 #---- ESP1-2 #-----
@@ -97,7 +131,7 @@ ESP_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                                   groupvar = "ageband",  dat = rawch,
                                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 17.66),
-                                                  sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 
@@ -132,7 +166,7 @@ GBR3_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 3, maxMa = "ma3",
                                                    groupvar = "ageband",  dat = rawch,
                                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 206, init = 210, max = 213, dsc1 = 199, dsc2 = 213),
                                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
-                                                   sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 #............................................................
 #---- New York State #----
@@ -160,12 +194,12 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 #......................
 # agebands
 #......................
-rawch <- readRDS("data/derived/carehomes/NYC_NY_1_agebands_noCH.RDS")
-NYC_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
+rawch <- readRDS("data/derived/carehomes/NYS1_agebands_noCH.RDS")
+NYS_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                                   groupvar = "ageband",  dat = rawch,
                                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),
-                                                  sens_spec_tbl = sens_spec_tbl_noserorev, tod_paramsdf = tod_paramsdf)
+                                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
@@ -179,13 +213,13 @@ fit_map <- tibble::tibble(
            "DNK1_carehomes",
            "ESP1-2_carehomes",
            "GBR3_carehomes",
-           "NYC_NY_1_carehomes"),
+           "NYS1_carehomes"),
   modelobj = list(CHE1_carehomes_mod,
                   CHE2_carehomes_mod,
                   DNK_carehomes_mod,
                   ESP_carehomes_mod,
                   GBR3_carehomes_mod,
-                  NYC_carehomes_mod),
+                  NYS_carehomes_mod),
   rungs = 50,
   GTI_pow = list(bvec),
   burnin = 1e4,
@@ -223,29 +257,47 @@ run_MCMC <- function(path) {
 
   cl <- parallel::makeCluster(mkcores)
 
-  fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
-                                      reparamIFR = TRUE,
-                                      reparamInfxn = TRUE,
-                                      reparamKnots = TRUE,
-                                      binomial_likelihood = TRUE,
-                                      chains = n_chains,
-                                      burnin = mod$burnin,
-                                      samples = mod$samples,
-                                      rungs = mod$rungs,
-                                      GTI_pow = mod$GTI_pow[[1]],
-                                      cluster = cl,
-                                      thinning = 10)
+  if (grepl("DNK", basename(path))) {
+    # logit case for DNK with multiple age groups
+    fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
+                                        reparamIFR = TRUE,
+                                        reparamInfxn = TRUE,
+                                        reparamKnots = TRUE,
+                                        binomial_likelihood = FALSE,
+                                        chains = n_chains,
+                                        burnin = mod$burnin,
+                                        samples = mod$samples,
+                                        rungs = mod$rungs,
+                                        GTI_pow = mod$GTI_pow[[1]],
+                                        cluster = cl,
+                                        thinning = 10)
 
+  } else {
+    # normal binomial case
+    fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
+                                        reparamIFR = TRUE,
+                                        reparamInfxn = TRUE,
+                                        reparamKnots = TRUE,
+                                        binomial_likelihood = TRUE,
+                                        chains = n_chains,
+                                        burnin = mod$burnin,
+                                        samples = mod$samples,
+                                        rungs = mod$rungs,
+                                        GTI_pow = mod$GTI_pow[[1]],
+                                        cluster = cl,
+                                        thinning = 10)
+  }
   parallel::stopCluster(cl)
   gc()
 
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits_carehomes/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits_carehomes/",
-                   mod$name, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, "_CareHomes.RDS")
+  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits_serorev/", recursive = TRUE)
+  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits_serorev/",
+                   mod$name, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, "_SeroRev.RDS")
   saveRDS(fit, file = outpath)
   return(0)
 }
+
 
 
 #............................................................
