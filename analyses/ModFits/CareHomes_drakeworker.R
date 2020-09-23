@@ -98,6 +98,14 @@ DNK_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 2, maxMa = "ma2",
                                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
                                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
+# need to account for duplicate DNK start date
+dnkstart <- DNK_carehomes_mod$data$obs_serology %>%
+  dplyr::filter(SeroStartSurvey != 97 & SeroEndSurvey != 124)
+dnkend <- DNK_carehomes_mod$data$obs_serology %>%
+  dplyr::filter(SeroStartSurvey == 97 & SeroEndSurvey == 124)
+
+DNK_carehomes_mod$data$obs_serology <- dplyr::bind_rows(dnkstart, dnkend)
+
 
 #............................................................
 #---- ESP1-2 #-----

@@ -150,7 +150,7 @@ DNK_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
                                             sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
-# need to account dor duplicate DNK start date
+# need to account for duplicate DNK start date
 dnkstart <- DNK_age_mod$data$obs_serology %>%
   dplyr::filter(SeroStartSurvey != 97 & SeroEndSurvey != 124)
 dnkend <- DNK_age_mod$data$obs_serology %>%
