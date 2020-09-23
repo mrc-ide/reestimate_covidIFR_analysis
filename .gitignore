@@ -9,11 +9,20 @@
 
 # Data files I'm generating
 sandbox/
-results/
+results/Modfits_carehomes
+results/Modfits_noserorev
+results/Modfits_serorev
+results/OLD
+results/SeroDays_Concept
+results/SimCurves_noserorev
+results/SimCurves_serorev
+results/descriptive_results
+results/sero_reversion
+
 figures/
 data/param_map/
 .drake
-# shared data 
+# shared data
 data/raw/shared
 
 
