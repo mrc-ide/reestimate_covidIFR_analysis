@@ -17,7 +17,7 @@ source("R/my_themes.R")
 infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
 interveneflat <- infxn_shapes$intervene
 # note need more infxns for sensitivity to be apparent on conceptual diagrams
-interveneflat <- interveneflat * 3
+interveneflat <- interveneflat * 1.5
 interveneflat <- c(interveneflat, round(seq(from = interveneflat[200],
                                       to = 10, length.out = 100)))
 
@@ -91,7 +91,7 @@ oneday_inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 #......................
 # wrangle input data from non-seroreversion fit
 #......................
-sero_days <- c(115, 155)
+sero_days <- c(125, 175)
 sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
 TwoDays_obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%

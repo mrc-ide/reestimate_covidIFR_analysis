@@ -20,8 +20,7 @@ JHUdf <- readr::read_csv("data/raw/time_series_covid19_deaths_global.csv") %>%
   dplyr::group_by(georegion) %>% # group by region for daily deaths
   dplyr::rename(cumdeaths = deaths) %>%
   dplyr::mutate(deaths = cumdeaths - dplyr::lag(cumdeaths),
-                deaths = ifelse(is.na(deaths), 0, deaths), # take care of first value
-                deaths = ifelse(deaths < 1, 0, deaths)) %>% # take care of cumulative death correction
+                deaths = ifelse(is.na(deaths), 0, deaths)) %>%  # take care of first value
   dplyr::select(c("date", "georegion", "deaths")) %>%
   dplyr::filter(date <= lubridate::mdy("08-17-2020")) %>%
   dplyr::ungroup(.)
@@ -645,6 +644,16 @@ ita_adj_seroprev$SeroPrev[8:10] <- ITA.agebands.dat$seroprev_group$seroprevalenc
 # overwrite
 ITA.agebands.dat$seroprevMCMC <- ita_adj_seroprev
 
+# deal with only reporting confidence intervals for the region model
+ita_rgn_lftovr <- ITA.regions.dat$seroprev_group %>%
+  dplyr::select(c("region", "seroprevalence_unadjusted", "range_sero_low", "range_sero_high")) %>%
+  dplyr::rename(SeroPrev = seroprevalence_unadjusted,
+                SeroLCI = range_sero_low,
+                SeroUCI = range_sero_high)
+ITA.regions.dat$seroprevMCMC <- ITA.regions.dat$seroprevMCMC %>%
+  dplyr::select(-c("SeroPrev")) %>%
+  dplyr::left_join(., ita_rgn_lftovr)
+
 #......................
 # save out
 #......................
@@ -1224,14 +1233,6 @@ saveRDS(NYS.age.dat, "data/derived/USA/NYS1_agebands.RDS")
 #..................................................................................
 dir.create("data/derived/carehomes/", recursive = TRUE)
 
-### ESP1-2
-ESP.agebands_noCH.dat <- remove_ch_deaths(ESP.agebands.dat,"ESP1-2")
-saveRDS(ESP.agebands_noCH.dat, "data/derived/carehomes/ESP1-2_agebands_noCH.RDS")
-
-### GBR3
-GBR3.agebands_noCH.dat <- remove_ch_deaths(GBR3.agebands.dat,"GBR3")
-saveRDS(GBR3.agebands_noCH.dat, "data/derived/carehomes/GBR3_agebands_noCH.RDS")
-
 ### CHE1
 CHE1.agebands_noCH.dat <- remove_ch_deaths(CHE1.agebands.dat,"CHE1")
 saveRDS(CHE1.agebands_noCH.dat, "data/derived/carehomes/CHE1_agebands_noCH.RDS")
@@ -1240,9 +1241,35 @@ saveRDS(CHE1.agebands_noCH.dat, "data/derived/carehomes/CHE1_agebands_noCH.RDS")
 CHE2.agebands_noCH.dat <- remove_ch_deaths(CHE2.agebands.dat,"CHE2")
 saveRDS(CHE2.agebands_noCH.dat, "data/derived/carehomes/CHE2_agebands_noCH.RDS")
 
-### NYC_NY_1
-NYC_NY_1.agebands_noCH.dat <- remove_ch_deaths(NYC_NY_1.agebands.dat,"NYC_NY_1")
-saveRDS(NYC_NY_1.agebands_noCH.dat, "data/derived/carehomes/NYC_NY_1_agebands_noCH.RDS")
+## DNK 1
+DNK.agebands_noCH.dat <- remove_ch_deaths(DNK.agebands.dat,"DNK1")
+
+#......................
+# MANUAL ADJUSTMENTS
+#......................
+# Assume DNK blood donors 17-69 years representative of all age groups
+# logit only here
+dnk_adj_seroprev_ch <- dnk_adj_seroprev %>%
+  dplyr::filter(ageband %in% c("0-59", "59-69")) %>%
+  dplyr::mutate(ageband = ifelse(ageband == "59-69", "59-999", ageband))
+# overwrite
+DNK.agebands_noCH.dat$seroprevMCMC <- dnk_adj_seroprev_ch
+
+saveRDS(DNK.agebands_noCH.dat, "data/derived/carehomes/DNK1_agebands_noCH.RDS")
+
+
+
+### ESP1-2
+ESP.agebands_noCH.dat <- remove_ch_deaths(ESP.agebands.dat,"ESP1-2")
+saveRDS(ESP.agebands_noCH.dat, "data/derived/carehomes/ESP1-2_agebands_noCH.RDS")
+
+### GBR3
+GBR3.agebands_noCH.dat <- remove_ch_deaths(GBR3.agebands.dat,"GBR3")
+saveRDS(GBR3.agebands_noCH.dat, "data/derived/carehomes/GBR3_agebands_noCH.RDS")
+
+### NYS1
+NYS1.agebands_noCH.dat <- remove_ch_deaths(NYS.age.dat, "NYS1")
+saveRDS(NYS1.agebands_noCH.dat, "data/derived/carehomes/NYS1_agebands_noCH.RDS")
 
 #..................................................................................
 #---- Confirmed Deaths Data Processing  #-----

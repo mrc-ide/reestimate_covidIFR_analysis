@@ -17,10 +17,13 @@ source("R/my_themes.R")
 infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
 interveneflat <- infxn_shapes$intervene
 # note need more infxns for sensitivity to be apparent on conceptual diagrams
-interveneflat <- interveneflat * 3
+interveneflat <- interveneflat * 1.5
 interveneflat <- c(interveneflat, round(seq(from = interveneflat[200],
                                             to = 10, length.out = 100)))
 
+
+# read in fitted weibull seroreversion parameters
+weibull_params <- readRDS("results/prior_inputs/weibull_params.RDS")
 
 
 #............................................................
@@ -56,8 +59,8 @@ serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = TRUE,
-  sero_rev_shape = 4.5,
-  sero_rev_scale = 200,
+  sero_rev_shape = weibull_params$wshape,
+  sero_rev_scale = weibull_params$wscale + 5,
   smplfrac = 1e-3,
   sens = 0.85,
   spec = 0.95,
@@ -73,7 +76,7 @@ serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
 # wrangle input data from non-seroreversion fit
 #......................
 # liftover obs serology
-sero_days <- c(115, 155)
+sero_days <- c(125, 175)
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay %in% sero_days) %>%
@@ -105,10 +108,10 @@ reginputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
                      obs_serology = obs_serology)
 
 #......................
-# wrangle input data from non-seroreversion fit
+# wrangle input data from seroreversion fit
 #......................
 # sero tidy up
-sero_days <- c(115, 155)
+sero_days <- c(125, 175)
 sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
@@ -149,7 +152,6 @@ serorev_inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 #......................
 # make IFR model
 #......................
-# paramdf
 # sens/spec
 sens_spec_tbl <- tibble::tibble(name =  c("sens",  "spec"),
                                 min =   c(0.5,      0.5),
@@ -166,12 +168,12 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                dsc1 = c(19.66,  2700,  18.3),
                                dsc2 = c(0.1,    300,   0.1))
 
-serorev <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-                          min  = c(2,                 128),
-                          init = c(3.5,               143),
-                          max =  c(5,                 158),
-                          dsc1 = c(3.74,              143.37),
-                          dsc2 = c(1,                 3))
+serorev <- tibble::tibble(name = c("sero_rev_shape",        "sero_rev_scale"),
+                          min  = c(2,                        128),
+                          init = c(3.5,                      143),
+                          max =  c(5,                        158),
+                          dsc1 = c(weibull_params$wshape,    weibull_params$wscale + 5),
+                          dsc2 = c(1,                        3))
 
 # combine
 tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
@@ -182,7 +184,7 @@ tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
 ifr_paramsdf <- make_ma_reparamdf(num_mas = 1, upperMa = 0.4)
 knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
                                         num_xs = 4)
-infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
+infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14.91, dsc1 = 0, dsc2 = 14.91),
                                          num_ys = 5)
 # bring together
 df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf)
@@ -215,11 +217,11 @@ mod1_serorev$set_Knotparams(paste0("x", 1:4))
 mod1_serorev$set_relKnot("x4")
 mod1_serorev$set_Infxnparams(paste0("y", 1:5))
 mod1_serorev$set_relInfxn("y3")
-mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
+mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
 mod1_serorev$set_data(reginputdata)
 mod1_serorev$set_demog(demog)
-mod1_serorev$set_paramdf(df_params_reg)
-mod1_serorev$set_rcensor_day(180)
+mod1_serorev$set_paramdf(df_params_serorev)
+mod1_serorev$set_rcensor_day(.Machine$integer.max)
 
 #............................................................
 #---- Come Together #----
@@ -270,7 +272,7 @@ run_MCMC <- function(path) {
   cl <- parallel::makeCluster(mkcores)
 
   fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
-                                      reparamIFR = FALSE,
+                                      reparamIFR = FALSE, # only one group, so don't reparam IFR
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
                                       chains = n_chains,
@@ -326,7 +328,7 @@ plan <- drake::drake_plan(
 options(clustermq.scheduler = "slurm",
         clustermq.template = "drake_clst/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
-     log_make = "ConceptFig1_drake.log", verbose = 2,
+     log_make = "ConceptFig_drake.log", verbose = 2,
      log_progress = TRUE,
      log_build_times = FALSE,
      recoverable = FALSE,

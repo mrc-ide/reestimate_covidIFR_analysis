@@ -590,7 +590,7 @@ plot(ifr0$prop_pop,ifr0$ifr*100,ylab="IFR (%)",xlab="proportion of population ov
 
 
 #............................................................
-#---- Figure 1 #----
+#---- Figure of Seroprevalence and Seroreversion #----
 #...........................................................
 datmap <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS")
 
@@ -601,8 +601,7 @@ SeroPrevPlotDat <- datmap %>%
   dplyr::select(c("study_id", "seroprev_adjdat")) %>%
   dplyr::filter(! study_id %in% c(c("CHE2", "DNK1", "LUX1", "NLD1",
                                   "SWE1", "LA_CA1"))) %>% # excluding studies w/ constant assumption
-  tidyr::unnest(cols = "seroprev_adjdat") %>%
-  dplyr::left_join(., study_cols, by= "study_id")
+  tidyr::unnest(cols = "seroprev_adjdat")
 
 # filter to latest date if multiple serosurveys
 SeroPrevPlotDat <- SeroPrevPlotDat %>%
@@ -610,7 +609,7 @@ SeroPrevPlotDat <- SeroPrevPlotDat %>%
   dplyr::filter(obsdaymax == max(obsdaymax))
 
 # add uncertainty in raw seroprevalence based on binomial
-SeroPrevPlotDat <- SeroPrevPlotDat %>%
+SeroPrevPlotDat_sub <- SeroPrevPlotDat %>%
   dplyr::filter(!is.na(n_positive)) %>%
   dplyr::filter(!is.na(n_tested)) %>%
   dplyr::mutate(crude_seroprev_obj = purrr::map2(n_positive, n_tested, .f = function(x,n){ binom.test(x,n) }),
@@ -618,6 +617,16 @@ SeroPrevPlotDat <- SeroPrevPlotDat %>%
                 crude_seroprevLCI = purrr::map_dbl(crude_seroprev_CI, function(x){x[[1]]}),
                 crude_seroprevUCI = purrr::map_dbl(crude_seroprev_CI, function(x){x[[2]]}),
                 crude_seroprev = purrr::map_dbl(crude_seroprev_obj, "estimate"))
+# add back in ITA, which only have 95% CIs
+SeroPrevPlotDat <- SeroPrevPlotDat %>%
+  dplyr::filter(study_id == "ITA1") %>%
+  dplyr::mutate(crude_seroprev_obj = NA,
+                crude_seroprev_CI = NA,
+                crude_seroprevLCI = serolci,
+                crude_seroprevUCI = serouci,
+                crude_seroprev = seroprev) %>%
+  dplyr::bind_rows(., SeroPrevPlotDat_sub)
+
 # plot out part A
 FigA <- SeroPrevPlotDat %>%
   dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,1]),
@@ -626,7 +635,7 @@ FigA <- SeroPrevPlotDat %>%
                 age_mid = (age_high + age_low)/2) %>%
   ggplot() +
   geom_pointrange(aes(x = age_mid, y = crude_seroprev, ymin = crude_seroprevLCI, ymax = crude_seroprevUCI,
-                      color = study_id)) +
+                      color = study_id), alpha = 0.8) +
   geom_line(aes(x = age_mid, y = seroprev, color = study_id),
             alpha = 0.8, size = 1.2, show.legend = F) +
   scale_color_manual("Study ID", values = mycolors) +
@@ -639,8 +648,9 @@ FigA <- SeroPrevPlotDat %>%
 # SeroReversion Portion
 #...........................................................
 sero_rev_comb <- readRDS("results/sero_reversion/sero_rev_dat.RDS")
-weibull_params <- readRDS("results/sero_reversion/weibull_params.RDS")
+weibull_params <- readRDS("results/prior_inputs/weibull_params.RDS")
 KM1_mod <- readRDS("results/sero_reversion/KaplanMeierFit.RDS")
+survobj_km <- readRDS("results/sero_reversion/survobj_km.RDS")
 WBmod <- readRDS("results/sero_reversion/WeibullFit.RDS")
 serotime <- readRDS("results/sero_reversion/sero_reversion_incld_data.RDS")
 
@@ -711,4 +721,92 @@ mainFig <- cowplot::plot_grid(FigA, rght,
 jpeg("figures/final_figures/Figure_dscdat.jpg",
      width = 11, height = 8, units = "in", res = 500)
 plot(mainFig)
+graphics.off()
+
+
+
+
+
+#............................................................
+#---- Figure of Seroprevalence vs. Not-Modelled Adj. IFR #----
+#...........................................................
+source("R/delta_method.R")
+
+# get regions
+rgns <- datmap %>%
+  dplyr::filter(breakdown == "region") %>%
+  dplyr::select(-c("care_home_deaths", "data", "seroprev_adjdat", "std_deaths")) %>%
+  tidyr::unnest(cols = "plotdat")
+
+#......................
+# get standard errors
+#......................
+# Delta method needs standard error of seroprev SE(p)
+# where SE(p) is the standard error of the binomial proportion for all studies except ITA
+# for ITA, we use SE(p) as the logit transformed SE gleaned from the provided CIs
+#
+rgnsSE_sub <- rgns %>%
+  dplyr::filter(study_id != "ITA1") %>%
+  dplyr::group_by(study_id) %>%
+  dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
+  dplyr::ungroup(.) %>%
+  dplyr::select(c("study_id", "region", "n_positive", "n_tested")) %>%
+  dplyr::filter(!duplicated(.)) %>%
+  dplyr::mutate(seroprev = n_positive/n_tested,
+                binom_se = sqrt(seroprev * (1-seroprev))) %>%
+  dplyr::select(c("study_id", "region", "binom_se"))
+
+rgnsSE_ita <- rgns %>%
+  dplyr::filter(study_id == "ITA1") %>%
+  dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
+  dplyr::select(c("study_id", "region", "serolci", "serouci")) %>%
+  dplyr::filter(!duplicated(.)) %>%
+  dplyr::mutate(binom_se = (COVIDCurve:::logit(serouci) - COVIDCurve:::logit(serolci))/(1.96 * 2))  %>%
+  dplyr::select(c("study_id", "region", "binom_se"))
+
+rgnsSE <- dplyr::bind_rows(rgnsSE_sub, rgnsSE_ita)
+
+
+#......................
+# subset regions to parts we need
+# and perform calculation
+#......................
+delta_IFR <- rgns %>%
+  dplyr::group_by(study_id, region) %>%
+  dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
+  dplyr::filter(obsday == seromidpt) %>%  # sero obs day
+  dplyr::select(c("study_id", "region", "cumdeaths", "popn", "seroprev")) %>%
+  dplyr::left_join(., rgnsSE, by = c("study_id", "region")) %>%
+  dplyr::mutate(IFRcalc = cumdeaths  / (seroprev * popn + cumdeaths),
+                IFRbound = purrr::map(seroprev, get_delta_CI_vals, deaths = cumdeaths, popN = popn, SE = binom_se, tol = 1e-4),
+                lower_ci = purrr::map_dbl(IFRbound, "lower.ci"),
+                upper_ci = purrr::map_dbl(IFRbound, "upper.ci"))
+
+#......................
+# make plots
+#......................
+upperbounds <- delta_IFR %>%
+  dplyr::filter(upper_ci > 0.05) %>%
+  dplyr::mutate(upbound = 0.05)
+
+Rgn_IFR_plotObj <- delta_IFR %>%
+  dplyr::mutate(IFRcalc = ifelse(seroprev == 0, NA, IFRcalc),
+                lower_ci = ifelse(seroprev == 0, NA, lower_ci),
+                upper_ci = ifelse(seroprev == 0, NA, upper_ci),
+                upper_ci = ifelse(upper_ci > 0.05, 0.05, upper_ci)) %>%
+  ggplot() +
+  geom_pointrange(aes(x = seroprev, y = IFRcalc,
+                      ymin = lower_ci, ymax = upper_ci,
+                      color = study_id)) +
+  geom_point(data = upperbounds, aes(x = seroprev, y = upbound, color = study_id),
+             shape = 3, size = 1.5) +
+  scale_color_manual("Study ID", values = mycolors) +
+  xlab("Observed Seroprevalence (%)") + ylab("Crude IFR (95% CI)") +
+  xyaxis_plot_theme +
+  theme(legend.position = "bottom") +
+  theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+
+jpeg("figures/final_figures/Figure_Rgn_crude_IFR.jpg",
+     width = 11, height = 8, units = "in", res = 500)
+plot(Rgn_IFR_plotObj)
 graphics.off()

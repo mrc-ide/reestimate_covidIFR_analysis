@@ -16,6 +16,9 @@ set.seed(48)
 #...........................................................
 infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
 
+# read in fitted weibull seroreversion parameters
+weibull_params <- readRDS("results/prior_inputs/weibull_params.RDS")
+
 #............................................................
 # setup fatality data
 #............................................................
@@ -53,8 +56,8 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     curr_day = 200,
     infections = curve,
     simulate_seroreversion = TRUE,
-    sero_rev_shape = 3.67,
-    sero_rev_scale = 143.70,
+    sero_rev_shape = weibull_params$wshape,
+    sero_rev_scale = weibull_params$wscale + 5,
     sens = sens,
     spec = spec,
     sero_delay_rate = 18.3,
@@ -111,12 +114,12 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(125, 175))
 #......................
 # sens/spec
 get_sens_spec_tbl <- function(sens, spec) {
-  tibble::tibble(name =  c("sens",          "spec",        "sero_rev_shape",    "sero_rev_scale"),
-                 min =   c(0.5,              0.5,           2,                   128),
-                 init =  c(0.8,              0.8,           3.5,                 143),
-                 max =   c(1,                1,             5,                   158),
-                 dsc1 =  c(sens*1e3,        spec*1e3,       3.67,                143.70),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 1,                   5))
+  tibble::tibble(name =  c("sens",          "spec",        "sero_rev_shape",       "sero_rev_scale"),
+                 min =   c(0.5,              0.5,           2,                      128),
+                 init =  c(0.8,              0.8,           3.5,                    143),
+                 max =   c(1,                1,             5,                      158),
+                 dsc1 =  c(sens*1e3,        spec*1e3,       weibull_params$wshape,  weibull_params$wscale + 5),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 1,                      3))
 
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec_tbl)
@@ -229,7 +232,7 @@ run_MCMC <- function(path) {
   # out
   dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_serorev/", recursive = TRUE)
   outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_serorev/",
-                   mod$sim, "_NoSeroRev.RDS")
+                   mod$sim, "_SeroRev.RDS")
   saveRDS(fit, file = outpath)
 
   return(0)

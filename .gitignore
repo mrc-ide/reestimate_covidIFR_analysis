@@ -7,13 +7,24 @@
 .Rproj.user
 .RData
 
+# large results that can't push to GH
+results/Modfits_carehomes
+results/Modfits_noserorev
+results/Modfits_serorev
+results/Fig_ConceptualFits
+results/SeroDays_Concept
+results/SimCurves_noserorev
+results/SimCurves_serorev
+results/descriptive_results
+results/sero_reversion
+results/OLD
+
 # Data files I'm generating
 sandbox/
-results/
 figures/
 data/param_map/
 .drake
-# shared data 
+# shared data
 data/raw/shared
 
 

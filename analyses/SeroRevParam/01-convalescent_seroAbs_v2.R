@@ -224,14 +224,14 @@ sero_rev_comb <- sero_rev_comb %>%
 #......................
 # NO interval censoring
 #......................
-survobj <- survival::Surv(time = sero_rev_comb$time_obs_fail,
+survobj_km <- survival::Surv(time = sero_rev_comb$time_obs_fail,
                           event = sero_rev_comb$status)
 
 #make kaplan meier object
-KM1_mod <- survival::survfit(survobj ~ 1, data = sero_rev_comb)
+KM1_mod <- survival::survfit(survobj_km ~ 1, data = sero_rev_comb)
 
 # fit weibull
-WBmod <- survival::survreg(survobj ~ 1,
+WBmod <- survival::survreg(survobj_km ~ 1,
                            dist="weibull",
                            data = sero_rev_comb)
 summary(WBmod)
@@ -264,9 +264,11 @@ weibull_params <- list(wshape = 1/exp(WBmod$icoef[2]),
 #......................
 dir.create(path = "results/sero_reversion/", recursive = TRUE)
 saveRDS(sero_rev_comb, "results/sero_reversion/sero_rev_dat.RDS")
-saveRDS(weibull_params, "results/sero_reversion/weibull_params.RDS")
+saveRDS(weibull_params, "results/prior_inputs/weibull_params.RDS")
 # NB -- KM represents the earliest possible failure time graph
 saveRDS(KM1_mod, "results/sero_reversion/KaplanMeierFit.RDS")
+saveRDS(survobj_km, "results/sero_reversion/survobj_km.RDS")
 saveRDS(WBmod, "results/sero_reversion/WeibullFit.RDS")
 saveRDS(serotime, file = "results/sero_reversion/sero_reversion_incld_data.RDS")
+
 

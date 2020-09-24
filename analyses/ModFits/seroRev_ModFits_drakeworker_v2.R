@@ -26,14 +26,15 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
 
 #......................
 # seroreversion weibull scale/shape for various assay
-# (for later rbinds)
 #......................
-abbott <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-                         min  = c(2,                 128),
-                         init = c(3.5,               143),
-                         max =  c(5,                 158),
-                         dsc1 = c(3.74,              143.37),
-                         dsc2 = c(1,                 3))
+# read in fitted weibull seroreversion parameters
+weibull_params <- readRDS("results/prior_inputs/weibull_params.RDS")
+abbott <- tibble::tibble(name = c("sero_rev_shape",       "sero_rev_scale"),
+                         min  = c(2,                       128),
+                         init = c(3.5,                     143),
+                         max =  c(5,                       158),
+                         dsc1 = c(weibull_params$wshape,   weibull_params$wscale + 5),
+                         dsc2 = c(1,                       3))
 
 
 #............................................................
@@ -48,10 +49,25 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
+# get fits from stan model
+#......................
+brasens <- readr::read_csv("results/prior_inputs/brazil_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(brasens), distr = "beta", method = "mme")
+braspec <- readr::read_csv("results/prior_inputs/brazil_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(braspec), distr = "beta", method = "mme")
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+
+
+
+
+#......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/BRA1/BRA1_agebands.RDS")
-BRA1_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+BRA1_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                              groupvar = "ageband",  dat = rawage,
                                              num_xs = 4, max_xveclist = list("name" = "x4", min = 175, init = 181, max = 189, dsc1 = 175, dsc2 = 189),
                                              num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
@@ -73,7 +89,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 # agebands
 #......................
 rawage <- readRDS("data/derived/CHE1/CHE1_agebands.RDS")
-CHE1_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
+CHE1_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                              groupvar = "ageband",  dat = rawage,
                                              num_xs = 4, max_xveclist = list("name" = "x4", min = 134, init = 140, max = 146, dsc1 = 134, dsc2 = 146),
                                              num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.12, dsc1 = 0, dsc2 = 13.12),
@@ -95,7 +111,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 # agebands
 #......................
 rawage <- readRDS("data/derived/CHE2/CHE2_agebands.RDS")
-CHE2_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
+CHE2_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                              groupvar = "ageband",  dat = rawage,
                                              num_xs = 4, max_xveclist = list("name" = "x4", min = 199, init = 206, max = 213, dsc1 = 199, dsc2 = 213),
                                              num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14.24, dsc1 = 0, dsc2 = 14.24),
@@ -114,15 +130,28 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
+# get fits from stan model
+#......................
+dnksens <- readr::read_csv("results/prior_inputs/denmark_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(dnksens), distr = "beta", method = "mme")
+dnkspec <- readr::read_csv("results/prior_inputs/denmark_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(dnkspec), distr = "beta", method = "mme")
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+
+
+#......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/DNK1/DNK1_agebands.RDS")
-DNK_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
+DNK_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
                                             groupvar = "ageband",  dat = rawage,
                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
                                             sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
-# need to account dor duplicate DNK start date
+# need to account for duplicate DNK start date
 dnkstart <- DNK_age_mod$data$obs_serology %>%
   dplyr::filter(SeroStartSurvey != 97 & SeroEndSurvey != 124)
 dnkend <- DNK_age_mod$data$obs_serology %>%
@@ -145,10 +174,22 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
+# get fits from stan model
+#......................
+espsens <- readr::read_csv("results/prior_inputs/spain_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(espsens), distr = "beta", method = "mme")
+espspec <- readr::read_csv("results/prior_inputs/spain_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(espspec), distr = "beta", method = "mme")
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+
+#......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/ESP1-2/ESP1-2_agebands.RDS")
-ESP_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+ESP_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                             groupvar = "ageband",  dat = rawage,
                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 17.66),
@@ -167,10 +208,23 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
+# get fits from stan model
+#......................
+gbrsens <- readr::read_csv("results/prior_inputs/gbr_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(gbrsens), distr = "beta", method = "mme")
+gbrspec <- readr::read_csv("results/prior_inputs/gbr_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(gbrspec), distr = "beta", method = "mme")
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+
+
+#......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/GBR3/GBR3_agebands.RDS")
-GBR3_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
+GBR3_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
                                              groupvar = "ageband",  dat = rawage,
                                              num_xs = 4, max_xveclist = list("name" = "x4", min = 206, init = 210, max = 213, dsc1 = 199, dsc2 = 213),
                                              num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
@@ -183,15 +237,27 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(90.5,   95.5),
-                                dsc2 =  c(10.5,     5.5))
+                                dsc1 =  c(41.5,    1011.5),
+                                dsc2 =  c(2.5,     2.5))
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
+
+#......................
+# get fits from stan model
+#......................
+itasens <- readr::read_csv("results/prior_inputs/ita_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(itasens), distr = "beta", method = "mme")
+itaspec <- readr::read_csv("results/prior_inputs/ita_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(itaspec), distr = "beta", method = "mme")
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 
 #......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/ITA1/ITA1_agebands.RDS")
-ITA_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+ITA_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                             groupvar = "ageband",  dat = rawage,
                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 192, init = 199, max = 206, dsc1 = 192, dsc2 = 206),
                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.91, dsc1 = 0, dsc2 = 17.91),
@@ -214,7 +280,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 # agebands
 #......................
 rawage <- readRDS("data/derived/LUX1/LUX1_agebands.RDS")
-LUX_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
+LUX_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                             groupvar = "ageband",  dat = rawage,
                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.34, dsc1 = 0, dsc2 = 13.34),
@@ -235,7 +301,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 # agebands
 #......................
 rawage <- readRDS("data/derived/SWE1/SWE1_agebands.RDS")
-SWE_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+SWE_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                               groupvar = "ageband",  dat = rawage,
                                               num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                               num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.15, dsc1 = 0, dsc2 = 16.15),
@@ -257,7 +323,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 # agebands
 #......................
 rawage <- readRDS("data/derived/NLD1/NLD1_agebands.RDS")
-NLD_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 5, maxMa = "ma5",
+NLD_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                             groupvar = "ageband",  dat = rawage,
                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.67, dsc1 = 0, dsc2 = 16.67),
@@ -280,7 +346,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 # agebands
 #......................
 rawage <- readRDS("data/derived/CHN1/CHN1_agebands.RDS")
-CHN_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
+CHN_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                             groupvar = "ageband",  dat = rawage,
                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 199, init = 206, max = 213, dsc1 = 199, dsc2 = 213),
                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.20, dsc1 = 0, dsc2 = 16.20),
@@ -302,7 +368,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 # agebands
 #......................
 rawage <- readRDS("data/derived/KEN1/KEN1_agebands.RDS")
-KEN1_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
+KEN1_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
                                              groupvar = "ageband",  dat = rawage,
                                              num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                              num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.11, dsc1 = 0, dsc2 = 17.11),
@@ -324,7 +390,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 # agebands
 #......................
 rawage <- readRDS("data/derived/USA/LA_CA1_agebands.RDS")
-LACA_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 3, maxMa = "ma3",
+LACA_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 3, maxMa = "ma3",
                                                groupvar = "ageband",  dat = rawage,
                                                num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                                num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.12, dsc1 = 0, dsc2 = 16.12),
@@ -343,14 +409,27 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
+# get fits from stan model
+#......................
+nyssens <- readr::read_csv("results/prior_inputs/nys_sens_reg_age.csv")
+sens <- fitdistrplus::fitdist(unlist(nyssens), distr = "beta", method = "mme")
+nysspec <- readr::read_csv("results/prior_inputs/nys_spec_reg_age.csv")
+spec <- fitdistrplus::fitdist(unlist(nysspec), distr = "beta", method = "mme")
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
+sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape1"]]
+sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
+
+
+#......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/USA/NYS1_agebands.RDS")
-NYS_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+NYS_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                             groupvar = "ageband",  dat = rawage,
                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),
-                                            sens_spec_tbl = sens_spec_tbl_serorev_serorev, tod_paramsdf = tod_paramsdf)
+                                            sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 
@@ -396,17 +475,12 @@ fit_map <- tibble::tibble(
   thinning = 10)
 
 #......................
-# manual adjustments to fit map
-#......................
-fit_map$GTI_pow[grepl("BRA1", fit_map$name)] <- list(seq(6, 4, length.out = 50))
-
-#......................
 # fitmap out
 #......................
 # select what we need for fits and make outpaths
-dir.create("data/param_map/Modfits_noserorev/", recursive = T)
+dir.create("data/param_map/Modfits_serorev/", recursive = T)
 lapply(split(fit_map, 1:nrow(fit_map)), function(x){
-  saveRDS(x, paste0("data/param_map/Modfits_noserorev/",
+  saveRDS(x, paste0("data/param_map/Modfits_serorev/",
                     x$name, "_rung", x$rungs, "_burn", x$burnin, "_smpl", x$samples, ".RDS"))
 })
 
@@ -432,7 +506,7 @@ run_MCMC <- function(path) {
   cl <- parallel::makeCluster(mkcores)
 
   if (grepl("ITA|DNK|SWE", basename(path))) {
-    # logit case for ITA with multiple age groups
+    # logit cases
     fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
                                         reparamInfxn = TRUE,
@@ -483,7 +557,7 @@ run_MCMC <- function(path) {
 
 # read files in after sleeping to account for file lag
 Sys.sleep(60)
-file_param_map <- list.files(path = "data/param_map/Modfits_noserorev/",
+file_param_map <- list.files(path = "data/param_map/Modfits_serorev/",
                              pattern = "*.RDS",
                              full.names = TRUE)
 file_param_map <- tibble::tibble(path = file_param_map)
@@ -508,7 +582,7 @@ plan <- drake::drake_plan(
 options(clustermq.scheduler = "slurm",
         clustermq.template = "drake_clst/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
-     log_make = "Modfits_drake_noserorev.log", verbose = 2,
+     log_make = "Modfits_drake_serorev.log", verbose = 2,
      log_progress = TRUE,
      log_build_times = FALSE,
      recoverable = FALSE,

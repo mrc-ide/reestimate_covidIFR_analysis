@@ -2,10 +2,59 @@ source("R/assertions_v5.R")
 library(tidyverse)
 library(stringr)
 
+#' @title Log Transform IFR params
+#' @details goal here is to be memory light
+#' @importFrom magrittr %>%
+#' @export
+
+get_log_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
+  # read in
+  IFRmodel_inf <- readRDS(path)
+  # checks
+  assert_custom_class(IFRmodel_inf$inputs$IFRmodel, "IFRmodel")
+  assert_custom_class(IFRmodel_inf$mcmcout, "drjacoby_output")
+  assert_custom_class(IFRmodel_inf, "IFRmodel_inf")
+  assert_logical(by_chain)
+
+  # grouping vars
+  if (by_chain) {
+    groupingvar <- c("chain", "param")
+    params <- c("chain", IFRmodel_inf$inputs$IFRmodel$IFRparams)
+  } else {
+    groupingvar <- "param"
+    params <- IFRmodel_inf$inputs$IFRmodel$IFRparams
+  }
+
+  IFRmodel_inf$mcmcout$output %>%
+    dplyr::filter(stage == "sampling" & rung == "rung1") %>%
+    dplyr::select_at(params) %>%
+    tidyr::pivot_longer(., cols = params[!grepl("chain", params)], # if chain isn't included in vector, grepl won't do anything
+                        names_to = "param", values_to = "est") %>%
+    dplyr::mutate(est = log(est)) %>%
+    dplyr::group_by_at(groupingvar) %>%
+    dplyr::summarise(
+      min = min(est),
+      LCI = quantile(est, 0.025),
+      median = median(est),
+      mean = mean(est),
+      UCI = quantile(est, 0.975),
+      max = max(est)
+    )
+}
+
+#' @title extract data dictionary from IFRmodel_inf path
+#' @details goal here is to be memory light
+
+get_data_dict <- function(path) {
+  modout <- readRDS(path)
+  return(modout$inputs$IFRmodel$IFRdictkey)
+}
+
+
 #' @title Calculate seroprevalens from a path
 #' @details goal here is to be memory light
 
-get_overall_seroprevs <- function(path, dwnsmpl = 1e2) {
+get_strata_seroprevs <- function(path, dwnsmpl = 1e2) {
   modout <- readRDS(path)
   seroprevs <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
                                                       whichrung = "rung1",
@@ -13,6 +62,8 @@ get_overall_seroprevs <- function(path, dwnsmpl = 1e2) {
                                                       by_chain = FALSE)
   return(seroprevs)
 }
+
+
 
 #' @title Calculate stratified IFR from a path
 #' @details goal here is to be memory light
@@ -57,6 +108,7 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
 
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
+
   infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
                                            num_ys = num_ys)
 
@@ -184,6 +236,7 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
 
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
+
   infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
                                            num_ys = num_ys)
 
@@ -314,9 +367,9 @@ make_ma_reparamdf <- function(num_mas = 10, upperMa) {
   tibble::tibble(name = paste0("ma", 1:num_mas),
                  min  = rep(0, size = num_mas),
                  init = rep(0.1, size = num_mas),
-                 max = rep(upperMa, size = num_mas),
+                 max = c(rep(1, times = num_mas-1), upperMa),
                  dsc1 = rep(0, size = num_mas),
-                 dsc2 = rep(upperMa, size = num_mas))
+                 dsc2 = c(rep(1, times = num_mas-1), upperMa))
 }
 
 
