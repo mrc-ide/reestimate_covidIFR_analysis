@@ -118,12 +118,21 @@ trueseroprev <- sim_param_map %>%
   dplyr::pull("simdat")
 trueseroprev <- trueseroprev[[1]]$StrataAgg_Seroprev
 
+
+# update title information
+type <- switch(sim_param_map$nm,
+               "expgrowth" = {"Exp. Growth"},
+                 "intervene" = {"Outbreak Control"},
+                 "secondwave" = {"Second Wave"})
+sens <- sim_param_map$sens
+spec <- sim_param_map$spec
+
 ```
 
-# `r paste0("Simulation run: ", simnm)`
+# `r paste0("Simulation run: ", type, "Sens: ", sens, "; Spec: ", spec)`
 
 ## Fit Diagnostics
-#### Log Plot & Metropolis Coupling Acceptance Plot
+#### Log Likelihood/Prior Plot & Metropolis Coupling Acceptance Plot
 ```{r, results='asis', fig.width=6.5, fig.height=7.5}
 #......................
 # like and mc accept
@@ -205,7 +214,7 @@ pA <- infxncurve %>%
   geom_line(aes(x = time, y = totinfxns, group = sim, color = chain), alpha = 0.8, size = 0.8) +
   geom_line(data = truecurve, aes(x = time, y = infxns), color = "#000000", linetype = "dashed", size = 1.1) +
   scale_color_viridis_d("Chain") +
-  labs(caption = "Viridis is inferred, Black is Truth") +
+  labs(caption = "Viridis is inferred, Grey Line is Simulated Infection Curve") +
   xlab("Time") + ylab("Num. Infxns") +
   xyaxis_plot_theme
 
@@ -237,7 +246,7 @@ pB <- serocurvedat %>%
   facet_wrap(~Strata) + 
   xyaxis_plot_theme + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold")) +
-  labs(caption = "Grey is inferred, Black is Truth") +
+  labs(caption = "Blue is inferred, Black Line is Simulated Seroprevalence while grey boxes indicate model inputs (serosuvery dates and prevalences)") +
   ylab("Seroprevalence") + xlab("Time")
 
 #...................... 

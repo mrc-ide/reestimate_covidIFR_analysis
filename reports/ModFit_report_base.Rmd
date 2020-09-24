@@ -26,17 +26,21 @@ modout <- readRDS(params$path)
 # pieces for below
 studyidchar <- title <- toupper(stringr::str_split(basename(params$path), "_age|_carehomes", simplify = T)[[1]])
 
-# catch care homes
-if (grepl("_carehomes", basename(params$path))) {
+# update title
+if (grepl("_SeroRev", basename(params$path))) { # catch serorevsion
+  title <- paste(title, "with the Potential for Seroreversion Included")
+} else if (grepl("_carehomes", basename(params$path))) { # catch care homes
   title <- paste(title, "with Care Homes Excluded")
-}
+} else (
+  title <- paste(title, "with Standard Input")
+)
 
 ```
 
 # `r paste(title)`
 
 ## Fit Diagnostics
-#### Log Plot
+#### Log Likelihood & Prior Plot
 ```{r, results='asis', fig.width=7.5, fig.height=5.5}
 modout$mcmcout$output %>%
   dplyr::filter(rung == "rung1") %>%
