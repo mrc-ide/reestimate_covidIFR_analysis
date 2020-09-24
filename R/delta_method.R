@@ -10,22 +10,7 @@
 # We can then calculate the 95% confidence intervals as
 # IFR +- 1.96 * (D * N) / (Np + D)^2 * SE(p)
 
-#' @return critical value for CI
-
-get_delta_CI_val <- function(deaths, seroprev, popN, SE) {
-  1.96 * ((deaths * popN) / (seroprev * popN)^2) * SE
-}
-
-
-
-#----------------------------------------------------------------------------------------------------
-# proportion CIs
-#----------------------------------------------------------------------------------------------------
-#' @param pt numeric; point estimate
-#' @param crit numeric; critical value
-#' @param tol numeric; tolerance for logit transformation
-
-getCI_from_logit_transfrom <- function(pt, crit, tol, alpha){
+get_delta_CI_vals <- function(deaths, seroprev, popN, SE, tol) {
   # basic transforms
   logit <- function(x, tol=1e-4){
     return( log(((x+tol)/(1-x+tol))) )
@@ -34,17 +19,19 @@ getCI_from_logit_transfrom <- function(pt, crit, tol, alpha){
   expit <- function(x, tol=1e-4){
     return( 1/(1+exp(-x + tol)) )
   }
+  # calculate critical value from delta method
+  crit_value <- 1.96 * ((deaths * popN) / (seroprev * popN)^2) * SE
 
-  # calculations
-  p.logit <- logit(pt, tol=tol)
+  # IFR
+  IFRcalc <- deaths  / (seroprev * popN + deaths)
+  # calculations in transformed space to account for binomial vs. normal
+  LL <- expit( logit(IFRcalc, tol=tol) - crit_value, tol = tol)
+  UL <- expit( logit(IFRcalc, tol=tol) + crit_value, tol = tol)
 
-  LL <- expit( p.logit - crit, tol = tol)
-  UL <- expit( p.logit + crit, tol = tol)
-
+  # out
   ret <- c(LL, UL)
   names(ret) <- c("lower.ci", "upper.ci")
   return(ret)
 }
-
 
 
