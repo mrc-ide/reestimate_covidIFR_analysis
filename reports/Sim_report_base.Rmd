@@ -212,7 +212,7 @@ pA <- infxncurve %>%
   dplyr::select(c("chain", "sim", "time", "totinfxns")) %>%
   ggplot() +
   geom_line(aes(x = time, y = totinfxns, group = sim, color = chain), alpha = 0.8, size = 0.8) +
-  geom_line(data = truecurve, aes(x = time, y = infxns), color = "#000000", linetype = "dashed", size = 1.1) +
+  geom_line(data = truecurve, aes(x = time, y = infxns), color = "#bdbdbd", linetype = "dashed", size = 1.1) +
   scale_color_viridis_d("Chain") +
   labs(caption = "Viridis is inferred, Grey Line is Simulated Infection Curve") +
   xlab("Time") + ylab("Num. Infxns") +
