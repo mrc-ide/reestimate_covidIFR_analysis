@@ -220,7 +220,7 @@ mod1_serorev$set_relInfxn("y3")
 mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
 mod1_serorev$set_data(reginputdata)
 mod1_serorev$set_demog(demog)
-mod1_serorev$set_paramdf(df_params_reg)
+mod1_serorev$set_paramdf(df_params_serorev)
 mod1_serorev$set_rcensor_day(.Machine$integer.max)
 
 #............................................................
