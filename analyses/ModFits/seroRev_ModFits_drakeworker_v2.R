@@ -26,14 +26,15 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
 
 #......................
 # seroreversion weibull scale/shape for various assay
-# (for later rbinds)
 #......................
-abbott <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-                         min  = c(2,                 128),
-                         init = c(3.5,               143),
-                         max =  c(5,                 158),
-                         dsc1 = c(3.74,              143.37),
-                         dsc2 = c(1,                 3))
+# read in fitted weibull seroreversion parameters
+weibull_params <- readRDS("results/prior_inputs/weibull_params.RDS")
+abbott <- tibble::tibble(name = c("sero_rev_shape",       "sero_rev_scale"),
+                         min  = c(2,                       128),
+                         init = c(3.5,                     143),
+                         max =  c(5,                       158),
+                         dsc1 = c(weibull_params$wshape,   weibull_params$wscale + 5),
+                         dsc2 = c(1,                       3))
 
 
 #............................................................
@@ -581,7 +582,7 @@ plan <- drake::drake_plan(
 options(clustermq.scheduler = "slurm",
         clustermq.template = "drake_clst/slurm_clustermq_LL.tmpl")
 make(plan, parallelism = "clustermq", jobs = nrow(file_param_map),
-     log_make = "Modfits_drake_noserorev.log", verbose = 2,
+     log_make = "Modfits_drake_serorev.log", verbose = 2,
      log_progress = TRUE,
      log_build_times = FALSE,
      recoverable = FALSE,

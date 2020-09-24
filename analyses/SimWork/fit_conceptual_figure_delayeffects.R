@@ -22,6 +22,9 @@ interveneflat <- c(interveneflat, round(seq(from = interveneflat[200],
                                             to = 10, length.out = 100)))
 
 
+# read in fitted weibull seroreversion parameters
+weibull_params <- readRDS("results/prior_inputs/weibull_params.RDS")
+
 
 #............................................................
 # setup fatality data
@@ -56,8 +59,8 @@ serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = TRUE,
-  sero_rev_shape = 3.67,
-  sero_rev_scale = 143.70,
+  sero_rev_shape = weibull_params$wshape,
+  sero_rev_scale = weibull_params$wscale + 5,
   smplfrac = 1e-3,
   sens = 0.85,
   spec = 0.95,
@@ -165,12 +168,12 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                dsc1 = c(19.66,  2700,  18.3),
                                dsc2 = c(0.1,    300,   0.1))
 
-serorev <- tibble::tibble(name = c("sero_rev_shape", "sero_rev_scale"),
-                          min  = c(2,                 128),
-                          init = c(3.5,               143),
-                          max =  c(5,                 158),
-                          dsc1 = c(3.74,              143.37),
-                          dsc2 = c(1,                 3))
+serorev <- tibble::tibble(name = c("sero_rev_shape",        "sero_rev_scale"),
+                          min  = c(2,                        128),
+                          init = c(3.5,                      143),
+                          max =  c(5,                        158),
+                          dsc1 = c(weibull_params$wshape,    weibull_params$wscale + 5),
+                          dsc2 = c(1,                        3))
 
 # combine
 tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
