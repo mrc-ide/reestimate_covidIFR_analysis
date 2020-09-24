@@ -208,27 +208,27 @@ Italy	ITA1		35	49	all	both			0.024	0.021	0.028			2020-05-25	2020-07-15	1	0	0		ht
 Italy	ITA1		50	59	all	both			0.031	0.027	0.035			2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
 Italy	ITA1		60	69	all	both			0.026	0.021	0.029			2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
 Italy	ITA1		70	999	all	both			0.025	0.021	0.029			2020-05-25	2020-07-15	1	0	0		https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Piemonte	both			0.030051936					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Valle D'Aosta	both			0.040183284					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Liguria	both			0.031047951					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Lombardia	both			0.075297609					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Bolzano	both			0.032742223					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Trento	both			0.031484006					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Veneto	both			0.019169246					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Friuli-Venenzia Giulia	both			0.010407628					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Emilia-Romagna	both			0.028113503					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Toscana	both			0.0102572					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Umbria	both			0.008561149					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Marche	both			0.027420883					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Lazio	both			0.009599673					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Abruzzo	both			0.015265645					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Molise	both			0.006992453					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Campania	both			0.007365246					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Puglia	both			0.008890286					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Basilicata	both			0.007591805					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Clabria	both			0.005821159					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Sicilia	both			0.00334543					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
-Italy	ITA1		0	999	Sardegna	both			0.003310658					2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Piemonte	both			0.030051936	0.022	0.038			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Valle D'Aosta	both			0.040183284	0.032	0.049			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Liguria	both			0.031047951	0.023	0.039			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Lombardia	both			0.075297609	0.068	0.083			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Bolzano	both			0.032742223	0.018	0.047			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Trento	both			0.031484006	0.022	0.041			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Veneto	both			0.019169246	0.014	0.025			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Friuli-Venenzia Giulia	both			0.010407628	0.006	0.015			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Emilia-Romagna	both			0.028113503	0.022	0.035			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Toscana	both			0.0102572	0.006	0.015			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Umbria	both			0.008561149	0.004	0.013			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Marche	both			0.027420883	0.021	0.034			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Lazio	both			0.009599673	0.006	0.013			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Abruzzo	both			0.015265645	0.009	0.021			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Molise	both			0.006992453	0.003	0.011			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Campania	both			0.007365246	0.003	0.011			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Puglia	both			0.008890286	0.006	0.012			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Basilicata	both			0.007591805	0.004	0.011			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Clabria	both			0.005821159	0.002	0.01			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Sicilia	both			0.00334543	0.001	0.006			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
+Italy	ITA1		0	999	Sardegna	both			0.003310658	0.001	0.005			2020-05-25	2020-07-15	0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf		
 Luxembourg	LUX1	0518_Luxembourg	18	79	all	both	1807	35	0.01936912009			0.020947		2020-04-15	2020-05-05	1	0	0	0	https://www.medrxiv.org/content/10.1101/2020.05.11.20092916v1.full.pdf		
 China	CHN1	0619_Wuhan	16	19	Wuhan	both	52	0				0		2020-03-26	2020-04-28	1	0	0	0	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v2.supplementary-material		
 China	CHN1	0619_Wuhan	20	24	Wuhan	both	652	19				0.02975		2020-03-26	2020-04-28	1	0	0	0	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v2.supplementary-material		
@@ -296,6 +296,6 @@ Denmark	DNK1		17	69	all	both			0.015	0.007	0.023			2020-04-06	2020-04-08	1	1	1	1
 Denmark	DNK1		17	69	all	both			0.019	0.012	0.027			2020-04-14	2020-04-19	1	1	1	1	https://bloddonor.dk/coronavirus/		
 Denmark	DNK1		17	69	all	both			0.016	0.008	0.023			2020-04-20	2020-04-26	1	1	1	1	https://bloddonor.dk/coronavirus/		
 Denmark	DNK1		17	69	all	both			0.024	0.015	0.032			2020-04-27	2020-05-03	1	1	1	1	https://bloddonor.dk/coronavirus/		
-Denmark	DNK1		17	999	Capital	both	3400	99	0.02911764706				deaths.csv	2020-04-06	2020-04-17	0	0	1	0	https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf		
-Denmark	DNK1		17	999	South DK & Zealand	both	3553	48	0.0135097101				deaths.csv	2020-04-06	2020-04-17	0	0	1	0	https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf		
-Denmark	DNK1		17	999	Central DK & North DK	both	2543	26	0.01022414471				deaths.csv	2020-04-06	2020-04-17	0	0	1	0	https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf		
+Denmark	DNK1		17	69	Capital	both	3400	99	0.02911764706				deaths.csv	2020-04-06	2020-04-17	0	0	1	0	https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf		
+Denmark	DNK1		17	69	South DK & Zealand	both	3553	48	0.0135097101				deaths.csv	2020-04-06	2020-04-17	0	0	1	0	https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf		
+Denmark	DNK1		17	69	Central DK & North DK	both	2543	26	0.01022414471				deaths.csv	2020-04-06	2020-04-17	0	0	1	0	https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf		
