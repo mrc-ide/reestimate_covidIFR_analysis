@@ -648,7 +648,7 @@ FigA <- SeroPrevPlotDat %>%
 # SeroReversion Portion
 #...........................................................
 sero_rev_comb <- readRDS("results/sero_reversion/sero_rev_dat.RDS")
-weibull_params <- readRDS("results/sero_reversion/weibull_params.RDS")
+weibull_params <- readRDS("results/prior_inputs/weibull_params.RDS")
 KM1_mod <- readRDS("results/sero_reversion/KaplanMeierFit.RDS")
 survobj_km <- readRDS("results/sero_reversion/survobj_km.RDS")
 WBmod <- readRDS("results/sero_reversion/WeibullFit.RDS")
@@ -731,7 +731,6 @@ graphics.off()
 #---- Figure of Seroprevalence vs. Not-Modelled Adj. IFR #----
 #...........................................................
 source("R/delta_method.R")
-datmap <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS")
 
 # get regions
 rgns <- datmap %>%
@@ -779,11 +778,35 @@ delta_IFR <- rgns %>%
   dplyr::select(c("study_id", "region", "cumdeaths", "popn", "seroprev")) %>%
   dplyr::left_join(., rgnsSE, by = c("study_id", "region")) %>%
   dplyr::mutate(IFRcalc = cumdeaths  / (seroprev * popn + cumdeaths),
-                crit = purrr::map_dbl(seroprev, get_delta_CI_val, deaths = cumdeaths, popN = popn, SE = binom_se),
-                IFRbound = purrr::map(crit, getCI_from_logit_transfrom, pt = IFRcalc, alpha = 1.96, tol = 1e-3),
+                IFRbound = purrr::map(seroprev, get_delta_CI_vals, deaths = cumdeaths, popN = popn, SE = binom_se, tol = 1e-4),
                 lower_ci = purrr::map_dbl(IFRbound, "lower.ci"),
                 upper_ci = purrr::map_dbl(IFRbound, "upper.ci"))
 
 #......................
 # make plots
 #......................
+upperbounds <- delta_IFR %>%
+  dplyr::filter(upper_ci > 0.05) %>%
+  dplyr::mutate(upbound = 0.05)
+
+Rgn_IFR_plotObj <- delta_IFR %>%
+  dplyr::mutate(IFRcalc = ifelse(seroprev == 0, NA, IFRcalc),
+                lower_ci = ifelse(seroprev == 0, NA, lower_ci),
+                upper_ci = ifelse(seroprev == 0, NA, upper_ci),
+                upper_ci = ifelse(upper_ci > 0.05, 0.05, upper_ci)) %>%
+  ggplot() +
+  geom_pointrange(aes(x = seroprev, y = IFRcalc,
+                      ymin = lower_ci, ymax = upper_ci,
+                      color = study_id)) +
+  geom_point(data = upperbounds, aes(x = seroprev, y = upbound, color = study_id),
+             shape = 3, size = 1.5) +
+  scale_color_manual("Study ID", values = mycolors) +
+  xlab("Observed Seroprevalence (%)") + ylab("Crude IFR (95% CI)") +
+  xyaxis_plot_theme +
+  theme(legend.position = "bottom") +
+  theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+
+jpeg("figures/final_figures/Figure_Rgn_crude_IFR.jpg",
+     width = 11, height = 8, units = "in", res = 500)
+plot(Rgn_IFR_plotObj)
+graphics.off()
