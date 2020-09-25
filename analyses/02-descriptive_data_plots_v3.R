@@ -590,7 +590,7 @@ plot(ifr0$prop_pop,ifr0$ifr*100,ylab="IFR (%)",xlab="proportion of population ov
 
 
 #............................................................
-#---- Figure of Seroprevalence and Seroreversion #----
+#---- Figure of Seroprevalence By Age #----
 #...........................................................
 datmap <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS")
 
@@ -627,100 +627,28 @@ SeroPrevPlotDat <- SeroPrevPlotDat %>%
                 crude_seroprev = seroprev) %>%
   dplyr::bind_rows(., SeroPrevPlotDat_sub)
 
-# plot out part A
-FigA <- SeroPrevPlotDat %>%
+# plot out
+SeroPrevPlotObj <- SeroPrevPlotDat %>%
   dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,1]),
                 age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,2]),
                 age_high = ifelse(age_high == 999, 100, age_high),
-                age_mid = (age_high + age_low)/2) %>%
+                age_mid = (age_high + age_low)/2,
+                crude_seroprev = round(crude_seroprev * 100, 2),
+                crude_seroprevLCI = round(crude_seroprevLCI * 100, 2),
+                crude_seroprevUCI = round(crude_seroprevUCI * 100, 2)) %>%
   ggplot() +
   geom_pointrange(aes(x = age_mid, y = crude_seroprev, ymin = crude_seroprevLCI, ymax = crude_seroprevUCI,
                       color = study_id), alpha = 0.8) +
-  geom_line(aes(x = age_mid, y = seroprev, color = study_id),
+  geom_line(aes(x = age_mid, y = crude_seroprev, color = study_id),
             alpha = 0.8, size = 1.2, show.legend = F) +
   scale_color_manual("Study ID", values = mycolors) +
-  xlab("Age (yrs).") + ylab("Seroprevalence (%)") +
+  xlab("Age (yrs).") + ylab("Observed Seroprevalence (%)") +
   xyaxis_plot_theme +
-  theme(legend.position = "bottom") +
-  theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+  theme(legend.position = "bottom")
 
-#............................................................
-# SeroReversion Portion
-#...........................................................
-sero_rev_comb <- readRDS("results/sero_reversion/sero_rev_dat.RDS")
-weibull_params <- readRDS("results/prior_inputs/weibull_params.RDS")
-KM1_mod <- readRDS("results/sero_reversion/KaplanMeierFit.RDS")
-survobj_km <- readRDS("results/sero_reversion/survobj_km.RDS")
-WBmod <- readRDS("results/sero_reversion/WeibullFit.RDS")
-serotime <- readRDS("results/sero_reversion/sero_reversion_incld_data.RDS")
-
-#......................
-# portion B Kaplan Meier
-#......................
-KMplot <- survminer::ggsurvplot(
-  fit = KM1_mod,
-  data = sero_rev_comb,
-  ylab = "Prob. of Seropositivity Persistence",
-  xlab = "Time (Days)",
-  font.x = c(size = 12, face = "bold"),
-  font.y = c(size = 12, face = "bold"),
-  size = 1.5,
-  conf.int = TRUE,
-  conf.int.fill = "#bdbdbd",
-  conf.int.alpha = 0.4,
-  palette = "#3182bd", # color of line
-  censor = TRUE, # add censoring points
-  censor.shape = 124,
-  censor.size = 5,
-  ylim = c(0.5, 1))
-FigB <- KMplot$plot +
-  xyaxis_plot_theme +
-  theme(axis.title = element_text(size = 12, face = "bold"),
-        legend.position = "none",
-        plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
-
-
-
-#......................
-# portion C Weibull
-#......................
-# fitted 'survival'
-t <- seq(from = 0, to = max(serotime$days_post_symptoms), by = 0.5)
-cum_weib <- exp(-(t/weibull_params$wscale)^weibull_params$wshape)   # cumulative weibull
-# mu is approx 129.62; sigma is 39.31, so 2*mean
-d_weib <- dweibull(x = seq(0, 260, by = 0.5),
-                   shape = weibull_params$wshape, scale = weibull_params$wscale)
-d_weib_df <- tibble::tibble(time = 1:length(d_weib)/2,
-                            d_weib = d_weib)
-
-FigC <- ggplot() +
-  geom_histogram(data = sero_rev_comb,
-                 aes(x = time_to_event, y = ..density.., fill = factor(status)),
-                 position = "identity",
-                 alpha = 0.5) +
-  geom_line(data = d_weib_df,
-            aes(x = time, y = d_weib),
-            size = 1.2, alpha = 0.9, color = "#bdbdbd") +
-  scale_fill_manual(values = c("#3BABFD", "#EA4335")) +
-  ylab("Density") +
-  xlab("Seroreversion Times (Days)") +
-  xyaxis_plot_theme +
-  theme(legend.position = "none",
-        plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
-
-
-# bring together
-rght <- cowplot::plot_grid(FigB, FigC,
-                           ncol = 1, nrow = 2, align = "v",
-                           labels = c("(B)", "(C)"))
-
-mainFig <- cowplot::plot_grid(FigA, rght,
-                              ncol = 2, nrow = 1,
-                              labels = c("(A)", ""))
-
-jpeg("figures/final_figures/Figure_dscdat.jpg",
+jpeg("figures/final_figures/Figure_age_seroprev.jpg",
      width = 11, height = 8, units = "in", res = 500)
-plot(mainFig)
+plot(SeroPrevPlotObj)
 graphics.off()
 
 
