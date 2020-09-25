@@ -30,6 +30,10 @@ datmap <- readxl::read_excel("data/derived/derived_data_map.xlsx")
 datmap <- datmap %>%
   dplyr::mutate(data = purrr::map(relpath, readRDS))
 
+# Brazil city data for regional plot.
+braz_dat_reg <- read.csv("data/derived/BRA1/BRA1_city.csv")
+
+
 #......................
 # wrangle & extract sero data
 #......................
@@ -141,22 +145,7 @@ age_IFRraw_plot0 <- ageplotdat %>%
 # write this out for later use
 readr::write_csv(age_IFRraw_plot0, path = "data/derived/age_summ_IFR.csv")
 
-age_IFRraw_plot <- age_IFRraw_plot0 %>%
-  dplyr::filter(care_home_deaths=="yes") %>%
-  ggplot() +
-  geom_line(aes(x = age_mid, y = crudeIFR, color = study_id), alpha = 0.8, size = 1.2) +
-  geom_point(aes(x = age_mid, y = crudeIFR, fill = seroprev), color = "#000000", size = 2.5, shape = 21, alpha = 0.8) +
-  scale_color_manual("Study ID", values = mycolors) +
-  scale_fill_gradientn("Raw Seroprev.",
-                       colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
-  xlab("Age (yrs).") + ylab("Crude Infection Fatality Rate") +
-  xyaxis_plot_theme
-if(write2file) jpgsnapshot(outpath = "figures/descriptive_figures/age_IFRraw_plot.jpg",
-                           plot = age_IFRraw_plot)
-
-
-### probably a neater way to do this.
-
+### Age IFR crude.
 age_IFRraw_plot2 <- age_IFRraw_plot0 %>%
   dplyr::filter(care_home_deaths=="yes") %>%
   ggplot() + theme_bw() +
@@ -297,8 +286,8 @@ if(write2file) jpgsnapshot(outpath = "figures/descriptive_figures/age_prop_cum_d
                            plot = age_prop_deaths_plot)
 
 ########## Deaths per capita by age cumulative
-col_vec<-study_cols$study_cols
-names(col_vec) <- study_cols$study_id
+col_vec<-study_cols$cols
+names(col_vec) <- study_cols$names
 age_prop_deaths_plot_std <- age_prop_deaths_plotdat %>%
   dplyr::filter(care_home_deaths=="yes") %>%
   ggplot() + theme_bw() +
@@ -338,7 +327,6 @@ maxDays <- rgnplotdat %>%
   dplyr::summarise(max_day=max(obsdaymax))
 rgnplotdat <- dplyr::full_join(rgnplotdat,maxDays,by="study_id")
 rgnplotdat <- dplyr::filter(rgnplotdat,obsdaymax==max_day)
-rgnplotdat<-full_join(rgnplotdat,study_cols,by="study_id")
 
 #......................
 # rgn adj seroprevalence
@@ -437,29 +425,43 @@ if(write2file) jpgsnapshot(outpath = "figures/descriptive_figures/rgn_IFR_adj_pl
 # standardized deaths by seroprev
 #......................
 std_deaths_seroplotdat <- rgnplotdat %>%
-  dplyr::filter(seromidpt == obsday)
+  dplyr::filter(seromidpt == obsday & study_id!="BRA1")
+## add brazil city data
+braz_temp<-std_deaths_seroplotdat[1:nrow(braz_dat_reg),]
+for(i in 1:ncol(braz_temp)) braz_temp[,i]<-rep(NA,nrow(braz_dat_reg))
+braz_temp$study_id<-"BRA1"
+braz_temp$region<- braz_dat_reg$city
+braz_temp$cumdeaths<-braz_dat_reg$deaths
+braz_temp$seroprev<-braz_dat_reg$seroprevalence
+braz_temp$popn<-braz_dat_reg$population
+braz_temp$std_cum_deaths<-1000000*braz_temp$cumdeaths/braz_temp$popn
+std_deaths_seroplotdat<-rbind(std_deaths_seroplotdat,braz_temp)
+std_deaths_seroplotdat<-left_join(std_deaths_seroplotdat,study_cols,by="study_id")
+
 # write out for later use
 write.csv(std_deaths_seroplotdat, file = "data/derived/region_summ_IFR.csv")
 
-# standardized deaths
+# Death rate vs seroprevalence
+col_vec<-study_cols$cols
+names(col_vec) <- study_cols$names
 std_deaths_seroplot <- std_deaths_seroplotdat %>%
-  dplyr::select(c("study_id", "region", "std_cum_deaths", "popn", "seroprevadj")) %>%
-  dplyr::mutate(seroprevadj = seroprevadj * 100) %>%
+  dplyr::select(c("names", "region", "std_cum_deaths", "popn", "seroprev")) %>%
+  dplyr::mutate(seroprev = seroprev * 100) %>%
   ggplot() + theme_bw() +
-  geom_point(aes(x = seroprevadj, y = std_cum_deaths, fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
-  scale_fill_manual(values = col_vec, name = "study_id") +
-  xlab("Adjusted Seroprevalence (%).") + ylab("Cumulative Deaths per Million") +
+  geom_point(aes(x = seroprev, y = std_cum_deaths, fill = names), shape = 21, size = 2.5, stroke = 0.2) +
+  scale_fill_manual(values = col_vec, name = "Study") +
+  xlab("Seroprevalence (%)") + ylab("Cumulative Deaths per Million") +
   #  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
   xyaxis_plot_theme
 if(write2file) ggsave(filename = "results/descriptive_figures/std_deaths_rgn_seroplot.tiff", plot = std_deaths_seroplot, width = 7, height = 5)
 
 std_rgn_ifr_seroplot <- std_deaths_seroplotdat %>%
-  dplyr::select(c("study_id", "region", "std_cum_deaths", "popn", "seroprevadj")) %>%
-  dplyr::mutate(seroprevadj = seroprevadj * 100) %>%
+  dplyr::select(c("study_id", "region", "std_cum_deaths", "popn", "seroprev")) %>%
+  dplyr::mutate(seroprev = seroprev * 100) %>%
   ggplot() + theme_bw() +
-  geom_point(aes(x = seroprevadj, y = std_cum_deaths/(10000*seroprevadj), fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
+  geom_point(aes(x = seroprev, y = std_cum_deaths/(10000*seroprev), fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
   scale_fill_manual(values = col_vec, name = "study_id") +
-  xlab("Adjusted Seroprevalence (%)") + ylab("IFR (%)") +
+  xlab("Seroprevalence (%)") + ylab("IFR (%)") +
   xyaxis_plot_theme
 if(write2file) ggsave(filename = "results/descriptive_figures/std_rgn_ifr_seroplot.tiff", plot = std_rgn_ifr_seroplot, width = 7, height = 5)
 
@@ -571,7 +573,6 @@ over80<-populationdf %>%
   dplyr::filter(ageband=="(81,1e+03]")
 
 ###### OVERALL IFRS
-## TODO - CHECK CHE1-2 (SEEM LOW)
 age_IFRraw_plot0<-read.csv("data/derived/age_summ_IFR.csv")
 ifr0<-age_IFRraw_plot0 %>%
   dplyr::group_by(study_id) %>%
@@ -738,3 +739,43 @@ jpeg("figures/final_figures/Figure_Rgn_crude_IFR.jpg",
      width = 11, height = 8, units = "in", res = 500)
 plot(Rgn_IFR_plotObj)
 graphics.off()
+
+
+###### Figure 2
+library(rstan)
+# Death rate vs seroprevalence
+std_deaths_seroplotdat<-read.csv("data/derived/region_summ_IFR.csv")
+col_vec<-study_cols$cols
+names(col_vec) <- study_cols$names
+std_deaths_seroplot <- std_deaths_seroplotdat %>%
+  dplyr::select(c("names", "region", "std_cum_deaths", "popn", "seroprev")) %>%
+  dplyr::mutate(seroprev = seroprev * 100) %>%
+  ggplot() + theme_bw() +
+  geom_point(aes(x = seroprev, y = std_cum_deaths, fill = names), shape = 21, size = 2.5, stroke = 0.2) +
+  scale_fill_manual(values = col_vec, name = "Study") +
+  xlab("Seroprevalence (%)") + ylab("Cumulative Deaths per Million") +
+  #  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
+  xyaxis_plot_theme
+
+
+spainFit<-readRDS("analyses/Rgn_Mod_Stan/results/fit_spain_reg_age_full_new.rds")
+params<-extract(spainFit)
+spainDat<-std_deaths_seroplotdat %>%
+  filter(study_id=="ESP1-2")
+stanFit<-ggplot() + theme_bw() +
+  geom_point(aes(x = 100*spainDat$seroprev, y = spainDat$std_cum_deaths,color="Spain data"), shape = 19, size = 1.5,stroke=1.5) +
+  geom_point(aes(x = 100*colMeans(params$prev_sero_truer), y = 1000000*colMeans(params$expdr)/spainDat$popn,
+                 color="fitted"),
+              shape = 19, size = 2.5) +
+  expand_limits(x = 0) +
+  expand_limits(y = 1700) +
+  scale_color_manual(name="",values=c("Spain data"="black","fitted"="dodgerblue"), labels=c("fitted","Spain data")) +
+  xlab("Seroprevalence (%)") + ylab("Cumulative Deaths per Million") +
+    xyaxis_plot_theme
+
+
+
+rgnPlots <- cowplot::plot_grid(std_deaths_seroplot, stanFit,
+                           ncol = 2, nrow = 1, align = "h",
+                           labels = c("(A)", "(B)"), rel_widths = c(1.2,1))
+if(write2file) ggsave(filename = "results/descriptive_figures/rgnPlots.tiff", plot = rgnPlots, width = 13, height = 5)
