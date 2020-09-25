@@ -22,8 +22,9 @@ source("R/assertions_v5.R")
 process_data4 <- function(cum_tp_deaths = NULL, population = NULL, sero_val = NULL, seroprev = NULL,
                           get_descriptive_dat = TRUE, time_series_totdeaths_df = NULL,
                           groupingvar, study_ids, time_series_totdeaths_geocode,
-                          filtRegions = NULL, filtGender = NULL, filtAgeBand = NULL, death_agebreaks = NULL,
-                          sero_agebreaks = NULL, origin = lubridate::ymd("2020-01-01")) {
+                          filtRegions = NULL, filtGender = NULL, filtAgeBand = NULL,
+                          agebreaks = NULL,
+                          origin = lubridate::ymd("2020-01-01")) {
   #......................
   # assertions and checks
   #......................
@@ -82,20 +83,20 @@ process_data4 <- function(cum_tp_deaths = NULL, population = NULL, sero_val = NU
   # process death data
   #...........................................................
   deaths_list <- process_death_data(cum_tp_deaths, time_series_totdeaths_df, time_series_totdeaths_geocode,
-                                    get_descriptive_dat, study_ids, death_agebreaks, groupingvar,
+                                    get_descriptive_dat, study_ids, agebreaks, groupingvar,
                                     filtRegions, filtGender, filtAgeBand, origin = origin)
 
   #............................................................
   # process seroprev data
   #...........................................................
   seroprev_list <- process_seroprev_data(seroprev,
-                                         study_ids, sero_agebreaks, groupingvar,
+                                         study_ids, agebreaks, groupingvar,
                                          filtRegions, filtGender, filtAgeBand, origin = origin)
 
   #...........................................................
   # process population
   #...........................................................
-  pop_prop.summ <- process_population_data(population, cum_tp_deaths, death_agebreaks, study_ids, groupingvar,
+  pop_prop.summ <- process_population_data(population, cum_tp_deaths, agebreaks, study_ids, groupingvar,
                                            filtRegions, filtGender, filtAgeBand)
 
   #............................................................

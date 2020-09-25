@@ -127,16 +127,24 @@ neg_at_baseline %>%
   dplyr::summarise(
     n_donors = dplyr::n()
   )
-neg_at_baseline <- neg_at_baseline %>%
+
+
+neg_at_baseline_id_drop <- neg_at_baseline %>%
   dplyr::ungroup(.) %>%
   dplyr::filter(neg_at_baseline == T) %>%
   dplyr::select(c("assay", "donor_id")) %>%
   dplyr::filter(!duplicated(.)) %>%
   dplyr::mutate(drop = TRUE)
 
+# do negative at baseline ever become positive? --> no
+neg_at_baseline %>%
+  dplyr::left_join(., neg_at_baseline_id_drop, by = c("assay", "donor_id")) %>%
+  dplyr::filter(!is.na(drop)) %>%
+  dplyr::select(-c("drop"))
+
 # drop those individuals negative at baseline
 serotime <- serotime %>%
-  dplyr::left_join(., neg_at_baseline, by = c("assay", "donor_id")) %>%
+  dplyr::left_join(., neg_at_baseline_id_drop, by = c("assay", "donor_id")) %>%
   dplyr::filter(is.na(drop)) %>%
   dplyr::select(-c("drop"))
 
@@ -153,6 +161,14 @@ serotime %>%
   xyaxis_plot_theme
 
 
+#............................................................
+# quick look at characteristics
+#...........................................................
+serotime_char <- serotime %>%
+  dplyr::select(c("age", "sex", "donor_id")) %>%
+  dplyr::filter(!duplicated(.))
+table(serotime_char$sex)
+summary(serotime_char$age)
 #............................................................
 #---- Survival Analysis #----
 #...........................................................
@@ -259,16 +275,71 @@ summary(WBmod)
 weibull_params <- list(wshape = 1/exp(WBmod$icoef[2]),
                        wscale = exp(WBmod$icoef[1]))
 
-#......................
-# save out results
-#......................
-dir.create(path = "results/sero_reversion/", recursive = TRUE)
-saveRDS(sero_rev_comb, "results/sero_reversion/sero_rev_dat.RDS")
+# save out parameters
+dir.create(path = "results/prior_inputs/", recursive = TRUE)
 saveRDS(weibull_params, "results/prior_inputs/weibull_params.RDS")
-# NB -- KM represents the earliest possible failure time graph
-saveRDS(KM1_mod, "results/sero_reversion/KaplanMeierFit.RDS")
-saveRDS(survobj_km, "results/sero_reversion/survobj_km.RDS")
-saveRDS(WBmod, "results/sero_reversion/WeibullFit.RDS")
-saveRDS(serotime, file = "results/sero_reversion/sero_reversion_incld_data.RDS")
 
+#............................................................
+#---- Figure of Seroreversion #----
+#...........................................................
+#......................
+#  Kaplan Meier plot
+#......................
+KMplot <- survminer::ggsurvplot(fit = KM1_mod)
+
+#......................
+# Weibull plot
+#......................
+# fitted 'survival'
+# https://stackoverflow.com/questions/9151591/how-to-plot-the-survival-curve-generated-by-survreg-package-survival-of-r
+pw <- seq(from = 0.01, to = 0.99,by = 0.01)
+tof_weibull <- tibble::tibble(prob = 1 - pw,
+                              tof = predict(WBmod, type="quantile", p = pw)[1,])
+
+# KM pieces
+censored <- KMplot$data.survplot %>%
+  dplyr::filter(n.censor != 0)
+events <- KMplot$data.survplot %>%
+  dplyr::filter(n.event != 0)
+# polotObj pieces
+SurvPlotObj <- ggplot() +
+  geom_line(data = KMplot$data.survplot, aes(x = time, y = surv),
+            color = "#3C3B6E", alpha = 0.9, size = 1.2) +
+  geom_ribbon(data = KMplot$data.survplot, aes(x = time, ymin = lower, ymax = upper),
+              fill = "#6967bf", alpha = 0.5) +
+  geom_point(data = censored, aes(x = time, y = surv, size = n.censor),
+             color = "#3C3B6E", alpha = 0.9, shape = 124, show.legend = F) +
+  geom_point(data = events, aes(x = time, y = surv, size = n.event),
+             color = "#3C3B6E", alpha = 0.9, shape = 19, show.legend = F) +
+  geom_line(data = tof_weibull, aes(x = tof, y = prob),
+            size = 1.25, color = "#B22234", alpha = 0.8) +
+  ylab("Prob. of Seropositivity Persistence") +
+  xlab("Time (Days)") +
+  xyaxis_plot_theme
+
+
+
+inset <- ggplot() +
+  geom_histogram(data = sero_rev_comb,
+                 aes(x = time_to_event, y = ..density.., fill = factor(status)),
+                 position = "identity",
+                 alpha = 0.6) +
+  scale_fill_manual(values = c("#95D840FF", "#DCE319FF")) +
+  ylab("Density") +
+  xlab("Seroreversion Times (Days)") +
+  xyaxis_plot_theme +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none",
+        plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+
+
+# bring together
+(survplot_together <- cowplot::ggdraw() +
+    cowplot::draw_plot(SurvPlotObj, x = 0, y = 0, width = 1, height = 1, scale = 1) +
+    cowplot::draw_plot(inset, x = 0.5, y= 0.5, width = 0.45, height = 0.45))
+
+jpeg("figures/final_figures/weibull_survplot.jpg",
+     width = 11, height = 8, units = "in", res = 500)
+plot(survplot_together)
+graphics.off()
 

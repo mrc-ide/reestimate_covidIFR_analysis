@@ -3,6 +3,8 @@ output:
   pdf_document:
 params:
    path: ""
+editor_options: 
+  chunk_output_type: console
 ---
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, 
@@ -29,11 +31,14 @@ studyidchar <- title <- toupper(stringr::str_split(basename(params$path), "_age|
 # update title
 if (grepl("_SeroRev", basename(params$path))) { # catch serorevsion
   title <- paste(title, "with the Potential for Seroreversion Included")
+  studylvl <- "SeroRev"
 } else if (grepl("_carehomes", basename(params$path))) { # catch care homes
   title <- paste(title, "with Care Homes Excluded")
-} else (
+  studylvl <- "CareHome"
+} else {
   title <- paste(title, "with Standard Input")
-)
+  studylvl <- "standard"
+}
 
 ```
 
@@ -77,15 +82,14 @@ quick_sero_diagnostics(modout)
 ```
 
 \pagebreak
-## `r paste(stratachar)` Estimates
 
 #### IFRs & Incidence Curve
 
 ```{r}
 # common name for knit and joins
 dictkey <- modout$inputs$IFRmodel$IFRdictkey %>% 
-  dplyr::rename(param = Strata)
-colnames(dictkey)[colnames(dictkey) == gsub("-", "", tolower(stratachar))] <- "strata"
+  dplyr::rename(param = Strata,
+                strata = ageband)
 #...................... 
 # get ifrs 
 #......................
@@ -99,11 +103,10 @@ ifrs <- dplyr::left_join(dictkey, ifrs) %>%
 #......................
 dscdat <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS") 
 crudedat <- dscdat %>% 
-  dplyr::filter(study_id == studyidchar & breakdown == gsub("-", "", tolower(stratachar)))  %>%
+  dplyr::filter(study_id == studyidchar & breakdown == "ageband")  %>%
   dplyr::select(c("study_id", "plotdat")) %>%
-  tidyr::unnest(cols = "plotdat")
-# common name for knit
-colnames(crudedat)[colnames(crudedat) == gsub("-", "", tolower(stratachar))] <- "strata"
+  tidyr::unnest(cols = "plotdat") %>% 
+  dplyr::rename(strata = ageband)
 
 crudeplotdat <- crudedat %>%
   dplyr::filter(seromidpt == obsday) %>%
@@ -142,7 +145,7 @@ plot2 <- infxncurve$plotObj
 main_plotObj <- cowplot::plot_grid(plot1, plot2, ncol = 1, nrow = 2)
 
 # quick out
-jpgsnapshot(paste0("figures/", studyidchar, "-", stratachar, "_IFRplot.jpg"), 
+jpgsnapshot(paste0("figures/", studyidchar, "-", studylvl, "_IFRplot.jpg"), 
             plot = main_plotObj)
 
 ```
@@ -250,7 +253,7 @@ serocurvedatPlotObj <- serocurvedat %>%
   xyaxis_plot_theme + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"))
 
-jpgsnapshot(paste0("figures/", studyidchar, "-", stratachar, "_SeroPrevPDplot.jpg"), 
+jpgsnapshot(paste0("figures/", studyidchar, "-", studylvl, "_SeroPrevPDplot.jpg"), 
             plot = serocurvedatPlotObj)
 
 
@@ -342,9 +345,8 @@ postdat_long <- postdat %>%
 # get deaths posterior pred check
 #......................
 datclean <-  deathrecast %>% 
-  dplyr::left_join(., modout$inputs$IFRmodel$IFRdictkey, by = "Strata") 
-# liftover name
-colnames(datclean)[colnames(datclean) == gsub("-", "", tolower(stratachar))] <- "strata"
+  dplyr::left_join(., modout$inputs$IFRmodel$IFRdictkey, by = "Strata") %>% 
+  dplyr::rename(strata = ageband)
 datclean <- datclean %>% 
   dplyr::mutate(strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(Strata, "[0-9]+"))))
 
@@ -365,7 +367,7 @@ ppc_plot <- ggplot() +
   theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5, vjust = 0.5)) 
 
-jpgsnapshot(paste0("figures/", studyidchar, "-", stratachar, "_PPCplot.jpg"), 
+jpgsnapshot(paste0("figures/", studyidchar, "-", studylvl, "_PPCplot.jpg"), 
             plot = ppc_plot)
 
 

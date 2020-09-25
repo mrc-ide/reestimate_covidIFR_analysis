@@ -76,7 +76,7 @@ serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
 # wrangle input data from non-seroreversion fit
 #......................
 # liftover obs serology
-sero_days <- c(125, 175)
+sero_days <- c(150, 225)
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay %in% sero_days) %>%
@@ -111,7 +111,7 @@ reginputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 # wrangle input data from seroreversion fit
 #......................
 # sero tidy up
-sero_days <- c(125, 175)
+sero_days <- c(150, 225)
 sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
@@ -130,8 +130,8 @@ obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev")) %>%
   dplyr::ungroup(.) %>%
   dplyr::arrange(SeroStartSurvey, Strata) %>%
-  dplyr::mutate(SeroLCI = SeroPrev - 0.01,
-                SeroUCI = SeroPrev + 0.01) # make up some tight CIs
+  dplyr::mutate(SeroLCI = NA,
+                SeroUCI = NA) # just add these in for catch
 
 
 # proportion deaths
@@ -169,7 +169,7 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                dsc2 = c(0.1,    300,   0.1))
 
 serorev <- tibble::tibble(name = c("sero_rev_shape",        "sero_rev_scale"),
-                          min  = c(2,                        128),
+                          min  = c(2,                        138),
                           init = c(3.5,                      143),
                           max =  c(5,                        158),
                           dsc1 = c(weibull_params$wshape,    weibull_params$wscale + 5),
@@ -182,7 +182,7 @@ tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
 
 # make param dfs
 ifr_paramsdf <- make_ma_reparamdf(num_mas = 1, upperMa = 0.4)
-knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
+knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 280, init = 290, max = 300, dsc1 = 280, dsc2 = 300),
                                         num_xs = 4)
 infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14.91, dsc1 = 0, dsc2 = 14.91),
                                          num_ys = 5)
