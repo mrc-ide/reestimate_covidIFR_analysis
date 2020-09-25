@@ -24,6 +24,15 @@ get_sim_IFR_curve <- function(curve, modout) {
 }
 
 
+get_sim_IFR_est <- function(modout) {
+  COVIDCurve::get_cred_intervals(IFRmodel_inf = modout,
+                                 by_chain = FALSE,
+                                 what = "IFRparams") %>%
+    # subset to oldest age group
+    dplyr::filter(param == "ma5")
+}
+
+
 #............................................................
 # read in data
 #...........................................................
@@ -50,35 +59,13 @@ serorev_paths <- tibble::tibble(sim = gsub("_SeroRev.RDS", "", basename(serorev_
 #......................
 datmap <- dplyr::bind_rows(noserorev_paths, serorev_paths)
 datmap$infxncurve <- purrr::pmap(datmap[, c("curve", "modout")], get_sim_IFR_curve)
+datmap$ifrests <- purrr::pmap(datmap[, c("modout")], get_sim_IFR_est)
 
 #.....................
 # plot out
 #......................
 collated_infxn_curve_NOserorev_plotObj <- datmap %>%
   dplyr::filter(!serorev_accounted) %>% # no seroreversion first
-  dplyr::select(-c("sim")) %>%
-  dplyr::mutate(simtype = purrr::map_chr(nm, function(x){ switch(x,
-                                                              "expgrowth" = {"Exp. Growth"},
-                                                              "intervene" = {"Outbreak Control"},
-                                                              "secondwave" = {"Second Wave"})})) %>%
-  tidyr::unnest(cols = "infxncurve") %>%
-  dplyr::select(c("simtype", "sens", "spec", "sim", "chain", "time", "totinfxns", "truecurve")) %>%
-  dplyr::mutate(serotestchar = paste0("Sens: ", sens, " ; Spec: ", spec)) %>%
-  ggplot() +
-  geom_line(aes(x = time, y = totinfxns, group = sim, color = chain), alpha = 0.8, size = 0.8) +
-  geom_line(aes(x = time, y = truecurve), color = "#bdbdbd",
-            linetype = "dashed", size = 1) +
-  facet_grid(simtype ~ serotestchar, scales = "free") +
-  scale_color_viridis_d("Chain") +
-  labs(caption = "Viridis is inferred, Grey Line is Simulated Infection Curve") +
-  xlab("Time") + ylab("Num. Infxns") +
-  xyaxis_plot_theme +
-  theme(legend.position = "bottom",
-        strip.text = element_text(size = 11, face = "bold"))
-
-# with serorev
-collated_infxn_curve_serorev_plotObj <- datmap %>%
-  dplyr::filter(serorev_accounted) %>% # no seroreversion first
   dplyr::select(-c("sim")) %>%
   dplyr::mutate(simtype = purrr::map_chr(nm, function(x){ switch(x,
                                                                  "expgrowth" = {"Exp. Growth"},
@@ -88,26 +75,106 @@ collated_infxn_curve_serorev_plotObj <- datmap %>%
   dplyr::select(c("simtype", "sens", "spec", "sim", "chain", "time", "totinfxns", "truecurve")) %>%
   dplyr::mutate(serotestchar = paste0("Sens: ", sens, " ; Spec: ", spec)) %>%
   ggplot() +
-  geom_line(aes(x = time, y = totinfxns, group = sim, color = chain), alpha = 0.8, size = 0.8) +
-  geom_line(aes(x = time, y = truecurve), color = "#bdbdbd",
-            linetype = "dashed", size = 1) +
+  geom_line(aes(x = time, y = totinfxns, group = sim), color = "#9ecae1", alpha = 0.8, size = 0.8) +
+  geom_line(aes(x = time, y = truecurve), color = "#969696", size = 1) +
   facet_grid(simtype ~ serotestchar, scales = "free") +
-  scale_color_viridis_d("Chain") +
-  labs(caption = "Viridis is inferred, Grey Line is Simulated Infection Curve") +
   xlab("Time") + ylab("Num. Infxns") +
   xyaxis_plot_theme +
   theme(legend.position = "bottom",
-        strip.text = element_text(size = 11, face = "bold"))
+        strip.text = element_text(size = 11, face = "bold"),
+        plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+# ifr ests
+collated_Noserorev_plotObj <-  datmap %>%
+  dplyr::filter(!serorev_accounted) %>% # no seroreversion first
+  dplyr::select(-c("sim")) %>%
+  dplyr::mutate(simtype = purrr::map_chr(nm, function(x){ switch(x,
+                                                                 "expgrowth" = {"Exp. Growth"},
+                                                                 "intervene" = {"Outbreak Control"},
+                                                                 "secondwave" = {"Second Wave"})})) %>%
+  tidyr::unnest(cols = "ifrests") %>%
+  dplyr::select(c("simtype", "sens", "spec", "median", "LCI", "UCI")) %>%
+  dplyr::mutate(serotestchar = paste0("Sens: ", sens, " ; Spec: ", spec),
+                param = "Oldest Age Group") %>%
+  ggplot() +
+  geom_pointrange(aes(x = param, y = median, ymin = LCI, ymax = UCI),
+                  color = "#3182bd", size = 1.25) +
+  geom_hline(yintercept = 0.2, color = "#969696", size = 1.5, linetype = "dashed") +
+  facet_grid(simtype ~ serotestchar, scales = "free") +
+  ylab("IFR (95% CrI)") +
+  xyaxis_plot_theme +
+  theme(axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "bottom",
+        strip.text = element_text(size = 11, face = "bold"),
+        plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+
+# come togther
+together_NOserorev_plotObj <- cowplot::plot_grid(collated_infxn_curve_NOserorev_plotObj,
+                                                 collated_Noserorev_plotObj,
+                                                 nrow = 1, labels = c("(A)", "(B)"),
+                                                 rel_widths = c(0.6, 0.4))
+
+# with serorev
+collated_infxn_curve_serorev_plotObj <- datmap %>%
+  dplyr::filter(serorev_accounted) %>% # seroreversion SECOND
+  dplyr::select(-c("sim")) %>%
+  dplyr::mutate(simtype = purrr::map_chr(nm, function(x){ switch(x,
+                                                                 "expgrowth" = {"Exp. Growth"},
+                                                                 "intervene" = {"Outbreak Control"},
+                                                                 "secondwave" = {"Second Wave"})})) %>%
+  tidyr::unnest(cols = "infxncurve") %>%
+  dplyr::select(c("simtype", "sens", "spec", "sim", "chain", "time", "totinfxns", "truecurve")) %>%
+  dplyr::mutate(serotestchar = paste0("Sens: ", sens, " ; Spec: ", spec)) %>%
+  ggplot() +
+  geom_line(aes(x = time, y = totinfxns, group = sim), color = "#9ecae1", alpha = 0.8, size = 0.8) +
+  geom_line(aes(x = time, y = truecurve), color = "#969696", size = 1) +
+  facet_grid(simtype ~ serotestchar, scales = "free") +
+  xlab("Time") + ylab("Num. Infxns") +
+  xyaxis_plot_theme +
+  theme(legend.position = "bottom",
+        strip.text = element_text(size = 11, face = "bold"),
+        plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+# ifr ests
+collated_serorev_plotObj <-  datmap %>%
+  dplyr::filter(serorev_accounted) %>% # seroreversion SECOND
+  dplyr::select(-c("sim")) %>%
+  dplyr::mutate(simtype = purrr::map_chr(nm, function(x){ switch(x,
+                                                                 "expgrowth" = {"Exp. Growth"},
+                                                                 "intervene" = {"Outbreak Control"},
+                                                                 "secondwave" = {"Second Wave"})})) %>%
+  tidyr::unnest(cols = "ifrests") %>%
+  dplyr::select(c("simtype", "sens", "spec", "median", "LCI", "UCI")) %>%
+  dplyr::mutate(serotestchar = paste0("Sens: ", sens, " ; Spec: ", spec),
+                param = "Oldest Age Group") %>%
+  ggplot() +
+  geom_pointrange(aes(x = param, y = median, ymin = LCI, ymax = UCI),
+                  color = "#3182bd", size = 1.25) +
+  geom_hline(yintercept = 0.2, color = "#969696", size = 1.5, linetype = "dashed") +
+  facet_grid(simtype ~ serotestchar, scales = "free") +
+  ylab("IFR (95% CrI)") +
+  xyaxis_plot_theme +
+  theme(axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "bottom",
+        strip.text = element_text(size = 11, face = "bold"),
+        plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+
+# come togther
+together_serorev_plotObj <- cowplot::plot_grid(collated_infxn_curve_serorev_plotObj,
+                                               collated_serorev_plotObj,
+                                               nrow = 1, labels = c("(A)", "(B)"),
+                                               rel_widths = c(0.6, 0.4))
+
 
 # out
 jpeg("figures/final_figures/collated_simulation_noserorev.jpg",
      width = 10, height = 7, units = "in", res = 600)
-plot(collated_infxn_curve_NOserorev_plotObj)
+plot(together_NOserorev_plotObj)
 graphics.off()
 
 jpeg("figures/final_figures/collated_simulation_withserorev.jpg",
      width = 10, height = 7, units = "in", res = 600)
-plot(collated_infxn_curve_serorev_plotObj)
+plot(together_serorev_plotObj)
 graphics.off()
 
 
