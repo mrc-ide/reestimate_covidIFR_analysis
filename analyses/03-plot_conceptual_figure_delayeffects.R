@@ -15,14 +15,14 @@ source("R/my_themes.R")
 # read results in
 #...........................................................
 dat_map <- tibble::tibble(lvl = c("reg", "serorev"),
-                          mod = c("data/param_map/Fig1_ConceptualFits/reg_mod_rung50_burn10000_smpl10000.RDS",
-                                  "data/param_map/Fig1_ConceptualFits/serorev_mod_rung50_burn10000_smpl10000.RDS")) %>%
+                          mod = c("data/param_map/Fig_ConceptualFits/reg_mod_rung50_burn10000_smpl10000.RDS",
+                                  "data/param_map/Fig_ConceptualFits/serorev_mod_rung50_burn10000_smpl10000.RDS")) %>%
   dplyr::mutate(mod = purrr::map(mod, readRDS)) %>%
   tidyr::unnest(cols = mod)
 
 fits <- tibble::tibble(lvl = c("reg", "serorev"),
-                       fit = c("results/Fig1_ConceptualFits/reg_mod_rung50_burn10000_smpl10000.RDS",
-                               "results/Fig1_ConceptualFits/serorev_mod_rung50_burn10000_smpl10000.RDS")) %>%
+                       fit = c("results/Fig_ConceptualFits/reg_mod_rung50_burn10000_smpl10000.RDS",
+                               "results/Fig_ConceptualFits/serorev_mod_rung50_burn10000_smpl10000.RDS")) %>%
   dplyr::mutate(fit = purrr::map(fit, readRDS))
 
 # bring together
