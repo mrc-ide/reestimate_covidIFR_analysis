@@ -30,11 +30,11 @@ weibull_params <- readRDS("results/prior_inputs/weibull_params.RDS")
 # setup fatality data
 #............................................................
 # make up fatality data
-fatalitydata <- tibble::tibble(Strata = "ma1",
-                               IFR = 0.1,
+fatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
+                               IFR = c(1e-3, 0.05, 0.1),
                                Rho = 1)
-demog <- tibble::tibble(Strata = "ma1",
-                        popN = 3e6)
+demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
+                        popN = c(1.3e6, 9e5, 8e5))
 
 # run COVIDCurve sims for no seroreversion and seroreversion
 dat <- COVIDCurve::Agesim_infxn_2_death(
@@ -76,7 +76,7 @@ serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
 # wrangle input data from non-seroreversion fit
 #......................
 # liftover obs serology
-sero_days <- c(150, 225)
+sero_days <- c(150, 250)
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay %in% sero_days) %>%
@@ -111,7 +111,7 @@ reginputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 # wrangle input data from seroreversion fit
 #......................
 # sero tidy up
-sero_days <- c(150, 225)
+sero_days <- c(150, 250)
 sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%

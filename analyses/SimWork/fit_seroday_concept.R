@@ -27,11 +27,11 @@ interveneflat <- c(interveneflat, round(seq(from = interveneflat[200],
 # setup fatality data
 #............................................................
 # make up fatality data
-fatalitydata <- tibble::tibble(Strata = "ma1",
-                               IFR = 0.1,
+fatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
+                               IFR = c(1e-3, 0.05, 0.1),
                                Rho = 1)
-demog <- tibble::tibble(Strata = "ma1",
-                        popN = 3e6)
+demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
+                        popN = c(1.3e6, 9e5, 8e5))
 
 # run COVIDCurve sims for no seroreversion and seroreversion
 dat <- COVIDCurve::Agesim_infxn_2_death(
