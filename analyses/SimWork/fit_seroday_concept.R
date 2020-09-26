@@ -144,7 +144,7 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
 
 
 # make param dfs
-ifr_paramsdf <- make_ma_reparamdf(num_mas = 1, upperMa = 0.4)
+ifr_paramsdf <- make_ma_reparamdf(num_mas = 3, upperMa = 0.4)
 knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
                                         num_xs = 4)
 infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
@@ -160,7 +160,7 @@ df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_
 mod1_oneday <- COVIDCurve::make_IFRmodel_age$new()
 mod1_oneday$set_MeanTODparam("mod")
 mod1_oneday$set_CoefVarOnsetTODparam("sod")
-mod1_oneday$set_IFRparams("ma1")
+mod1_oneday$set_IFRparams("ma3")
 mod1_oneday$set_Knotparams(paste0("x", 1:4))
 mod1_oneday$set_relKnot("x4")
 mod1_oneday$set_Infxnparams(paste0("y", 1:5))
@@ -174,7 +174,7 @@ mod1_oneday$set_rcensor_day(.Machine$integer.max)
 mod1_twodays <- COVIDCurve::make_IFRmodel_age$new()
 mod1_twodays$set_MeanTODparam("mod")
 mod1_twodays$set_CoefVarOnsetTODparam("sod")
-mod1_twodays$set_IFRparams("ma1")
+mod1_twodays$set_IFRparams("ma3")
 mod1_twodays$set_Knotparams(paste0("x", 1:4))
 mod1_twodays$set_relKnot("x4")
 mod1_twodays$set_Infxnparams(paste0("y", 1:5))

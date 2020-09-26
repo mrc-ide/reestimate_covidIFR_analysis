@@ -181,7 +181,7 @@ tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
 
 
 # make param dfs
-ifr_paramsdf <- make_ma_reparamdf(num_mas = 1, upperMa = 0.4)
+ifr_paramsdf <- make_ma_reparamdf(num_mas = 3, upperMa = 0.4)
 knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 280, init = 290, max = 300, dsc1 = 280, dsc2 = 300),
                                         num_xs = 4)
 infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14.91, dsc1 = 0, dsc2 = 14.91),
@@ -198,7 +198,7 @@ df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsd
 mod1_reg <- COVIDCurve::make_IFRmodel_age$new()
 mod1_reg$set_MeanTODparam("mod")
 mod1_reg$set_CoefVarOnsetTODparam("sod")
-mod1_reg$set_IFRparams("ma1")
+mod1_reg$set_IFRparams("ma3")
 mod1_reg$set_Knotparams(paste0("x", 1:4))
 mod1_reg$set_relKnot("x4")
 mod1_reg$set_Infxnparams(paste0("y", 1:5))
@@ -212,7 +212,7 @@ mod1_reg$set_rcensor_day(.Machine$integer.max)
 mod1_serorev <- COVIDCurve::make_IFRmodel_age$new()
 mod1_serorev$set_MeanTODparam("mod")
 mod1_serorev$set_CoefVarOnsetTODparam("sod")
-mod1_serorev$set_IFRparams("ma1")
+mod1_serorev$set_IFRparams("ma3")
 mod1_serorev$set_Knotparams(paste0("x", 1:4))
 mod1_serorev$set_relKnot("x4")
 mod1_serorev$set_Infxnparams(paste0("y", 1:5))
