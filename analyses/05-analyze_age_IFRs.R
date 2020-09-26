@@ -215,12 +215,12 @@ dplyr::left_join(simp_seroprevdat, seroprev_age_column, by = c("study_id", "ageb
 #...........................................................
 
 #......................
-# logplot
+# get log transformed variables
 #......................
 log_retmapIFR <- dplyr::bind_rows(regretmap, serorevretmap) %>%
   dplyr::mutate(strataIFRret_log = purrr::map(path, get_log_transformed_IFR_cred_intervals, by_chain = F))
 
-log_retmapIFR_plotdat <- log_retmapIFR %>%
+log_retmapIFR_dat <- log_retmapIFR %>%
   tidyr::unnest(cols = "strataIFRret_log") %>%
   dplyr::rename(Strata = param) %>%
   dplyr::left_join(., datdict) %>%
@@ -229,11 +229,47 @@ log_retmapIFR_plotdat <- log_retmapIFR %>%
     nums[nums == 999] <- 100
     return(mean(nums))}))
 
-log_age_IFR_plotObj <- log_retmapIFR_plotdat %>%
+
+#......................
+# perform log-linear regression from posteriors
+#......................
+# NO serorev
+log_regressdat_NOseroreov <- log_retmapIFR_dat %>%
+  dplyr::filter(sero == "reg") %>%
+  dplyr::select(c("study_id", "age_mid", "median", "precision"))
+
+NoSerorv_model_weighted <- lm(median ~ age_mid,
+                              data = log_regressdat_NOseroreov,
+                              weights = precision)
+
+# serorev
+log_regressdat_seroreov <- log_retmapIFR_dat %>%
+  dplyr::filter(sero == "serorev") %>%
+  dplyr::select(c("study_id", "age_mid", "median", "precision"))
+
+Serorv_model_weighted <- lm(median ~ age_mid,
+                              data = log_regressdat_seroreov,
+                              weights = precision)
+
+
+
+#......................
+# plot out
+#......................
+newdat <- data.frame(age_mid = seq(0, 95, by = 0.05))
+NoSerorv_model_weighted_CIband <- predict(NoSerorv_model_weighted,
+                                          newdat,
+                                          interval = "confidence", alpha = 0.05)
+NoSerorv_model_weighted_CIband <- cbind.data.frame(NoSerorv_model_weighted_CIband,
+                                                   NoSerorv_model_weighted_CIband)
+
+log_age_IFR_plotObj <- log_retmapIFR_dat %>%
   dplyr::filter(sero == "reg") %>%
   ggplot() +
+  geom_ribbon(data = newdat, aes(x = age_mid, y = fit, ymin = lwr, ymax = upr),
+              alpha = 0.35, color = "#d9d9d9", linetype = "dashed") +
   geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  study_id),
-                  alpha = 0.5, shape = 16, size = 0.9) +
+                  alpha = 0.75, shape = 16, size = 0.9) +
   scale_color_manual("Study ID", values = mycolors) +
   ylab("Logged Age-Specific IFR (95% CrI)") + xlab("Mid. Age") +
   xyaxis_plot_theme +
@@ -254,7 +290,7 @@ modIFR_age_plotObj <- modIFR_age %>%
   dplyr::filter(sero == "reg") %>%
   ggplot() +
   geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  study_id),
-                  alpha = 0.5, shape = 16, size = 0.9) +
+                  alpha = 0.75, shape = 16, size = 0.9) +
   scale_color_manual("Study ID", values = mycolors) +
   ylab("Age-Specific IFR (95% CrI)") + xlab("Mid. Age") +
   xyaxis_plot_theme +
@@ -279,3 +315,43 @@ jpeg("figures/final_figures/IFR_age_spec_logplot.jpg",
      width = 11, height = 8, units = "in", res = 600)
 plot(mainFig)
 graphics.off()
+
+
+
+
+#............................................................
+#---- Best IFR Est Table  #----
+#...........................................................
+# using log-linear regression from posteriors above
+
+# new dat is 10 year age bands
+newdat <- data.frame(age_mid = seq(5, 95, by = 10))
+
+NoSerorv_model_weighted
+Serorv_model_weighted
+
+
+
+#......................
+# bring together
+#......................
+NoSerorv_bestest <- predict(NoSerorv_model_weighted,
+                                          newdat,
+                                          interval = "confidence", alpha = 0.05) %>%
+  dplyr::mutate(bestest = paste0(fit, "(", lwr, ", ", upr, ")")) %>%
+  dplyr::pull(bestest)
+
+Serorv_bestest <- predict(Serorv_model_weighted,
+                            newdat,
+                            interval = "confidence", alpha = 0.05) %>%
+  dplyr::mutate(bestest = paste0(fit, "(", lwr, ", ", upr, ")")) %>%
+  dplyr::pull(bestest)
+
+best_est <- tibble::tibble(ageband = paste0(seq(0, 90, 10), "-", seq(10, 100, 10)),
+                           NoSeroRev = NoSerorv_bestest,
+                           SeroRev = Serorv_bestest)
+# overall
+summary(NoSerorv_model_weighted)
+summary(Serorv_model_weighted)
+confint(NoSerorv_model_weighted, alpha = 0.05)
+confint(Serorv_model_weighted, alpha = 0.05)

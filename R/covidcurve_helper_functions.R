@@ -38,7 +38,8 @@ get_log_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
       median = median(est),
       mean = mean(est),
       UCI = quantile(est, 0.975),
-      max = max(est)
+      max = max(est),
+      precision = 1/var(est)
     )
 }
 

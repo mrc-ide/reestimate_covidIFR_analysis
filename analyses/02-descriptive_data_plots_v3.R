@@ -744,7 +744,7 @@ graphics.off()
 ###### Figure 2
 library(rstan)
 # Death rate vs seroprevalence
-std_deaths_seroplotdat<-read.csv("data/derived/region_summ_IFR.csv")
+std_deaths_seroplotdat<-read.csv("results/Rgn_Mod_Rets/region_summ_IFR.csv")
 col_vec<-study_cols$cols
 names(col_vec) <- study_cols$names
 std_deaths_seroplot <- std_deaths_seroplotdat %>%
@@ -758,7 +758,7 @@ std_deaths_seroplot <- std_deaths_seroplotdat %>%
   xyaxis_plot_theme
 
 
-spainFit<-readRDS("analyses/Rgn_Mod_Stan/results/fit_spain_reg_age_full_new.rds")
+spainFit<-readRDS("results/Rgn_Mod_Rets/fit_spain_reg_age_full_new.rds")
 params<-extract(spainFit)
 spainDat<-std_deaths_seroplotdat %>%
   filter(study_id=="ESP1-2")

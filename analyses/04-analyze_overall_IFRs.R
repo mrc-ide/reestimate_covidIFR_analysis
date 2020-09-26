@@ -477,7 +477,7 @@ health_cap_modIFR_plotObj <- hlth_care_plotdat %>%
   ggplot() +
   geom_pointrange(aes(x = death_bed_ratio, y = median,
                       ymin = LCI, ymax = UCI,
-                      color = study_id)) +
+                      color = study_id), size = 1.5) +
   scale_color_manual("Study ID", values = mycolors) +
   xlab("Ratio of Cumulative Deaths to Hospital Beds") + ylab("IFR (95% CrI)") +
   xyaxis_plot_theme +
