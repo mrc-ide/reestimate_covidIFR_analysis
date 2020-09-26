@@ -186,9 +186,10 @@ knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 280
                                         num_xs = 4)
 infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14.91, dsc1 = 0, dsc2 = 14.91),
                                          num_ys = 5)
+noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 3, min = 0.5, init = 1, max = 1.5)
 # bring together
-df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf)
-df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf_serorev)
+df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, noise_paramsdf, sens_spec_tbl, tod_paramsdf)
+df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, noise_paramsdf, sens_spec_tbl, tod_paramsdf_serorev)
 
 
 #......................
@@ -204,6 +205,7 @@ mod1_reg$set_Knotparams(paste0("x", 1:4))
 mod1_reg$set_relKnot("x4")
 mod1_reg$set_Infxnparams(paste0("y", 1:5))
 mod1_reg$set_relInfxn("y3")
+mod1_reg$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_reg$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_reg$set_data(reginputdata)
 mod1_reg$set_demog(demog)
@@ -219,6 +221,7 @@ mod1_serorev$set_Knotparams(paste0("x", 1:4))
 mod1_serorev$set_relKnot("x4")
 mod1_serorev$set_Infxnparams(paste0("y", 1:5))
 mod1_serorev$set_relInfxn("y3")
+mod1_serorev$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
 mod1_serorev$set_data(reginputdata)
 mod1_serorev$set_demog(demog)
@@ -274,7 +277,7 @@ run_MCMC <- function(path) {
   cl <- parallel::makeCluster(mkcores)
 
   fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
-                                      reparamIFR = FALSE, # only one group, so don't reparam IFR
+                                      reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
                                       chains = n_chains,

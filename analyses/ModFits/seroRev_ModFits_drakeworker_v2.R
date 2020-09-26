@@ -453,7 +453,7 @@ fit_map <- tibble::tibble(
            "CHN1_age",
            "KEN1_age",
            "LA_CA1_age",
-           "NYS_age"),
+           "NYS1_age"),
   modelobj = list(BRA1_age_mod,
                   CHE1_age_mod,
                   CHE2_age_mod,

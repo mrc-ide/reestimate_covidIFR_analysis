@@ -149,8 +149,9 @@ knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180
                                         num_xs = 4)
 infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
                                          num_ys = 5)
+noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 3, min = 0.5, init = 1, max = 1.5)
 # bring together
-df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf)
+df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, noise_paramsdf, sens_spec_tbl, tod_paramsdf)
 
 
 #......................
@@ -166,6 +167,7 @@ mod1_oneday$set_Knotparams(paste0("x", 1:4))
 mod1_oneday$set_relKnot("x4")
 mod1_oneday$set_Infxnparams(paste0("y", 1:5))
 mod1_oneday$set_relInfxn("y3")
+mod1_oneday$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_oneday$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_oneday$set_data(oneday_inputdata)
 mod1_oneday$set_demog(demog)
@@ -181,6 +183,7 @@ mod1_twodays$set_Knotparams(paste0("x", 1:4))
 mod1_twodays$set_relKnot("x4")
 mod1_twodays$set_Infxnparams(paste0("y", 1:5))
 mod1_twodays$set_relInfxn("y3")
+mod1_twodays$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_twodays$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_twodays$set_data(twodays_inputdata)
 mod1_twodays$set_demog(demog)
@@ -236,7 +239,7 @@ run_MCMC <- function(path) {
   cl <- parallel::makeCluster(mkcores)
 
   fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
-                                      reparamIFR = FALSE,
+                                      reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
                                       chains = n_chains,
