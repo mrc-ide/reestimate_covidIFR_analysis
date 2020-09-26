@@ -15,7 +15,7 @@ source("R/my_themes.R")
 # Read in Various Scenarios for Incidence Curves
 #...........................................................
 infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
-
+intrvnshape <- infxn_shapes$intervene
 
 #............................................................
 # setup fatality data
@@ -34,7 +34,7 @@ dat <- COVIDCurve::Agesim_infxn_2_death(
   m_od = 19.66,
   s_od = 0.90,
   curr_day = 200,
-  infections = infxn_shapes$intervene,
+  infections = intrvnshape,
   simulate_seroreversion = FALSE,
   smplfrac = 1e-3,
   sens = 0.85,
@@ -194,7 +194,7 @@ bvec <- seq(5, 2.5, length.out = 50)
 
 fit_map <- tibble::tibble(
   name = c("OneDay_mod", "TwoDays_mod"),
-  infxns = list(interveneflat, NULL), # Null sinse same infections
+  infxns = list(intrvnshape, NULL), # Null sinse same infections
   simdat = list(dat, NULL),
   modelobj = list(mod1_oneday, mod1_twodays),
   rungs = 50,
