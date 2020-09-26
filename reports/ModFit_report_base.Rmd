@@ -73,7 +73,7 @@ tibble::tibble(gelman_mpsrf = gdiag$mpsrf) %>%
                                          color = ifelse(gelman_mpsrf > 1.1, "red", "green"),
                                          bold = T,
                                          font_size = 16)) %>% 
-  knitr::kable(.)
+  knitr::kable(., format = "simple")
 
 ```
 
@@ -173,7 +173,7 @@ plot(main_plotObj)
 ```{r, results='asis', fig.width=8, fig.height=6}
 ifrs %>% 
   dplyr::mutate_if(is.numeric, round, 4) %>% 
-  knitr::kable(.)
+  knitr::kable(., format = "simple")
 
 ```
 
@@ -184,14 +184,14 @@ COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout,
                                          whichrung = "rung1", 
                                          by_chain = FALSE) %>% 
   dplyr::mutate_if(is.numeric, round, 4) %>% 
-  knitr::kable(.)
+  knitr::kable(., format = "simple")
 
 # by chain
 COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout, 
                                          whichrung = "rung1", 
                                          by_chain = TRUE) %>% 
   dplyr::mutate_if(is.numeric, round, 4) %>% 
-  knitr::kable(.)
+  knitr::kable(., format = "simple")
 
 #...................... 
 # global ifr iteration plot
@@ -410,6 +410,6 @@ addparams <- dplyr::bind_rows(knots, ypos, nes)
 ```{r, results='asis', fig.width=8, fig.height=6}
 addparams %>% 
   dplyr::mutate_if(is.numeric, round, 4) %>% 
-  knitr::kable(.)
+  knitr::kable(., format = "simple")
 
 ```
