@@ -1,20 +1,20 @@
-study_id,cols,details,national_georegion,names
-ESP1-2,#CB00FF, vivid orchid,ESP,Spain
-NLD1,#E59500, harvest gold,NLD,Netherlands
-DNK1,#002642, oxford blue,DNK,Denmark
-CHE1,#761EF8, electric indigo,,"Geneva, Switzerland"
-BRA1,#3EF944, neon green,BRA,Brazil
-NYS1,#F61843, crayola red,,"New York State, USA"
-ITA1,#271F8E, Cosmic Cobalt,ITA,Italy
-CHN1,#2E0449, Russian Violet,,"Wuhan, China"
-LUX1,#82AA96, morning blue-green,LUX,Luxembourg
-GBR3,#3BABFD,Brilliant Azure,,England
-CHE2,#840032, burgundy,,"Zurich, Switzerland"
-LA_CA1,#895B51, spicy mix brown,,"Los Angeles County, USA"
-KEN1,#238b45,dark green,KEN,Kenya
-SWE1,#FA8E2E,Deep Saffron,SWE,Sweden
-DNK1_nch,#000000,black,,
-ESP1-2_nch,#000000,black,,
-GBR3_nch,#000000,black,,
-CHE1_nch,#000000,black,,
-CHE2_nch,#000000,black,,
+study_id,cols,national_georegion,names
+ESP1-2,#8c96c6,ESP,Spain
+NLD1,#7e4223,NLD,Netherlands
+DNK1,#136e1a,DNK,Denmark
+CHE1,#f45f09,,"Geneva, Switzerland"
+BRA1,#8a3784,BRA,Brazil
+NYS1,#0ecece,,"New York State, USA"
+ITA1,#1774bd,ITA,Italy
+CHN1,#141712,,"Wuhan, China"
+LUX1,#E04A3D,LUX,Luxembourg
+GBR3,#FF9CC9,,England
+CHE2,#edb879,,"Zurich, Switzerland"
+LA_CA1,#FDD238,,"Los Angeles County, USA"
+KEN1,#89c27c,KEN,Kenya
+SWE1,#1ab307,SWE,Sweden
+DNK1_nch,#000000,,
+ESP1-2_nch,#000000,,
+GBR3_nch,#000000,,
+CHE1_nch,#000000,,
+CHE2_nch,#000000,,

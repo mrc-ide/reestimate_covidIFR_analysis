@@ -76,7 +76,7 @@ serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
 # wrangle input data from non-seroreversion fit
 #......................
 # liftover obs serology
-sero_days <- c(150, 250)
+sero_days <- c(150, 200)
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay %in% sero_days) %>%
@@ -111,7 +111,7 @@ reginputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 # wrangle input data from seroreversion fit
 #......................
 # sero tidy up
-sero_days <- c(150, 250)
+sero_days <- c(150, 200)
 sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%

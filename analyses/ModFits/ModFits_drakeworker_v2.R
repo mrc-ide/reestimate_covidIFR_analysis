@@ -247,13 +247,12 @@ ITA_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
 #............................................................
 #---- LUX1 #----
 #...........................................................
-# using GBR numbers for sens bc LUX study sens so small
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(56.5,    181.5),
-                                dsc2 =  c(19.5,     4.5))
+                                dsc1 =  c(12.5,    181.5),
+                                dsc2 =  c(2.5,     4.5))
 
 #......................
 # agebands

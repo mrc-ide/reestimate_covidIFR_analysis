@@ -64,6 +64,20 @@ modout$mcmcout$output %>%
 
 ```
 
+```{r, results='asis'}
+gdiag <- COVIDCurve::get_gelman_rubin_diagnostic(modout)
+tibble::tibble(gelman_mpsrf = gdiag$mpsrf) %>% 
+  dplyr::mutate(
+    gelman_mpsrf = round(gelman_mpsrf, 2),
+    gelman_mpsrf = kableExtra::cell_spec(gelman_mpsrf, "latex", 
+                                         color = ifelse(gelman_mpsrf > 1.1, "red", "green"),
+                                         bold = T,
+                                         font_size = 16)) %>% 
+  knitr::kable(.)
+
+```
+
+
 \pagebreak
 #### Metropolis Coupling Acceptance Plot
 ```{r, results='asis', fig.width=7.5, fig.height=9.5}

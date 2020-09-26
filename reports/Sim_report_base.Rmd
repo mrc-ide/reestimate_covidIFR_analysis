@@ -102,10 +102,10 @@ simnm <- sub("_NoSeroRev", "", simnm)
 
 if (modout$inputs$account_seroreversion) {
   sim_param_map <- readRDS("data/param_map/SimCurves_serorev/simfit_param_map.RDS") %>% 
-  dplyr::filter(sim == simnm)
+    dplyr::filter(sim == simnm)
 } else {
   sim_param_map <- readRDS("data/param_map/SimCurves_noserorev/simfit_param_map.RDS") %>%
-  dplyr::filter(sim == simnm)
+    dplyr::filter(sim == simnm)
 }
 
 truecurve <- sim_param_map %>% 
@@ -122,8 +122,8 @@ trueseroprev <- trueseroprev[[1]]$StrataAgg_Seroprev
 # update title information
 type <- switch(sim_param_map$nm,
                "expgrowth" = {"Exp. Growth"},
-                 "intervene" = {"Outbreak Control"},
-                 "secondwave" = {"Second Wave"})
+               "intervene" = {"Outbreak Control"},
+               "secondwave" = {"Second Wave"})
 sens <- sim_param_map$sens
 spec <- sim_param_map$spec
 
@@ -133,7 +133,7 @@ spec <- sim_param_map$spec
 
 ## Fit Diagnostics
 #### Log Likelihood/Prior Plot & Metropolis Coupling Acceptance Plot
-```{r, results='asis', fig.width=6.5, fig.height=7.5}
+```{r, results='asis', fig.width=6.5, fig.height=6.5}
 #......................
 # like and mc accept
 #......................
@@ -154,6 +154,20 @@ likeplot <- modout$mcmcout$output %>%
 mcaccplot <- drjacoby::plot_mc_acceptance(modout$mcmcout)
 
 cowplot::plot_grid(likeplot, mcaccplot, ncol = 1, rel_heights = c(1, 0.4))
+
+```
+
+#### Gelman-Rubin Convergence Diagnostic
+```{r, results='asis'}
+gdiag <- COVIDCurve::get_gelman_rubin_diagnostic(modout)
+tibble::tibble(gelman_mpsrf = gdiag$mpsrf) %>% 
+  dplyr::mutate(
+    gelman_mpsrf = round(gelman_mpsrf, 2),
+    gelman_mpsrf = kableExtra::cell_spec(gelman_mpsrf, "latex", 
+                                         color = ifelse(gelman_mpsrf > 1.1, "red", "green"),
+                                         bold = T,
+                                         font_size = 16)) %>% 
+  knitr::kable(.)
 
 ```
 
