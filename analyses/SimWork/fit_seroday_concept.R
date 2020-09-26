@@ -15,12 +15,6 @@ source("R/my_themes.R")
 # Read in Various Scenarios for Incidence Curves
 #...........................................................
 infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
-interveneflat <- infxn_shapes$intervene
-# note need more infxns for sensitivity to be apparent on conceptual diagrams
-interveneflat <- interveneflat * 1.5
-interveneflat <- c(interveneflat, round(seq(from = interveneflat[200],
-                                      to = 10, length.out = 100)))
-
 
 
 #............................................................
@@ -33,14 +27,14 @@ fatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
 demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
                         popN = c(1.3e6, 9e5, 8e5))
 
-# run COVIDCurve sims for no seroreversion and seroreversion
+# run COVIDCurve sim
 dat <- COVIDCurve::Agesim_infxn_2_death(
   fatalitydata = fatalitydata,
   demog = demog,
   m_od = 19.66,
   s_od = 0.90,
-  curr_day = 300,
-  infections = interveneflat,
+  curr_day = 200,
+  infections = infxn_shapes$intervene,
   simulate_seroreversion = FALSE,
   smplfrac = 1e-3,
   sens = 0.85,
