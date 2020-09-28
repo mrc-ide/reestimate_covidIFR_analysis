@@ -182,7 +182,7 @@ tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
 
 # make param dfs
 ifr_paramsdf <- make_ma_reparamdf(num_mas = 3, upperMa = 0.4)
-knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 280, init = 290, max = 300, dsc1 = 280, dsc2 = 300),
+knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 286, init = 290, max = 300, dsc1 = 286, dsc2 = 300),
                                         num_xs = 4)
 infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14.91, dsc1 = 0, dsc2 = 14.91),
                                          num_ys = 5)

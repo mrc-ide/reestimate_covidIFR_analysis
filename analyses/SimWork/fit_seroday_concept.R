@@ -145,7 +145,7 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
 
 # make param dfs
 ifr_paramsdf <- make_ma_reparamdf(num_mas = 3, upperMa = 0.4)
-knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
+knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 186, init = 190, max = 200, dsc1 = 186, dsc2 = 200),
                                         num_xs = 4)
 infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
                                          num_ys = 5)

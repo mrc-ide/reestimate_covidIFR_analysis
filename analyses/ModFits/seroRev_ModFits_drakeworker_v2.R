@@ -81,8 +81,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(156.5,   176.5),
-                                dsc2 =  c(25.5,    0.5))
+                                dsc1 =  c(165.5,   176.5),
+                                dsc2 =  c(16.5,    0.5))
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
@@ -151,13 +151,13 @@ DNK_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 219, init = 226, max = 233, dsc1 = 219, dsc2 = 233),
                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
                                             sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
-# need to account for duplicate DNK start date
-dnkstart <- DNK_age_mod$data$obs_serology %>%
-  dplyr::filter(SeroStartSurvey != 97 & SeroEndSurvey != 124)
-dnkend <- DNK_age_mod$data$obs_serology %>%
-  dplyr::filter(SeroStartSurvey == 97 & SeroEndSurvey == 124)
-
-DNK_age_mod$data$obs_serology <- dplyr::bind_rows(dnkstart, dnkend)
+# # need to account for duplicate DNK start date
+# dnkstart <- DNK_age_mod$data$obs_serology %>%
+#   dplyr::filter(SeroStartSurvey != 97 & SeroEndSurvey != 124)
+# dnkend <- DNK_age_mod$data$obs_serology %>%
+#   dplyr::filter(SeroStartSurvey == 97 & SeroEndSurvey == 124)
+#
+# DNK_age_mod$data$obs_serology <- dplyr::bind_rows(dnkstart, dnkend)
 
 #............................................................
 #---- ESP1-2 #-----
@@ -237,8 +237,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(41.5,    1011.5),
-                                dsc2 =  c(2.5,     2.5))
+                                dsc1 =  c(80.5,    99.5),
+                                dsc2 =  c(20.5,    1.5))
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
@@ -272,8 +272,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(12.5,    181.5),
-                                dsc2 =  c(2.5,     4.5))
+                                dsc1 =  c(56.5,    181.5),
+                                dsc2 =  c(16.5,     4.5))
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................

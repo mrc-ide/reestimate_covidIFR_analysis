@@ -255,7 +255,7 @@ SeroPrevObs <- crudedat %>%
 ```{r}
 serocurvedatPlotObj <- serocurvedat %>% 
   ggplot() +
-  geom_line(aes(x = ObsDay, y = seroprev, color = seroprevlvl), alpha = 0.5) +
+  geom_line(aes(x = ObsDay, y = seroprev, color = seroprevlvl, group = sim), alpha = 0.5) +
   geom_rect(data = SeroPrevObs, aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf), 
             color = "#d9d9d9", fill = "#d9d9d9", alpha = 0.8) +
   geom_point(data = SeroPrevObs, aes(x = obsmidday, y = seroprev, group = strata),
@@ -278,7 +278,8 @@ plot(serocurvedatPlotObj)
 ```
 
 \pagebreak
-```{r, results='asis', fig.width=7, fig.height=7}
+#### Death Posterior Predictive Check
+```{r}
 #......................
 # get deaths posterior pred check
 #......................
@@ -305,43 +306,7 @@ death_midday <-  deathrecast %>%
   dplyr::filter(ObsDay %in% ceiling(unique(SeroPrevObs$obsmidday))) %>% 
   dplyr::rename(param = Strata)
 
-#......................
-# get seropost
-#......................
-seropost_midday <- serocurvedat %>% 
-  dplyr::filter(ObsDay %in% ceiling(unique(SeroPrevObs$obsmidday))) %>% 
-  dplyr::filter(seroprevlvl == "Crude") %>% 
-  dplyr::ungroup() %>% 
-  dplyr::left_join(., death_midday) %>% 
-  dplyr::mutate(std_deaths = cumdeaths/popN * 1e6,
-                strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(param, "[0-9]+"))))
 
-SeroPrevObs_midday <- SeroPrevObs %>% 
-  dplyr::left_join(., death_midday) %>% 
-  dplyr::rename(obseroprev = seroprev) %>% 
-  dplyr::mutate(std_deaths = (cumdeaths/popN) * 1e6) 
-
-
-
-# plot
-ggplot() + 
-  geom_point(data = seropost_midday, aes(x = seroprev, y = std_deaths, color = strata), alpha = 0.5) + 
-  geom_point(data = SeroPrevObs_midday, aes(x = obseroprev, y = std_deaths),
-             color = "#000000", size = 2) +
-  ggrepel::geom_text_repel(data = SeroPrevObs_midday, aes(x = obseroprev, y = std_deaths, label = strata)) +
-  scale_color_viridis_d("Strata") +
-  ylab("Deaths per Million") + xlab("Inferred True Seroprevalence") +
-  labs(caption = "Blue/yellow data are posteriors, black is observed") +
-  xyaxis_plot_theme + 
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"))
-
-
-
-```
-
-\pagebreak
-#### Posterior Predictive Check
-```{r}
 #...................... 
 # get posterior draws
 #......................
@@ -370,9 +335,9 @@ datclean <- datclean %>%
 # make plot
 #......................
 ppc_plot <- ggplot() +
-  geom_line(data = postdat_long, aes(x= time, y = deaths, group = strata), 
+  geom_line(data = postdat_long, aes(x= time, y = deaths, group = sim), 
             size = 1.2, color = "#bdbdbd") +
-  geom_line(data = datclean, aes(x=ObsDay, y = Deaths, group = strata), 
+  geom_line(data = datclean, aes(x=ObsDay, y = Deaths), 
             color = "#3182bd") +
   facet_wrap(.~strata) +
   theme_bw() +
