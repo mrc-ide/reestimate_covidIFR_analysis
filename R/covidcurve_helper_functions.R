@@ -95,6 +95,19 @@ get_overall_IFRs <- function(path) {
 }
 
 
+#' @title Calculate overall IFR from a path
+#' @details goal here is to be memory light
+get_sens_spec <- function(path) {
+  modout <- readRDS(path)
+  out <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout,
+                                        what = "Serotestparams",
+                                        whichrung = "rung1",
+                                        by_chain = FALSE) %>%
+    dplyr::filter(param %in% c("sens", "spec"))
+  return(out)
+}
+
+
 
 #' @title Make IFR Model for MCMC Fitting
 make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,

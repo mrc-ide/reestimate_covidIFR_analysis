@@ -12,7 +12,8 @@ source("R/delta_method.R")
 study_cols <- readr::read_csv("data/plot_aesthetics/color_studyid_map.csv")
 mycolors <- study_cols$cols
 names(mycolors) <- study_cols$study_id
-
+# order
+order <- readr::read_csv("data/plot_aesthetics/study_id_order.csv")
 
 #............................................................
 # read in data
@@ -42,6 +43,8 @@ retmap <- dplyr::bind_rows(regretmap, serorevretmap) %>%
 
 
 
+
+
 #............................................................
 #---- Table of Overall IFR  #----
 #...........................................................
@@ -66,12 +69,13 @@ simp_seroprevdat <- dsc_agedat %>%
   tidyr::unnest(cols = "seroprev_adjdat") %>%
   dplyr::group_by(study_id) %>%
   dplyr::filter(seromidpt == max(seromidpt)) %>% # subset to latest serostudy
-  group_by(study_id, seromidpt) %>%
+  dplyr::mutate(sero_start = obsdaymin + lubridate::ymd("2020-01-01") - 1,
+                sero_end = obsdaymax + lubridate::ymd("2020-01-01") - 1) %>%
+  group_by(study_id, sero_start, sero_end) %>%
   dplyr::summarise(n_totpos = sum(n_positive),
                    n_tottest = sum(n_tested)) %>%
   dplyr::ungroup(.) %>%
-  dplyr::mutate(sero_midday = seromidpt + lubridate::ymd("2020-01-01"),
-                seroprev = n_totpos/n_tottest)
+  dplyr::mutate(seroprev = n_totpos/n_tottest)
 # manual liftover for studies that only reported CIs
 ci_simp_seroprevdat <- dsc_agedat %>%
   dplyr::select(c("study_id", "location", "seroprev_adjdat")) %>%
@@ -88,7 +92,7 @@ simp_seroprevdat <- simp_seroprevdat %>%
 
 seroprev_column <- simp_seroprevdat %>%
   dplyr::mutate(seroprev = round(seroprev * 100, 2),
-                serocol = paste0(seroprev, "%", " (", sero_midday, ")")) %>%
+                serocol = paste0(seroprev, "%", " (", sero_start, "-", sero_end, ")")) %>%
   dplyr::select(c("study_id", "serocol"))
 
 #......................
@@ -156,9 +160,23 @@ delta_IFR_column <- delta_IFR %>%
 
 
 #......................
+# Sens Spec
+#......................
+no_serorev_sensspec <- retmap %>%
+  tidyr::unnest(cols = "sero_spec_sens") %>%
+  dplyr::filter(sero == "reg") %>%
+  dplyr::mutate(median = round(median * 100, 2),
+                LCI = round(LCI * 100, 2),
+                UCI = round(UCI * 100, 2)) %>%
+  dplyr::mutate(mod_no_serorev_sero_spec_sens_col = paste0(median, " (", LCI, ", ", UCI, ")")) %>%
+  dplyr::select("study_id", "param", "mod_no_serorev_sero_spec_sens_col") %>%
+  tidyr::pivot_wider(., names_from = "param", values_from = "mod_no_serorev_sero_spec_sens_col") %>%
+  dplyr::select(c("study_id", "sens", "spec"))
+
+#......................
 # Modeled IFRs
 #......................
-no_serorev <- retmap %>%
+no_serorev_ifrs <- retmap %>%
   dplyr::filter(sero == "reg") %>%
   dplyr::mutate(median = round(median * 100, 2),
                 LCI = round(LCI * 100, 2),
@@ -166,7 +184,7 @@ no_serorev <- retmap %>%
   dplyr::mutate(mod_no_serorev_ifr_col = paste0(median, " (", LCI, ", ", UCI, ")")) %>%
   dplyr::select(c("study_id", "mod_no_serorev_ifr_col"))
 
-serorev <- retmap %>%
+serorev_ifrs <- retmap %>%
   dplyr::filter(sero == "serorev") %>%
   dplyr::mutate(median = round(median * 100, 2),
                 LCI = round(LCI * 100, 2),
@@ -180,8 +198,12 @@ serorev <- retmap %>%
 #......................
 dplyr::left_join(death_col, seroprev_column, by = "study_id") %>%
   dplyr::left_join(., delta_IFR_column, by = "study_id") %>%
-  dplyr::left_join(., no_serorev, by = "study_id") %>%
-  dplyr::left_join(., serorev, by = "study_id") %>%
+  dplyr::left_join(., no_serorev_sensspec, by = "study_id") %>%
+  dplyr::left_join(., no_serorev_ifrs, by = "study_id") %>%
+  dplyr::left_join(., serorev_ifrs, by = "study_id") %>%
+  dplyr::left_join(., order, by = "study_id") %>%
+  dplyr::arrange(order) %>%
+  dplyr::select(-c("order")) %>%
   dplyr::mutate(totdeaths = prettyNum(totdeaths, big.mark=",", scientific=FALSE)) %>%
   readr::write_tsv(., path = "tables/final_tables/overall_ifr_data.tsv")
 
@@ -260,7 +282,9 @@ modelled_IFRs <- retmap %>%
                 UCI = UCI * 100,
                 upperbound_inf = ifelse(UCI >= 3 & sero == "reg", 3, NA),
                 upperbound_rev = ifelse(UCI >= 3 & sero == "serorev", 3, NA),
-                UCI = ifelse(UCI >= 3, 3, UCI))
+                UCI = ifelse(UCI >= 3, 3, UCI),
+                sero = factor(sero, levels = c("reg", "serorev"),
+                              labels = c("Without Serorev.", "With Serorev.")))
 
 #......................
 # plot out
@@ -279,9 +303,9 @@ death_type_plot <- ggplot() +
              aes(x = location, y = upperbound_rev),
              color = "#EA4335", size = 3, alpha = 0.9, shape = 3,
              position = position_nudge(x = 0.125)) +
-  scale_color_manual("Sero. Type", values = c("#4285F4", "#EA4335")) +
-  scale_shape_manual("Death Type", values = c(23, 22, 24, 25)) +
-  scale_fill_manual("Death Type", values = c(wesanderson::wes_palette("IsleofDogs2", type = "discrete"))) +
+  scale_color_manual("", values = c("#4285F4", "#EA4335")) +
+  scale_shape_manual("", values = c(23, 22, 24, 25)) +
+  scale_fill_manual("", values = c(wesanderson::wes_palette("IsleofDogs2", type = "discrete"))) +
   ylab("Infection Fatality Ratio (%)") +
   coord_flip() +
   theme(
@@ -290,7 +314,7 @@ death_type_plot <- ggplot() +
     axis.title.x = element_text(family = "Helvetica", face = "bold", vjust = 0.5, hjust = 0.5, size = 16),
     axis.text.x = element_text(family = "Helvetica", color = "#000000", vjust = 0.5, hjust = 0.5, size = 14),
     axis.text.y = element_text(family = "Helvetica", color = "#000000", face = "bold", vjust = 0.5, hjust = 1, size = 14),
-    legend.title = element_text(family = "Helvetica", face = "bold", vjust = 0.5, hjust = 0.5, size = 16),
+    legend.title = element_blank(),
     legend.text = element_text(family = "Helvetica", vjust = 0.8, hjust = 0.5, size = 14, angle = 0),
     legend.position = "right",
     legend.key = element_blank(),
@@ -347,7 +371,7 @@ prop65_modelIFR_plotObj <- retmap %>%
   dplyr::filter(sero == "reg") %>% # only no serorev models
   ggplot() +
   geom_pointrange(aes(x = prop65, y = median, ymin = LCI, ymax = UCI,
-                      color =  study_id), alpha = 0.95) +
+                      color =  study_id), alpha = 0.95, size = 1.2) +
   scale_color_manual("Study ID", values = mycolors) +
   ylab("Overall IFR (95% CrI)") + xlab("Prop. of Population Over 65-Years") +
   xyaxis_plot_theme +
@@ -407,9 +431,9 @@ attackrate65_modelIFR_plotObj <- retmap %>%
   dplyr::filter(sero == "reg") %>% # only no serorev models
   ggplot() +
   geom_pointrange(aes(x = seroprev_65, y = median, ymin = LCI, ymax = UCI,
-                      color =  study_id), alpha = 0.95) +
+                      color =  study_id), alpha = 0.95, size = 1.2) +
   geom_errorbar(aes(x = seroprev_65, y = median, xmin = seroprev_65_LCI, xmax = seroprev_65_UCI,
-                    color =  study_id), alpha = 0.95) +
+                    color =  study_id), alpha = 0.95, size = 1.2) +
   scale_color_manual("Study ID", values = mycolors) +
   ylab("Overall IFR (95% CrI)") + xlab("Over 65-Years Observed Seroprevalence (95% CI)") +
   xyaxis_plot_theme +
@@ -427,6 +451,7 @@ mainFig <- cowplot::plot_grid(FigA, FigB,
                               align = "h", ncol = 2, nrow = 1,
                               labels = c("(A)", "(B)"))
 legend <- cowplot::get_legend(attackrate65_modelIFR_plotObj +
+                                guides(color = guide_legend(nrow = 2)) +
                                 theme(legend.position = "bottom"))
 mainFig <- cowplot::plot_grid(mainFig, legend,
                               nrow = 2, ncol = 1, rel_heights = c(0.9, 0.1))
@@ -474,10 +499,11 @@ hlth_care_plotdat <- retmap %>%
 #plotObj
 #......................
 health_cap_modIFR_plotObj <- hlth_care_plotdat %>%
+  dplyr::filter(!is.na(death_bed_ratio)) %>%
   ggplot() +
   geom_pointrange(aes(x = death_bed_ratio, y = median,
                       ymin = LCI, ymax = UCI,
-                      color = study_id), size = 1.5) +
+                      color = study_id), size = 1.2) +
   scale_color_manual("Study ID", values = mycolors) +
   xlab("Ratio of Cumulative Deaths to Hospital Beds") + ylab("IFR (95% CrI)") +
   xyaxis_plot_theme +

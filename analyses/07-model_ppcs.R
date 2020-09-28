@@ -12,6 +12,8 @@ source("R/delta_method.R")
 study_cols <- readr::read_csv("data/plot_aesthetics/color_studyid_map.csv")
 mycolors <- study_cols$cols
 names(mycolors) <- study_cols$study_id
+# order
+order <- readr::read_csv("data/plot_aesthetics/study_id_order.csv")
 
 #............................................................
 # read in results
@@ -27,16 +29,11 @@ mod_serorev_paths <- list.files("results/Modfits_serorev/", full.names = T)
 mod_serorev_retmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(mod_serorev_paths), "_age|_carehomes", simplify = T)[,1]),
                                      lvl = "SeroRev",
                                      paths = mod_serorev_paths)
-# carehomes
-mod_carehome_paths <- list.files("results/Modfits_carehomes//", full.names = T)
-mod_carehomes_retmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(mod_carehome_paths), "_age|_carehomes", simplify = T)[,1]),
-                                       lvl = "CareHomes",
-                                       paths = mod_carehome_paths)
 
 #.....................
 # come together
 #......................
-datmap <- dplyr::bind_rows(mod_NOserorev_retmap, mod_serorev_retmap, mod_carehomes_retmap)
+datmap <- dplyr::bind_rows(mod_NOserorev_retmap, mod_serorev_retmap)
 datmap <- datmap %>%
   dplyr::mutate(modout = purrr::map(paths, readRDS))
 
@@ -58,12 +55,12 @@ get_study_seros_posts <- function(modout) {
 # delays
 get_study_delays_posts <- function(modout) {
   sero_delays <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, what = "Serotestparams",
-                                 whichrung = "rung1", by_chain = F) %>%
+                                                whichrung = "rung1", by_chain = F) %>%
     dplyr::filter(!param %in% c("sens", "spec"))
   death_delays <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, what = "DeathDelayparams",
-                                            whichrung = "rung1", by_chain = F)
+                                                 whichrung = "rung1", by_chain = F)
 
-    dplyr::bind_rows(sero_delays, death_delays) %>%
+  dplyr::bind_rows(sero_delays, death_delays) %>%
     dplyr::mutate_if(is.numeric, round, 2) %>%
     dplyr::mutate(outcol = paste0(median, " (", LCI, ", ", UCI, ")" )) %>%
     dplyr::select(c("param", "outcol")) %>%
@@ -76,19 +73,36 @@ get_study_delays_posts <- function(modout) {
 #............................................................
 #---- Posterior Sero Characteristics and Noise Effects Table  #----
 #...........................................................
-sero_char_tab <- datmap %>%
-  dplyr::mutate(tbl = purrr::map(modout, get_study_seros_posts))
+datmap %>%
+  dplyr::mutate(sero_spec_sens = purrr::map(paths, get_sens_spec)) %>%
+  tidyr::unnest(cols = "sero_spec_sens") %>%
+  dplyr::mutate(median = round(median * 100, 2),
+                LCI = round(LCI * 100, 2),
+                UCI = round(UCI * 100, 2)) %>%
+  dplyr::mutate(sens_spec = paste0(median, " (", LCI, ", ", UCI, ")"),
+                lvl = paste0(lvl, "_", param)) %>%
+  dplyr::select("study_id", "lvl", "sens_spec") %>%
+  tidyr::pivot_wider(., names_from = "lvl", values_from = "sens_spec") %>%
+  dplyr::select(c("study_id", "NoSeroRev_sens", "NoSeroRev_spec", "SeroRev_sens", "SeroRev_spec")) %>%
+  dplyr::left_join(., order, by = "study_id") %>%
+  dplyr::arrange(order) %>%
+  dplyr::select(-c("order")) %>%
+  readr::write_tsv(., path = "tables/final_tables/overall_sens_spec_for_all.tsv")
 
-#............................................................
+
+#...........................................................
 #---- Posterior Delay Param Table  #----
 #...........................................................
-delay_char_tab <- datmap %>%
-  dplyr::mutate(tbl = purrr::map(modout, get_study_delays_posts))
-
-
-
-
-
+datmap %>%
+  dplyr::mutate(tbl = purrr::map(modout, get_study_delays_posts)) %>%
+  dplyr::left_join(order, .) %>%
+  dplyr::arrange(order) %>%
+  dplyr::select(c("study_id", "lvl", "tbl")) %>%
+  tidyr::unnest(cols = "tbl") %>%
+  dplyr::mutate(lvl = factor(lvl,
+                             levels = c("NoSeroRev", "SeroRev"),
+                             labels = c("Without Serorev.", "With Serorev."))) %>%
+  readr::write_tsv(., path = "tables/final_tables/onset_delay_params_posterior_tbl.tsv")
 
 #............................................................
 # internal functions for PPC plots
@@ -163,9 +177,14 @@ get_death_ppcs <- function(modout) {
   #......................
   # dwnsmpl to oldest age group to not overwhelm figure
   oldest <- modout$inputs$IFRmodel$IFRdictkey$ageband[length(modout$inputs$IFRmodel$IFRdictkey$ageband)]
-  dplyr::left_join(postdat_long, datclean) %>%
+  postdat_long <- postdat_long %>%
     dplyr::filter(ageband == oldest)
-
+  datclean <- datclean %>%
+    dplyr::filter(ageband == oldest)
+  # out
+  out <- list(postdat_long = postdat_long,
+              datclean = datclean)
+  return(out)
 
 }
 
@@ -174,24 +193,177 @@ get_death_ppcs <- function(modout) {
 #---- PPC Sero Plots  #----
 #...........................................................
 dsc_agedat <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS") %>%
-  dplyr::filter(breakdown == "ageband")
+  dplyr::filter(breakdown == "ageband") %>%
+  dplyr::filter(!grepl("_nch", study_id))
 # crude data
 crudedat <- dsc_agedat %>%
-  dplyr::select(c("study_id", "plotdat")) %>%
+  dplyr::select(c("study_id", "location", "plotdat")) %>%
   tidyr::unnest(cols = "plotdat")
 
 SeroPrevObs <- crudedat %>%
-  dplyr::select(c("study_id", "ageband", "obsdaymin", "obsdaymax", "seroprev")) %>%
-  dplyr::mutate(obsmidday = (obsdaymin + obsdaymax)/2)
+  dplyr::mutate(obsmidday = (obsdaymin + obsdaymax)/2) %>%
+  dplyr::rename(crude_obs_seroprev = seroprev) %>%
+  dplyr::group_by(study_id) %>%
+  dplyr::mutate(age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n=2)[,2])) %>%
+  dplyr::filter(age_high == max(age_high)) %>%
+  dplyr::filter(obsday == seromidpt) %>%
+  dplyr::ungroup(.) %>%
+  dplyr::select(c("study_id", "location", "ageband", "obsdaymin", "obsmidday", "obsdaymax", "crude_obs_seroprev"))
+
+# get location simple
+locat <- dsc_agedat %>%
+  dplyr::select(c("study_id", "location")) %>%
+  dplyr::filter(!duplicated(.))
 
 #..................................
 # standard model
 #...................................
-noserorev_ppc_seroPlotObj
-
-datmap %>%
+noserorev_ppc_seroPlotObj <- datmap %>% # NB with these functions have already subsetted to oldest age group
   dplyr::filter(lvl == "NoSeroRev") %>%
   dplyr::mutate(plotdat = purrr::map(modout, get_seroprev_ppcs)) %>%
+  dplyr::select(-c("modout")) %>% # for memory
   tidyr::unnest(cols = plotdat) %>%
-  dplyr::left_join(., SeroPrevObs)
+  dplyr::rename(model_seroprev = seroprev) %>%
+  dplyr::select(c("study_id", "sim", "ObsDay",
+                  "seroprevlvl", "model_seroprev")) %>%
+  dplyr::left_join(., locat) %>%
+  ggplot() +
+    geom_line(aes(x = ObsDay, y = model_seroprev, color = seroprevlvl), alpha = 0.5) +
+    geom_rect(data = SeroPrevObs,
+              aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf),
+              fill = "#d9d9d9", alpha = 0.4) +
+    geom_point(data = SeroPrevObs,
+               aes(x = obsmidday, y = crude_obs_seroprev),
+               color = "#000000", size = 1.2, alpha = 0.6) +
+    facet_wrap(.~location, scales = "free_y") +
+    scale_color_manual("Seroprev. \n Adjustment", values = c("#FFD301", "#246BCF"),
+                       labels = c("Inferred 'Truth'", "Inferred 'Observed' - \n Rogan-Gladen Corrected")) +
+    xyaxis_plot_theme +
+    theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"),
+          legend.position = "bottom",
+          legend.key = element_rect(fill = "#252525"))
 
+# out
+jpeg("figures/final_figures/ppc_seroprev_NOSeroRev.jpg",
+     width = 8, height = 11, units = "in", res = 600)
+plot(noserorev_ppc_seroPlotObj)
+graphics.off()
+
+
+
+
+#..................................
+# SeroRev model
+#...................................
+serorev_ppc_seroPlotObj <- datmap %>% # NB with these functions have already subsetted to oldest age group
+  dplyr::filter(lvl == "SeroRev") %>%
+  dplyr::mutate(plotdat = purrr::map(modout, get_seroprev_ppcs)) %>%
+  dplyr::select(-c("modout")) %>% # for memory
+  tidyr::unnest(cols = plotdat) %>%
+  dplyr::rename(model_seroprev = seroprev) %>%
+  dplyr::select(c("study_id", "sim", "ObsDay",
+                  "seroprevlvl", "model_seroprev")) %>%
+  dplyr::left_join(., locat) %>%
+  ggplot() +
+  geom_line(aes(x = ObsDay, y = model_seroprev, color = seroprevlvl), alpha = 0.5) +
+  geom_rect(data = SeroPrevObs,
+            aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf),
+            fill = "#d9d9d9", alpha = 0.4) +
+  geom_point(data = SeroPrevObs,
+             aes(x = obsmidday, y = crude_obs_seroprev),
+             color = "#000000", size = 1.2, alpha = 0.6) +
+  facet_wrap(.~location, scales = "free_y") +
+  scale_color_manual("Seroprev. \n Adjustment", values = c("#FFD301", "#246BCF"),
+                     labels = c("Inferred 'Truth'", "Inferred 'Observed' - \n Rogan-Gladen Corrected")) +
+  xyaxis_plot_theme +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"),
+        legend.position = "bottom",
+        legend.key = element_rect(fill = "#252525"))
+
+# out
+jpeg("figures/final_figures/ppc_seroprev_SeroRev.jpg",
+     width = 8, height = 11, units = "in", res = 600)
+plot(serorev_ppc_seroPlotObj)
+graphics.off()
+
+
+
+#............................................................
+#---- PPC Death Data  #----
+#...........................................................
+#..................................
+# standard model
+#...................................
+
+death_datmap <- datmap %>% # NB with these functions have already subsetted to oldest age group
+  dplyr::filter(lvl == "NoSeroRev") %>%
+  dplyr::mutate(plotdat = purrr::map(modout, get_death_ppcs)) %>%
+  dplyr::select(-c("modout"))
+ObsDeathDat <- death_datmap %>%
+  dplyr::mutate(datclean = purrr::map(plotdat, "datclean")) %>%
+  dplyr::select(c("study_id", "datclean")) %>%
+  tidyr::unnest(cols = "datclean") %>%
+  dplyr::left_join(locat, .)
+
+InfDeathDat <- death_datmap %>%
+  dplyr::mutate(postdat_long = purrr::map(plotdat, "postdat_long")) %>%
+  dplyr::select(c("study_id", "postdat_long")) %>%
+  tidyr::unnest(cols = "postdat_long") %>%
+  dplyr::left_join(locat, .)
+
+
+noserorev_ppc_DeathPlotObj <- ggplot() +
+  geom_line(data = InfDeathDat, aes(x= time, y = inf_deaths, group = sim),
+            size = 1.2, color = "#bdbdbd") +
+  geom_line(data = ObsDeathDat, aes(x = ObsDay, y = obs_deaths),
+            color = "#3182bd") +
+  facet_wrap(.~location, scales = "free_y") +
+  theme_bw() +
+  xlab("Time") + ylab("Deaths") +
+  theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5, vjust = 0.5))
+
+# out
+jpeg("figures/final_figures/ppc_Deaths_NOSeroRev.jpg",
+     width = 8, height = 11, units = "in", res = 600)
+plot(noserorev_ppc_DeathPlotObj)
+graphics.off()
+
+
+
+#..................................
+# seroreversion model
+#...................................
+serorev_death_datmap <- datmap %>% # NB with these functions have already subsetted to oldest age group
+  dplyr::filter(lvl == "SeroRev") %>%
+  dplyr::mutate(plotdat = purrr::map(modout, get_death_ppcs)) %>%
+  dplyr::select(-c("modout"))
+ObsDeathDat <- death_datmap %>%
+  dplyr::mutate(datclean = purrr::map(plotdat, "datclean")) %>%
+  dplyr::select(c("study_id", "datclean")) %>%
+  tidyr::unnest(cols = "datclean") %>%
+  dplyr::left_join(locat, .)
+
+serorev_InfDeathDat <- serorev_death_datmap %>%
+  dplyr::mutate(postdat_long = purrr::map(plotdat, "postdat_long")) %>%
+  dplyr::select(c("study_id", "postdat_long")) %>%
+  tidyr::unnest(cols = "postdat_long") %>%
+  dplyr::left_join(locat, .)
+
+
+serorev_ppc_DeathPlotObj <- ggplot() +
+  geom_line(data = serorev_InfDeathDat, aes(x= time, y = inf_deaths, group = sim),
+            size = 1.2, color = "#bdbdbd") +
+  geom_line(data = ObsDeathDat, aes(x = ObsDay, y = obs_deaths),
+            color = "#3182bd") +
+  facet_wrap(.~location, scales = "free_y") +
+  theme_bw() +
+  xlab("Time") + ylab("Deaths") +
+  theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5, vjust = 0.5))
+
+# out
+jpeg("figures/final_figures/ppc_Deaths_SeroRev.jpg",
+     width = 8, height = 11, units = "in", res = 600)
+plot(serorev_ppc_DeathPlotObj)
+graphics.off()

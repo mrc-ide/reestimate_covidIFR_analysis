@@ -16,6 +16,8 @@ names(mycolors) <- study_cols$study_id
 studyidnames <- study_cols %>%
   dplyr::select(c("study_id", "names")) %>%
   dplyr::filter(!is.na(names))
+# order
+order <- readr::read_csv("data/plot_aesthetics/study_id_order.csv")
 
 #......................
 # read in descriptive data
@@ -82,7 +84,7 @@ simp_seroprevdat <- dsc_agedat %>%
   dplyr::summarise(n_totpos = sum(n_positive),
                    n_tottest = sum(n_tested)) %>%
   dplyr::ungroup(.) %>%
-  dplyr::mutate(sero_midday = seromidpt + lubridate::ymd("2020-01-01"),
+  dplyr::mutate(sero_midday = seromidpt + lubridate::ymd("2020-01-01") - 1,
                 seroprev = n_totpos/n_tottest)
 # manual liftover for studies that only reported CIs
 ci_simp_seroprevdat <- dsc_agedat %>%
@@ -160,7 +162,7 @@ SE_subn <- dsc_agedat %>%
 SE_cis <- dsc_agedat %>%
   dplyr::select(c("study_id", "location", "seroprev_adjdat")) %>%
   tidyr::unnest(cols = "seroprev_adjdat") %>%
-  dplyr::filter(study_id %in% c("ITA1", "SWE21", "DNK1")) %>%
+  dplyr::filter(study_id %in% c("ITA1", "SWE1", "DNK1")) %>%
   dplyr::group_by(study_id) %>%
   dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
   dplyr::mutate(binom_se = (COVIDCurve:::logit(serouci) - COVIDCurve:::logit(serolci))/(1.96 * 2))  %>%
@@ -200,8 +202,10 @@ dplyr::left_join(simp_seroprevdat, seroprev_age_column, by = c("study_id", "ageb
   dplyr::left_join(., modIFR_age_column, by = c("study_id", "ageband")) %>%
   dplyr::select(c("location", "study_id", "sero_midday", "obs_input_seropev", "ageband", "seroprev_reg", "seroprev_serorev", "crude_IFRs", "regIFR", "serorevIFR")) %>%
   dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n=2)[,1])) %>%
+  dplyr::mutate(obs_input_seropev = round(obs_input_seropev, 2)) %>%
   dplyr::arrange(location, study_id, age_low) %>%
   dplyr::select(-c("age_low")) %>%
+  dplyr::select("location", "ageband", "sero_midday", "obs_input_seropev", "seroprev_reg", "seroprev_serorev", "crude_IFRs", "regIFR", "serorevIFR") %>%  # fix order
   readr::write_tsv(., path = "tables/final_tables/age_specific_ifr_data.tsv")
 
 
@@ -260,13 +264,14 @@ newdat <- data.frame(age_mid = seq(0, 95, by = 0.05))
 NoSerorv_model_weighted_CIband <- predict(NoSerorv_model_weighted,
                                           newdat,
                                           interval = "confidence", alpha = 0.05)
-NoSerorv_model_weighted_CIband <- cbind.data.frame(NoSerorv_model_weighted_CIband,
+NoSerorv_model_weighted_CIband <- cbind.data.frame(newdat,
                                                    NoSerorv_model_weighted_CIband)
 
 log_age_IFR_plotObj <- log_retmapIFR_dat %>%
   dplyr::filter(sero == "reg") %>%
   ggplot() +
-  geom_ribbon(data = newdat, aes(x = age_mid, y = fit, ymin = lwr, ymax = upr),
+  geom_ribbon(data = NoSerorv_model_weighted_CIband,
+              aes(x = age_mid, y = fit, ymin = lwr, ymax = upr),
               alpha = 0.35, color = "#d9d9d9", linetype = "dashed") +
   geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  study_id),
                   alpha = 0.75, shape = 16, size = 0.9) +
@@ -307,6 +312,7 @@ mainFig <- cowplot::plot_grid(FigA, FigB,
                               align = "h", ncol = 2, nrow = 1,
                               labels = c("(A)", "(B)"))
 legend <- cowplot::get_legend(modIFR_age_plotObj +
+                                guides(color = guide_legend(nrow = 2)) +
                                 theme(legend.position = "bottom"))
 mainFig <- cowplot::plot_grid(mainFig, legend,
                               nrow = 2, ncol = 1, rel_heights = c(0.9, 0.1))
@@ -327,10 +333,6 @@ graphics.off()
 # new dat is 10 year age bands
 newdat <- data.frame(age_mid = seq(5, 95, by = 10))
 
-NoSerorv_model_weighted
-Serorv_model_weighted
-
-
 
 #......................
 # bring together
@@ -338,20 +340,26 @@ Serorv_model_weighted
 NoSerorv_bestest <- predict(NoSerorv_model_weighted,
                                           newdat,
                                           interval = "confidence", alpha = 0.05) %>%
-  dplyr::mutate(bestest = paste0(fit, "(", lwr, ", ", upr, ")")) %>%
+  tibble::as_tibble(.) %>%
+  dplyr::mutate(fit = round(exp(fit) * 100, 2),
+                lwr = round(exp(lwr) * 100, 2),
+                upr = round(exp(upr) * 100, 2),
+                bestest = paste0(fit, " (", lwr, ", ", upr, ")")) %>%
   dplyr::pull(bestest)
 
 Serorv_bestest <- predict(Serorv_model_weighted,
                             newdat,
                             interval = "confidence", alpha = 0.05) %>%
-  dplyr::mutate(bestest = paste0(fit, "(", lwr, ", ", upr, ")")) %>%
+  tibble::as_tibble(.) %>%
+  dplyr::mutate(fit = round(exp(fit) * 100, 2),
+                lwr = round(exp(lwr) * 100, 2),
+                upr = round(exp(upr) * 100, 2),
+                bestest = paste0(fit, " (", lwr, ", ", upr, ")")) %>%
   dplyr::pull(bestest)
 
 best_est <- tibble::tibble(ageband = paste0(seq(0, 90, 10), "-", seq(10, 100, 10)),
                            NoSeroRev = NoSerorv_bestest,
                            SeroRev = Serorv_bestest)
-# overall
-summary(NoSerorv_model_weighted)
-summary(Serorv_model_weighted)
-confint(NoSerorv_model_weighted, alpha = 0.05)
-confint(Serorv_model_weighted, alpha = 0.05)
+# out
+best_est %>%
+  readr::write_tsv(., path = "tables/final_tables/overall_best_est_for_IFRs.tsv")
