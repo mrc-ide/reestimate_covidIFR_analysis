@@ -50,22 +50,22 @@ process_data4 <- function(cum_tp_deaths = NULL, population = NULL, sero_val = NU
 
 
   # check columns for population df
-  assert_in(c("country", "study_id", "age_low", "age_high", "region", "gender", "population", "age_breakdown", "for_regional_analysis", "gender_breakdown"),
+  assert_in(c("country", "study_id", "age_low", "age_high", "region", "gender", "population", "age_breakdown", "for_regional_analysis"),
             colnames(population))
   # check columns for deaths df and dates
-  assert_in(c("country", "study_id", "age_low", "age_high", "region", "gender", "n_deaths", "age_breakdown", "for_regional_analysis", "gender_breakdown"),
+  assert_in(c("country", "study_id", "age_low", "age_high", "region", "gender", "n_deaths", "age_breakdown", "for_regional_analysis"),
             colnames(cum_tp_deaths))
   chckdf <- cum_tp_deaths %>%
     dplyr::filter(study_id %in% study_ids)
   assert_greq(nrow(chckdf), 1, message = "Study ID not found in the Cumulative TimePoint Dataframe")
 
   # check columns for seroval
-  assert_in(c("study_id", "sensitivity", "specificity"),
+  assert_in(c("study_id", "n_samples_true_neg", "n_test_neg_out_of_true_neg", "n_samples_true_pos", "n_test_pos_out_of_true_pos"),
             colnames(sero_val))
   # check columns for seroprev df and dates
   assert_in(c("country", "study_id", "age_low", "age_high", "region", "gender", "seroprevalence_unadjusted",
               "seroprevalence_weighted", "n_tested", "n_positive", "date_start_survey", "date_end_survey",
-              "age_breakdown", "for_regional_analysis", "gender_breakdown"),
+              "age_breakdown", "for_regional_analysis"),
             colnames(seroprev))
   chckdf <- seroprev %>%
     dplyr::filter(study_id %in% study_ids)
@@ -105,13 +105,14 @@ process_data4 <- function(cum_tp_deaths = NULL, population = NULL, sero_val = NU
   sero_val <- sero_val %>%
     dplyr::filter(study_id %in% study_ids)
   sensitivity <- sero_val %>%
-    dplyr::select(c("n_test_pos_out_of_true_pos", "n_samples_true_pos", "sensitivity")) %>%
-    magrittr::set_colnames(c("npos", "ntest", "sensitivity"))
+    dplyr::select(c("n_test_pos_out_of_true_pos", "n_samples_true_pos")) %>%
+    magrittr::set_colnames(c("npos", "ntest")) %>%
+    dplyr::mutate(sensitivity = npos/ntest)
   specificity <- sero_val %>%
-    dplyr::select(c("n_test_neg_out_of_true_neg", "n_samples_true_neg", "specificity")) %>%
-    magrittr::set_colnames(c("npos", "ntest", "specificity")) %>%
-    dplyr::rename(nneg = npos) # test negatives (positive result but for clarity)
-
+    dplyr::select(c("n_test_neg_out_of_true_neg", "n_samples_true_neg")) %>%
+    magrittr::set_colnames(c("npos", "ntest")) %>%
+    dplyr::rename(nneg = npos) %>%  # test negatives (positive result but for clarity)
+    dplyr::mutate(sensitivity = nneg/ntest)
 
 
   #...........................................................
@@ -177,10 +178,10 @@ process_seroprev_data <- function(seroprev, origin, study_ids, sero_agebreaks, g
         ageband = cut(age_high,
                       breaks = agebrks_sero,
                       labels = c(paste0(agebrks_sero[1:(length(agebrks_sero)-1)], "-", lead(agebrks_sero)[1:(length(agebrks_sero)-1)])),
-        ageband = as.character(ageband))
+                      ageband = as.character(ageband))
 
-        ) %>%
-          dplyr::arrange(age_low)
+      ) %>%
+      dplyr::arrange(age_low)
   }
 
   #......................
@@ -548,7 +549,7 @@ remove_ch_deaths <- function(agebands.dat, study_id) {
                   death_num=ifelse(ageband2 == new_age$ageband2[nrow(new_age)],death_num-ch_deaths,death_num),
                   death_denom_noch=death_denom - ch_deaths,
                   death_prop=death_num/death_denom_noch) %>%
-  dplyr::rename(ageband=ageband2)  %>%
+    dplyr::rename(ageband=ageband2)  %>%
     dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,1])) %>% # need ages in correct order
     dplyr::arrange(age_low) %>%
     dplyr::select(-c("age_low"))
@@ -567,9 +568,9 @@ remove_ch_deaths <- function(agebands.dat, study_id) {
                                 Deaths * (1-deaths_propMCMC_adj$prop_chd_oldest[nrow(deaths_propMCMC_adj)]),
                                 Deaths)) %>%
     dplyr::rename(ageband=ageband2) %>%
-  dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,1])) %>% # need ages in correct order
-  dplyr::arrange(age_low) %>%
-  dplyr::select(-c("age_low"))
+    dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,1])) %>% # need ages in correct order
+    dplyr::arrange(age_low) %>%
+    dplyr::select(-c("age_low"))
   agebands_noCH.dat$deaths_group <- deaths_group_adj
 
   # adjust population

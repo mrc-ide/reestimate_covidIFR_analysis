@@ -1,37 +1,37 @@
-"","city","population","region","cases_100k","deaths_100k","ifr","Region","Tests","seroprevalence","lci","uci","deaths"
-"1","Altamira",99075,"North",452,2,0,"North",232,0.005,0,0.03,1.9815
-"2","Aracaju",571149,"Northeast",415,2,0.01,"Northeast",250,0.004,0,0.03,11.42298
-"3","Bacabal",100014,"Northeast",895,1,0,"Northeast",248,0.009,0,0.03,1.00014
-"4","Belém",1393399,"North",15231,33,0,"North",247,0.152,0.09,0.23,459.82167
-"5","Boa Vista",284313,"North",4663,6,0,"North",250,0.047,0.02,0.09,17.05878
-"6","Breves",92860,"North",24960,34,0,"North",250,0.25,0.18,0.34,31.5724
-"7","Campinas",1080113,"Southeast",943,2,0,"Southeast",236,0.009,0,0.04,21.60226
-"8","Cascavel",286205,"South",419,2,0,"South",248,0.004,0,0.03,5.7241
-"9","Castanhal",173149,"North",15520,15,0,"North",250,0.155,0.1,0.22,25.97235
-"10","Crateús",72812,"Northeast",899,3,0,"Northeast",247,0.009,0,0.03,2.18436
-"11","Cruzeiro do Sul",78507,"North",415,1,0,"North",250,0.004,0,0.03,0.78507
-"12","Florianópolis",421240,"South",472,1,0,"South",223,0.005,0,0.03,4.2124
-"13","Fortaleza",2452185,"Northeast",8859,38,0,"Northeast",225,0.089,0.04,0.16,931.8303
-"14","Juiz de Fora",516247,"Southeast",415,3,0.01,"Southeast",250,0.004,0,0.03,15.48741
-"15","Macapá",398204,"North",9856,11,0,"North",250,0.099,0.06,0.15,43.80244
-"16","Maceió",932748,"Northeast",1456,10,0.01,"Northeast",234,0.015,0,0.04,93.2748
-"17","Manaus",1802014,"North",12688,35,0,"North",250,0.127,0.06,0.22,630.7049
-"18","Marabá",233669,"North",8439,9,0,"North",250,0.084,0.05,0.13,21.03021
-"19","Natal",803739,"Northeast",974,2,0,"Northeast",229,0.01,0,0.04,16.07478
-"20","Oiapoque",20509,"North",3719,4,0,"North",250,0.037,0.01,0.09,0.82036
-"21","Parintins",102033,"North",5135,32,0.01,"North",250,0.051,0.02,0.1,32.65056
-"22","Passo Fundo",184826,"South",415,10,0.02,"South",250,0.004,0,0.03,18.4826
-"23","Patos de Minas",138710,"Southeast",415,1,0,"Southeast",250,0.004,0,0.03,1.3871
-"24","Petrópolis",295917,"Southeast",437,7,0.02,"Southeast",239,0.004,0,0.03,20.71419
-"25","Ponta Grossa",311611,"South",1846,0,0,"South",248,0.018,0,0.11,0
-"26","Presidente Dutra",44731,"Northeast",415,0,0,"Northeast",250,0.004,0,0.03,0
-"27","Recife",1537704,"Northeast",3399,29,0.01,"Northeast",239,0.034,0.01,0.07,445.93416
-"28","Ribeirão Preto",604682,"Southeast",437,2,0,"Southeast",239,0.004,0,0.03,12.09364
-"29","Rio Branco",336038,"North",5653,11,0,"North",248,0.057,0.03,0.1,36.96418
-"30","Rio de Janeiro",6320446,"Southeast",2371,20,0.01,"Southeast",243,0.024,0.01,0.06,1264.0892
-"31","São Paulo",11253503,"Southeast",3283,20,0.01,"Southeast",212,0.033,0.01,0.07,2250.7006
-"32","Sobral",188233,"Northeast",1978,7,0,"Northeast",232,0.02,0,0.06,13.17631
-"33","Teófilo Otoni",134745,"Southeast",431,1,0,"Southeast",242,0.004,0,0.03,1.34745
-"34","Tefé",61453,"North",19768,42,0,"North",250,0.198,0.14,0.26,25.81026
-"35","Teresina",814230,"Northeast",415,3,0.01,"Northeast",250,0.004,0,0.03,24.4269
-"36","Vitória",327801,"Southeast",1359,13,0.01,"Southeast",250,0.014,0,0.05,42.61413
+city,population,region,cases_100k,deaths_100k,ifr,Region,Tests,seroprevalence,lci,uci,deaths
+Altamira,99075,North,452,2,0,North,232,0.005,0,0.03,1.9815
+Aracaju,571149,Northeast,415,2,0.01,Northeast,250,0.004,0,0.03,11.42298
+Bacabal,100014,Northeast,895,1,0,Northeast,248,0.009,0,0.03,1.00014
+Belém,1393399,North,15231,33,0,NA,NA,NA,NA,NA,459.82167
+Boa Vista,284313,North,4663,6,0,North,250,0.047,0.02,0.09,17.05878
+Breves,92860,North,24960,34,0,North,250,0.25,0.18,0.34,31.5724
+Campinas,1080113,Southeast,943,2,0,Southeast,236,0.009,0,0.04,21.60226
+Cascavel,286205,South,419,2,0,South,248,0.004,0,0.03,5.7241
+Castanhal,173149,North,15520,15,0,North,250,0.155,0.1,0.22,25.97235
+Crateús,72812,Northeast,899,3,0,NA,NA,NA,NA,NA,2.18436
+Cruzeiro do Sul,78507,North,415,1,0,North,250,0.004,0,0.03,0.78507
+Florianópolis,421240,South,472,1,0,NA,NA,NA,NA,NA,4.2124
+Fortaleza,2452185,Northeast,8859,38,0,Northeast,225,0.089,0.04,0.16,931.8303
+Juiz de Fora,516247,Southeast,415,3,0.01,Southeast,250,0.004,0,0.03,15.48741
+Macapá,398204,North,9856,11,0,NA,NA,NA,NA,NA,43.80244
+Maceió,932748,Northeast,1456,10,0.01,NA,NA,NA,NA,NA,93.2748
+Manaus,1802014,North,12688,35,0,North,250,0.127,0.06,0.22,630.7049
+Marabá,233669,North,8439,9,0,NA,NA,NA,NA,NA,21.03021
+Natal,803739,Northeast,974,2,0,Northeast,229,0.01,0,0.04,16.07478
+Oiapoque,20509,North,3719,4,0,North,250,0.037,0.01,0.09,0.82036
+Parintins,102033,North,5135,32,0.01,North,250,0.051,0.02,0.1,32.65056
+Passo Fundo,184826,South,415,10,0.02,South,250,0.004,0,0.03,18.4826
+Patos de Minas,138710,Southeast,415,1,0,Southeast,250,0.004,0,0.03,1.3871
+Petrópolis,295917,Southeast,437,7,0.02,NA,NA,NA,NA,NA,20.71419
+Ponta Grossa,311611,South,1846,0,0,South,248,0.018,0,0.11,0
+Presidente Dutra,44731,Northeast,415,0,0,Northeast,250,0.004,0,0.03,0
+Recife,1537704,Northeast,3399,29,0.01,Northeast,239,0.034,0.01,0.07,445.93416
+Ribeirão Preto,604682,Southeast,437,2,0,NA,NA,NA,NA,NA,12.09364
+Rio Branco,336038,North,5653,11,0,North,248,0.057,0.03,0.1,36.96418
+Rio de Janeiro,6320446,Southeast,2371,20,0.01,Southeast,243,0.024,0.01,0.06,1264.0892
+Sobral,188233,Northeast,1978,7,0,Northeast,232,0.02,0,0.06,13.17631
+São Paulo,11253503,Southeast,3283,20,0.01,NA,NA,NA,NA,NA,2250.7006
+Tefé,61453,North,19768,42,0,NA,NA,NA,NA,NA,25.81026
+Teresina,814230,Northeast,415,3,0.01,Northeast,250,0.004,0,0.03,24.4269
+Teófilo Otoni,134745,Southeast,431,1,0,NA,NA,NA,NA,NA,1.34745
+Vitória,327801,Southeast,1359,13,0.01,NA,NA,NA,NA,NA,42.61413
