@@ -31,8 +31,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(850.5,   990.5),
-                                dsc2 =  c(150.5,    10.5))
+                                dsc1 =  c(447.5,   515.5),
+                                dsc2 =  c(80.5,    5.5))
 
 #......................
 # get fits from stan model
@@ -185,7 +185,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(38.5,   493.5),
-                                dsc2 =  c(10.5,    7.5))
+                                dsc2 =  c(7.5,    7.5))
 
 #......................
 # get fits from stan model
@@ -214,6 +214,7 @@ GBR3_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
 #............................................................
 #---- ITA1 #----
 #...........................................................
+# note ITA are made up -- moot point since using rgn fits
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
@@ -335,7 +336,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 init =  c(0.83,    0.99),
                                 max =   c(1.00,    1.00),
                                 dsc1 =  c(15.5,    901.5),
-                                dsc2 =  c(3.4,     9.5))
+                                dsc2 =  c(3.5,     9.5))
 
 #......................
 # agebands
@@ -355,8 +356,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.73,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(27.5,    30.5),
-                                dsc2 =  c(10.5,    0.5))
+                                dsc1 =  c(130.5,   3308.5),
+                                dsc2 =  c(27.5,    16.5))
 
 #......................
 # agebands
@@ -376,7 +377,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(204.5,   92.5),
+                                dsc1 =  c(204.5,   287.5),
                                 dsc2 =  c(30.5,    0.5))
 
 #......................
