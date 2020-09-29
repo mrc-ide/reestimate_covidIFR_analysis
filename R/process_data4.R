@@ -112,7 +112,7 @@ process_data4 <- function(cum_tp_deaths = NULL, population = NULL, sero_val = NU
     dplyr::select(c("n_test_neg_out_of_true_neg", "n_samples_true_neg")) %>%
     magrittr::set_colnames(c("npos", "ntest")) %>%
     dplyr::rename(nneg = npos) %>%  # test negatives (positive result but for clarity)
-    dplyr::mutate(sensitivity = nneg/ntest)
+    dplyr::mutate(specificity = nneg/ntest)
 
 
   #...........................................................
