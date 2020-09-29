@@ -1,209 +1,211 @@
-country	study_id	age_low	age_high	region	gender	n_deaths	date_start_survey	date_end_survey	matching_with_sero	cumulative	age_breakdown	gender_breakdown	for_regional_analysis	basic_summary	ref	death_reporting	care_home_deaths_available	notes
-Switzerland	CHE1	0	10	Geneva	both	0	2020-02-25	2020-05-25	exact date available - extract from time series	yes	1	0	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE1	10	20	Geneva	both	0	2020-02-25	2020-05-25	exact date available - extract from time series	yes	1	0	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE1	20	30	Geneva	both	0	2020-02-25	2020-05-25	exact date available - extract from time series	yes	1	0	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE1	30	40	Geneva	both	2	2020-02-25	2020-05-25	exact date available - extract from time series	yes	1	0	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE1	40	50	Geneva	both	0	2020-02-25	2020-05-25	exact date available - extract from time series	yes	1	0	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE1	50	60	Geneva	both	9	2020-02-25	2020-05-25	exact date available - extract from time series	yes	1	0	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE1	60	70	Geneva	both	14	2020-02-25	2020-05-25	exact date available - extract from time series	yes	1	0	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE1	70	80	Geneva	both	49	2020-02-25	2020-05-25	exact date available - extract from time series	yes	1	0	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE1	80	999	Geneva	both	196	2020-02-25	2020-05-25	exact date available - extract from time series	yes	1	0	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE1	0	999	Geneva	male	147	2020-02-25	2020-05-25	exact date available - extract from time series	yes	0	1	0	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE1	0	999	Geneva	female	123	2020-02-25	2020-05-25	exact date available - extract from time series	yes	0	1	0	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE1	0	999	Geneva	both	270	2020-02-25	2020-05-25	exact date available - extract from time series	yes	0	0	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Denmark	DNK1	0	59	all	both	16	2020-01-01	2020-05-22	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5	confirmed only	yes
-Denmark	DNK1	60	69	all	both	54	2020-01-01	2020-05-22	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5	confirmed only	yes
-Denmark	DNK1	70	79	all	both	159	2020-01-01	2020-05-22	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5	confirmed only	yes
-Denmark	DNK1	80	89	all	both	213	2020-01-01	2020-05-22	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5	confirmed only	yes
-Denmark	DNK1	90	999	all	both	119	2020-01-01	2020-05-22	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5	confirmed only	yes
-Denmark	DNK1	0	999	all	male	317	2020-01-01	2020-05-22	regional distribution wrong date - use ecdc totals to adjust	yes	0	1	0	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5	confirmed only	yes
-Denmark	DNK1	0	999	all	female	244	2020-01-01	2020-05-22	regional distribution wrong date - use ecdc totals to adjust	yes	0	1	0	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5	confirmed only	yes
-Denmark	DNK1	0	999	Capital	both	322	2020-01-01	2020-05-22	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5	confirmed only	yes
-Denmark	DNK1	0	999	South DK & Zealand	both	148	2020-01-01	2020-05-22	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5	confirmed only	yes
-Denmark	DNK1	0	999	Central DK & North DK	both	91	2020-01-01	2020-05-22	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5	confirmed only	yes
-Spain	ESP1-2	0	999	Andalucía	both	1326	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Aragón	both	828	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Asturias, Principado de	both	304	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Balears, Illes	both	210	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Canarias	both	151	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Cantabria	both	203	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Castilla La Mancha	both	2811	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Castilla y León	both	1914	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Cataluña	both	5621	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Ceuta	both	4	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Comunitat Valenciana	both	1336	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Extremadura	both	487	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Galicia	both	595	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Madrid, Comunidad de	both	8720	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Melilla	both	2	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Murcia, Región de	both	139	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Navarra, Comunidad Foral de	both	493	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	País Vasco	both	1429	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	999	Rioja, La	both	347	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.rtve.es/noticias/20200602/mapa-del-coronavirus-espana/2004681.shtml, Accessed 11/05/2020
-Spain	ESP1-2	0	10	all	both	2	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	ministry of health
-Spain	ESP1-2	10	20	all	both	5	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	ministry of health
-Spain	ESP1-2	20	30	all	both	23	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	ministry of health
-Spain	ESP1-2	30	40	all	both	61	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	ministry of health
-Spain	ESP1-2	40	50	all	both	198	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	ministry of health
-Spain	ESP1-2	50	60	all	both	607	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	ministry of health
-Spain	ESP1-2	60	70	all	both	1669	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	ministry of health
-Spain	ESP1-2	70	80	all	both	4544	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	ministry of health
-Spain	ESP1-2	80	90	all	both	7728	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	ministry of health
-Spain	ESP1-2	90	999	all	both	3981	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	ministry of health
-Spain	ESP1-2	0	999	all	female	8056	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	1	0	0	ministry of health
-Spain	ESP1-2	0	999	all	male	10762	2020-01-01	2020-05-11	regional distribution wrong date - use ecdc totals to adjust	yes	0	1	0	0	ministry of health
-USA	LA_CA1	18	40	los angeles county	both	76	2020-01-01	2020-06-15	age distribution wrong date - use time series to adjust	yes	1	0	0	0	http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/			Data do not include the Cities of Long Beach and Pasadena
-USA	LA_CA1	41	65	los angeles county	both	589	2020-01-01	2020-06-15	age distribution wrong date - use time series to adjust	yes	1	0	0	0	http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/			Data do not include the Cities of Long Beach and Pasadena
-USA	LA_CA1	65	999	los angeles county	both	2044	2020-01-01	2020-06-15	age distribution wrong date - use time series to adjust	yes	1	0	0	0	http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/			Data do not include the Cities of Long Beach and Pasadena
-USA	LA_CA1	18	999	los angeles county	male	1512	2020-01-01	2020-06-15	age distribution wrong date - use time series to adjust	yes	0	1	0	0	http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/			Data do not include the Cities of Long Beach and Pasadena
-USA	LA_CA1	18	999	los angeles county	female	1196	2020-01-01	2020-06-15	age distribution wrong date - use time series to adjust	yes	0	1	0	0	http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/			Data do not include the Cities of Long Beach and Pasadena
-USA	LA_CA1	18	999	los angeles county	both	2708	2020-01-01	2020-06-15	age distribution wrong date - use time series to adjust	yes	0	0	1	0	http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/			Data do not include the Cities of Long Beach and Pasadena
-Netherlands	NLD1	0	999	Amsterdam-Amstelland	both	135	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Brabant-Noord	both	429	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Brabant-Zuidoost	both	280	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Drenthe	both	20	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Flevoland	both	26	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Fryslan	both	35	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Gelderland-Midden	both	91	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Gelderland-Zuid	both	127	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Gooi en Vechtstreek	both	8	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Groningen	both	8	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Haaglanden	both	111	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Hollands Midden	both	92	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	IJsselland	both	118	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Kennemerland	both	123	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Limburg-Noord	both	236	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Midden- en West-Brabant	both	331	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Noord- en Oost-Gelderland	both	156	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Noord-Holland-Noord	both	80	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Rotterdam-Rijnmond	both	192	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Twente	both	61	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Utrecht	both	231	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Zaanstreek-Waterland	both	58	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Zeeland	both	44	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Zuid-Holland-Zuid	both	53	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	999	Zuid-Limburg	both	242	2020-01-01	2020-04-16	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken			see detailed data also.
-Netherlands	NLD1	0	49	all	both	22	2020-01-01	2020-04-19	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://data.rivm.nl/geonetwork/srv/dut/catalog.search#/metadata/2c4357c8-76e4-4662-9574-1deb8a73f724?tab=relations			see detailed data also.
-Netherlands	NLD1	50	59	all	both	87	2020-01-01	2020-04-19	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://data.rivm.nl/geonetwork/srv/dut/catalog.search#/metadata/2c4357c8-76e4-4662-9574-1deb8a73f724?tab=relations			see detailed data also.
-Netherlands	NLD1	60	69	all	both	299	2020-01-01	2020-04-19	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://data.rivm.nl/geonetwork/srv/dut/catalog.search#/metadata/2c4357c8-76e4-4662-9574-1deb8a73f724?tab=relations			see detailed data also.
-Netherlands	NLD1	70	79	all	both	982	2020-01-01	2020-04-19	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://data.rivm.nl/geonetwork/srv/dut/catalog.search#/metadata/2c4357c8-76e4-4662-9574-1deb8a73f724?tab=relations			see detailed data also.
-Netherlands	NLD1	80	89	all	both	1448	2020-01-01	2020-04-19	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://data.rivm.nl/geonetwork/srv/dut/catalog.search#/metadata/2c4357c8-76e4-4662-9574-1deb8a73f724?tab=relations			see detailed data also.
-Netherlands	NLD1	90	999	all	both	477	2020-01-01	2020-04-19	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://data.rivm.nl/geonetwork/srv/dut/catalog.search#/metadata/2c4357c8-76e4-4662-9574-1deb8a73f724?tab=relations			see detailed data also.
-Sweden	SWE1	0	9	all	both	1	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
-Sweden	SWE1	10	19	all	both	0	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
-Sweden	SWE1	20	29	all	both	8	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
-Sweden	SWE1	30	39	all	both	12	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
-Sweden	SWE1	40	49	all	both	40	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
-Sweden	SWE1	50	59	all	both	132	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
-Sweden	SWE1	60	69	all	both	298	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
-Sweden	SWE1	70	79	all	both	934	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
-Sweden	SWE1	80	89	all	both	1756	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
-Sweden	SWE1	90	999	all	both	1085	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	1	0	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
-Sweden	SWE1	0	999	Blekinge	both	4	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Dalarna	both	143	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Gotland	both	6	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Gavleborg	both	99	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Halland	both	53	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Jamtland H‰rjedalen	both	26	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Jonkoping	both	131	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Kalmar	both	35	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Kronoberg	both	62	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Norrbotten	both	42	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Skane	both	170	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Stockholm	both	2016	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Sormland	both	221	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Uppsala	both	167	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Varmland	both	29	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Vasterbotten	both	26	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Vasternorrland	both	81	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Vastmanland	both	135	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Vastra Gotaland	both	511	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Orebro	both	130	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	Ostergotland	both	179	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	0	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/			also we have time series by region
-Sweden	SWE1	0	999	all	male	2348	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	1	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
-Sweden	SWE1	0	999	all	female	1918	2020-01-01	2020-05-28	regional distribution wrong date - use ecdc totals to adjust	yes	0	1	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
-Switzerland	CHE2	0	10	Zurich	both	0	2020-01-01	2020-05-15	exact date available - extract from time series	yes	1	0	0	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE2	10	20	Zurich	both	0	2020-01-01	2020-05-15	exact date available - extract from time series	yes	1	0	0	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE2	20	30	Zurich	both	0	2020-01-01	2020-05-15	exact date available - extract from time series	yes	1	0	0	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE2	30	40	Zurich	both	0	2020-01-01	2020-05-15	exact date available - extract from time series	yes	1	0	0	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE2	40	50	Zurich	both	0	2020-01-01	2020-05-15	exact date available - extract from time series	yes	1	0	0	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE2	50	60	Zurich	both	4	2020-01-01	2020-05-15	exact date available - extract from time series	yes	1	0	0	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE2	60	70	Zurich	both	10	2020-01-01	2020-05-15	exact date available - extract from time series	yes	1	0	0	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE2	70	80	Zurich	both	17	2020-01-01	2020-05-15	exact date available - extract from time series	yes	1	0	0	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Switzerland	CHE2	80	999	Zurich	both	93	2020-01-01	2020-05-15	exact date available - extract from time series	yes	1	0	0	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
-Italy	ITA1	0	9	all	both	4	2020-01-01	2020-06-18	exact date available - extract from time series		1	0	0	0	https://dc-covid.site.ined.fr/en/data/italy/		yes - report from ISS. Sounds like not included in national death toll currently? (but unclear). Care homes deaths report includes confirmed + suspected
-Italy	ITA1	10	19	all	both	0	2020-01-01	2020-06-18	exact date available - extract from time series		1	0	0	0	https://dc-covid.site.ined.fr/en/data/italy/		yes - report from ISS. Sounds like not included in national death toll currently? (but unclear). Care homes deaths report includes confirmed + suspected
-Italy	ITA1	20	29	all	both	15	2020-01-01	2020-06-18	exact date available - extract from time series		1	0	0	0	https://dc-covid.site.ined.fr/en/data/italy/		yes - report from ISS. Sounds like not included in national death toll currently? (but unclear). Care homes deaths report includes confirmed + suspected
-Italy	ITA1	30	39	all	both	65	2020-01-01	2020-06-18	exact date available - extract from time series		1	0	0	0	https://dc-covid.site.ined.fr/en/data/italy/		yes - report from ISS. Sounds like not included in national death toll currently? (but unclear). Care homes deaths report includes confirmed + suspected
-Italy	ITA1	40	49	all	both	287	2020-01-01	2020-06-18	exact date available - extract from time series		1	0	0	0	https://dc-covid.site.ined.fr/en/data/italy/		yes - report from ISS. Sounds like not included in national death toll currently? (but unclear). Care homes deaths report includes confirmed + suspected
-Italy	ITA1	50	59	all	both	1164	2020-01-01	2020-06-18	exact date available - extract from time series		1	0	0	0	https://dc-covid.site.ined.fr/en/data/italy/		yes - report from ISS. Sounds like not included in national death toll currently? (but unclear). Care homes deaths report includes confirmed + suspected
-Italy	ITA1	60	69	all	both	3377	2020-01-01	2020-06-18	exact date available - extract from time series		1	0	0	0	https://dc-covid.site.ined.fr/en/data/italy/		yes - report from ISS. Sounds like not included in national death toll currently? (but unclear). Care homes deaths report includes confirmed + suspected
-Italy	ITA1	70	79	all	both	8846	2020-01-01	2020-06-18	exact date available - extract from time series		1	0	0	0	https://dc-covid.site.ined.fr/en/data/italy/		yes - report from ISS. Sounds like not included in national death toll currently? (but unclear). Care homes deaths report includes confirmed + suspected
-Italy	ITA1	80	89	all	both	13628	2020-01-01	2020-06-18	exact date available - extract from time series		1	0	0	0	https://dc-covid.site.ined.fr/en/data/italy/		yes - report from ISS. Sounds like not included in national death toll currently? (but unclear). Care homes deaths report includes confirmed + suspected
-Italy	ITA1	90	999	all	both	5923	2020-01-01	2020-06-18	exact date available - extract from time series		1	0	0	0	https://dc-covid.site.ined.fr/en/data/italy/		yes - report from ISS. Sounds like not included in national death toll currently? (but unclear). Care homes deaths report includes confirmed + suspected
-Italy	ITA1	0	999	Piemonte	both	3114	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Valle D'Aosta	both	146	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Liguria	both	1676	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Lombardia	both	16776	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Bolzano	both	292	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Trento	both	405	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Veneto	both	1990	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Friuli-Venenzia Giulia	both	349	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Emilia-Romagna	both	4266	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Toscana	both	1132	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Umbria	both	80	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Marche	both	984	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Lazio	both	868	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Abruzzo	both	470	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Molise	both	22	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Campania	both	459	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Puglia	both	548	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Basilicata	both	30	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Clabria	both	97	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Sicilia	both	304	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Italy	ITA1	0	999	Sardegna	both	134	2020-01-01	2020-07-22	regional distribution wrong date - use ecdc totals to adjust		0	0	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-Luxembourg	LUX1	0	29	national	both	0	2020-01-01	2020-08-06	age distribution wrong date - use time series to adjust		1	0	0	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
-Luxembourg	LUX1	30	39	national	both	0	2020-01-01	2020-08-06	age distribution wrong date - use time series to adjust		1	0	0	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
-Luxembourg	LUX1	40	49	national	both	0	2020-01-01	2020-08-06	age distribution wrong date - use time series to adjust		1	0	0	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
-Luxembourg	LUX1	50	59	national	both	2	2020-01-01	2020-08-06	age distribution wrong date - use time series to adjust		1	0	0	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
-Luxembourg	LUX1	60	69	national	both	7	2020-01-01	2020-08-06	age distribution wrong date - use time series to adjust		1	0	0	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
-Luxembourg	LUX1	70	79	national	both	28	2020-01-01	2020-08-06	age distribution wrong date - use time series to adjust		1	0	0	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
-Luxembourg	LUX1	80	999	national	both	78	2020-01-01	2020-08-06	age distribution wrong date - use time series to adjust		1	0	0	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
-China	CHN1	0	9	Wuhan	both	0	2020-01-01	2020-04-17	age distribution wrong date - use time series to adjust		1	0	0	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
-China	CHN1	10	19	Wuhan	both	4	2020-01-01	2020-04-17	age distribution wrong date - use time series to adjust		1	0	0	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
-China	CHN1	20	29	Wuhan	both	26	2020-01-01	2020-04-17	age distribution wrong date - use time series to adjust		1	0	0	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
-China	CHN1	30	39	Wuhan	both	68	2020-01-01	2020-04-17	age distribution wrong date - use time series to adjust		1	0	0	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
-China	CHN1	40	49	Wuhan	both	144	2020-01-01	2020-04-17	age distribution wrong date - use time series to adjust		1	0	0	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
-China	CHN1	50	59	Wuhan	both	492	2020-01-01	2020-04-17	age distribution wrong date - use time series to adjust		1	0	0	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
-China	CHN1	60	69	Wuhan	both	1169	2020-01-01	2020-04-17	age distribution wrong date - use time series to adjust		1	0	0	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
-China	CHN1	70	79	Wuhan	both	1180	2020-01-01	2020-04-17	age distribution wrong date - use time series to adjust		1	0	0	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
-China	CHN1	80	999	Wuhan	both	787	2020-01-01	2020-04-17	age distribution wrong date - use time series to adjust		1	0	0	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
-United Kingdom	GBR1	0	999	Scotland	both	10	2020-01-01	2020-03-22	exact date available - extract from time series		0	0	0	1	https://www.gov.scot/publications/coronavirus-covid-19-trends-in-daily-data/
-Kenya	KEN1	0	9	national	both	1	2020-01-01	2020-06-18	full age series available in individual daily pdfs from MoH - not currently extracted		1	0	0	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
-Kenya	KEN1	10	19	national	both	1	2020-01-01	2020-06-18	full age series available in individual daily pdfs from MoH - not currently extracted		1	0	0	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
-Kenya	KEN1	20	29	national	both	1	2020-01-01	2020-06-18	full age series available in individual daily pdfs from MoH - not currently extracted		1	0	0	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
-Kenya	KEN1	30	39	national	both	10	2020-01-01	2020-06-18	full age series available in individual daily pdfs from MoH - not currently extracted		1	0	0	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
-Kenya	KEN1	40	49	national	both	20	2020-01-01	2020-06-18	full age series available in individual daily pdfs from MoH - not currently extracted		1	0	0	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
-Kenya	KEN1	50	59	national	both	23	2020-01-01	2020-06-18	full age series available in individual daily pdfs from MoH - not currently extracted		1	0	0	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
-Kenya	KEN1	60	999	national	both	60	2020-01-01	2020-06-18	full age series available in individual daily pdfs from MoH - not currently extracted		1	0	0	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
-England	GBR3	0	15	all	both	6	2020-01-01	2020-07-17	weekly age data available.		1	0	0	0	https://fingertips.phe.org.uk/static-reports/mortality-surveillance/excess-mortality-in-england-week-ending-17-Jul-2020.html			includes care homes
-England	GBR3	15	44	all	both	524	2020-01-01	2020-07-17	weekly age data available.		1	0	0	0	https://fingertips.phe.org.uk/static-reports/mortality-surveillance/excess-mortality-in-england-week-ending-17-Jul-2020.html			includes care homes
-England	GBR3	45	64	all	both	4657	2020-01-01	2020-07-17	weekly age data available.		1	0	0	0	https://fingertips.phe.org.uk/static-reports/mortality-surveillance/excess-mortality-in-england-week-ending-17-Jul-2020.html			includes care homes
-England	GBR3	65	74	all	both	7105	2020-01-01	2020-07-17	weekly age data available.		1	0	0	0	https://fingertips.phe.org.uk/static-reports/mortality-surveillance/excess-mortality-in-england-week-ending-17-Jul-2020.html			includes care homes
-England	GBR3	75	999	all	both	36341	2020-01-01	2020-07-17	weekly age data available.		1	0	0	0	https://fingertips.phe.org.uk/static-reports/mortality-surveillance/excess-mortality-in-england-week-ending-17-Jul-2020.html			includes care homes
-England	GBR3	0	999	North East	both	2825	2020-01-01	2020-07-31	weekly region data available		0	0	1	0	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
-England	GBR3	0	999	North West	both	7859	2020-01-01	2020-07-31	weekly region data available		0	0	1	0	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
-England	GBR3	0	999	Yorkshire	both	4834	2020-01-01	2020-07-31	weekly region data available		0	0	1	0	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
-England	GBR3	0	999	East Midlands	both	3952	2020-01-01	2020-07-31	weekly region data available		0	0	1	0	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
-England	GBR3	0	999	West Midlands	both	5879	2020-01-01	2020-07-31	weekly region data available		0	0	1	0	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
-England	GBR3	0	999	East of England	both	5090	2020-01-01	2020-07-31	weekly region data available		0	0	1	0	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
-England	GBR3	0	999	London	both	8528	2020-01-01	2020-07-31	weekly region data available		0	0	1	0	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
-England	GBR3	0	999	South East	both	7311	2020-01-01	2020-07-31	weekly region data available		0	0	1	0	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
-England	GBR3	0	999	South West	both	2905	2020-01-01	2020-07-31	weekly region data available		0	0	1	0	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
-USA	NYC_NY_1	0	18	all	both	11	2020-02-29	2020-06-15	just NYC	yes	1	0	0	0	https://github.com/nychealth/coronavirus-data
-USA	NYC_NY_1	18	45	all	both	688	2020-02-29	2020-06-15	just NYC	yes	1	0	0	0	https://github.com/nychealth/coronavirus-data
-USA	NYC_NY_1	45	65	all	both	3892	2020-02-29	2020-06-15	just NYC	yes	1	0	0	0	https://github.com/nychealth/coronavirus-data
-USA	NYC_NY_1	65	75	all	both	4354	2020-02-29	2020-06-15	just NYC	yes	1	0	0	0	https://github.com/nychealth/coronavirus-data
-USA	NYC_NY_1	75	999	all	both	8487	2020-02-29	2020-06-15	just NYC	yes	1	0	0	0	https://github.com/nychealth/coronavirus-data
-USA	NYC_NY_1	0	999	all	male	10518	2020-02-29	2020-06-15	just NYC	yes	0	1	0	0	https://github.com/nychealth/coronavirus-data
-USA	NYC_NY_1	0	999	all	female	6910	2020-02-29	2020-06-15	just NYC	yes	0	1	0	0	https://github.com/nychealth/coronavirus-data			
+country	study_id	age_low	age_high	region	gender	n_deaths	date_start_survey	date_end_survey	age_breakdown	for_regional_analysis	ref
+Switzerland	CHE1	0	10	Geneva	both	0	2020-02-25	2020-05-25	1	1	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE1	10	20	Geneva	both	0	2020-02-25	2020-05-25	1	1	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE1	20	30	Geneva	both	0	2020-02-25	2020-05-25	1	1	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE1	30	40	Geneva	both	2	2020-02-25	2020-05-25	1	1	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE1	40	50	Geneva	both	0	2020-02-25	2020-05-25	1	1	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE1	50	60	Geneva	both	9	2020-02-25	2020-05-25	1	1	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE1	60	70	Geneva	both	14	2020-02-25	2020-05-25	1	1	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE1	70	80	Geneva	both	49	2020-02-25	2020-05-25	1	1	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE1	80	999	Geneva	both	196	2020-02-25	2020-05-25	1	1	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE1	0	999	Geneva	male	147	2020-02-25	2020-05-25	0	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE1	0	999	Geneva	female	123	2020-02-25	2020-05-25	0	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE1	0	999	Geneva	both	270	2020-02-25	2020-05-25	0	1	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Denmark	DNK1	0	59	all	both	16	2020-01-01	2020-05-22	1	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5
+Denmark	DNK1	60	69	all	both	54	2020-01-01	2020-05-22	1	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5
+Denmark	DNK1	70	79	all	both	159	2020-01-01	2020-05-22	1	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5
+Denmark	DNK1	80	89	all	both	213	2020-01-01	2020-05-22	1	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5
+Denmark	DNK1	90	999	all	both	119	2020-01-01	2020-05-22	1	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5
+Denmark	DNK1	0	999	all	male	317	2020-01-01	2020-05-22	0	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5
+Denmark	DNK1	0	999	all	female	244	2020-01-01	2020-05-22	0	0	https://www.sst.dk/da/corona/tal-og-overvaagning#5
+Denmark	DNK1	0	999	Capital	both	322	2020-01-01	2020-05-22	0	1	https://www.sst.dk/da/corona/tal-og-overvaagning#5
+Denmark	DNK1	0	999	South DK & Zealand	both	148	2020-01-01	2020-05-22	0	1	https://www.sst.dk/da/corona/tal-og-overvaagning#5
+Denmark	DNK1	0	999	Central DK & North DK	both	91	2020-01-01	2020-05-22	0	1	https://www.sst.dk/da/corona/tal-og-overvaagning#5
+Spain	ESP1-2	0	999	Andalucía	both	1426	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Aragón	both	911	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Asturias, Principado de	both	333	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Balears, Illes	both	224	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Canarias	both	162	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Cantabria	both	216	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Castilla La Mancha	both	3022	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Castilla y León	both	2778	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Cataluña	both	5666	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Ceuta	both	4	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Comunitat Valenciana	both	1431	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Extremadura	both	519	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Galicia	both	619	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Madrid, Comunidad de	both	8416	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Melilla	both	2	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Murcia, Región de	both	147	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Navarra, Comunidad Foral de	both	528	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	País Vasco	both	1555	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	999	Rioja, La	both	365	2020-01-01	2020-06-22	0	1	https://github.com/ec-jrc/COVID-19/blob/master/data-by-region/jrc-covid-19-regions-20200622.csv
+Spain	ESP1-2	0	10	all	both	2	2020-01-01	2020-05-21	1	0	https://dc-covid.site.ined.fr/en/data/spain/
+Spain	ESP1-2	10	20	all	both	5	2020-01-01	2020-05-21	1	0	https://dc-covid.site.ined.fr/en/data/spain/
+Spain	ESP1-2	20	30	all	both	24	2020-01-01	2020-05-21	1	0	https://dc-covid.site.ined.fr/en/data/spain/
+Spain	ESP1-2	30	40	all	both	63	2020-01-01	2020-05-21	1	0	https://dc-covid.site.ined.fr/en/data/spain/
+Spain	ESP1-2	40	50	all	both	217	2020-01-01	2020-05-21	1	0	https://dc-covid.site.ined.fr/en/data/spain/
+Spain	ESP1-2	50	60	all	both	657	2020-01-01	2020-05-21	1	0	https://dc-covid.site.ined.fr/en/data/spain/
+Spain	ESP1-2	60	70	all	both	1822	2020-01-01	2020-05-21	1	0	https://dc-covid.site.ined.fr/en/data/spain/
+Spain	ESP1-2	70	80	all	both	4887	2020-01-01	2020-05-21	1	0	https://dc-covid.site.ined.fr/en/data/spain/
+Spain	ESP1-2	80	90	all	both	8458	2020-01-01	2020-05-21	1	0	https://dc-covid.site.ined.fr/en/data/spain/
+Spain	ESP1-2	90	999	all	both	4417	2020-01-01	2020-05-21	1	0	https://dc-covid.site.ined.fr/en/data/spain/
+Spain	ESP1-2	0	999	all	female	8056	2020-01-01	2020-05-11	0	0	https://dc-covid.site.ined.fr/en/data/spain/
+Spain	ESP1-2	0	999	all	male	10762	2020-01-01	2020-05-11	0	0	https://dc-covid.site.ined.fr/en/data/spain/
+USA	LA_CA1	18	40	los angeles county	both	76	2020-01-01	2020-06-15	1	0	http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
+USA	LA_CA1	41	65	los angeles county	both	589	2020-01-01	2020-06-15	1	0	http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
+USA	LA_CA1	65	999	los angeles county	both	2044	2020-01-01	2020-06-15	1	0	http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
+USA	LA_CA1	18	999	los angeles county	male	1512	2020-01-01	2020-06-15	0	0	http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
+USA	LA_CA1	18	999	los angeles county	female	1196	2020-01-01	2020-06-15	0	0	http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
+USA	LA_CA1	18	999	los angeles county	both	2708	2020-01-01	2020-06-15	0	1	http://dashboard.publichealth.lacounty.gov/covid19_surveillance_dashboard/
+Netherlands	NLD1	0	999	Amsterdam-Amstelland	both	135	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Brabant-Noord	both	429	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Brabant-Zuidoost	both	280	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Drenthe	both	20	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Flevoland	both	26	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Fryslan	both	35	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Gelderland-Midden	both	91	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Gelderland-Zuid	both	127	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Gooi en Vechtstreek	both	8	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Groningen	both	8	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Haaglanden	both	111	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Hollands Midden	both	92	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	IJsselland	both	118	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Kennemerland	both	123	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Limburg-Noord	both	236	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Midden- en West-Brabant	both	331	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Noord- en Oost-Gelderland	both	156	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Noord-Holland-Noord	both	80	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Rotterdam-Rijnmond	both	192	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Twente	both	61	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Utrecht	both	231	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Zaanstreek-Waterland	both	58	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Zeeland	both	44	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Zuid-Holland-Zuid	both	53	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	999	Zuid-Limburg	both	242	2020-01-01	2020-04-16	0	1	https://nlcovid-19-esrinl-content.hub.arcgis.com/datasets/covid-19-historische-gegevens-rivm-vlakken
+Netherlands	NLD1	0	49	all	both	22	2020-01-01	2020-04-19	1	0	https://data.rivm.nl/geonetwork/srv/dut/catalog.search#/metadata/2c4357c8-76e4-4662-9574-1deb8a73f724?tab=relations
+Netherlands	NLD1	50	59	all	both	87	2020-01-01	2020-04-19	1	0	https://data.rivm.nl/geonetwork/srv/dut/catalog.search#/metadata/2c4357c8-76e4-4662-9574-1deb8a73f724?tab=relations
+Netherlands	NLD1	60	69	all	both	299	2020-01-01	2020-04-19	1	0	https://data.rivm.nl/geonetwork/srv/dut/catalog.search#/metadata/2c4357c8-76e4-4662-9574-1deb8a73f724?tab=relations
+Netherlands	NLD1	70	79	all	both	982	2020-01-01	2020-04-19	1	0	https://data.rivm.nl/geonetwork/srv/dut/catalog.search#/metadata/2c4357c8-76e4-4662-9574-1deb8a73f724?tab=relations
+Netherlands	NLD1	80	89	all	both	1448	2020-01-01	2020-04-19	1	0	https://data.rivm.nl/geonetwork/srv/dut/catalog.search#/metadata/2c4357c8-76e4-4662-9574-1deb8a73f724?tab=relations
+Netherlands	NLD1	90	999	all	both	477	2020-01-01	2020-04-19	1	0	https://data.rivm.nl/geonetwork/srv/dut/catalog.search#/metadata/2c4357c8-76e4-4662-9574-1deb8a73f724?tab=relations
+Sweden	SWE1	0	9	all	both	1	2020-01-01	2020-05-28	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	10	19	all	both	0	2020-01-01	2020-05-28	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	20	29	all	both	8	2020-01-01	2020-05-28	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	30	39	all	both	12	2020-01-01	2020-05-28	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	40	49	all	both	40	2020-01-01	2020-05-28	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	50	59	all	both	132	2020-01-01	2020-05-28	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	60	69	all	both	298	2020-01-01	2020-05-28	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	70	79	all	both	934	2020-01-01	2020-05-28	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	80	89	all	both	1756	2020-01-01	2020-05-28	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	90	999	all	both	1085	2020-01-01	2020-05-28	1	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Blekinge	both	4	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Dalarna	both	143	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Gotland	both	6	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Gavleborg	both	99	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Halland	both	53	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Jamtland H‰rjedalen	both	26	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Jonkoping	both	131	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Kalmar	both	35	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Kronoberg	both	62	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Norrbotten	both	42	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Skane	both	170	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Stockholm	both	2016	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Sormland	both	221	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Uppsala	both	167	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Varmland	both	29	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Vasterbotten	both	26	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Vasternorrland	both	81	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Vastmanland	both	135	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Vastra Gotaland	both	511	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Orebro	both	130	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	Ostergotland	both	179	2020-01-01	2020-05-28	0	1	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	all	male	2348	2020-01-01	2020-05-28	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Sweden	SWE1	0	999	all	female	1918	2020-01-01	2020-05-28	0	0	https://www.folkhalsomyndigheten.se/smittskydd-beredskap/utbrott/aktuella-utbrott/covid-19/bekraftade-fall-i-sverige/
+Switzerland	CHE2	0	10	Zurich	both	0	2020-01-01	2020-05-15	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE2	10	20	Zurich	both	0	2020-01-01	2020-05-15	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE2	20	30	Zurich	both	0	2020-01-01	2020-05-15	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE2	30	40	Zurich	both	0	2020-01-01	2020-05-15	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE2	40	50	Zurich	both	0	2020-01-01	2020-05-15	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE2	50	60	Zurich	both	4	2020-01-01	2020-05-15	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE2	60	70	Zurich	both	10	2020-01-01	2020-05-15	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE2	70	80	Zurich	both	17	2020-01-01	2020-05-15	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Switzerland	CHE2	80	999	Zurich	both	93	2020-01-01	2020-05-15	1	0	https://covid-19-schweiz.bagapps.ch/fr-1.html
+Italy	ITA1	0	9	all	both	4	2020-01-01	2020-06-18	1	0	https://dc-covid.site.ined.fr/en/data/italy/
+Italy	ITA1	10	19	all	both	0	2020-01-01	2020-06-18	1	0	https://dc-covid.site.ined.fr/en/data/italy/
+Italy	ITA1	20	29	all	both	15	2020-01-01	2020-06-18	1	0	https://dc-covid.site.ined.fr/en/data/italy/
+Italy	ITA1	30	39	all	both	65	2020-01-01	2020-06-18	1	0	https://dc-covid.site.ined.fr/en/data/italy/
+Italy	ITA1	40	49	all	both	287	2020-01-01	2020-06-18	1	0	https://dc-covid.site.ined.fr/en/data/italy/
+Italy	ITA1	50	59	all	both	1164	2020-01-01	2020-06-18	1	0	https://dc-covid.site.ined.fr/en/data/italy/
+Italy	ITA1	60	69	all	both	3377	2020-01-01	2020-06-18	1	0	https://dc-covid.site.ined.fr/en/data/italy/
+Italy	ITA1	70	79	all	both	8846	2020-01-01	2020-06-18	1	0	https://dc-covid.site.ined.fr/en/data/italy/
+Italy	ITA1	80	89	all	both	13628	2020-01-01	2020-06-18	1	0	https://dc-covid.site.ined.fr/en/data/italy/
+Italy	ITA1	90	999	all	both	5923	2020-01-01	2020-06-18	1	0	https://dc-covid.site.ined.fr/en/data/italy/
+Italy	ITA1	0	999	Piemonte	both	3114	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Valle D'Aosta	both	146	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Liguria	both	1676	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Lombardia	both	16776	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Bolzano	both	292	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Trento	both	405	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Veneto	both	1990	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Friuli-Venenzia Giulia	both	349	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Emilia-Romagna	both	4266	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Toscana	both	1132	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Umbria	both	80	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Marche	both	984	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Lazio	both	868	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Abruzzo	both	470	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Molise	both	22	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Campania	both	459	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Puglia	both	548	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Basilicata	both	30	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Clabria	both	97	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Sicilia	both	304	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Sardegna	both	134	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Luxembourg	LUX1	0	29	national	both	0	2020-01-01	2020-08-06	1	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
+Luxembourg	LUX1	30	39	national	both	0	2020-01-01	2020-08-06	1	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
+Luxembourg	LUX1	40	49	national	both	0	2020-01-01	2020-08-06	1	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
+Luxembourg	LUX1	50	59	national	both	2	2020-01-01	2020-08-06	1	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
+Luxembourg	LUX1	60	69	national	both	7	2020-01-01	2020-08-06	1	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
+Luxembourg	LUX1	70	79	national	both	28	2020-01-01	2020-08-06	1	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
+Luxembourg	LUX1	80	999	national	both	78	2020-01-01	2020-08-06	1	0	https://msan.gouvernement.lu/en/graphiques-evolution.html
+China	CHN1	0	9	Wuhan	both	0	2020-01-01	2020-04-17	1	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
+China	CHN1	10	19	Wuhan	both	4	2020-01-01	2020-04-17	1	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
+China	CHN1	20	29	Wuhan	both	26	2020-01-01	2020-04-17	1	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
+China	CHN1	30	39	Wuhan	both	68	2020-01-01	2020-04-17	1	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
+China	CHN1	40	49	Wuhan	both	144	2020-01-01	2020-04-17	1	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
+China	CHN1	50	59	Wuhan	both	492	2020-01-01	2020-04-17	1	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
+China	CHN1	60	69	Wuhan	both	1169	2020-01-01	2020-04-17	1	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
+China	CHN1	70	79	Wuhan	both	1180	2020-01-01	2020-04-17	1	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
+China	CHN1	80	999	Wuhan	both	787	2020-01-01	2020-04-17	1	0	assume total deaths as in https://www.theguardian.com/world/2020/apr/17/china-denies-cover-up-as-wuhan-coronavirus-deaths-revised-up-50 but age distribution as of end Feb (verity et al).
+Kenya	KEN1	0	9	national	both	1	2020-01-01	2020-06-18	1	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
+Kenya	KEN1	10	19	national	both	1	2020-01-01	2020-06-18	1	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
+Kenya	KEN1	20	29	national	both	1	2020-01-01	2020-06-18	1	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
+Kenya	KEN1	30	39	national	both	10	2020-01-01	2020-06-18	1	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
+Kenya	KEN1	40	49	national	both	20	2020-01-01	2020-06-18	1	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
+Kenya	KEN1	50	59	national	both	23	2020-01-01	2020-06-18	1	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
+Kenya	KEN1	60	999	national	both	60	2020-01-01	2020-06-18	1	0	https://www.health.go.ke/#1591180376422-52af4c1e-256b
+England	GBR3	0	15	all	both	6	2020-01-01	2020-07-17	1	0	https://fingertips.phe.org.uk/static-reports/mortality-surveillance/excess-mortality-in-england-week-ending-17-Jul-2020.html
+England	GBR3	15	44	all	both	524	2020-01-01	2020-07-17	1	0	https://fingertips.phe.org.uk/static-reports/mortality-surveillance/excess-mortality-in-england-week-ending-17-Jul-2020.html
+England	GBR3	45	64	all	both	4657	2020-01-01	2020-07-17	1	0	https://fingertips.phe.org.uk/static-reports/mortality-surveillance/excess-mortality-in-england-week-ending-17-Jul-2020.html
+England	GBR3	65	74	all	both	7105	2020-01-01	2020-07-17	1	0	https://fingertips.phe.org.uk/static-reports/mortality-surveillance/excess-mortality-in-england-week-ending-17-Jul-2020.html
+England	GBR3	75	999	all	both	36341	2020-01-01	2020-07-17	1	0	https://fingertips.phe.org.uk/static-reports/mortality-surveillance/excess-mortality-in-england-week-ending-17-Jul-2020.html
+England	GBR3	0	999	North East	both	2825	2020-01-01	2020-07-31	0	1	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
+England	GBR3	0	999	North West	both	7859	2020-01-01	2020-07-31	0	1	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
+England	GBR3	0	999	Yorkshire	both	4834	2020-01-01	2020-07-31	0	1	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
+England	GBR3	0	999	East Midlands	both	3952	2020-01-01	2020-07-31	0	1	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
+England	GBR3	0	999	West Midlands	both	5879	2020-01-01	2020-07-31	0	1	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
+England	GBR3	0	999	East of England	both	5090	2020-01-01	2020-07-31	0	1	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
+England	GBR3	0	999	London	both	8528	2020-01-01	2020-07-31	0	1	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
+England	GBR3	0	999	South East	both	7311	2020-01-01	2020-07-31	0	1	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
+England	GBR3	0	999	South West	both	2905	2020-01-01	2020-07-31	0	1	https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales
+USA	NYS1	0	9	all	both	5	2020-02-29	2020-09-12	1	0	https://covid19tracker.health.ny.gov/views/NYS-COVID19-Tracker/NYSDOHCOVID-19Tracker-Fatalities?%3Aembed=yes&%3Atoolbar=no&%3Atabs=n#/views/NYS%2dCOVID19%2dTracker/NYSDOHCOVID%2d19Tracker%2dFatalities
+USA	NYS1	10	19	all	both	11	2020-02-29	2020-09-12	1	0	https://covid19tracker.health.ny.gov/views/NYS-COVID19-Tracker/NYSDOHCOVID-19Tracker-Fatalities?%3Aembed=yes&%3Atoolbar=no&%3Atabs=n#/views/NYS%2dCOVID19%2dTracker/NYSDOHCOVID%2d19Tracker%2dFatalities
+USA	NYS1	20	29	all	both	96	2020-02-29	2020-09-12	1	0	https://covid19tracker.health.ny.gov/views/NYS-COVID19-Tracker/NYSDOHCOVID-19Tracker-Fatalities?%3Aembed=yes&%3Atoolbar=no&%3Atabs=n#/views/NYS%2dCOVID19%2dTracker/NYSDOHCOVID%2d19Tracker%2dFatalities
+USA	NYS1	30	39	all	both	335	2020-02-29	2020-09-12	1	0	https://covid19tracker.health.ny.gov/views/NYS-COVID19-Tracker/NYSDOHCOVID-19Tracker-Fatalities?%3Aembed=yes&%3Atoolbar=no&%3Atabs=n#/views/NYS%2dCOVID19%2dTracker/NYSDOHCOVID%2d19Tracker%2dFatalities
+USA	NYS1	40	49	all	both	870	2020-02-29	2020-09-12	1	0	https://covid19tracker.health.ny.gov/views/NYS-COVID19-Tracker/NYSDOHCOVID-19Tracker-Fatalities?%3Aembed=yes&%3Atoolbar=no&%3Atabs=n#/views/NYS%2dCOVID19%2dTracker/NYSDOHCOVID%2d19Tracker%2dFatalities
+USA	NYS1	50	59	all	both	2422	2020-02-29	2020-09-12	1	0	https://covid19tracker.health.ny.gov/views/NYS-COVID19-Tracker/NYSDOHCOVID-19Tracker-Fatalities?%3Aembed=yes&%3Atoolbar=no&%3Atabs=n#/views/NYS%2dCOVID19%2dTracker/NYSDOHCOVID%2d19Tracker%2dFatalities
+USA	NYS1	60	69	all	both	4930	2020-02-29	2020-09-12	1	0	https://covid19tracker.health.ny.gov/views/NYS-COVID19-Tracker/NYSDOHCOVID-19Tracker-Fatalities?%3Aembed=yes&%3Atoolbar=no&%3Atabs=n#/views/NYS%2dCOVID19%2dTracker/NYSDOHCOVID%2d19Tracker%2dFatalities
+USA	NYS1	70	79	all	both	6580	2020-02-29	2020-09-12	1	0	https://covid19tracker.health.ny.gov/views/NYS-COVID19-Tracker/NYSDOHCOVID-19Tracker-Fatalities?%3Aembed=yes&%3Atoolbar=no&%3Atabs=n#/views/NYS%2dCOVID19%2dTracker/NYSDOHCOVID%2d19Tracker%2dFatalities
+USA	NYS1	80	89	all	both	6540	2020-02-29	2020-09-12	1	0	https://covid19tracker.health.ny.gov/views/NYS-COVID19-Tracker/NYSDOHCOVID-19Tracker-Fatalities?%3Aembed=yes&%3Atoolbar=no&%3Atabs=n#/views/NYS%2dCOVID19%2dTracker/NYSDOHCOVID%2d19Tracker%2dFatalities
+USA	NYS1	90	999	all	both	3592	2020-02-29	2020-09-12	1	0	https://covid19tracker.health.ny.gov/views/NYS-COVID19-Tracker/NYSDOHCOVID-19Tracker-Fatalities?%3Aembed=yes&%3Atoolbar=no&%3Atabs=n#/views/NYS%2dCOVID19%2dTracker/NYSDOHCOVID%2d19Tracker%2dFatalities

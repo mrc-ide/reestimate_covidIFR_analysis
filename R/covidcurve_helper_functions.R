@@ -2,10 +2,60 @@ source("R/assertions_v5.R")
 library(tidyverse)
 library(stringr)
 
+#' @title Log Transform IFR params
+#' @details goal here is to be memory light
+#' @importFrom magrittr %>%
+#' @export
+
+get_log_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
+  # read in
+  IFRmodel_inf <- readRDS(path)
+  # checks
+  assert_custom_class(IFRmodel_inf$inputs$IFRmodel, "IFRmodel")
+  assert_custom_class(IFRmodel_inf$mcmcout, "drjacoby_output")
+  assert_custom_class(IFRmodel_inf, "IFRmodel_inf")
+  assert_logical(by_chain)
+
+  # grouping vars
+  if (by_chain) {
+    groupingvar <- c("chain", "param")
+    params <- c("chain", IFRmodel_inf$inputs$IFRmodel$IFRparams)
+  } else {
+    groupingvar <- "param"
+    params <- IFRmodel_inf$inputs$IFRmodel$IFRparams
+  }
+
+  IFRmodel_inf$mcmcout$output %>%
+    dplyr::filter(stage == "sampling" & rung == "rung1") %>%
+    dplyr::select_at(params) %>%
+    tidyr::pivot_longer(., cols = params[!grepl("chain", params)], # if chain isn't included in vector, grepl won't do anything
+                        names_to = "param", values_to = "est") %>%
+    dplyr::mutate(est = log(est)) %>%
+    dplyr::group_by_at(groupingvar) %>%
+    dplyr::summarise(
+      min = min(est),
+      LCI = quantile(est, 0.025),
+      median = median(est),
+      mean = mean(est),
+      UCI = quantile(est, 0.975),
+      max = max(est),
+      precision = 1/var(est)
+    )
+}
+
+#' @title extract data dictionary from IFRmodel_inf path
+#' @details goal here is to be memory light
+
+get_data_dict <- function(path) {
+  modout <- readRDS(path)
+  return(modout$inputs$IFRmodel$IFRdictkey)
+}
+
+
 #' @title Calculate seroprevalens from a path
 #' @details goal here is to be memory light
 
-get_overall_seroprevs <- function(path, dwnsmpl = 1e2) {
+get_strata_seroprevs <- function(path, dwnsmpl = 1e2) {
   modout <- readRDS(path)
   seroprevs <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
                                                       whichrung = "rung1",
@@ -13,6 +63,8 @@ get_overall_seroprevs <- function(path, dwnsmpl = 1e2) {
                                                       by_chain = FALSE)
   return(seroprevs)
 }
+
+
 
 #' @title Calculate stratified IFR from a path
 #' @details goal here is to be memory light
@@ -43,63 +95,88 @@ get_overall_IFRs <- function(path) {
 }
 
 
+#' @title Calculate overall IFR from a path
+#' @details goal here is to be memory light
+get_sens_spec <- function(path) {
+  modout <- readRDS(path)
+  out <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout,
+                                        what = "Serotestparams",
+                                        whichrung = "rung1",
+                                        by_chain = FALSE) %>%
+    dplyr::filter(param %in% c("sens", "spec"))
+  return(out)
+}
+
+
 
 #' @title Make IFR Model for MCMC Fitting
-make_IFR_model_fit <- function(num_mas, maxMa,
-                               groupvar, dat,
-                               num_xs, max_xveclist,
-                               num_ys, max_yveclist,
-                               sens_spec_tbl, tod_paramsdf,
-                               serodayparams) {
+make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
+                                         groupvar, dat,
+                                         num_xs, max_xveclist,
+                                         num_ys, max_yveclist,
+                                         sens_spec_tbl, tod_paramsdf,
+                                         serodayparams) {
 
 
   ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.4)
 
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
+
   infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
                                            num_ys = num_ys)
 
-  noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0.5, init = 1, max = 1.5)
+  if (num_mas > 1) {
+    noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0.5, init = 1, max = 1.5)
+    df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
+  } else {
+    df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf)
+  }
 
-  # bring together
-  df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
   #......................
   # format data
   #......................
   dictkey <- tibble::tibble(groupvar = as.character(unlist(unique(dat$seroprevMCMC[, groupvar]))), "Strata" = paste0("ma", 1:num_mas))
   colnames(dictkey) <- c(paste(groupvar), "Strata")
 
-    # time series deaths
-    obs_deaths <- dat$deaths_TSMCMC %>%
-      dplyr::select(c("ObsDay", "deaths")) %>%
-      dplyr::rename(Deaths = deaths)
-    # sanity check
-    if( any(duplicated(obs_deaths$ObsDay)) ) {
-      stop("Time series has duplicated observed days")
+  # time series deaths
+  obs_deaths <- dat$deaths_TSMCMC %>%
+    dplyr::select(c("ObsDay", "deaths")) %>%
+    dplyr::rename(Deaths = deaths)
+  # sanity check
+  if( any(duplicated(obs_deaths$ObsDay)) ) {
+    stop("Time series has duplicated observed days")
+  }
+
+  # prop deaths
+  prop_deaths <- dplyr::left_join(dat$deaths_propMCMC, dictkey) %>%
+    dplyr::select(c("Strata", "death_prop"))  %>%
+    dplyr::rename(PropDeaths = death_prop) %>%
+    dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
+    dplyr::arrange(Strata) %>%
+    dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
+
+  # seroprev
+  obs_serology <- dplyr::left_join(dat$seroprevMCMC, dictkey) %>%
+    dplyr::rename(SeroPos = n_positive,
+                  SeroN = n_tested,
+                  SeroStartSurvey = ObsDaymin,
+                  SeroEndSurvey = ObsDaymax) %>%
+    dplyr::mutate(SeroLCI = NA,
+                  SeroUCI = NA) %>%
+    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
+    dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
+    dplyr::arrange(SeroStartSurvey, Strata) %>%
+    dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
+
+  if ( all(c("SeroLCI", "SeroUCI") %in% colnames(dat$seroprevMCMC))) {
+    if ( all( !is.na(c(dat$seroprevMCMC$SeroLCI, dat$seroprevMCMC$SeroUCI))) ) {
+      obs_serology$SeroLCI <- dat$seroprevMCMC$SeroLCI
+      obs_serology$SeroUCI <- dat$seroprevMCMC$SeroUCI
+    } else {
+      stop("You have LCI and UCI columns with incomplete information")
     }
-
-    # prop deaths
-    prop_deaths <- dplyr::left_join(dat$deaths_propMCMC, dictkey) %>%
-      dplyr::select(c("Strata", "death_prop"))  %>%
-      dplyr::rename(PropDeaths = death_prop) %>%
-      dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
-      dplyr::arrange(Strata) %>%
-      dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
-
-    # seroprev
-    obs_serology <- dplyr::left_join(dat$seroprevMCMC, dictkey) %>%
-      dplyr::rename(SeroPos = n_positive,
-                    SeroN = n_tested,
-                    SeroStartSurvey = ObsDaymin,
-                    SeroEndSurvey = ObsDaymax) %>%
-      dplyr::mutate(SeroLCI = NA,
-                    SeroUCI = NA) %>%
-      dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
-      dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
-      dplyr::arrange(SeroStartSurvey, Strata) %>%
-      dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
-
+  }
 
   inputdata <- list(obs_deaths = obs_deaths,
                     prop_deaths = prop_deaths,
@@ -116,27 +193,174 @@ make_IFR_model_fit <- function(num_mas, maxMa,
 
 
   # make mod
-  mod1 <- make_IFRmodel_agg$new()
-  mod1$set_MeanTODparam("mod")
-  mod1$set_CoefVarOnsetTODparam("sod")
-  mod1$set_IFRparams(paste0("ma", 1:num_mas))
-  mod1$set_maxMa(maxMa)
-  mod1$set_Knotparams(paste0("x", 1:num_xs))
-  mod1$set_relKnot(max_xveclist[["name"]])
-  mod1$set_Infxnparams(paste0("y", 1:num_ys))
-  mod1$set_relInfxn(max_yveclist[["name"]])
-  mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_scale", "sero_rev_shape"))
-  mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
-  mod1$set_data(inputdata)
-  mod1$set_demog(demog)
-  mod1$set_paramdf(df_params)
-  mod1$set_rho(demog$popN)
-  mod1$set_rcensor_day(.Machine$integer.max)
-  mod1$set_IFRdictkey(dictkey)
-  # out
-  mod1
+  if (num_mas > 1) {
+    mod1 <- make_IFRmodel_age$new()
+    mod1$set_MeanTODparam("mod")
+    mod1$set_CoefVarOnsetTODparam("sod")
+    mod1$set_IFRparams(paste0("ma", 1:num_mas))
+    mod1$set_maxMa(maxMa)
+    mod1$set_Knotparams(paste0("x", 1:num_xs))
+    mod1$set_relKnot(max_xveclist[["name"]])
+    mod1$set_Infxnparams(paste0("y", 1:num_ys))
+    mod1$set_relInfxn(max_yveclist[["name"]])
+    mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
+    mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
+    mod1$set_data(inputdata)
+    mod1$set_demog(demog)
+    mod1$set_paramdf(df_params)
+    mod1$set_rcensor_day(.Machine$integer.max)
+    mod1$set_IFRdictkey(dictkey)
+    # out
+    mod1
+  } else {
+    mod1 <- make_IFRmodel_age$new()
+    mod1$set_MeanTODparam("mod")
+    mod1$set_CoefVarOnsetTODparam("sod")
+    mod1$set_IFRparams(paste0("ma", 1:num_mas))
+    mod1$set_maxMa(maxMa)
+    mod1$set_Knotparams(paste0("x", 1:num_xs))
+    mod1$set_relKnot(max_xveclist[["name"]])
+    mod1$set_Infxnparams(paste0("y", 1:num_ys))
+    mod1$set_relInfxn(max_yveclist[["name"]])
+    mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
+    mod1$set_data(inputdata)
+    mod1$set_demog(demog)
+    mod1$set_paramdf(df_params)
+    mod1$set_rcensor_day(.Machine$integer.max)
+    mod1$set_IFRdictkey(dictkey)
+    # out
+    mod1
+  }
+
 }
 
+
+
+
+#' @title Make IFR Model for MCMC Fitting
+make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
+                                       groupvar, dat,
+                                       num_xs, max_xveclist,
+                                       num_ys, max_yveclist,
+                                       sens_spec_tbl, tod_paramsdf,
+                                       serodayparams) {
+
+
+  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.4)
+
+  knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
+                                          num_xs = num_xs)
+
+  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
+                                           num_ys = num_ys)
+
+  if (num_mas > 1) {
+    noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = num_mas, min = 0.5, init = 1, max = 1.5)
+    df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, noise_paramsdf, tod_paramsdf)
+  } else {
+    df_params <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf)
+  }
+
+  #......................
+  # format data
+  #......................
+  dictkey <- tibble::tibble(groupvar = as.character(unlist(unique(dat$seroprevMCMC[, groupvar]))), "Strata" = paste0("ma", 1:num_mas))
+  colnames(dictkey) <- c(paste(groupvar), "Strata")
+
+  # time series deaths
+  obs_deaths <- dat$deaths_TSMCMC %>%
+    dplyr::select(c("ObsDay", "deaths")) %>%
+    dplyr::rename(Deaths = deaths)
+  # sanity check
+  if( any(duplicated(obs_deaths$ObsDay)) ) {
+    stop("Time series has duplicated observed days")
+  }
+
+  # prop deaths
+  prop_deaths <- dplyr::left_join(dat$deaths_propMCMC, dictkey) %>%
+    dplyr::select(c("Strata", "death_prop"))  %>%
+    dplyr::rename(PropDeaths = death_prop) %>%
+    dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
+    dplyr::arrange(Strata) %>%
+    dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
+
+  # seroprev
+  obs_serology <- dplyr::left_join(dat$seroprevMCMC, dictkey) %>%
+    dplyr::rename(SeroPos = n_positive,
+                  SeroN = n_tested,
+                  SeroStartSurvey = ObsDaymin,
+                  SeroEndSurvey = ObsDaymax) %>%
+    dplyr::mutate(SeroLCI = NA,
+                  SeroUCI = NA) %>%
+    dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
+    dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
+    dplyr::arrange(SeroStartSurvey, Strata) %>%
+    dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
+
+  if ( all(c("SeroLCI", "SeroUCI") %in% colnames(dat$seroprevMCMC))) {
+    if ( all( !is.na(c(dat$seroprevMCMC$SeroLCI, dat$seroprevMCMC$SeroUCI))) ) {
+      obs_serology$SeroLCI <- dat$seroprevMCMC$SeroLCI
+      obs_serology$SeroUCI <- dat$seroprevMCMC$SeroUCI
+    } else {
+      stop("You have LCI and UCI columns with incomplete information")
+    }
+  }
+
+  inputdata <- list(obs_deaths = obs_deaths,
+                    prop_deaths = prop_deaths,
+                    obs_serology = obs_serology)
+
+  demog <- dat$prop_pop %>%
+    dplyr::left_join(., dictkey) %>%
+    dplyr::select(c("Strata", "popN")) %>%
+    dplyr::group_by(Strata) %>%
+    dplyr::summarise(popN = round(sum(popN))) %>%
+    dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
+    dplyr::arrange(Strata) %>%
+    dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
+
+
+  # make mod
+  if (num_mas > 1) {
+    mod1 <- make_IFRmodel_age$new()
+    mod1$set_MeanTODparam("mod")
+    mod1$set_CoefVarOnsetTODparam("sod")
+    mod1$set_IFRparams(paste0("ma", 1:num_mas))
+    mod1$set_maxMa(maxMa)
+    mod1$set_Knotparams(paste0("x", 1:num_xs))
+    mod1$set_relKnot(max_xveclist[["name"]])
+    mod1$set_Infxnparams(paste0("y", 1:num_ys))
+    mod1$set_relInfxn(max_yveclist[["name"]])
+    mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
+    mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
+    mod1$set_data(inputdata)
+    mod1$set_demog(demog)
+    mod1$set_paramdf(df_params)
+    mod1$set_rcensor_day(.Machine$integer.max)
+    mod1$set_IFRdictkey(dictkey)
+    # out
+    mod1
+  } else {
+    mod1 <- make_IFRmodel_age$new()
+    mod1$set_MeanTODparam("mod")
+    mod1$set_CoefVarOnsetTODparam("sod")
+    mod1$set_IFRparams(paste0("ma", 1:num_mas))
+    mod1$set_maxMa(maxMa)
+    mod1$set_Knotparams(paste0("x", 1:num_xs))
+    mod1$set_relKnot(max_xveclist[["name"]])
+    mod1$set_Infxnparams(paste0("y", 1:num_ys))
+    mod1$set_relInfxn(max_yveclist[["name"]])
+    mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
+    mod1$set_data(inputdata)
+    mod1$set_demog(demog)
+    mod1$set_paramdf(df_params)
+    mod1$set_rcensor_day(.Machine$integer.max)
+    mod1$set_IFRdictkey(dictkey)
+    # out
+    mod1
+  }
+
+}
 
 
 #' @title Make Simple Data Dictionary Key for IFR age-bands, regions, etc. to simple
@@ -157,9 +381,9 @@ make_ma_reparamdf <- function(num_mas = 10, upperMa) {
   tibble::tibble(name = paste0("ma", 1:num_mas),
                  min  = rep(0, size = num_mas),
                  init = rep(0.1, size = num_mas),
-                 max = rep(upperMa, size = num_mas),
+                 max = c(rep(1, times = num_mas-1), upperMa),
                  dsc1 = rep(0, size = num_mas),
-                 dsc2 = rep(upperMa, size = num_mas))
+                 dsc2 = c(rep(1, times = num_mas-1), upperMa))
 }
 
 

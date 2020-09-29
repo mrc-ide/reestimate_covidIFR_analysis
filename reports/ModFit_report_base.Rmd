@@ -3,6 +3,8 @@ output:
   pdf_document:
 params:
    path: ""
+editor_options: 
+  chunk_output_type: console
 ---
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, 
@@ -24,14 +26,26 @@ source("R/my_themes.R")
 modout <- readRDS(params$path)
 
 # pieces for below
-studyidchar <- toupper(stringr::str_split(basename(params$path), "_age|_rgn", simplify = T)[[1]])
-stratachar <- ifelse(grepl("age", basename(params$path)), "Age-Band", "Region")
+studyidchar <- title <- toupper(stringr::str_split(basename(params$path), "_age|_carehomes", simplify = T)[[1]])
+
+# update title
+if (grepl("_SeroRev", basename(params$path))) { # catch serorevsion
+  title <- paste(title, "with the Potential for Seroreversion Included")
+  studylvl <- "SeroRev"
+} else if (grepl("_carehomes", basename(params$path))) { # catch care homes
+  title <- paste(title, "with Care Homes Excluded")
+  studylvl <- "CareHome"
+} else {
+  title <- paste(title, "with Standard Input")
+  studylvl <- "standard"
+}
+
 ```
 
-# `r paste(studyidchar)`
+# `r paste(title)`
 
 ## Fit Diagnostics
-#### Log Plot
+#### Log Likelihood & Prior Plot
 ```{r, results='asis', fig.width=7.5, fig.height=5.5}
 modout$mcmcout$output %>%
   dplyr::filter(rung == "rung1") %>%
@@ -49,6 +63,20 @@ modout$mcmcout$output %>%
         legend.title = element_blank())
 
 ```
+
+```{r, results='asis'}
+gdiag <- COVIDCurve::get_gelman_rubin_diagnostic(modout)
+tibble::tibble(gelman_mpsrf = gdiag$mpsrf) %>% 
+  dplyr::mutate(
+    gelman_mpsrf = round(gelman_mpsrf, 2),
+    gelman_mpsrf = kableExtra::cell_spec(gelman_mpsrf, "latex", 
+                                         color = ifelse(gelman_mpsrf > 1.1, "red", "green"),
+                                         bold = T,
+                                         font_size = 16)) %>% 
+  knitr::kable(., format = "simple")
+
+```
+
 
 \pagebreak
 #### Metropolis Coupling Acceptance Plot
@@ -68,15 +96,14 @@ quick_sero_diagnostics(modout)
 ```
 
 \pagebreak
-## `r paste(stratachar)` Estimates
 
 #### IFRs & Incidence Curve
 
 ```{r}
 # common name for knit and joins
 dictkey <- modout$inputs$IFRmodel$IFRdictkey %>% 
-  dplyr::rename(param = Strata)
-colnames(dictkey)[colnames(dictkey) == gsub("-", "", tolower(stratachar))] <- "strata"
+  dplyr::rename(param = Strata,
+                strata = ageband)
 #...................... 
 # get ifrs 
 #......................
@@ -88,13 +115,12 @@ ifrs <- dplyr::left_join(dictkey, ifrs) %>%
 #...................... 
 # get crude ifrs 
 #......................
-dscdat <- readRDS("data/results/descriptive_results_datamap.RDS") 
+dscdat <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS") 
 crudedat <- dscdat %>% 
-  dplyr::filter(study_id == studyidchar & breakdown == gsub("-", "", tolower(stratachar)))  %>%
+  dplyr::filter(study_id == studyidchar & breakdown == "ageband")  %>%
   dplyr::select(c("study_id", "plotdat")) %>%
-  tidyr::unnest(cols = "plotdat")
-# common name for knit
-colnames(crudedat)[colnames(crudedat) == gsub("-", "", tolower(stratachar))] <- "strata"
+  tidyr::unnest(cols = "plotdat") %>% 
+  dplyr::rename(strata = ageband)
 
 crudeplotdat <- crudedat %>%
   dplyr::filter(seromidpt == obsday) %>%
@@ -133,7 +159,7 @@ plot2 <- infxncurve$plotObj
 main_plotObj <- cowplot::plot_grid(plot1, plot2, ncol = 1, nrow = 2)
 
 # quick out
-jpgsnapshot(paste0("figures/", studyidchar, "-", stratachar, "_IFRplot.jpg"), 
+jpgsnapshot(paste0("figures/", studyidchar, "-", studylvl, "_IFRplot.jpg"), 
             plot = main_plotObj)
 
 ```
@@ -147,7 +173,7 @@ plot(main_plotObj)
 ```{r, results='asis', fig.width=8, fig.height=6}
 ifrs %>% 
   dplyr::mutate_if(is.numeric, round, 4) %>% 
-  knitr::kable(.)
+  knitr::kable(., format = "simple")
 
 ```
 
@@ -158,14 +184,14 @@ COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout,
                                          whichrung = "rung1", 
                                          by_chain = FALSE) %>% 
   dplyr::mutate_if(is.numeric, round, 4) %>% 
-  knitr::kable(.)
+  knitr::kable(., format = "simple")
 
 # by chain
 COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout, 
                                          whichrung = "rung1", 
                                          by_chain = TRUE) %>% 
   dplyr::mutate_if(is.numeric, round, 4) %>% 
-  knitr::kable(.)
+  knitr::kable(., format = "simple")
 
 #...................... 
 # global ifr iteration plot
@@ -229,7 +255,7 @@ SeroPrevObs <- crudedat %>%
 ```{r}
 serocurvedatPlotObj <- serocurvedat %>% 
   ggplot() +
-  geom_line(aes(x = ObsDay, y = seroprev, color = seroprevlvl), alpha = 0.5) +
+  geom_line(aes(x = ObsDay, y = seroprev, color = seroprevlvl, group = sim), alpha = 0.5) +
   geom_rect(data = SeroPrevObs, aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf), 
             color = "#d9d9d9", fill = "#d9d9d9", alpha = 0.8) +
   geom_point(data = SeroPrevObs, aes(x = obsmidday, y = seroprev, group = strata),
@@ -241,7 +267,7 @@ serocurvedatPlotObj <- serocurvedat %>%
   xyaxis_plot_theme + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"))
 
-jpgsnapshot(paste0("figures/", studyidchar, "-", stratachar, "_SeroPrevPDplot.jpg"), 
+jpgsnapshot(paste0("figures/", studyidchar, "-", studylvl, "_SeroPrevPDplot.jpg"), 
             plot = serocurvedatPlotObj)
 
 
@@ -252,7 +278,8 @@ plot(serocurvedatPlotObj)
 ```
 
 \pagebreak
-```{r, results='asis', fig.width=7, fig.height=7}
+#### Death Posterior Predictive Check
+```{r}
 #......................
 # get deaths posterior pred check
 #......................
@@ -279,43 +306,7 @@ death_midday <-  deathrecast %>%
   dplyr::filter(ObsDay %in% ceiling(unique(SeroPrevObs$obsmidday))) %>% 
   dplyr::rename(param = Strata)
 
-#......................
-# get seropost
-#......................
-seropost_midday <- serocurvedat %>% 
-  dplyr::filter(ObsDay %in% ceiling(unique(SeroPrevObs$obsmidday))) %>% 
-  dplyr::filter(seroprevlvl == "Crude") %>% 
-  dplyr::ungroup() %>% 
-  dplyr::left_join(., death_midday) %>% 
-  dplyr::mutate(std_deaths = cumdeaths/popN * 1e6,
-                strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(param, "[0-9]+"))))
 
-SeroPrevObs_midday <- SeroPrevObs %>% 
-  dplyr::left_join(., death_midday) %>% 
-  dplyr::rename(obseroprev = seroprev) %>% 
-  dplyr::mutate(std_deaths = (cumdeaths/popN) * 1e6) 
-
-
-
-# plot
-ggplot() + 
-  geom_point(data = seropost_midday, aes(x = seroprev, y = std_deaths, color = strata), alpha = 0.5) + 
-  geom_point(data = SeroPrevObs_midday, aes(x = obseroprev, y = std_deaths),
-             color = "#000000", size = 2) +
-  ggrepel::geom_text_repel(data = SeroPrevObs_midday, aes(x = obseroprev, y = std_deaths, label = strata)) +
-  scale_color_viridis_d("Strata") +
-  ylab("Deaths per Million") + xlab("Inferred True Seroprevalence") +
-  labs(caption = "Virids points are posteriors, black is observed") +
-  xyaxis_plot_theme + 
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"))
-
-
-
-```
-
-\pagebreak
-#### Posterior Predictive Check
-```{r}
 #...................... 
 # get posterior draws
 #......................
@@ -333,9 +324,8 @@ postdat_long <- postdat %>%
 # get deaths posterior pred check
 #......................
 datclean <-  deathrecast %>% 
-  dplyr::left_join(., modout$inputs$IFRmodel$IFRdictkey, by = "Strata") 
-# liftover name
-colnames(datclean)[colnames(datclean) == gsub("-", "", tolower(stratachar))] <- "strata"
+  dplyr::left_join(., modout$inputs$IFRmodel$IFRdictkey, by = "Strata") %>% 
+  dplyr::rename(strata = ageband)
 datclean <- datclean %>% 
   dplyr::mutate(strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(Strata, "[0-9]+"))))
 
@@ -345,18 +335,18 @@ datclean <- datclean %>%
 # make plot
 #......................
 ppc_plot <- ggplot() +
-  geom_line(data = postdat_long, aes(x= time, y = deaths, group = strata), 
+  geom_line(data = postdat_long, aes(x= time, y = deaths, group = sim), 
             size = 1.2, color = "#bdbdbd") +
-  geom_line(data = datclean, aes(x=ObsDay, y = Deaths, group = strata), 
+  geom_line(data = datclean, aes(x=ObsDay, y = Deaths), 
             color = "#3182bd") +
   facet_wrap(.~strata) +
   theme_bw() +
-  labs(caption = "Grey Lines are Draws from Posterior, Blue Line is Observed Data (from ECDC)") +
+  labs(caption = "Grey Lines are Draws from Posterior, Blue Line is Observed Data (from JHU CSSE COVID-19 Data)") +
   xlab("Time") + ylab("Deaths") + 
   theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5, vjust = 0.5)) 
 
-jpgsnapshot(paste0("figures/", studyidchar, "-", stratachar, "_PPCplot.jpg"), 
+jpgsnapshot(paste0("figures/", studyidchar, "-", studylvl, "_PPCplot.jpg"), 
             plot = ppc_plot)
 
 
@@ -385,6 +375,6 @@ addparams <- dplyr::bind_rows(knots, ypos, nes)
 ```{r, results='asis', fig.width=8, fig.height=6}
 addparams %>% 
   dplyr::mutate_if(is.numeric, round, 4) %>% 
-  knitr::kable(.)
+  knitr::kable(., format = "simple")
 
 ```
