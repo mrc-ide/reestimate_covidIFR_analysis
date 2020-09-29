@@ -46,6 +46,10 @@ serohlp <- datmap %>%
     spec = purrr::map_dbl(spec, function(x){as.numeric(x$specificity)})) %>%
   dplyr::select(c("seroprevdat", "sens", "spec"))
 
+# For ITA, will assume a spec of 99.66 and spec of 88.88 based on regional stan fits
+serohlp$sens[datmap$study_id == "ITA1"] <- 0.8888
+serohlp$spec[datmap$study_id == "ITA1"] <- 0.9966
+
 datmap <- datmap %>%
   dplyr::mutate(seroprev_adjdat = purrr::pmap(serohlp, adjust_seroprev))
 
@@ -163,7 +167,7 @@ age_IFRraw_plot_log <- age_IFRraw_plot0 %>%
   ggplot() + theme_bw() +
   geom_point(aes(x = age_mid, y = crudeIFR, fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
   geom_line(aes(x = age_mid, y = crudeIFR, group=study_id,color=study_id), size = 0.3) +
-  scale_fill_manual(values = col_vec, name = "study_id") +
+  scale_fill_manual(values = mycolors, name = "study_id") +
   scale_color_manual(values = mycolors, name = "study_id") +
   xlab("Age (years)") + ylab("Crude infection fatality rate") +
   xyaxis_plot_theme +

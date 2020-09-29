@@ -84,6 +84,7 @@ get_data_IFR_longit <- function(simdat, modelobj, fit, sens, spec, dwnsmpl = 1e2
   cumdat <-  simdat$StrataAgg_Seroprev %>%
     dplyr::left_join(simdat$StrataAgg_TimeSeries_Death, ., by = c("ObsDay", "Strata")) %>%
     dplyr::left_join(., demog, by = "Strata") %>%
+    dplyr::filter(Strata == "ma3") %>%
     dplyr::mutate(
       cumdeaths = cumsum(Deaths),
       RGIFR = cumdeaths/(popN * rogan_gladen(obs_prev = ObsPrev, sens = sens, spec = spec)),
@@ -110,7 +111,7 @@ get_data_IFR_longit <- function(simdat, modelobj, fit, sens, spec, dwnsmpl = 1e2
 
   # inferred IFR
   infIFR <- mcmcout.nodes %>%
-    dplyr::select(c("iteration", "ma1"))
+    dplyr::select(c("iteration", "ma3"))
 
   #......................
   # bring together
@@ -140,7 +141,7 @@ infplotdat <- param_map$plotdat[[1]]$infIFR
 
 
 no_serorev_infIFR_plotObj <- ggplot() +
-  geom_hline(data = infplotdat, aes(yintercept = ma1), color = "#d9d9d9", alpha = 0.8, size = 0.9) +
+  geom_hline(data = infplotdat, aes(yintercept = ma3), color = "#d9d9d9", alpha = 0.8, size = 0.9) +
   geom_hline(yintercept = fatalitydata_intercept, color = "#252525", size = 1.2,
              linetype = "dashed") +
   geom_line(data = cumplotdat,
@@ -174,7 +175,7 @@ cumplotdat <- param_map$plotdat[[2]]$cumdat %>%
 infplotdat <- param_map$plotdat[[2]]$infIFR
 
 serorev_infIFR_plotObj <- ggplot() +
-  geom_hline(data = infplotdat, aes(yintercept = ma1), color = "#d9d9d9", alpha = 0.8, size = 0.9) +
+  geom_hline(data = infplotdat, aes(yintercept = ma3), color = "#d9d9d9", alpha = 0.8, size = 0.9) +
   geom_hline(yintercept = fatalitydata_intercept, color = "#252525", size = 1.2,
              linetype = "dashed") +
   geom_line(data = cumplotdat,
@@ -198,7 +199,7 @@ serorev_infIFR_plotObj <- ggplot() +
 #............................................................
 #----- Conceptual Diagram #-----
 #...........................................................
-popN <- param_map$modelobj[[1]]$demog$popN # only one strata
+popN <- sum(param_map$modelobj[[1]]$demog$popN)
 
 #......................
 # tidy up and combine
@@ -215,12 +216,14 @@ cumdeaths <- param_map$simdat[[1]]$Agg_TimeSeries_Death %>%
 
 
 serodf_norev <- param_map$simdat[[1]]$StrataAgg_Seroprev %>%
+  dplyr::filter(Strata == "ma3") %>%
   dplyr::select(c("ObsDay", "TruePrev", "ObsPrev")) %>%
   dplyr::rename(time = ObsDay,
                 regTruePrev = TruePrev,
                 regObsPrev = ObsPrev)
 
 serodf_rev <- param_map$simdat[[2]]$StrataAgg_Seroprev %>%
+  dplyr::filter(Strata == "ma3") %>%
   dplyr::select(c("ObsDay", "ObsPrev")) %>%
   dplyr::rename(time = ObsDay,
                 revObsPrev = ObsPrev)
@@ -249,18 +252,18 @@ plotdatdf <- datdf %>%
 #......................
 arrows <- tibble::tibble(
   lvl =  c("mod", "serocon", "sens", "spec", "serorev"),
-  x =    c(94.5,    139,       250,    10,     290),
-  xend = c(147,    161,     250,    10,     290),
-  y =    c(0.03,    0.4,       0.715,   0,      0.725),
-  yend = c(0.03,    0.4,       0.615,  0.05,   0.52)
+  x =    c(87,    139,       250,    10,     290),
+  xend = c(160,    162,        250,    10,        290),
+  y =    c(0.02,    0.4,       0.715,   0,     0.725),
+  yend = c(0.02,    0.4,       0.575,  0.05,   0.35)
 )
 
 
 labels <- tibble::tibble(
   lvl =    c("mod",       "serocon",    "sens",    "spec",  "serorev"),
   label =  c("O-D Delay", "O-S Delay",  "Sens.",   "Spec.",  "O-R Delay"),
-  x =      c(178,          193,          230,       12,       280),
-  y =      c(0.02,          0.4,         0.6675,    0.07,      0.5),
+  x =      c(170,          190,          230,       12,       265),
+  y =      c(0.05,          0.4,         0.625,    0.07,      0.50),
 )
 
 
@@ -295,7 +298,7 @@ delay_plotObj <- plotdatdf %>%
         panel.border = element_blank(),
         axis.line = element_line(color = "#000000", size = 1))
 
-
+delay_plotObj
 
 #............................................................
 #----- Inset with Posteriors #-----
