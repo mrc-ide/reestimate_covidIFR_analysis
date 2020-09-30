@@ -7,7 +7,7 @@ library(stringr)
 #' @importFrom magrittr %>%
 #' @export
 
-get_log_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
+get_log10_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
   # read in
   IFRmodel_inf <- readRDS(path)
   # checks
@@ -30,7 +30,7 @@ get_log_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
     dplyr::select_at(params) %>%
     tidyr::pivot_longer(., cols = params[!grepl("chain", params)], # if chain isn't included in vector, grepl won't do anything
                         names_to = "param", values_to = "est") %>%
-    dplyr::mutate(est = log(est)) %>%
+    dplyr::mutate(est = log10(est)) %>%
     dplyr::group_by_at(groupingvar) %>%
     dplyr::summarise(
       min = min(est),
