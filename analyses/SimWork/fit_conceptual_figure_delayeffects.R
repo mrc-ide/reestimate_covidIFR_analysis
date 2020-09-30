@@ -40,8 +40,8 @@ demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
 dat <- COVIDCurve::Agesim_infxn_2_death(
   fatalitydata = fatalitydata,
   demog = demog,
-  m_od = 19.66,
-  s_od = 0.90,
+  m_od = 19.8,
+  s_od = 0.85,
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = FALSE,
@@ -54,8 +54,8 @@ dat <- COVIDCurve::Agesim_infxn_2_death(
 serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
   fatalitydata = fatalitydata,
   demog = demog,
-  m_od = 19.66,
-  s_od = 0.90,
+  m_od = 19.8,
+  s_od = 0.85,
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = TRUE,
@@ -168,10 +168,10 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens",  "spec"),
 # delay priors
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                min  = c(18,     0,     16),
-                               init = c(19,     0.90,  18),
+                               init = c(19,     0.85,  18),
                                max =  c(20,     1,     21),
-                               dsc1 = c(19.66,  2700,  18.3),
-                               dsc2 = c(0.1,    300,   0.1))
+                               dsc1 = c(19.8,   2550,  18.3),
+                               dsc2 = c(0.1,    450,   0.1))
 
 serorev <- tibble::tibble(name = c("sero_rev_shape",        "sero_rev_scale"),
                           min  = c(2,                        138),

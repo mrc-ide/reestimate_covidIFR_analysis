@@ -19,10 +19,11 @@ source("R/covidcurve_helper_functions.R")
 #......................
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                min  = c(18,     0,     16),
-                               init = c(19,     0.90,  18),
+                               init = c(19,     0.85,  18),
                                max =  c(20,     1,     21),
-                               dsc1 = c(19.66,  2700,  18.3),
-                               dsc2 = c(0.1,    300,   0.1))
+                               dsc1 = c(19.8,   2550,  18.3),
+                               dsc2 = c(0.1,    450,   0.1))
+
 
 
 #............................................................
