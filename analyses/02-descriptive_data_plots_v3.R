@@ -790,7 +790,7 @@ std_deaths_seroplot <- std_deaths_seroplotdat %>%
   dplyr::mutate(seroprev = seroprev * 100) %>%
   ggplot() + theme_bw() +
   geom_point(aes(x = seroprev, y = std_cum_deaths, fill = names), shape = 21, size = 2.5, stroke = 0.2) +
-  scale_fill_manual(values = col_vec, name = "Study") +
+  scale_fill_manual(values = mycolors, name = "Study ID") +
   xlab("Seroprevalence (%)") + ylab("Cumulative Deaths per Million") +
   #  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
   xyaxis_plot_theme
