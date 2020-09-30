@@ -463,12 +463,8 @@ ESP.regions.dat <- process_data4(cum_tp_deaths = deathsdf,
                                  get_descriptive_dat = TRUE,
                                  groupingvar = "region",
                                  study_ids = "ESP1-2",
-                                 filtRegions = c("Andalucía", "Aragón", "Asturias, Principado de",  "Balears, Illes",  "Comunitat Valenciana",
-                                                 "Canarias", "Cantabria", "Castilla La Mancha", "Castilla y León", "Cataluña", "Extremadura",
-                                                 "Galicia",   "Rioja, La",  "Madrid, Comunidad de",
-                                                 "Murcia, Región de", "Navarra, Comunidad Foral de", "País Vasco")) # limit to mainland Spain
-
-
+                                 agebreaks = c(0, 10, 20, 30, 40,
+                                               50, 60, 70, 80, 90, 999))
 
 #......................
 # agebands
