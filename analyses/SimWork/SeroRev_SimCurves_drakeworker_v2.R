@@ -16,8 +16,8 @@ set.seed(48)
 #...........................................................
 infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
 
-# read in fitted weibull seroreversion parameters
-weibull_params <- readRDS("results/prior_inputs/weibull_params.RDS")
+# read in fitted rate of seroreversion parameter
+serorev_rate_param <- readRDS("results/prior_inputs/serorev_param.RDS")
 
 #............................................................
 # setup fatality data
@@ -56,8 +56,7 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     curr_day = 200,
     infections = curve,
     simulate_seroreversion = TRUE,
-    sero_rev_shape = weibull_params$wshape,
-    sero_rev_scale = weibull_params$wscale + 5,
+    sero_rev_rate = serorev_rate_param,
     sens = sens,
     spec = spec,
     sero_delay_rate = 18.3,
@@ -114,12 +113,12 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(125, 175))
 #......................
 # sens/spec
 get_sens_spec_tbl <- function(sens, spec) {
-  tibble::tibble(name =  c("sens",          "spec",        "sero_rev_shape",       "sero_rev_scale"),
-                 min =   c(0.5,              0.5,           2,                      128),
-                 init =  c(0.8,              0.8,           3.5,                    143),
-                 max =   c(1,                1,             5,                      158),
-                 dsc1 =  c(sens*1e3,        spec*1e3,       weibull_params$wshape,  weibull_params$wscale + 5),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 1,                      3))
+  tibble::tibble(name =  c("sens",          "spec",        "sero_rev_rate"),
+                 min =   c(0.5,              0.5,           140),
+                 init =  c(0.8,              0.8,           145),
+                 max =   c(1,                1,             150),
+                 dsc1 =  c(sens*1e3,        spec*1e3,       serorev_rate_param),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 1))
 
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec_tbl)

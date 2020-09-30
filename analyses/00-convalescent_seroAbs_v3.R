@@ -302,6 +302,9 @@ plot(mu_vec, exp(ll), type = 'l')
 # get maximum likelihood mu
 mu_best <- mu_vec[which.max(ll)]
 
+# save out fitted rate of seroreversion parameter
+saveRDS(mu_best, "results/prior_inputs/serorev_param.RDS")
+
 
 #............................................................
 # Plot Out
