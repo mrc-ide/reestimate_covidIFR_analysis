@@ -55,7 +55,11 @@ remove_ch_deaths <-  function(ageband_dat, carehomesdf, studyid) {
     tidyr::pivot_longer(., cols = -c("agenames"), names_to = "ObsDay", values_to = "Deaths") %>%
     dplyr::mutate(ObsDay = as.numeric(gsub("V", "", ObsDay))) %>%
     dplyr::group_by(ObsDay) %>%
+<<<<<<< HEAD
     dplyr::summarise(Deaths = sum(Deaths))
+=======
+    dplyr::summarise(deaths = sum(Deaths))
+>>>>>>> develop
 
   #............................................................
   # bring together
@@ -83,7 +87,12 @@ remove_ch_deaths <-  function(ageband_dat, carehomesdf, studyid) {
   # tidy up seroprevalence df
   if (any(is.na(ageband_dat$seroprevMCMC$n_positive))) {
     seroprev_adj <- ageband_dat$seroprevMCMC %>%
+<<<<<<< HEAD
       dplyr::mutate(age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n=2)[,2]),
+=======
+      dplyr::mutate(ageband = as.character(ageband),
+                    age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n=2)[,2]),
+>>>>>>> develop
                     ageband = ifelse(age_high >= 65, "65-999", ageband)) %>%
       dplyr::group_by(ObsDaymin, ObsDaymax, ageband) %>%
       dplyr::summarise(SeroPrev = mean(SeroPrev),
@@ -95,14 +104,23 @@ remove_ch_deaths <-  function(ageband_dat, carehomesdf, studyid) {
       dplyr::arrange(ObsDaymin, ObsDaymax, ageband)
   } else {
     seroprev_adj <- ageband_dat$seroprevMCMC %>%
+<<<<<<< HEAD
       dplyr::mutate(age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n=2)[,2]),
+=======
+      dplyr::mutate(ageband = as.character(ageband),
+                    age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n=2)[,2]),
+>>>>>>> develop
                     ageband = ifelse(age_high >= 65, "65-999", ageband)) %>%
       dplyr::group_by(ObsDaymin, ObsDaymax, ageband) %>%
       dplyr::summarise(n_positive = sum(n_positive),
                        n_tested = sum(n_tested)) %>%
+<<<<<<< HEAD
       dplyr::mutate(SeroPrev = n_positive/n_tested,
                     SeroLCI = NA,
                     SeroUCI = NA) %>%
+=======
+      dplyr::mutate(SeroPrev = n_positive/n_tested) %>%
+>>>>>>> develop
       dplyr::ungroup(.) %>%
       dplyr::arrange(ObsDaymin, ObsDaymax, ageband)
   }

@@ -7,7 +7,7 @@ library(stringr)
 #' @importFrom magrittr %>%
 #' @export
 
-get_log_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
+get_log10_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
   # read in
   IFRmodel_inf <- readRDS(path)
   # checks
@@ -30,7 +30,7 @@ get_log_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
     dplyr::select_at(params) %>%
     tidyr::pivot_longer(., cols = params[!grepl("chain", params)], # if chain isn't included in vector, grepl won't do anything
                         names_to = "param", values_to = "est") %>%
-    dplyr::mutate(est = log(est)) %>%
+    dplyr::mutate(est = log10(est)) %>%
     dplyr::group_by_at(groupingvar) %>%
     dplyr::summarise(
       min = min(est),
@@ -331,7 +331,7 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1$set_relKnot(max_xveclist[["name"]])
     mod1$set_Infxnparams(paste0("y", 1:num_ys))
     mod1$set_relInfxn(max_yveclist[["name"]])
-    mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
+    mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_rate"))
     mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
     mod1$set_data(inputdata)
     mod1$set_demog(demog)

@@ -1,5 +1,5 @@
 ####################################################################################
-## Purpose: Plot for Figure 1 Showing Delays and Inference Framework
+## Purpose: Plot for Figure Showing Delays and Inference Framework
 ##
 ## Notes:
 ####################################################################################
@@ -22,8 +22,8 @@ interveneflat <- c(interveneflat, round(seq(from = interveneflat[200],
                                             to = 10, length.out = 100)))
 
 
-# read in fitted weibull seroreversion parameters
-weibull_params <- readRDS("results/prior_inputs/weibull_params.RDS")
+# read in fitted rate of seroreversion parameter
+serorev_rate_param <- readRDS("results/prior_inputs/serorev_param.RDS")
 
 
 #............................................................
@@ -40,8 +40,8 @@ demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
 dat <- COVIDCurve::Agesim_infxn_2_death(
   fatalitydata = fatalitydata,
   demog = demog,
-  m_od = 19.66,
-  s_od = 0.90,
+  m_od = 19.8,
+  s_od = 0.85,
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = FALSE,
@@ -54,13 +54,12 @@ dat <- COVIDCurve::Agesim_infxn_2_death(
 serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
   fatalitydata = fatalitydata,
   demog = demog,
-  m_od = 19.66,
-  s_od = 0.90,
+  m_od = 19.8,
+  s_od = 0.85,
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = TRUE,
-  sero_rev_shape = weibull_params$wshape,
-  sero_rev_scale = weibull_params$wscale + 5,
+  sero_rev_rate = serorev_rate_param,
   smplfrac = 1e-3,
   sens = 0.85,
   spec = 0.95,
@@ -168,17 +167,17 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens",  "spec"),
 # delay priors
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                min  = c(18,     0,     16),
-                               init = c(19,     0.90,  18),
+                               init = c(19,     0.85,  18),
                                max =  c(20,     1,     21),
-                               dsc1 = c(19.66,  2700,  18.3),
-                               dsc2 = c(0.1,    300,   0.1))
+                               dsc1 = c(19.8,   2550,  18.3),
+                               dsc2 = c(0.1,    450,   0.1))
 
-serorev <- tibble::tibble(name = c("sero_rev_shape",        "sero_rev_scale"),
-                          min  = c(2,                        138),
-                          init = c(3.5,                      143),
-                          max =  c(5,                        158),
-                          dsc1 = c(weibull_params$wshape,    weibull_params$wscale + 5),
-                          dsc2 = c(1,                        3))
+serorev <- tibble::tibble(name = "sero_rev_rate",
+                          min  = 140,
+                          init = 145,
+                          max =  150,
+                          dsc1 = serorev_rate_param,
+                          dsc2 = 1)
 
 # combine
 tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
@@ -227,7 +226,7 @@ mod1_serorev$set_relKnot("x4")
 mod1_serorev$set_Infxnparams(paste0("y", 1:5))
 mod1_serorev$set_relInfxn("y3")
 mod1_serorev$set_Noiseparams(c(paste0("Ne", 1:3)))
-mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
+mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_rate"))
 mod1_serorev$set_data(reginputdata)
 mod1_serorev$set_demog(demog)
 mod1_serorev$set_paramdf(df_params_serorev)

@@ -18,9 +18,16 @@ get_delta_CI_vals <- function(deaths, seroprev, popN, SE, tol) {
 
   # IFR
   IFRcalc <- deaths  / (seroprev * popN + deaths)
+<<<<<<< HEAD
   # CIs
   LL <- IFRcalc - crit_value
   UL <- IFRcalc + crit_value
+=======
+
+  # do a normal approximation of the binomial CIs
+  LL <- expit( logit(IFRcalc, tol=tol) - crit_value, tol = tol)
+  UL <- expit( logit(IFRcalc, tol=tol) + crit_value, tol = tol)
+>>>>>>> develop
 
   # out
   ret <- c(LL, UL)

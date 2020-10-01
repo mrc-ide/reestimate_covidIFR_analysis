@@ -222,7 +222,7 @@ dplyr::left_join(simp_seroprevdat, seroprev_age_column, by = c("study_id", "ageb
 # get log transformed variables
 #......................
 log_retmapIFR <- dplyr::bind_rows(regretmap, serorevretmap) %>%
-  dplyr::mutate(strataIFRret_log = purrr::map(path, get_log_transformed_IFR_cred_intervals, by_chain = F))
+  dplyr::mutate(strataIFRret_log = purrr::map(path, get_log10_transformed_IFR_cred_intervals, by_chain = F))
 
 log_retmapIFR_dat <- log_retmapIFR %>%
   tidyr::unnest(cols = "strataIFRret_log") %>%
@@ -276,7 +276,7 @@ log_age_IFR_plotObj <- log_retmapIFR_dat %>%
   geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  study_id),
                   alpha = 0.75, shape = 16, size = 0.9) +
   scale_color_manual("Study ID", values = mycolors) +
-  ylab("Logged Age-Specific IFR (95% CrI)") + xlab("Mid. Age") +
+  ylab("Log-10 Age-Specific IFR (95% CrI)") + xlab("Mid. Age") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))

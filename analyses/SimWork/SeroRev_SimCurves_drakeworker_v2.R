@@ -16,8 +16,8 @@ set.seed(48)
 #...........................................................
 infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
 
-# read in fitted weibull seroreversion parameters
-weibull_params <- readRDS("results/prior_inputs/weibull_params.RDS")
+# read in fitted rate of seroreversion parameter
+serorev_rate_param <- readRDS("results/prior_inputs/serorev_param.RDS")
 
 #............................................................
 # setup fatality data
@@ -51,13 +51,12 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
 
   dat <- COVIDCurve::Agesim_infxn_2_death(
     fatalitydata = fatalitydata,
-    m_od = 19.66,
-    s_od = 0.90,
+    m_od = 19.8,
+    s_od = 0.85,
     curr_day = 200,
     infections = curve,
     simulate_seroreversion = TRUE,
-    sero_rev_shape = weibull_params$wshape,
-    sero_rev_scale = weibull_params$wscale + 5,
+    sero_rev_rate = serorev_rate_param,
     sens = sens,
     spec = spec,
     sero_delay_rate = 18.3,
@@ -114,12 +113,12 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(125, 175))
 #......................
 # sens/spec
 get_sens_spec_tbl <- function(sens, spec) {
-  tibble::tibble(name =  c("sens",          "spec",        "sero_rev_shape",       "sero_rev_scale"),
-                 min =   c(0.5,              0.5,           2,                      128),
-                 init =  c(0.8,              0.8,           3.5,                    143),
-                 max =   c(1,                1,             5,                      158),
-                 dsc1 =  c(sens*1e3,        spec*1e3,       weibull_params$wshape,  weibull_params$wscale + 5),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 1,                      3))
+  tibble::tibble(name =  c("sens",          "spec",        "sero_rev_rate"),
+                 min =   c(0.5,              0.5,           140),
+                 init =  c(0.8,              0.8,           145),
+                 max =   c(1,                1,             150),
+                 dsc1 =  c(sens*1e3,        spec*1e3,       serorev_rate_param),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 1))
 
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec_tbl)
@@ -127,10 +126,10 @@ map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec_tbl)
 # delay priors
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                min  = c(18,     0,     16),
-                               init = c(19,     0.90,  18),
+                               init = c(19,     0.85,  18),
                                max =  c(20,     1,     21),
-                               dsc1 = c(19.66,  2700,  18.3),
-                               dsc2 = c(0.1,    300,   0.1))
+                               dsc1 = c(19.8,   2550,  18.3),
+                               dsc2 = c(0.1,    450,   0.1))
 
 # everything else for region
 wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
@@ -161,7 +160,7 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_Infxnparams(paste0("y", 1:5))
   mod1$set_relInfxn("y3")
   mod1$set_Noiseparams(c(paste0("Ne", 1:5)))
-  mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
+  mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_rate"))
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
