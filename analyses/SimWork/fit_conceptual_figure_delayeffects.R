@@ -1,5 +1,5 @@
 ####################################################################################
-## Purpose: Plot for Figure 1 Showing Delays and Inference Framework
+## Purpose: Plot for Figure Showing Delays and Inference Framework
 ##
 ## Notes:
 ####################################################################################
@@ -226,7 +226,7 @@ mod1_serorev$set_relKnot("x4")
 mod1_serorev$set_Infxnparams(paste0("y", 1:5))
 mod1_serorev$set_relInfxn("y3")
 mod1_serorev$set_Noiseparams(c(paste0("Ne", 1:3)))
-mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
+mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_rate"))
 mod1_serorev$set_data(reginputdata)
 mod1_serorev$set_demog(demog)
 mod1_serorev$set_paramdf(df_params_serorev)

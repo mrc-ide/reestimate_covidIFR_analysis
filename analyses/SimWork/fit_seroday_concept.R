@@ -51,9 +51,9 @@ dat <- COVIDCurve::Agesim_infxn_2_death(
 # wrangle input data from non-seroreversion fit
 #......................
 # liftover obs serology
-sero_day <- 150
+sero_days <- 150
 sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
-obs_serology <- dat$StrataAgg_Seroprev %>%
+OneDayobs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay %in% unlist(sero_days)) %>%
   dplyr::mutate(serodaynum = sort(rep(1:length(sero_days), 11))) %>%

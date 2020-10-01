@@ -923,24 +923,13 @@ KEN.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                   seroprev = sero_prevdf,
                                   get_descriptive_dat = TRUE,
                                   groupingvar = "ageband",
-                                  study_ids = "KEN1")# age breaks for demography/population df
+                                  study_ids = "KEN1",
+                                  agebreaks = c(0, 9, 19,
+                                                29, 39,
+                                                49, 999)) # age breaks for demography/population df
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-# combine oldest age groups
-agebands <- unique(KEN.agebands.dat$deaths_propMCMC$ageband)[1:(length(KEN.agebands.dat$deaths_propMCMC$ageband)-1)]
-agebands[length(agebands)] <- c("49-999")
-ken_adj_propdeath <- tibble::tibble(
-  ageband = agebands,
-  death_num = c(KEN.agebands.dat$deaths_propMCMC$death_num[1:(length(agebands)-1)], NA),
-  death_denom = c(KEN.agebands.dat$deaths_propMCMC$death_denom[1:(length(agebands)-1)], NA))
-
-ken_adj_propdeath$death_num[6] <- sum(KEN.agebands.dat$deaths_propMCMC$death_num[6:7])
-ken_adj_propdeath$death_denom[6] <- sum(KEN.agebands.dat$deaths_propMCMC$death_denom[6:7])
-ken_adj_propdeath$death_prop <- ken_adj_propdeath$death_num/sum(ken_adj_propdeath$death_num)
-# overwrite
-KEN.agebands.dat$deaths_propMCMC <- ken_adj_propdeath
-
 # Assume seroprevalence from 15-24 yr is appropriate for 0-9 and 9-19
 # Assume seroprev from 15-24 and 25-34 averaged is appropriate for 19-29
 # Assume seroprev from 25-34 and 35-44 averaged is appropriate for 29-39
@@ -1055,6 +1044,11 @@ LA_CA.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
 #......................
 # MANUAL ADJUSTMENTS
 #......................
+# note NA in population due to less than 18 getting cut
+LA_CA.agebands.dat$prop_pop <- LA_CA.agebands.dat$prop_pop %>%
+  dplyr::filter(!is.na(ageband)) %>%
+  dplyr::mutate(pop_prop = popN/sum(popN))
+
 # assume blood group donors are representative for all ages
 laca_adj_seroprev <- tibble::tibble(
   ObsDaymin = LA_CA.agebands.dat$seroprevMCMC$ObsDaymin,

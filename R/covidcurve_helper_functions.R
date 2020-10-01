@@ -331,7 +331,7 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1$set_relKnot(max_xveclist[["name"]])
     mod1$set_Infxnparams(paste0("y", 1:num_ys))
     mod1$set_relInfxn(max_yveclist[["name"]])
-    mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
+    mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_rate"))
     mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
     mod1$set_data(inputdata)
     mod1$set_demog(demog)
