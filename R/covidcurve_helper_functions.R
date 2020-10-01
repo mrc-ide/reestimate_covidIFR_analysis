@@ -185,8 +185,6 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
   demog <- dat$prop_pop %>%
     dplyr::left_join(., dictkey) %>%
     dplyr::select(c("Strata", "popN")) %>%
-    dplyr::group_by(Strata) %>%
-    dplyr::summarise(popN = round(sum(popN))) %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
     dplyr::arrange(Strata) %>%
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
@@ -216,8 +214,7 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1 <- make_IFRmodel_age$new()
     mod1$set_MeanTODparam("mod")
     mod1$set_CoefVarOnsetTODparam("sod")
-    mod1$set_IFRparams(paste0("ma", 1:num_mas))
-    mod1$set_maxMa(maxMa)
+    mod1$set_IFRparams("ma1")
     mod1$set_Knotparams(paste0("x", 1:num_xs))
     mod1$set_relKnot(max_xveclist[["name"]])
     mod1$set_Infxnparams(paste0("y", 1:num_ys))
@@ -313,8 +310,6 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
   demog <- dat$prop_pop %>%
     dplyr::left_join(., dictkey) %>%
     dplyr::select(c("Strata", "popN")) %>%
-    dplyr::group_by(Strata) %>%
-    dplyr::summarise(popN = round(sum(popN))) %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
     dplyr::arrange(Strata) %>%
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
@@ -344,13 +339,13 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1 <- make_IFRmodel_age$new()
     mod1$set_MeanTODparam("mod")
     mod1$set_CoefVarOnsetTODparam("sod")
-    mod1$set_IFRparams(paste0("ma", 1:num_mas))
+    mod1$set_IFRparams("ma1")
     mod1$set_maxMa(maxMa)
     mod1$set_Knotparams(paste0("x", 1:num_xs))
     mod1$set_relKnot(max_xveclist[["name"]])
     mod1$set_Infxnparams(paste0("y", 1:num_ys))
     mod1$set_relInfxn(max_yveclist[["name"]])
-    mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
+    mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_rate"))
     mod1$set_data(inputdata)
     mod1$set_demog(demog)
     mod1$set_paramdf(df_params)
@@ -363,14 +358,6 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
 }
 
 
-#' @title Make Simple Data Dictionary Key for IFR age-bands, regions, etc. to simple
-#' @param strata string vector; Names of stata to simplify
-
-make_ma_dict_key <- function(strata_names) {
-  assert_string(strata_names)
-  tibble::tibble(strata_name = strata_names,
-                 param_name  = paste0("ma", 1:length(strata_name)))
-}
 
 
 #' @title Make IFR Uniform Distributed Reparameterized Param Df
@@ -447,13 +434,7 @@ make_splinex_reparamdf <- function(max_xvec = list("name" = "x4", min = 180, ini
 
 #' @title Make Noise Effect Reparameterized Param Df
 #' @param num_Ne positive interger; Number of Noise effect parameters to create
-#' @details By default, the first noise effect parameter is used as scalar for the other
-#'          noise effect parameters in a reparameterization framework. See \link{COVIDCurve}
-#'          for further details.
-make_noiseeff_reparamdf <- function(num_Nes = 4,
-                                    min = 0,
-                                    init = 5,
-                                    max = 10) {
+make_noiseeff_reparamdf <- function(num_Nes = 4,  min = 0, init = 5, max = 10) {
   assert_pos_int(num_Nes)
   assert_numeric(min)
   assert_numeric(init)
