@@ -117,7 +117,7 @@ reginputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 # sero tidy up
 sero_days <- c(150, 200)
 sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
-obs_serology <- dat$StrataAgg_Seroprev %>%
+obs_serology <- serorev_dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay %in% unlist(sero_days)) %>%
   dplyr::mutate(serodaynum = sort(rep(1:length(sero_days), 11))) %>%
@@ -227,7 +227,7 @@ mod1_serorev$set_Infxnparams(paste0("y", 1:5))
 mod1_serorev$set_relInfxn("y3")
 mod1_serorev$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_rate"))
-mod1_serorev$set_data(reginputdata)
+mod1_serorev$set_data(serorev_inputdata)
 mod1_serorev$set_demog(demog)
 mod1_serorev$set_paramdf(df_params_serorev)
 mod1_serorev$set_rcensor_day(.Machine$integer.max)
