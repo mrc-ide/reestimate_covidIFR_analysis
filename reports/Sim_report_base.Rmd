@@ -60,20 +60,15 @@ quick_sim_sero_diagnostics <- function(modout, spec, sens) {
                                                       legend.title = element_blank()))
   
   if (modout$inputs$account_seroreversion) {
-    revshapechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_shape", display = FALSE)
-    revscalechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_scale", display = FALSE)
-    revshapechain <- revshapechain[[1]][["trace"]] +
-      labs(caption = paste0("Prior was Norm+(",  paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sero_rev_shape", c("dsc1", "dsc2")], collapse = ","),
+    revratechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_rate", display = FALSE)
+    revratechain <- revratechain[[1]][["trace"]] +
+      labs(caption = paste0("Prior was Norm+(",  paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sero_rev_rate", c("dsc1", "dsc2")], collapse = ","),
                             ")")) +
       theme(legend.position = "none")
     
-    revscalechain <- revscalechain[[1]][["trace"]] +
-      labs(caption = paste0("Prior was Norm+(", paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sero_rev_scale", c("dsc1", "dsc2")], collapse = ","),
-                            ")")) +
-      theme(legend.position = "none")
     
     topp <- cowplot::plot_grid(spechain, senschain, modchain, sodchain, maxmachain, seroratechain,
-                               revshapechain, revscalechain,
+                               revratechain,
                                ncol = 2, nrow = 4)
   } else {
     # out
@@ -167,7 +162,7 @@ tibble::tibble(gelman_mpsrf = gdiag$mpsrf) %>%
                                          color = ifelse(gelman_mpsrf > 1.1, "red", "green"),
                                          bold = T,
                                          font_size = 16)) %>% 
-  knitr::kable(.)
+  knitr::kable(., format = "simple")
 
 ```
 
