@@ -173,9 +173,9 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                dsc2 = c(0.1,    450,   0.1))
 
 serorev <- tibble::tibble(name = "sero_rev_rate",
-                          min  = 140,
-                          init = 145,
-                          max =  150,
+                          min  = 135,
+                          init = 139,
+                          max =  145,
                           dsc1 = serorev_rate_param,
                           dsc2 = 1)
 

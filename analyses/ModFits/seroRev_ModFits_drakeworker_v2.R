@@ -30,9 +30,9 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
 # read in fitted rate of seroreversion parameter
 serorev_rate_param <- readRDS("results/prior_inputs/serorev_param.RDS")
 abbott <- tibble::tibble(name = "sero_rev_rate",
-                         min  = 140,
-                         init = 145,
-                         max =  150,
+                         min  = 135,
+                         init = 139,
+                         max =  145,
                          dsc1 = serorev_rate_param,
                          dsc2 = 1)
 
