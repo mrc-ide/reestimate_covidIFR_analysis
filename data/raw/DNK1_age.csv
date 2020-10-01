@@ -1,6 +1,6 @@
 country,study_id,age_low,age_high,region,gender,n_tested,n_positive,seroprevalence_unadjusted,range_sero_low,range_sero_high,seroprevalence_weighted,matching_deaths_data,date_start_survey,date_end_survey,age_breakdown,gender_breakdown,for_regional_analysis,national_summary,ref,notes
-Denmark,DNK1,17,29,all,both,2439,61,,,,,deaths.csv,2020-04-06,2020-04-17,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf,
-Denmark,DNK1,30,39,all,both,1768,16,,,,,deaths.csv,2020-04-06,2020-04-17,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf,
-Denmark,DNK1,40,49,all,both,2175,46,,,,,deaths.csv,2020-04-06,2020-04-17,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf,
-Denmark,DNK1,50,59,all,both,2061,26,,,,,deaths.csv,2020-04-06,2020-04-17,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf,
-Denmark,DNK1,60,69,all,both,1053,24,,,,,deaths.csv,2020-04-06,2020-04-17,1,0,0,0,https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf,
+Denmark,DNK1,17,29,all,both,4943,125,,,,,deaths.csv,06/04/2020,03/05/2020,1,0,0,0,https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661,
+Denmark,DNK1,30,39,all,both,3983,56,,,,,deaths.csv,06/04/2020,03/05/2020,1,0,0,0,https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661,
+Denmark,DNK1,40,49,all,both,4742,99,,,,,deaths.csv,06/04/2020,03/05/2020,1,0,0,0,https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661,
+Denmark,DNK1,50,59,all,both,4424,77,,,,,deaths.csv,06/04/2020,03/05/2020,1,0,0,0,https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661,
+Denmark,DNK1,60,69,all,both,2136,55,,,,,deaths.csv,06/04/2020,03/05/2020,1,0,0,0,https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661,
