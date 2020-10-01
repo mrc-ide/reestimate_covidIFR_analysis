@@ -52,18 +52,23 @@ dat <- COVIDCurve::Agesim_infxn_2_death(
 #......................
 # liftover obs serology
 sero_day <- 150
-OneDayobs_serology <- dat$StrataAgg_Seroprev %>%
+sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
+obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
-  dplyr::filter(ObsDay %in% sero_day) %>%
+  dplyr::filter(ObsDay %in% unlist(sero_days)) %>%
+  dplyr::mutate(serodaynum = sort(rep(1:length(sero_days), 11))) %>%
   dplyr::mutate(
-    SeroPos = round(ObsPrev * testedN),
-    SeroN = testedN,
-    SeroLCI = NA,
-    SeroUCI = NA) %>%
-  dplyr::rename(
-    SeroPrev = ObsPrev) %>%
-  dplyr::mutate(SeroStartSurvey = sero_day - 5,
-                SeroEndSurvey = sero_day + 5) %>%
+    SeroPos = ObsPrev * testedN,
+    SeroN = testedN ) %>%
+  dplyr::group_by(Strata, serodaynum) %>%
+  dplyr::summarise(SeroPos = mean(SeroPos),
+                   SeroN = mean(SeroN)) %>% # seroN doesn't change
+  dplyr::mutate(SeroStartSurvey = sapply(sero_days, median) - 5,
+                SeroEndSurvey = sapply(sero_days, median) + 5,
+                SeroPos = round(SeroPos),
+                SeroPrev = SeroPos/SeroN,
+                SeroLCI = NA,
+                SeroUCI = NA) %>%
   dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
   dplyr::ungroup(.) %>%
   dplyr::arrange(SeroStartSurvey, Strata)
