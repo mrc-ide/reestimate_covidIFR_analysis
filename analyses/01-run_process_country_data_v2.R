@@ -39,9 +39,6 @@ deathsdf <- readr::read_tsv("data/raw/cumulative_deaths.tsv") %>%
   dplyr::mutate(date_start_survey = lubridate::ymd(date_start_survey), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
                 date_end_survey = lubridate::ymd(date_end_survey))
 
-# care home deaths
-deaths_ch <- readr::read_csv("data/raw/care_home_deaths.csv")
-
 # demography (non-US Census data and BRA on its own)
 populationdf <- readr::read_tsv("data/raw/non_usa_non_bra_population.tsv") %>%
   dplyr::select(-c("reference")) %>%
@@ -377,8 +374,8 @@ DNK.regions.dat <- process_data4(cum_tp_deaths = deathsdf,
 ## Use age sero data for age region model
 dnk_age_sero<-read.csv("data/raw/DNK1_age.csv") %>%
   dplyr::select(-c("ref", "notes")) %>%
-  dplyr::mutate(date_start_survey = lubridate::ymd(date_start_survey), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-                date_end_survey = lubridate::ymd(date_end_survey),
+  dplyr::mutate(date_start_survey = lubridate::dmy(date_start_survey), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+                date_end_survey = lubridate::dmy(date_end_survey),
                 seroprevalence_unadjusted = ifelse(is.na(seroprevalence_unadjusted), n_positive/n_tested, seroprevalence_unadjusted))
 
 DNK.agebands_age_sero.dat <- process_data4(cum_tp_deaths = deathsdf,
@@ -675,7 +672,9 @@ LUX.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                   get_descriptive_dat = TRUE,
                                   groupingvar = "ageband",
                                   study_ids = "LUX1",
-                                  agebreaks = c(0, 29, 39, 49, 59, 69, 79, 999))
+                                  agebreaks = c(0, 29, 39,
+                                                49, 59, 69,
+                                                79, 999))
 
 
 #......................
@@ -720,7 +719,9 @@ NLD.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                   get_descriptive_dat = TRUE,
                                   groupingvar = "ageband",
                                   study_ids = "NLD1",
-                                  agebreaks = c(0, 49, 59, 69, 79, 89, 999))
+                                  agebreaks = c(0, 49, 59,
+                                                69, 79, 89,
+                                                999))
 
 
 #......................
@@ -1006,7 +1007,7 @@ populationdf <- readr::read_csv("data/raw/USA_County_Demographic_Data.csv") %>%
     for_regional_analysis = 1,
     gender_breakdown = 1
   ) %>%
-  dplyr::select(c("country", "age_low", "age_high", "region", "gender", "population", "age_breakdown", "for_regional_analysis", "gender_breakdown")) %>%
+  dplyr::select(c("country", "age_low", "age_high", "region", "gender", "population", "age_breakdown", "for_regional_analysis")) %>%
   dplyr::left_join(., readr::read_csv("data/raw/usa_study_id_county_key.csv"), by = "region")
 
 # JHU data for new recast df
@@ -1052,7 +1053,8 @@ LA_CA.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                     sero_val = sero_valdf,
                                     seroprev = sero_prevdf,
                                     groupingvar = "ageband",
-                                    study_ids = "LA_CA1")
+                                    study_ids = "LA_CA1",
+                                    agebreaks = c(18, 40, 65, 999))
 
 #......................
 # MANUAL ADJUSTMENTS
@@ -1239,49 +1241,55 @@ saveRDS(NYS.age.dat, "data/derived/USA/NYS1_agebands.RDS")
 
 
 
-# #..................................................................................
-# #---- Care Home Data Processing  #-----
-# #..................................................................................
-# dir.create("data/derived/carehomes/", recursive = TRUE)
-#
-# ### CHE1
-# CHE1.agebands_noCH.dat <- remove_ch_deaths(CHE1.agebands.dat,"CHE1")
-# saveRDS(CHE1.agebands_noCH.dat, "data/derived/carehomes/CHE1_agebands_noCH.RDS")
-#
-# ### CHE2
-# CHE2.agebands_noCH.dat <- remove_ch_deaths(CHE2.agebands.dat,"CHE2")
-# saveRDS(CHE2.agebands_noCH.dat, "data/derived/carehomes/CHE2_agebands_noCH.RDS")
-#
-# ## DNK 1
-# DNK.agebands_noCH.dat <- remove_ch_deaths(DNK.agebands.dat,"DNK1")
-#
-# #......................
-# # MANUAL ADJUSTMENTS
-# #......................
-# # Assume DNK blood donors 17-69 years representative of all age groups
-# # logit only here
-# dnk_adj_seroprev_ch <- dnk_adj_seroprev %>%
-#   dplyr::filter(ageband %in% c("0-59", "59-69")) %>%
-#   dplyr::mutate(ageband = ifelse(ageband == "59-69", "59-999", ageband))
-# # overwrite
-# DNK.agebands_noCH.dat$seroprevMCMC <- dnk_adj_seroprev_ch
-#
-# saveRDS(DNK.agebands_noCH.dat, "data/derived/carehomes/DNK1_agebands_noCH.RDS")
-#
-#
-#
-# ### ESP1-2
-# ESP.agebands_noCH.dat <- remove_ch_deaths(ESP.agebands.dat,"ESP1-2")
-# saveRDS(ESP.agebands_noCH.dat, "data/derived/carehomes/ESP1-2_agebands_noCH.RDS")
-#
-# ### GBR3
-# GBR3.agebands_noCH.dat <- remove_ch_deaths(GBR3.agebands.dat,"GBR3")
-# saveRDS(GBR3.agebands_noCH.dat, "data/derived/carehomes/GBR3_agebands_noCH.RDS")
-#
-# ### NYS1
-# NYS1.agebands_noCH.dat <- remove_ch_deaths(NYS.age.dat, "NYS1")
-# saveRDS(NYS1.agebands_noCH.dat, "data/derived/carehomes/NYS1_agebands_noCH.RDS")
-#
+#..................................................................................
+#---- Care Home Data Processing  #-----
+#..................................................................................
+# note agebands won't be quite contiguous since we collapse any agebands that
+# contains 65+ (i.e. 59-69 would go into 65+ new ageband)
+dir.create("data/derived/carehomes/", recursive = TRUE)
+source("R/remove_carehome_deaths.R")
+# care home deaths
+deaths_ch <- readr::read_csv("data/raw/care_home_deaths.csv")
+
+
+### CHE1
+CHE1.agebands_noCH.dat <- remove_ch_deaths(ageband_dat = CHE1.agebands.dat,
+                                           carehomesdf = deaths_ch,
+                                           studyid = "CHE1")
+saveRDS(CHE1.agebands_noCH.dat, "data/derived/carehomes/CHE1_agebands_noCH.RDS")
+
+### CHE2
+CHE2.agebands_noCH.dat <- remove_ch_deaths(ageband_dat = CHE2.agebands.dat,
+                                           carehomesdf = deaths_ch,
+                                           studyid = "CHE2")
+saveRDS(CHE2.agebands_noCH.dat, "data/derived/carehomes/CHE2_agebands_noCH.RDS")
+
+## DNK 1
+DNK.agebands_noCH.dat <- remove_ch_deaths(ageband_dat = DNK.agebands.dat,
+                                          carehomesdf = deaths_ch,
+                                          studyid = "DNK1")
+saveRDS(DNK.agebands_noCH.dat, "data/derived/carehomes/DNK1_agebands_noCH.RDS")
+
+
+
+### ESP1-2
+ESP.agebands_noCH.dat <- remove_ch_deaths(ageband_dat = ESP.agebands.dat,
+                                          carehomesdf = deaths_ch,
+                                          studyid = "ESP1-2")
+saveRDS(ESP.agebands_noCH.dat, "data/derived/carehomes/ESP1-2_agebands_noCH.RDS")
+
+### GBR3
+GBR3.agebands_noCH.dat <- remove_ch_deaths(ageband_dat = GBR3.agebands.dat,
+                                           carehomesdf = deaths_ch,
+                                           studyid = "GBR3")
+saveRDS(GBR3.agebands_noCH.dat, "data/derived/carehomes/GBR3_agebands_noCH.RDS")
+
+### NYS1
+NYS1.agebands_noCH.dat <- remove_ch_deaths(ageband_dat = NYS.age.dat,
+                                           carehomesdf = deaths_ch,
+                                           studyid = "NYS1")
+saveRDS(NYS1.agebands_noCH.dat, "data/derived/carehomes/NYS1_agebands_noCH.RDS")
+
 # #..................................................................................
 # #---- Confirmed Deaths Data Processing  #-----
 # #..................................................................................
