@@ -1,6 +1,0 @@
-country	study_id	age_low	age_high	region	gender	n_deaths	date_start_survey	date_end_survey	matching_with_sero	cumulative	age_breakdown	gender_breakdown	for_regional_analysis	basic_summary	ref	death_reporting	care_home_deaths_available	notes
-USA	NYC_NY_1	0	17	all	both	12	2020-03-11	2020-09-01	just NYC	yes	1	0	0	0	https://www1.nyc.gov/site/doh/covid/covid-19-data-deaths.page	confirmed only
-USA	NYC_NY_1	18	44	all	both	734	2020-03-11	2020-09-01	just NYC	yes	1	0	0	0	https://www1.nyc.gov/site/doh/covid/covid-19-data-deaths.page	confirmed only
-USA	NYC_NY_1	45	64	all	both	4273	2020-03-11	2020-09-01	just NYC	yes	1	0	0	0	https://www1.nyc.gov/site/doh/covid/covid-19-data-deaths.page	confirmed only
-USA	NYC_NY_1	65	74	all	both	4723	2020-03-11	2020-09-01	just NYC	yes	1	0	0	0	https://www1.nyc.gov/site/doh/covid/covid-19-data-deaths.page	confirmed only
-USA	NYC_NY_1	75	999	all	both	9320	2020-03-11	2020-09-01	just NYC	yes	1	0	0	0	https://www1.nyc.gov/site/doh/covid/covid-19-data-deaths.page	confirmed only		

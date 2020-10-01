@@ -14,21 +14,6 @@ Brazil	BRA1	0	999	North	both	4710	269	0.05711252654				2020-05-15	2020-05-22	0	1
 Brazil	BRA1	0	999	Northeast	both	6023	38	0.006309148265				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
 Brazil	BRA1	0	999	South	both	5309	9	0.001695234507				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
 Brazil	BRA1	0	999	Southeast	both	5682	21	0.003695881732				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Switzerland	CHE1	5	999	Geneva	Female	179	2	0.01117318436				2020-04-06	2020-04-13	0	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	Female	243	15	0.06172839506				2020-04-13	2020-04-20	0	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	Female	307	29	0.09446254072				2020-04-20	2020-04-27	0	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	Female	305	18	0.05901639344				2020-04-27	2020-05-03	0	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	Female	400	37	0.0925				2020-05-03	2020-05-10	0	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	Male	155	10	0.06451612903				2020-04-06	2020-04-13	0	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	Male	220	13	0.05909090909				2020-04-13	2020-04-20	0	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	Male	254	32	0.125984252				2020-04-20	2020-04-27	0	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	Male	288	18	0.0625				2020-04-27	2020-05-03	0	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	Male	367	45	0.1226158038				2020-05-03	2020-05-10	0	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	both	334	12	0.03592814371				2020-04-06	2020-04-13	0	1	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	both	463	28	0.06047516199				2020-04-13	2020-04-20	0	1	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	both	561	61	0.1087344029				2020-04-20	2020-04-27	0	1	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	both	593	36	0.06070826307				2020-04-27	2020-05-03	0	1	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-Switzerland	CHE1	5	999	Geneva	both	767	82	0.1069100391				2020-05-03	2020-05-10	0	1	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
 Switzerland	CHE1	5	9	Geneva	both	16	0	0				2020-04-06	2020-04-13	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
 Switzerland	CHE1	5	9	Geneva	both	15	0	0				2020-04-13	2020-04-20	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
 Switzerland	CHE1	5	9	Geneva	both	21	1	0.04761904762				2020-04-20	2020-04-27	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
@@ -249,18 +234,18 @@ USA	NYS1	18	34	all	both	3151	410	0.13			0.13	2020-04-19	2020-04-28	1	0	https://w
 USA	NYS1	35	44	all	both	2628	360	0.137			0.137	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
 USA	NYS1	45	54	all	both	3345	478	0.143			0.143	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
 USA	NYS1	55	999	all	both	5977	651	0.109			0.109	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
-Sweden	SWE1	0	999	all	both			0	0	0.03		2020-04-20	2020-04-26	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-Sweden	SWE1	0	999	all	both			0.02	0.01	0.05		2020-04-27	2020-05-03	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-Sweden	SWE1	0	999	all	both			0.03	0.01	0.05		2020-05-04	2020-05-10	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-Sweden	SWE1	0	999	all	both			0.05	0.03	0.08		2020-05-11	2020-05-17	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-Sweden	SWE1	0	999	all	both			0.05	0.03	0.08		2020-05-18	2020-05-24	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-Sweden	SWE1	0	999	all	both			0.04	0.02	0.07		2020-05-25	2020-05-31	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-Sweden	SWE1	0	999	all	both			0.05	0.03	0.08		2020-06-01	2020-06-07	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-Sweden	SWE1	0	999	all	both			0.07	0.05	0.1		2020-06-08	2020-06-12	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.005	0	0.026		2020-04-20	2020-04-26	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.025	0.009	0.049		2020-04-27	2020-05-03	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.028	0.011	0.051		2020-05-04	2020-05-10	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.051	0.031	0.077		2020-05-11	2020-05-17	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.05	0.026	0.082		2020-05-18	2020-05-24	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.04	0.021	0.066		2020-05-25	2020-05-31	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.052	0.03	0.08		2020-06-01	2020-06-07	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.071	0.047	0.102		2020-06-08	2020-06-12	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
 Denmark	DNK1	17	69	all	both			0.015	0.007	0.023		2020-04-06	2020-04-08	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661
 Denmark	DNK1	17	69	all	both			0.019	0.012	0.027		2020-04-14	2020-04-19	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661
 Denmark	DNK1	17	69	all	both			0.016	0.008	0.023		2020-04-20	2020-04-26	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661
 Denmark	DNK1	17	69	all	both			0.024	0.015	0.032		2020-04-27	2020-05-03	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661
-Denmark	DNK1	17	69	Capital	both	3400	99	0.02911764706				2020-04-06	2020-04-17	0	1	https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf
-Denmark	DNK1	17	69	South DK & Zealand	both	3553	48	0.0135097101				2020-04-06	2020-04-17	0	1	https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf
-Denmark	DNK1	17	69	Central DK & North DK	both	2543	26	0.01022414471				2020-04-06	2020-04-17	0	1	https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf
+Denmark	DNK1	17	69	Capital	both	6528	203	0.03109681373				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
+Denmark	DNK1	17	69	South DK & Zealand	both	7886	130	0.01648490997				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
+Denmark	DNK1	17	69	Central DK & North DK	both	6226	79	0.0126887247				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
