@@ -12,21 +12,15 @@
 
 get_delta_CI_vals <- function(deaths, seroprev, popN, SE, tol) {
   # basic transforms
-  logit <- function(x, tol=1e-4){
-    return( log(((x+tol)/(1-x+tol))) )
-  }
 
-  expit <- function(x, tol=1e-4){
-    return( 1/(1+exp(-x + tol)) )
-  }
   # calculate critical value from delta method
   crit_value <- 1.96 * ((deaths * popN) / (seroprev * popN)^2) * SE
 
   # IFR
   IFRcalc <- deaths  / (seroprev * popN + deaths)
-  # calculations in transformed space to account for binomial vs. normal
-  LL <- expit( logit(IFRcalc, tol=tol) - crit_value, tol = tol)
-  UL <- expit( logit(IFRcalc, tol=tol) + crit_value, tol = tol)
+  # CIs
+  LL <- IFRcalc - crit_value
+  UL <- IFRcalc + crit_value
 
   # out
   ret <- c(LL, UL)
