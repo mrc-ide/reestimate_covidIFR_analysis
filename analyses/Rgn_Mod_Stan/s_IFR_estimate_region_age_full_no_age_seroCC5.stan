@@ -22,7 +22,8 @@ data {
 parameters {
   real<lower=0.0001,upper=sum(popr)> tot_inf;
   vector<lower=0.0001,upper=0.9999>[nr] Rne_raw;
-  real<lower=0.0001,upper=0.9999> ifr[na];
+  real<lower=0.0001,upper=0.6000> ifr_max;
+  real<lower=0.0001,upper=0.9999> rel_ifr[na-1];
   real<lower=0.0001,upper=0.9999> sensitivity;
   real<lower=0.0001,upper=0.9999> specificity;
 }
@@ -37,8 +38,12 @@ transformed parameters {
   real exp_infxns_a[na];
   real exp_infxns[nr,na];
   vector[nr] Rne;
+  real<lower=0.0001,upper=0.6000> ifr[na];
 
+  // reparameterize
   Rne = 0.0001 + Rne_raw .* popr ./ (tot_inf * prop_pop_reg);
+  for(a in 1:(na-1)) ifr[a]=ifr_max*rel_ifr[a];
+  ifr[na]=ifr_max;
 
   //// Divide up total infections
   for(r in 1:nr) {
