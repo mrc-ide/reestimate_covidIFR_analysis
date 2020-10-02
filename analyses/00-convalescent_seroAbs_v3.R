@@ -360,27 +360,10 @@ SurvPlotObj <- ggplot() +
   xyaxis_plot_theme
 
 
-
-inset <- ggplot() +
-  geom_histogram(data = sero_rev_comb,
-                 aes(x = time_to_event2, y = ..count.., fill = factor(status)),
-                 position = "identity",
-                 alpha = 0.9) +
-  scale_fill_manual(values = c("#95D840FF", "#DCE319FF")) +
-  ylab("Count") +
-  xlab("Seroreversion or Follow-Up Times (Days)") +
-  xyaxis_plot_theme +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.position = "none",
-        plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
-
-
-# bring together
-(survplot_together <- cowplot::ggdraw() +
-    cowplot::draw_plot(SurvPlotObj, x = 0, y = 0, width = 1, height = 1, scale = 1) +
-    cowplot::draw_plot(inset, x = 0.5, y= 0.5, width = 0.45, height = 0.45))
-
-jpeg("figures/final_figures/weibull_survplot.jpg",
+jpeg("figures/final_figures/exp_survplot.jpg",
      width = 11, height = 8, units = "in", res = 500)
-plot(survplot_together)
+plot(SurvPlotObj)
 graphics.off()
+
+# save out
+saveRDS(SurvPlotObj, "figures/final_figures/exp_survplot.RDS")
