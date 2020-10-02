@@ -1304,7 +1304,8 @@ gbr3TimeSeries <- readr::read_tsv("data/raw/deathsconfirmed_time_series.tsv") %>
                 deaths = n_deaths) %>%
   dplyr::mutate(georegion = "GBR3") %>%
   dplyr::select(c("date", "georegion", "deaths")) %>%
-  dplyr::mutate(date = lubridate::ymd(date)) # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+  dplyr::mutate(date = lubridate::ymd(date)) %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+  dplyr::filter(date <= lubridate::mdy("08-17-2020"))
 
 
 # note, using proportion of deaths from general pop deaths (missing confirmed deaths by age)
@@ -1426,8 +1427,8 @@ nycTimeSeries <- readr::read_tsv("data/raw/deathsconfirmed_time_series.tsv") %>%
                 deaths = n_deaths) %>%
   dplyr::mutate(georegion = "NYC_NY_1") %>%
   dplyr::select(c("date", "georegion", "deaths")) %>%
-  dplyr::mutate(date = lubridate::ymd(date)) # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-
+  dplyr::mutate(date = lubridate::ymd(date)) %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+  dplyr::filter(date <= lubridate::mdy("08-17-2020"))
 
 # note, using proportion of deaths from general pop deaths (missing confirmed deaths by age)
 NYC_confirmed_deaths <-  process_data4(cum_tp_deaths = nyc_cumdeaths,
