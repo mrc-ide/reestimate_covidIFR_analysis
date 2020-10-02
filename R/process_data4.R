@@ -337,9 +337,11 @@ process_population_data <- function(population, cum_tp_deaths, death_agebreaks, 
       dplyr::group_by_at(c(groupingvar, "ageband")) %>%
       dplyr::summarise(
         popN = sum(population),
-        pop_prop = sum(population)/totalpop
+        pop_prop = sum(population)/totalpop,
+        mean_age_high=mean(age_high)
       ) %>%
-      dplyr::arrange_at(c(groupingvar, "ageband")) %>%
+      dplyr::arrange_at(c(groupingvar, "mean_age_high")) %>%
+      dplyr::select(-mean_age_high) %>%
       dplyr::ungroup()
   }
 
