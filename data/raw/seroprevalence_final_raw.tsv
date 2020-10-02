@@ -249,3 +249,7 @@ Denmark	DNK1	17	69	all	both			0.024	0.015	0.032		2020-04-27	2020-05-03	1	1	https
 Denmark	DNK1	17	69	Capital	both	6528	203	0.03109681373				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
 Denmark	DNK1	17	69	South DK & Zealand	both	7886	130	0.01648490997				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
 Denmark	DNK1	17	69	Central DK & North DK	both	6226	79	0.0126887247				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
+USA	NYC_NY_1	18	34	New York City, New York, United States (New York State Department of Health)	both	1257	252	0.200477327				2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf
+USA	NYC_NY_1	35	44	New York City, New York, United States (New York State Department of Health)	both	1144	243	0.212412587				2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf
+USA	NYC_NY_1	45	54	New York City, New York, United States (New York State Department of Health)	both	1328	334	0.251506024				2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf
+USA	NYC_NY_1	55	999	New York City, New York, United States (New York State Department of Health)	both	2217	490	0.221019396				2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf

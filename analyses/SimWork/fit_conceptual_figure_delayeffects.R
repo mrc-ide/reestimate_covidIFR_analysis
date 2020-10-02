@@ -30,11 +30,11 @@ serorev_rate_param <- readRDS("results/prior_inputs/serorev_param.RDS")
 # setup fatality data
 #............................................................
 # make up fatality data
-fatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
-                               IFR = c(1e-3, 0.05, 0.1),
+fatalitydata <- tibble::tibble(Strata = c("ma1"),
+                               IFR = 0.1,
                                Rho = 1)
-demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
-                        popN = c(1.3e6, 9e5, 8e5))
+demog <- tibble::tibble(Strata = "ma1",
+                        popN = 3e6)
 
 # run COVIDCurve sims for no seroreversion and seroreversion
 dat <- COVIDCurve::Agesim_infxn_2_death(
@@ -185,15 +185,14 @@ tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
 
 
 # make param dfs
-ifr_paramsdf <- make_ma_reparamdf(num_mas = 3, upperMa = 0.4)
+ifr_paramsdf <- make_ma_reparamdf(num_mas = 1, upperMa = 0.4)
 knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 286, init = 290, max = 300, dsc1 = 286, dsc2 = 300),
                                         num_xs = 4)
 infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14.91, dsc1 = 0, dsc2 = 14.91),
                                          num_ys = 5)
-noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 3, min = 0.5, init = 1, max = 1.5)
 # bring together
-df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, noise_paramsdf, sens_spec_tbl, tod_paramsdf)
-df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, noise_paramsdf, sens_spec_tbl, tod_paramsdf_serorev)
+df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf)
+df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf_serorev)
 
 
 #......................
@@ -203,13 +202,11 @@ df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsd
 mod1_reg <- COVIDCurve::make_IFRmodel_age$new()
 mod1_reg$set_MeanTODparam("mod")
 mod1_reg$set_CoefVarOnsetTODparam("sod")
-mod1_reg$set_IFRparams(paste0("ma", 1:3))
-mod1_reg$set_maxMa("ma3")
+mod1_reg$set_IFRparams("ma1")
 mod1_reg$set_Knotparams(paste0("x", 1:4))
 mod1_reg$set_relKnot("x4")
 mod1_reg$set_Infxnparams(paste0("y", 1:5))
 mod1_reg$set_relInfxn("y3")
-mod1_reg$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_reg$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_reg$set_data(reginputdata)
 mod1_reg$set_demog(demog)
@@ -219,13 +216,11 @@ mod1_reg$set_rcensor_day(.Machine$integer.max)
 mod1_serorev <- COVIDCurve::make_IFRmodel_age$new()
 mod1_serorev$set_MeanTODparam("mod")
 mod1_serorev$set_CoefVarOnsetTODparam("sod")
-mod1_serorev$set_IFRparams(paste0("ma", 1:3))
-mod1_serorev$set_maxMa("ma3")
+mod1_serorev$set_IFRparams("ma1")
 mod1_serorev$set_Knotparams(paste0("x", 1:4))
 mod1_serorev$set_relKnot("x4")
 mod1_serorev$set_Infxnparams(paste0("y", 1:5))
 mod1_serorev$set_relInfxn("y3")
-mod1_serorev$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_rate"))
 mod1_serorev$set_data(serorev_inputdata)
 mod1_serorev$set_demog(demog)
@@ -281,7 +276,7 @@ run_MCMC <- function(path) {
   cl <- parallel::makeCluster(mkcores)
 
   fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
-                                      reparamIFR = TRUE,
+                                      reparamIFR = FALSE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
                                       chains = n_chains,
