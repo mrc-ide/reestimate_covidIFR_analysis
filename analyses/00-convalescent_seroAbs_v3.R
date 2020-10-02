@@ -44,7 +44,6 @@ serotime <- serotime %>%
 #---- Explore Data and Summarize Dist #----
 #...........................................................
 summary(serotime)
-# must be positive at baseline
 thresholds <- tibble::tibble(assay = c("Diasorin", "Siemens", "Abbott", "Roche"),
                              threshold = c(15, 1, 1.4, 1))
 # look at post pcr -- figure 1
@@ -105,11 +104,9 @@ serotime %>%
 #............................................................
 # Here we will subset just the abbot assay, which has the
 # largest declines in sensitivity
-# also will drop missing post-sx observation times
 #...........................................................
-# three missing post day sxs
 serotime <- serotime %>%
-  dplyr::filter(!is.na(days_post_symptoms)) %>%
+  dplyr::filter(!is.na(post_pcr_days)) %>%
   dplyr::filter(assay == "Abbott")
 
 
@@ -118,7 +115,6 @@ serotime <- serotime %>%
 # Exclude individuals negative at baseline
 #...........................................................
 neg_at_baseline <-  serotime %>%
-  dplyr::filter(!is.na(days_post_symptoms)) %>% # remove missing post symp days
   dplyr::group_by(donor_id, assay) %>%
   dplyr::filter(days_post_symptoms == min(days_post_symptoms)) %>%
   dplyr::left_join(., thresholds, by = c("assay")) %>%
@@ -143,10 +139,18 @@ neg_at_baseline_id_drop <- neg_at_baseline %>%
   dplyr::mutate(drop = TRUE)
 
 # do negative at baseline ever become positive? --> no
-neg_at_baseline %>%
+serotime %>%
   dplyr::left_join(., neg_at_baseline_id_drop, by = c("assay", "donor_id")) %>%
   dplyr::filter(!is.na(drop)) %>%
-  dplyr::select(-c("drop"))
+  ggplot() +
+  geom_line(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay),
+            color = "#3182bd") +
+  geom_point(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay),
+             color = "#3182bd") +
+  geom_hline(yintercept = 1.4, linetype = "dashed") +
+  facet_wrap(~assay, scales = "free_y") +
+  ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") + ggtitle("Final Included") +
+  xyaxis_plot_theme
 
 # drop those individuals negative at baseline
 serotime <- serotime %>%
@@ -159,20 +163,40 @@ serotime %>%
   dplyr::left_join(., thresholds, by = "assay") %>%
   dplyr::filter(assay == "Abbott") %>%
   ggplot() +
-  geom_line(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay),
+  geom_line(aes(x = post_pcr_days, y = titres, group = donor_id, color = assay),
             color = "#3182bd") +
-  geom_point(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay),
+  geom_point(aes(x = post_pcr_days, y = titres, group = donor_id, color = assay),
             color = "#3182bd") +
   geom_hline(aes(yintercept = threshold), linetype = "dashed") +
   facet_wrap(~assay, scales = "free_y") +
-  ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") + ggtitle("Final Included") +
+  ylab("Ab. Titres") + xlab("Days Post-PCR") + ggtitle("Final Included") +
   xyaxis_plot_theme
 
 
 
+#......................
+# does anyone serorevert but then become seropositive later --> no
+#......................
+serorevert_ids <-  serotime %>%
+  dplyr::group_by(donor_id, assay) %>%
+  dplyr::summarise(mintitre = min(titres)) %>%
+  dplyr::filter(mintitre <= 1.4) %>%
+  dplyr::pull(donor_id)
+serorevert_ids <- as.character( serorevert_ids[!duplicated(serorevert_ids)] )
+serotime %>%
+  dplyr::filter(donor_id %in% serorevert_ids) %>%
+  ggplot() +
+  geom_line(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay),
+            color = "#3182bd") +
+  geom_point(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay),
+             color = "#3182bd") +
+  geom_hline(yintercept = 1.4, linetype = "dashed") +
+  facet_wrap(~assay, scales = "free_y") +
+  ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") +
+  xyaxis_plot_theme
 
 #............................................................
-# quick look at characteristics
+# quick look at final group characteristics
 #...........................................................
 serotime_char <- serotime %>%
   dplyr::select(c("age", "sex", "donor_id")) %>%
@@ -201,7 +225,6 @@ serotime %>%
   geom_point(aes(x = days_since_serocon, y = day_of_serocon))
 
 # tidy up
-
 sero_final_survival <- serotime %>%
   dplyr::group_by(donor_id) %>%
   dplyr::mutate(status = ifelse(titres < 1.4, 1, 0)) %>%
@@ -215,7 +238,7 @@ posdonors <- sero_final_survival %>%
   dplyr::filter(!duplicated(.)) %>%
   dplyr::pull("donor_id")
 
-# time 1 for interval
+# time 2 for interval
 min_righttime_to_event_pos <- sero_final_survival %>%
   dplyr::filter(donor_id %in% posdonors) %>%
   dplyr::filter(status == 1) %>%
@@ -223,7 +246,7 @@ min_righttime_to_event_pos <- sero_final_survival %>%
   dplyr::summarise(time_to_event2 = min(days_since_serocon)) %>%
   dplyr::mutate(status = 1)
 
-# time w for interval
+# time 1 for interval
 min_lefttime_to_event_pos <- sero_final_survival %>%
   dplyr::filter(donor_id %in% posdonors) %>%
   dplyr::group_by(donor_id) %>%
@@ -238,21 +261,10 @@ min_time_to_event_pos <- dplyr::left_join(min_righttime_to_event_pos,
 # get last observation date as time to event for never seroreverteds
 max_time_to_event_neg <- sero_final_survival %>%
   dplyr::group_by(donor_id) %>%
-  dplyr::filter(status == 0) %>%
   dplyr::filter(! donor_id %in% posdonors) %>%
   dplyr::summarise(time_to_event = NA,
                    time_to_event2 = max(days_since_serocon)) %>%
   dplyr::mutate(status = 0)
-
-#......................
-# exclude individuals who serorevert but then become seropositive later
-#......................
-excl_inds <- sero_final_survival %>%
-  dplyr::filter(titres < 1.14) %>%
-  dplyr::group_by(donor_id) %>%
-  dplyr::mutate(lag_time = days_since_serocon - dplyr::lag(days_since_serocon))
-# looks good to go
-
 
 # combine serorev
 sero_rev_comb <- dplyr::bind_rows(max_time_to_event_neg, min_time_to_event_pos)

@@ -754,10 +754,12 @@ upperbounds <- delta_IFR %>%
   dplyr::mutate(upbound = 0.05)
 
 Rgn_IFR_plotObj <- delta_IFR %>%
-  dplyr::mutate(IFRcalc = ifelse(seroprev == 0, NA, IFRcalc),
-                lower_ci = ifelse(seroprev == 0, NA, lower_ci),
-                upper_ci = ifelse(seroprev == 0, NA, upper_ci),
-                upper_ci = ifelse(upper_ci > 0.05, 0.05, upper_ci)) %>%
+  dplyr::filter(seroprev != 0) %>%
+  dplyr::filter(cumdeaths != 0) %>% # drop observations w/ 0 deaths or 0 seroprev
+  dplyr::mutate(upper_ci = ifelse(upper_ci > 0.05, 0.05, upper_ci),
+                IFRcalc = IFRcalc * 100,
+                lower_ci = lower_ci * 100,
+                upper_ci = upper_ci * 100) %>%
   ggplot() +
   geom_pointrange(aes(x = seroprev, y = IFRcalc,
                       ymin = lower_ci, ymax = upper_ci,

@@ -1,9 +1,11 @@
-
 #' @title  Remove care home deaths from older age groups, any containing >65
 #' @param agebands.dat object made from process_data4
 #' @param study_id character
 
 remove_ch_deaths <-  function(ageband_dat, carehomesdf, studyid) {
+  if(!all(c("study_id", "percent_deaths") %in% colnames(carehomesdf))) {
+    stop("Carehomes df changed")
+  }
   #......................
   # first figure out proportion of deaths
   #......................
@@ -11,11 +13,11 @@ remove_ch_deaths <-  function(ageband_dat, carehomesdf, studyid) {
   deaths_propMCMC_adj <- ageband_dat$deaths_propMCMC
 
   # we then have cumulative care home deaths for a given day (likely a different day than our given day above for age bands)
-  # but we also have the proportion of all deaths that were in care homes in the population
+  # but we also have the proportion of all deaths that were in care homes w/in the population
   deaths_frac_ch <- carehomesdf %>%
     dplyr::filter(study_id == studyid) %>%
     dplyr::pull(percent_deaths)/100
-  # because we assume a constant proportion through time, if we assume carehome deahts are only in 65+,
+  # because we assume a constant proportion through time, if we assume carehome deaths are only in 65+,
   # we can recast the proportions:
   deaths_propMCMC_adj <- deaths_propMCMC_adj %>%
     dplyr::mutate(
@@ -30,7 +32,7 @@ remove_ch_deaths <-  function(ageband_dat, carehomesdf, studyid) {
   chdeaths <- tibble::tibble(ageband = "carehomes",
                             death_num = chdeaths_num)
 
-  # bring together
+  # bring together -- and keep carehome deaths as an "ageband"
   deaths_propMCMC_adj <- dplyr::bind_rows(deaths_propMCMC_adj, chdeaths) %>%
       dplyr::mutate(death_num = ifelse(ageband == "65-999", death_num - chdeaths_num, death_num)) %>%
       dplyr::mutate(death_denom = sum(death_num),
@@ -124,8 +126,6 @@ remove_ch_deaths <-  function(ageband_dat, carehomesdf, studyid) {
       dplyr::ungroup(.) %>%
       dplyr::arrange(ObsDaymin, ObsDaymax, ageband)
   }
-
-
 
   # overwrite
   agebands_noCH_dat <- ageband_dat
