@@ -56,19 +56,25 @@ i<-which(dat_reg$study_id==curr_study_id)
 curr_dat_reg<-dat_reg$data[[i]]
 sero_reg<- curr_dat_reg$seroprev_group %>%
   dplyr::filter(ObsDaymax==max(ObsDaymax)) %>%
-  dplyr::mutate(n_positive=round(n_positive))
+  dplyr::mutate(n_positive=round(n_positive)) %>%
+  dplyr::arrange(region)
 x_sero_reg<-round(sero_reg$n_positive)
 N_sero_reg<-sero_reg$n_tested
 # death data
+# total deaths
 deaths_at_sero <- curr_dat_reg$deaths_TSMCMC %>%
   dplyr::mutate(cumdeaths=cumsum(deaths)) %>%
   dplyr::filter(ObsDay == seromidpt)
-N_deaths_reg<-round(deaths_at_sero$cumdeaths * curr_dat_reg$deaths_propMCMC$death_prop)
+deaths_reg<-curr_dat_reg$deaths_propMCMC %>%
+  dplyr::arrange(region)
+N_deaths_reg<-round(deaths_at_sero$cumdeaths * deaths_reg$death_prop)
 
 
 # pop by age and region
-pop_reg_age<-dplyr::select(curr_dat_reg$prop_pop, -popN)
+pop_reg_age<-dplyr::select(curr_dat_reg$prop_pop, -popN) %>%
+  dplyr::arrange(region)
 pop_reg <- curr_dat_reg$prop_pop %>%
+  dplyr::arrange(region) %>%
   dplyr::group_by(region) %>%
   dplyr::summarise(popN = sum(popN)) %>%
   dplyr::pull(popN)
@@ -78,7 +84,7 @@ pop_reg_age<-as.matrix(pop_reg_age[2:ncol(pop_reg_age)])
 colnames(pop_reg_age) <- NULL
 
 ## region plot to check all is well.
-#plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
+plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
 
 ########################
 # FIT RSTAN MODEL
@@ -112,7 +118,8 @@ fit_reg_age_full <- sampling(model_reg_age_full,list(nr=length(pop_reg),
 t2<-Sys.time()
 t2-t1
 #print(fit_reg_age_full)
-if(write2file) saveRDS(fit_reg_age_full, "analyses/Rgn_Mod_Stan/results/fit_spain_reg_age_full.rds")
+## file too big for github so write elsewhere.
+if(write2file) saveRDS(fit_reg_age_full, "C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/fit_spain_reg_age_full.rds")
 
 params<-rstan::extract(fit_reg_age_full)
 #plot(density(params$specificity))
@@ -150,17 +157,21 @@ x_spec_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_spec
 pop_age<-curr_dat_age$popn
 
 ### regional data - seroprevalence and deaths
-curr_dat_reg<-read.csv("data/raw/SWE1_regions.csv")
+curr_dat_reg<-read.csv("data/raw/SWE1_regions.csv") %>%
+  dplyr::arrange(region)
 N_sero_reg<-curr_dat_reg$n_inferred
 x_sero_reg<-round(N_sero_reg*curr_dat_reg$seroprev)
 # death data
-N_deaths_reg<-round(deaths_at_sero$cumdeaths * curr_dat_reg$deaths_propMCMC$death_prop)
+deaths_reg<-curr_dat_reg$deaths_propMCMC %>%
+  dplyr::arrange(region)
+N_deaths_reg<-round(deaths_at_sero$cumdeaths * $death_prop)
 
 # pop by age and region
 # demography (non-US Census data and BRA on its own)
 pop_reg_age <- readr::read_tsv("data/raw/non_usa_non_bra_population.tsv") %>%
   dplyr::select(-c("reference")) %>%
-  dplyr::filter(study_id=="SWE1") %>%
+  dplyr::filter(study_id=="SWE1")
+%>%
   dplyr::select(curr_dat_reg$prop_pop, -popN)
 
 pop_reg <- curr_dat_reg$prop_pop %>%
