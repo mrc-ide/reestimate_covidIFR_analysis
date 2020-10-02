@@ -450,6 +450,9 @@ saveRDS(DNK.agebands_age_sero.dat, "data/derived/DNK1/DNK1_agebands_age_sero.dat
 sero_prevdfESP <- sero_prevdf %>%
   dplyr::mutate(age_high = ifelse(study_id == "ESP1-2" & age_low == 0 & age_high == 0, 0.99, # to make the cut easier
                                   age_high))
+populationdfESP<-populationdf %>%
+  dplyr::filter(study_id=="ESP1-2") %>%
+  dplyr::mutate(for_regional_analysis=1)
 
 #......................
 # regions
@@ -457,7 +460,7 @@ sero_prevdfESP <- sero_prevdf %>%
 ESP.regions.dat <- process_data4(cum_tp_deaths = deathsdf,
                                  time_series_totdeaths_df = JHUdf,
                                  time_series_totdeaths_geocode = "ESP",
-                                 population = populationdf,
+                                 population = populationdfESP,
                                  sero_val = sero_valdf,
                                  seroprev = sero_prevdfESP,
                                  get_descriptive_dat = TRUE,
@@ -821,11 +824,28 @@ swe_adj_seroprev <- dplyr::left_join(swe_adj_seroprev,
 # overwrite
 SWE.agebands.dat$seroprevMCMC <- swe_adj_seroprev
 
+########
+# regions
+########
+SWEsero_prevdf<-sero_prevdf %>%
+  dplyr::filter(study_id=="SWE1" & for_regional_analysis==1 & region!="all")
+SWE.regions.dat <- process_data4(cum_tp_deaths = deathsdf,
+                                  time_series_totdeaths_df = JHUdf,
+                                  time_series_totdeaths_geocode = "SWE",
+                                  population = populationdf,
+                                  sero_val = sero_valdf,
+                                  seroprev = SWEsero_prevdf,
+                                  get_descriptive_dat = TRUE,
+                                  groupingvar = "region",
+                                  study_ids = "SWE1",
+                                 filtRegions = SWEsero_prevdf$region)
+
 #......................
 # save out
 #......................
 dir.create("data/derived/SWE1", recursive = T)
 saveRDS(SWE.agebands.dat, "data/derived/SWE1/SWE1_agebands.RDS")
+saveRDS(SWE.regions.dat, "data/derived/SWE1/SWE1_regions.RDS")
 
 
 
