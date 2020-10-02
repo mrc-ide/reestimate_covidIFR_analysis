@@ -233,49 +233,16 @@ log_retmapIFR_dat <- log_retmapIFR %>%
     nums[nums == 999] <- 100
     return(mean(nums))}))
 
-
-#......................
-# perform log-linear regression from posteriors
-#......................
-# NO serorev
-log_regressdat_NOseroreov <- log_retmapIFR_dat %>%
-  dplyr::filter(sero == "reg") %>%
-  dplyr::select(c("study_id", "age_mid", "median", "precision"))
-
-NoSerorv_model_weighted <- lm(median ~ age_mid,
-                              data = log_regressdat_NOseroreov,
-                              weights = precision)
-
-# serorev
-log_regressdat_seroreov <- log_retmapIFR_dat %>%
-  dplyr::filter(sero == "serorev") %>%
-  dplyr::select(c("study_id", "age_mid", "median", "precision"))
-
-Serorv_model_weighted <- lm(median ~ age_mid,
-                              data = log_regressdat_seroreov,
-                              weights = precision)
-
-
-
 #......................
 # plot out
 #......................
-newdat <- data.frame(age_mid = seq(0, 95, by = 0.05))
-NoSerorv_model_weighted_CIband <- predict(NoSerorv_model_weighted,
-                                          newdat,
-                                          interval = "confidence", alpha = 0.05)
-NoSerorv_model_weighted_CIband <- cbind.data.frame(newdat,
-                                                   NoSerorv_model_weighted_CIband)
 
 log_age_IFR_plotObj <- log_retmapIFR_dat %>%
   dplyr::filter(sero == "reg") %>%
   ggplot() +
-  geom_ribbon(data = NoSerorv_model_weighted_CIband,
-              aes(x = age_mid, y = fit, ymin = lwr, ymax = upr),
-              alpha = 0.35, color = "#d9d9d9", linetype = "dashed") +
-  geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  study_id),
+  geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  location),
                   alpha = 0.75, shape = 16, size = 0.9) +
-  scale_color_manual("Study ID", values = mycolors) +
+  scale_color_manual("Location", values = mycolors) +
   ylab("Log-10 Age-Specific IFR (95% CrI)") + xlab("Mid. Age") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -328,38 +295,71 @@ graphics.off()
 #............................................................
 #---- Best IFR Est Table  #----
 #...........................................................
-# using log-linear regression from posteriors above
-
-# new dat is 10 year age bands
-newdat <- data.frame(age_mid = seq(5, 95, by = 10))
-
+#......................
+# get "precision" based on overall IFR
+#......................
+studyprecision <- retmapIFR %>%
+  dplyr::mutate(overallIFRret = purrr::map(path, get_overall_IFRs)) %>%
+  tidyr::unnest(cols = "overallIFRret") %>%
+  dplyr::mutate(wi = (UCI-LCI)) %>%
+  dplyr::select(c("study_id", "wi"))
 
 #......................
-# bring together
+# unpack data from NLLS
 #......................
-NoSerorv_bestest <- predict(NoSerorv_model_weighted,
-                                          newdat,
-                                          interval = "confidence", alpha = 0.05) %>%
-  tibble::as_tibble(.) %>%
-  dplyr::mutate(fit = round(exp(fit) * 100, 2),
-                lwr = round(exp(lwr) * 100, 2),
-                upr = round(exp(upr) * 100, 2),
-                bestest = paste0(fit, " (", lwr, ", ", upr, ")")) %>%
-  dplyr::pull(bestest)
+ifrdat <- retmapIFR %>%
+  dplyr::select(c("study_id", "sero", "strataIFRret")) %>%
+  tidyr::unnest(cols = "strataIFRret") %>%
+  dplyr::rename(ageband = strata) %>%
+  dplyr::mutate(age_mid = purrr::map_dbl(ageband, function(x){
+    nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
+    nums[nums == 999] <- 100
+    return(mean(nums))})) %>%
+  dplyr::left_join(., studyprecision, by = "study_id") %>%
+  dplyr::rename(mas = median) %>%
+  dplyr::select(c("study_id", "sero", "ageband", "age_mid", "mas", "wi"))
 
-Serorv_bestest <- predict(Serorv_model_weighted,
-                            newdat,
-                            interval = "confidence", alpha = 0.05) %>%
-  tibble::as_tibble(.) %>%
-  dplyr::mutate(fit = round(exp(fit) * 100, 2),
-                lwr = round(exp(lwr) * 100, 2),
-                upr = round(exp(upr) * 100, 2),
-                bestest = paste0(fit, " (", lwr, ", ", upr, ")")) %>%
-  dplyr::pull(bestest)
+#......................
+# optim approach
+#......................
+find_pars <- function(dat) {
+  if( !all(c("wi", "mas", "age_mid") %in% colnames(dat)) ) {
+    stop()
+  }
+  # optimize exponential distribution by weighted residual sum of squares
+  wi_rss <- function(par, dat) {
+    sum( dat$wi * ((par[1] * exp(dat$age_mid * par[1])) - dat$mas)^2 )
+  }
+  # run optim
+  out <- optim(par = c(1e-18), fn = wi_rss, dat = dat,
+               method = "L-BFGS-B", lower = .Machine$double.xmin)
+  names(out$par) <- c("lambda")
+  return(out)
+}
 
-best_est <- tibble::tibble(ageband = paste0(seq(0, 90, 10), "-", seq(10, 100, 10)),
-                           NoSeroRev = NoSerorv_bestest,
-                           SeroRev = Serorv_bestest)
+retoptim <- find_pars(ifrdat)
+retoptim$par
+retoptim$convergence
+
+#......................
+# get new observations
+#......................
+run_exp_growth <- function(par1, age){ par1 * exp(age * par1) }
+newagedat <- seq(5, 95, 10)
+best_est <- tibble::tibble(agemid = newagedat,
+                           IFR = sapply(newagedat, run_exp_growth, par1 = retoptim$par[[1]])
+                           ) %>%
+  dplyr::mutate(IFR = IFR * 100)
+
+
+
+modIFR_age_plotObj +
+  geom_line(data = best_est, aes(x = agemid, y = IFR), color = "#FF0018",
+            size = 1.2,
+            linetype = "dashed")
+
+
+
 # out
 best_est %>%
   readr::write_tsv(., path = "tables/final_tables/overall_best_est_for_IFRs.tsv")
