@@ -53,14 +53,14 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 # all deaths
 #......................
 alldeaths <- readRDS("data/derived/USA/NYC_NY_1agebands.RDS")
-NYC1_all_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+NYC1_all_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                                  groupvar = "ageband",  dat = alldeaths,
                                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
                                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),
                                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 confirmeddeaths <- readRDS("data/derived/confirmeddeaths/NYC_confirmed_deaths.rds")
-NYC1_confirmed_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+NYC1_confirmed_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 5, maxMa = "ma5",
                                                        groupvar = "ageband",  dat = confirmeddeaths,
                                                        num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
                                                        num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),

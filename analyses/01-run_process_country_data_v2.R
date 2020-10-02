@@ -1376,7 +1376,7 @@ NYC_NY_1.agebands.dat <-process_data4(cum_tp_deaths = deathsdf,
 # NYC seroprevalence and deaths not perfectly aligned because blood donor data
 # Assumptions.
 # 1) 18-34 and 34-44 seroprevalence will be averaged for the 0-18 and 18-45 age group
-# 2) Seroprev in the 44-54 age group will be equivalent to the 45-65 age group
+# 2) Mean Seroprev 44-54 and 54+ age group will be equivalent to the 45-65 age group
 # 3) Seroprev in the 54+ age group will be equivalent to the 65-75 and 75+ age group
 
 nyc_adj_seroprev <- tibble::tibble(
@@ -1388,23 +1388,16 @@ nyc_adj_seroprev <- tibble::tibble(
   SeroPrev = NA)
 
 # lift over
-nylftovr <- NYC_NY_1.agebands.dat$seroprevMCMC %>%
-  dplyr::filter(ageband %in% c("18-34", "34-44")) %>%
-  dplyr::summarise(
-    n_positive = sum(n_positive),
-    n_tested = sum(n_tested),
-    SeroPrev = n_positive/n_tested
-  )
 
-nyc_adj_seroprev$n_positive[1:2] <- nylftovr$n_positive
-nyc_adj_seroprev$n_tested[1:2] <- nylftovr$n_tested
-nyc_adj_seroprev$SeroPrev[1:2] <- nylftovr$SeroPrev
-nyc_adj_seroprev$n_positive[3] <- NYC_NY_1.agebands.dat$seroprevMCMC$n_positive[3]
-nyc_adj_seroprev$n_tested[3] <- NYC_NY_1.agebands.dat$seroprevMCMC$n_tested[3]
-nyc_adj_seroprev$SeroPrev[3] <- NYC_NY_1.agebands.dat$seroprevMCMC$SeroPrev[3]
-nyc_adj_seroprev$n_positive[4:5] <- NYC_NY_1.agebands.dat$seroprevMCMC$n_positive[4]
-nyc_adj_seroprev$n_tested[4:5] <- NYC_NY_1.agebands.dat$seroprevMCMC$n_tested[4]
-nyc_adj_seroprev$SeroPrev[4:5] <- NYC_NY_1.agebands.dat$seroprevMCMC$SeroPrev[4]
+nyc_adj_seroprev$n_positive[1:2] <- NYC_NY_1.agebands.dat$seroprev_group$n_positive[1]
+nyc_adj_seroprev$n_tested[1:2] <- NYC_NY_1.agebands.dat$seroprev_group$n_tested[1]
+nyc_adj_seroprev$n_positive[3] <- round(mean(NYC_NY_1.agebands.dat$seroprev_group$n_positive[2:3]))
+nyc_adj_seroprev$n_tested[3] <- round(mean(NYC_NY_1.agebands.dat$seroprev_group$n_tested[2:3]))
+nyc_adj_seroprev$n_positive[4:5] <- NYC_NY_1.agebands.dat$seroprev_group$n_positive[3]
+nyc_adj_seroprev$n_tested[4:5] <- NYC_NY_1.agebands.dat$seroprev_group$n_tested[3]
+nyc_adj_seroprev <- nyc_adj_seroprev %>%
+  dplyr::mutate(SeroPrev = n_positive/n_tested)
+
 # write over
 NYC_NY_1.agebands.dat$seroprevMCMC <- nyc_adj_seroprev
 
