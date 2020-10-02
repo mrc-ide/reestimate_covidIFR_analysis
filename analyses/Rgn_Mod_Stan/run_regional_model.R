@@ -86,7 +86,7 @@ pop_reg_age<-as.matrix(pop_reg_age[2:ncol(pop_reg_age)])
 colnames(pop_reg_age) <- NULL
 
 ## region plot to check all is well.
-#plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
+plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
 
 ########################
 # FIT RSTAN MODEL - SPAIN
@@ -139,13 +139,7 @@ curr_dat_age <- dat_age$plotdat[[which(dat_age$study_id==curr_study_id)]] %>%
   dplyr::filter(seromidpt == obsday & obsdaymax==max(obsdaymax))
 seromidpt<-curr_dat_age$seromidpt[1]
 
-####### Filter out duplicated seroprevalence data
-inds<-!duplicated(curr_dat_age$seroprev)
-seroprev<-curr_dat_age$seroprev[inds]
-N_sero_age<-500  # inferred from CI
-x_sero_age<-round(seroprev*N_sero_age)
-
-agebrks_d<-c(0,seq(9,89,10),999)
+agebrks_d<-c(0,seq(9,79,10),999)
 
 # seroassay validation data
 x_sens_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_sens$npos
@@ -181,7 +175,13 @@ SWEdeathsdf <- readr::read_tsv("data/raw/cumulative_deaths.tsv") %>%
 N_deaths_reg<-round(deaths_at_sero$cumdeaths * SWEdeathsdf$prop_deaths)
 
 ## only include total deaths from the regions included
-N_deaths_age<-round(sum(N_deaths_reg) * curr_dat_age$cumdeaths/sum(curr_dat_age$cumdeaths))
+deaths_age<-curr_dat_age %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(age_mid=ifelse(ageband=='79-89' | ageband=='89-999',90,age_mid)) %>%
+  dplyr::select(age_mid,cumdeaths) %>%
+  dplyr::group_by(age_mid) %>%
+  dplyr::summarise(cumdeaths=sum(cumdeaths))
+N_deaths_age<-round(sum(N_deaths_reg) * deaths_age$cumdeaths/sum(deaths_age$cumdeaths))
 
 #### check total deaths are the same by age and region
 sum(N_deaths_reg)
@@ -190,7 +190,15 @@ sum(N_deaths_age)
 # pop by age and region
 pop_reg_age<-dplyr::select(curr_dat_reg$prop_pop, -pop_prop) %>%
   dplyr::arrange(region)
-pop_reg_age<-spread(pop_reg_age, key = ageband, value = popN)
+### careful with ordering:
+pop_reg_age <- pop_reg_age %>%
+  dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)")),
+                age_low2=ifelse(ageband=='79-89' | ageband=='89-999',90,age_low)) %>%
+  dplyr::group_by(region,age_low2) %>%
+  dplyr::summarise(popN=sum(popN)) %>%
+  dplyr::arrange(region, age_low2)
+
+pop_reg_age<-spread(pop_reg_age, key = age_low2, value = popN)
 pop_reg_age<-as.matrix(pop_reg_age[2:ncol(pop_reg_age)])
 colnames(pop_reg_age) <- NULL
 
@@ -203,14 +211,15 @@ if(sum(pop_reg)!=sum(pop_age)) print("Error, different population totals by age 
 
 ## region plot to check all is well.
 plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
-
+## age plot to check all is well.
+plot(1:length(pop_age),N_deaths_age/pop_age)
 
 ########################
 # FIT RSTAN MODEL - SWEDEN
 ########################
 nIter<-20000
 
-options(mc.cores = 2) # parallel::detectCores())
+options(mc.cores = 4) # parallel::detectCores())
 
 t1<-Sys.time()  #### RUN TAKES APPROX 19 MINS ON 2 CORES, less on 4.
 fit_reg_age_full <- sampling(model_reg_only_full,list(nr=length(pop_reg),
@@ -239,6 +248,6 @@ if(write2file) saveRDS(fit_reg_age_full, "C:/Users/Lucy/Dropbox (SPH Imperial Co
 
 params<-rstan::extract(fit_reg_age_full)
 #plot(density(params$specificity))
-if(write2file) write.csv(params$specificity, file="analyses/Rgn_Mod_Stan/results/spain_spec_reg_age.csv",row.names = F,col.names = NULL)
-if(write2file) write.csv(params$sensitivity, file="analyses/Rgn_Mod_Stan/results/spain_sens_reg_age.csv",row.names = F,col.names = NULL)
+if(write2file) write.csv(params$specificity, file="analyses/Rgn_Mod_Stan/results/sweden_spec_reg_age.csv",row.names = F,col.names = NULL)
+if(write2file) write.csv(params$sensitivity, file="analyses/Rgn_Mod_Stan/results/sweden_sens_reg_age.csv",row.names = F,col.names = NULL)
 
