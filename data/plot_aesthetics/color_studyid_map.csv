@@ -1,4 +1,4 @@
-study_id,cols,national_georegion,names
+study_id,cols,national_georegion,location
 ESP1-2,#8c96c6,ESP,Spain
 NLD1,#7e4223,NLD,Netherlands
 DNK1,#136e1a,DNK,Denmark
@@ -7,11 +7,9 @@ BRA1,#8a3784,BRA,Brazil
 NYS1,#0ecece,,"New York State, USA"
 ITA1,#1774bd,ITA,Italy
 CHN1,#141712,,"Wuhan, China"
-LUX1,#E04A3D,LUX,Luxembourg
 GBR3,#FF9CC9,,England
-CHE2,#edb879,,"Zurich, Switzerland"
+CHE2,#89c27c,,"Zurich, Switzerland"
 LA_CA1,#FDD238,,"Los Angeles County, USA"
-KEN1,#89c27c,KEN,Kenya
 SWE1,#1ab307,SWE,Sweden
 DNK1_nch,#000000,,
 ESP1-2_nch,#000000,,
