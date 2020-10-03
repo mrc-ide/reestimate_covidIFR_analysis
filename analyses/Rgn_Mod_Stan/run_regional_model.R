@@ -251,3 +251,209 @@ params<-rstan::extract(fit_reg_age_full)
 if(write2file) write.csv(params$specificity, file="analyses/Rgn_Mod_Stan/results/sweden_spec_reg_age.csv",row.names = F,col.names = NULL)
 if(write2file) write.csv(params$sensitivity, file="analyses/Rgn_Mod_Stan/results/sweden_sens_reg_age.csv",row.names = F,col.names = NULL)
 
+
+#################
+# New York State
+#################
+###################
+# PROCESS DATA
+###################
+####### Extract data
+# seroprevalence data
+curr_study_id<-"NYS1"
+####### Extract data & filter to most recent survey
+curr_dat_age <- dat_age$plotdat[[which(dat_age$study_id==curr_study_id)]] %>%
+  dplyr::filter(seromidpt == obsday & obsdaymax==max(obsdaymax))
+seromidpt<-curr_dat_age$seromidpt[1]
+
+agebrks_d<-c(0,seq(9,79,10),999)
+
+# seroassay validation data
+x_sens_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_sens$npos
+N_sens_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_sens$ntest
+N_spec_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_spec$ntest
+x_spec_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_spec$nneg
+
+
+### regional data - seroprevalence and deaths
+curr_dat_reg<-dat_reg$data[[which(dat_reg$study_id==curr_study_id)]]
+sero_reg<- curr_dat_reg$seroprev_group %>%
+  dplyr::filter(ObsDaymax==max(ObsDaymax)) %>%
+  dplyr::mutate(n_positive=round(n_positive)) %>%
+  dplyr::arrange(region)
+N_sero_reg<-sero_reg$n_tested
+x_sero_reg<-sero_reg$n_positive
+# death data
+# total deaths
+deaths_at_sero <- curr_dat_reg$deaths_TSMCMC %>%
+  dplyr::mutate(cumdeaths=cumsum(deaths)) %>%
+  dplyr::filter(ObsDay == seromidpt)
+
+# regional level
+curr_sero<-curr_dat_reg$data[[1]]$seroprevMCMC
+x_sero_reg<- $n_positive
+N_sero_reg<-dat_reg$n_tested
+
+agebrks_d<-c(0,seq(9,79,10),999)  ## join 90+ with 80-90 as population data does not have 90+ category, only 85+
+sero<-dplyr::filter(dat_age,!duplicated(n_positive,n_tested))
+x_sero_age<-sero$n_positive
+N_sero_age<-sero$n_tested
+
+# seroassay validation data
+x_sens_validat<-204
+N_sens_validat<-234
+N_spec_validat<-  92
+x_spec_validat<-92
+
+sens<-x_sens_validat/N_sens_validat
+spec<-x_spec_validat/N_spec_validat
+
+
+# national level
+N_sero_nat<-sum(N_sero_age)
+obs_prev<-(0.125*sens) + (1-0.125)*(1-spec)  ## calculate backwards using sens and spec.
+x_sero_nat<-round(N_sero_nat*obs_prev) #cannot derive from regional/age data as is weighted.
+
+
+# death data
+N_deaths_reg<-round(dat_reg$cumdeaths)
+
+dat_age$ageband<-c(1:9,9)
+aged<-dat_age %>%
+  dplyr::group_by(ageband) %>%
+  dplyr::summarise(cumdeaths=sum(cumdeaths),
+                   popn=sum(popn))
+N_deaths_age<-round(aged$cumdeaths)
+
+# pop by age and region
+pop_reg0<-dat_reg$popn
+pop_age0<-aged$popn
+
+## groupings of seroprevalence in the study:
+wr<-c("New York_Westchester|New York_Rockland")
+long_island<-c("New York_Nassau|New York_Suffolk")
+nyc<-"New York_New-York|New York_Kings|New York_Bronx|New York_Queens|New York_Richmond"
+upstate<-c("Albany|Allegany|Broome|Cattaraugus|Cayuga|Chautauqua|Chemung|Chenango|Clinton|Columbia|Cortland|Delaware|Dutchess|Erie|Essex|Franklin|Fulton|Genessee|Greene|Hamilton|Herkimer|Jefferson|Lewis|Livingston|Madison|Monroe|Montgomery|Niagara|Oneida|Onondaga|Ontario|Orange|Orleans|Oswego|Otsego|Putnam|Rensselaer|St. Lawrence|Saratoga|Schenectady|Schoharie|Schuyler|Seneca|Steuben|Sullivan|Tioga|Tompkins|Ulster|Warren|Washington|Wayne|Wyoming|Yates")
+
+#dat_pop<-read.csv("C:/Users/Lucy/Documents/GitHub/reestimate_covidIFR_analysis/data/raw/USA_County_Demographic_Data.csv")
+
+populationdf <- readr::read_csv("C:/Users/Lucy/Documents/GitHub/reestimate_covidIFR_analysis/data/raw/USA_County_Demographic_Data.csv") %>%
+  tidyr::gather(., key = "strata", value = "population", 3:ncol(.)) %>%
+  dplyr::filter(stringr::str_detect(strata, "Both_", negate = TRUE)) %>%
+  dplyr::filter(stringr::str_detect(strata, "_Total", negate = TRUE)) %>%
+  dplyr::mutate(
+    country = "USA",
+    Countysp = gsub(" County", "", County),
+    Countysp = gsub(" ", "-", Countysp),
+    region = paste0(State, "_", Countysp),
+    ageband = stringr::str_split_fixed(strata, "[A-Za-z]_", n = 2)[,2],
+    ageband = ifelse(stringr::str_detect(ageband, "\\+"),
+                     paste0(stringr::str_extract_all(ageband, "[0-9]+", simplify = TRUE), "-", 999),
+                     ageband),
+    age_low = as.numeric( stringr::str_split_fixed(ageband, "-[0-9]+", n = 2)[,1] ),
+    age_high = as.numeric( stringr::str_split_fixed(ageband, "[0-9]-", n = 2)[,2] ),
+    gender = stringr::str_extract_all(strata, "[A-Za-z]+", simplify = TRUE)[,1],
+    age_breakdown = 1,
+    for_regional_analysis = 1,
+    gender_breakdown = 1
+  ) %>%
+  dplyr::select(c("country", "age_low", "age_high", "region", "gender", "population", "age_breakdown", "for_regional_analysis", "gender_breakdown")) %>%
+  dplyr::left_join(., readr::read_csv("C:/Users/Lucy/Documents/GitHub/reestimate_covidIFR_analysis/data/raw/usa_study_id_county_key.csv"), by = "region")
+
+
+NYSpopdf <- populationdf %>%
+  dplyr::filter(grepl("New York", region))
+wrp <- NYSpopdf %>%
+  dplyr::filter(grepl(wr,region)) %>%
+  dplyr::mutate(region="Westchester and Rockland")
+long_islandp<-NYSpopdf %>%
+  dplyr::filter(grepl(long_island,region)) %>%
+  dplyr::mutate(region="Long Island")
+nycp <- NYSpopdf %>%
+  dplyr::filter(grepl(nyc,region)) %>%
+  dplyr::mutate(region="New York City")
+upstatep <- NYSpopdf %>%
+  dplyr::filter(grepl(upstate,region)) %>%
+  dplyr::mutate(region="Upstate New York")
+
+NYpopdf <- rbind(wrp,long_islandp,nycp,upstatep)
+NYpopdf<- NYpopdf %>%
+  dplyr::mutate(age2=cut(age_high,agebrks_d)) %>%
+  dplyr::group_by(region, age2) %>%
+  dplyr::summarise(population = sum(population)) %>%
+  dplyr::ungroup()
+
+pop_reg_age<-melt(NYpopdf)
+levels(pop_reg_age$age2)<-1:10
+summ_pop<-spread(pop_reg_age, key = age2, value = value)
+
+## checked regions in same order in the rgn RDS
+
+pop_reg_age<-as.matrix(summ_pop[3:ncol(summ_pop)])
+colnames(pop_reg_age) <- NULL
+## convert to proportion of population in each age group per region
+prop_pop_reg_age_regSum1<-pop_reg_age / rowSums(pop_reg_age)
+prop_pop_reg_age_ageSum1<-pop_reg_age
+for(i in 1:ncol(pop_reg_age)) prop_pop_reg_age_ageSum1[,i]<-pop_reg_age[,i] / sum(pop_reg_age[,i])
+
+pop_age<-colSums(pop_reg_age)
+pop_reg<-rowSums(pop_reg_age)
+
+d_i<-c(rep(1,6),rep(2,3))
+na_s<-length(x_sero_age)
+pop_age_sero<-rep(0,na_s)
+for(i in 1:length(N_deaths_age)) pop_age_sero[d_i[i]]<-pop_age_sero[d_i[i]]+pop_age[i]
+nr<-length(N_deaths_reg)
+pop_reg_age_sero<-matrix(rep(0,na_s*nr),nrow=nr,ncol=na_s)
+for(i in 1:length(N_deaths_age)) {
+  for(r in 1:nr) {
+    pop_reg_age_sero[r,d_i[i]]<-pop_reg_age_sero[r,d_i[i]] + pop_reg_age[r,i]
+  }
+}
+
+
+
+## quick region plot to check all is well.
+plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg0)
+
+
+########################
+# FIT RSTAN MODELS
+########################
+
+nIter<-20000
+
+
+### REGION & AGE, ASSUME RR of sero constant by age and region (i.e. no interaction)
+fit_reg_age_full <- sampling(model_reg_age_full,list(nr=length(pop_reg),
+                                                     na=length(pop_age),
+                                                     na_s=length(x_sero_age),
+                                                     d_i=d_i,
+                                                     x_seror=x_sero_reg,
+                                                     N_seror=N_sero_reg,
+                                                     x_seroa = x_sero_age,
+                                                     N_seroa = N_sero_age,
+                                                     N_deathsr=N_deaths_reg,
+                                                     N_deathsa=N_deaths_age,
+                                                     tot_obsd = sum(N_deaths_reg),
+                                                     popr=pop_reg,
+                                                     prop_pop_reg = pop_reg/sum(pop_reg),
+                                                     popa=pop_age,
+                                                     popas= pop_age_sero, #// population in age groups for the serosurvey.
+                                                     prop_pop_age = pop_age/sum(pop_age),
+                                                     pop_reg_age = pop_reg_age,
+                                                     prop_pop_reg_age = pop_reg_age/sum(pop_reg_age),
+                                                     prop_pop_reg_age_sero=pop_reg_age_sero/sum(pop_reg_age_sero),
+                                                     x_sens_validat=x_sens_validat,
+                                                     N_sens_validat=N_sens_validat,
+                                                     x_spec_validat=x_spec_validat,
+                                                     N_spec_validat=N_spec_validat),
+                             iter=nIter, chains=4,control = list(adapt_delta = 0.98, max_treedepth = 13))  # each chain has 200 iterations. Default is to use half of iterations for burn in.
+
+print(fit_reg_age_full)
+
+
+#################
+# ITALY
+#################
+curr_study_id<-"ITA1"
