@@ -1206,7 +1206,7 @@ nys_adj_seroprev <- tibble::tibble(
   n_tested = NA,
   SeroPrev = NA)
 nys_adj_seroprev <- nys_adj_seroprev %>%
-  dplyr::mutate(SeroPrev = ifelse(ageband=="59-69" | ageband=="69-79" | ageband=="79-99",
+  dplyr::mutate(SeroPrev = ifelse(ageband=="59-69" | ageband=="69-79" | ageband=="79-999",
                                   NYS.age.dat$seroprevMCMC$SeroPrev[4], 0.125),
                 n_tested = ifelse(ageband=="59-69" | ageband=="69-79" | ageband=="79-999" ,
                                   NYS.age.dat$seroprevMCMC$n_tested[4],
