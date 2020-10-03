@@ -1095,7 +1095,7 @@ saveRDS(LA_CA.agebands.dat, "data/derived/USA/LA_CA1_agebands.RDS")
 #......................
 # preprocess New York State
 #......................
-# groupings of seroprevalence in the study:
+# groupings of regional seroprevalence in the study:
 wr <- c("New York_Westchester|New York_Rockland")
 long_island <- c("New York_Nassau|New York_Suffolk")
 nyc <- "New York_New-York|New York_Kings|New York_Bronx|New York_Queens|New York_Richmond"
@@ -1226,7 +1226,7 @@ nys_adj_seroprev <- tibble::tibble(
   n_tested = NA,
   SeroPrev = NA)
 nys_adj_seroprev <- nys_adj_seroprev %>%
-  dplyr::mutate(SeroPrev = ifelse(ageband=="59-69" | ageband=="69-79" | ageband=="79-99",
+  dplyr::mutate(SeroPrev = ifelse(ageband=="59-69" | ageband=="69-79" | ageband=="79-999",
                                   NYS.age.dat$seroprevMCMC$SeroPrev[4], 0.125),
                 n_tested = ifelse(ageband=="59-69" | ageband=="69-79" | ageband=="79-999" ,
                                   NYS.age.dat$seroprevMCMC$n_tested[4],
