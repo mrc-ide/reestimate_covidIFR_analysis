@@ -595,7 +595,7 @@ SeroPrevPlotDat <- datmap %>%
   dplyr::filter(!grepl("_nch", study_id)) %>%
   dplyr::select(c("study_id", "seroprev_adjdat")) %>%
   dplyr::filter(! study_id %in% c(c("CHE2", "DNK1", "LUX1", "NLD1",
-                                  "SWE1", "LA_CA1"))) %>% # excluding studies w/ constant assumption
+                                    "SWE1", "LA_CA1"))) %>% # excluding studies w/ constant assumption
   tidyr::unnest(cols = "seroprev_adjdat")
 
 # filter to latest date if multiple serosurveys
@@ -653,6 +653,7 @@ graphics.off()
 #............................................................
 #---- Figure of Seroprevalence vs. Not-Modelled Adj. IFR #----
 #...........................................................
+source("R/monte_carlo_cis.R")
 # get regions
 rgns <- datmap %>%
   dplyr::filter(breakdown == "region") %>%
@@ -709,16 +710,19 @@ rgns <- dplyr::bind_rows(rgns, brargn)
 #......................
 # calculate CIs for binomial
 #......................
-rgnsSE_sub <- rgns %>%
+rgns_binom <- rgns %>%
   dplyr::filter(study_id != "ITA1") %>%
   dplyr::group_by(study_id) %>%
   dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
   dplyr::ungroup(.) %>%
-  dplyr::select(c("study_id", "region", "n_positive", "n_tested")) %>%
+  dplyr::select(c("study_id", "region", "cumdeaths", "popn", "n_positive", "n_tested")) %>%
   dplyr::filter(!duplicated(.)) %>%
   dplyr::mutate(seroprev = n_positive/n_tested,
-                binom_se = sqrt(seroprev * (1-seroprev))) %>%
-  dplyr::select(c("study_id", "region", "binom_se"))
+                ifr_range = purrr::map(cumdeaths, get_binomial_monte_carlo_cis, popN = popn,
+                                       npos = n_positive, ntest = n_tested, iters = 1e5),
+                LCI = purrr::map_dbl(ifr_range, quantile, 0.025),
+                UCI = purrr::map_dbl(ifr_range, quantile, 0.975)) %>%
+  dplyr::select(c("study_id", "region", "LCI", "UCI"))
 
 rgnsSE_ita <- rgns %>%
   dplyr::filter(study_id == "ITA1") %>%
@@ -806,16 +810,16 @@ stanFit<-ggplot() + theme_bw() +
   geom_point(aes(x = 100*spainDat$seroprev, y = spainDat$std_cum_deaths,color="Spain data"), shape = 19, size = 1.5,stroke=1.5) +
   geom_point(aes(x = 100*colMeans(params$prev_sero_truer), y = 1000000*colMeans(params$expdr)/spainDat$popn,
                  color="fitted"),
-              shape = 19, size = 2.5) +
+             shape = 19, size = 2.5) +
   expand_limits(x = 0) +
   expand_limits(y = 1700) +
   scale_color_manual(name="",values=c("Spain data"="black","fitted"="dodgerblue"), labels=c("fitted","Spain data")) +
   xlab("Seroprevalence (%)") + ylab("Cumulative Deaths per Million") +
-    xyaxis_plot_theme
+  xyaxis_plot_theme
 
 
 
 rgnPlots <- cowplot::plot_grid(std_deaths_seroplot, stanFit,
-                           ncol = 2, nrow = 1, align = "h",
-                           labels = c("(A)", "(B)"), rel_widths = c(1.2,1))
+                               ncol = 2, nrow = 1, align = "h",
+                               labels = c("(A)", "(B)"), rel_widths = c(1.2,1))
 if(write2file) ggsave(filename = "results/descriptive_figures/rgnPlots.tiff", plot = rgnPlots, width = 13, height = 5)
