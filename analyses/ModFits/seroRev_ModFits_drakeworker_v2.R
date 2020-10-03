@@ -422,7 +422,7 @@ sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shap
 # agebands
 #......................
 rawage <- readRDS("data/derived/USA/NYS1_agebands.RDS")
-NYS_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+NYS_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                           groupvar = "ageband",  dat = rawage,
                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
                                           num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),

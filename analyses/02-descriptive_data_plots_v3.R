@@ -326,7 +326,7 @@ rgn_seroplot <- rgnplotdat %>%
   dplyr::mutate(seroprev = seroprev * 100) %>%
   ggplot() + theme_bw() +
   geom_point(aes(x = region, y = seroprev, color = study_id), size = 2.5) +
-  scale_color_manual(values = col_vec, name = "study_id") +
+  scale_color_manual(values = mycolors, name = "study_id") +
   facet_wrap(.~study_id, scales = "free_x") +
   xlab("Region") + ylab("Raw Seroprevalence (%)") +
   xyaxis_plot_theme +
@@ -339,7 +339,7 @@ age_prop_deaths_plot_std <- age_prop_deaths_plotdat %>%
   dplyr::filter(care_home_deaths=="yes") %>%
   ggplot() + theme_bw() +
   geom_line(aes(x = age_mid, y = cum_prop_deaths_std, group=study_id,color=study_id), size = 0.3) +
-  scale_color_manual(values = col_vec, name = "study_id") +
+  scale_color_manual(values = mycolors, name = "study_id") +
   xlab("Age (yrs)") + ylab("Cumulative proportion of deaths, age-standardised") +
   xyaxis_plot_theme
 if(write2file) ggsave(filename = "results/descriptive_figures/age_prop_deaths_plot_std.tiff", plot = age_prop_deaths_plot_std, width = 7, height = 5)
@@ -430,14 +430,12 @@ std_deaths_seroplotdat<-left_join(std_deaths_seroplotdat,study_cols,by="study_id
 write.csv(std_deaths_seroplotdat, file = "data/derived/region_summ_IFR.csv")
 
 # Death rate vs seroprevalence
-col_vec<-study_cols$cols
-names(col_vec) <- study_cols$names
 std_deaths_seroplot <- std_deaths_seroplotdat %>%
-  dplyr::select(c("names", "region", "std_cum_deaths", "popn", "seroprev")) %>%
+  dplyr::select(c("study_id", "region", "std_cum_deaths", "popn", "seroprev")) %>%
   dplyr::mutate(seroprev = seroprev * 100) %>%
   ggplot() + theme_bw() +
-  geom_point(aes(x = seroprev, y = std_cum_deaths, fill = names), shape = 21, size = 2.5, stroke = 0.2) +
-  scale_fill_manual(values = col_vec, name = "Study") +
+  geom_point(aes(x = seroprev, y = std_cum_deaths, fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
+  scale_fill_manual(values = mycolors, name = "Study") +
   xlab("Seroprevalence (%)") + ylab("Cumulative Deaths per Million") +
   #  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
   xyaxis_plot_theme
@@ -448,7 +446,7 @@ std_rgn_ifr_seroplot <- std_deaths_seroplotdat %>%
   dplyr::mutate(seroprev = seroprev * 100) %>%
   ggplot() + theme_bw() +
   geom_point(aes(x = seroprev, y = std_cum_deaths/(10000*seroprev), fill = study_id), shape = 21, size = 2.5, stroke = 0.2) +
-  scale_fill_manual(values = col_vec, name = "study_id") +
+  scale_fill_manual(values = mycolors, name = "study_id") +
   xlab("Seroprevalence (%)") + ylab("IFR (%)") +
   xyaxis_plot_theme
 if(write2file) ggsave(filename = "results/descriptive_figures/std_rgn_ifr_seroplot.tiff", plot = std_rgn_ifr_seroplot, width = 7, height = 5)
@@ -581,7 +579,15 @@ plot(ifr0$prop_pop,ifr0$ifr*100,ylab="IFR (%)",xlab="proportion of population ov
 #............................................................
 #---- Figure of Seroprevalence By Age #----
 #...........................................................
+dir.create("figures/final_figures/", recursive = TRUE)
 datmap <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS")
+# colors now based on location
+locatkey <- readr::read_csv("data/plot_aesthetics/color_studyid_map.csv")
+mycolors <- locatkey$cols
+names(mycolors) <- locatkey$location
+locatkey <- locatkey %>%
+  dplyr::select(c("location", "study_id")) %>%
+  dplyr::filter(!grepl("_nch", study_id))
 
 # SeroPrevalences by age portion
 SeroPrevPlotDat <- datmap %>%
@@ -619,6 +625,7 @@ SeroPrevPlotDat <- SeroPrevPlotDat %>%
 
 # plot out
 SeroPrevPlotObj <- SeroPrevPlotDat %>%
+  dplyr::left_join(., locatkey, by = "study_id") %>%
   dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,1]),
                 age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,2]),
                 age_high = ifelse(age_high == 999, 100, age_high),
@@ -628,10 +635,10 @@ SeroPrevPlotObj <- SeroPrevPlotDat %>%
                 crude_seroprevUCI = round(crude_seroprevUCI * 100, 2)) %>%
   ggplot() +
   geom_pointrange(aes(x = age_mid, y = crude_seroprev, ymin = crude_seroprevLCI, ymax = crude_seroprevUCI,
-                      color = study_id), alpha = 0.8) +
-  geom_line(aes(x = age_mid, y = crude_seroprev, color = study_id),
+                      color = location), alpha = 0.8) +
+  geom_line(aes(x = age_mid, y = crude_seroprev, color = location),
             alpha = 0.8, size = 1.2, show.legend = F) +
-  scale_color_manual("Study ID", values = mycolors) +
+  scale_color_manual("Location", values = mycolors) +
   xlab("Age (yrs).") + ylab("Observed Seroprevalence (%)") +
   xyaxis_plot_theme +
   theme(legend.position = "bottom")
@@ -643,13 +650,9 @@ graphics.off()
 
 
 
-
-
 #............................................................
 #---- Figure of Seroprevalence vs. Not-Modelled Adj. IFR #----
 #...........................................................
-source("R/delta_method.R")
-
 # get regions
 rgns <- datmap %>%
   dplyr::filter(breakdown == "region") %>%
@@ -660,6 +663,7 @@ rgns <- datmap %>%
 # drop BRA states in favor of cities
 rgns <- rgns %>%
   dplyr::filter(study_id != "BRA1")
+
 #......................
 # bra cities
 #......................
@@ -703,12 +707,8 @@ brargn <- dplyr::left_join(bracities_sero, bracities_deaths) %>%
 rgns <- dplyr::bind_rows(rgns, brargn)
 
 #......................
-# get standard errors
+# calculate CIs for binomial
 #......................
-# Delta method needs standard error of seroprev SE(p)
-# where SE(p) is the standard error of the binomial proportion for all studies except ITA
-# for ITA, we use SE(p) as the logit transformed SE gleaned from the provided CIs
-#
 rgnsSE_sub <- rgns %>%
   dplyr::filter(study_id != "ITA1") %>%
   dplyr::group_by(study_id) %>%
@@ -735,7 +735,7 @@ rgnsSE <- dplyr::bind_rows(rgnsSE_sub, rgnsSE_ita)
 # subset regions to parts we need
 # and perform calculation
 #......................
-delta_IFR <- rgns %>%
+binom_IFR <- rgns %>%
   dplyr::group_by(study_id, region) %>%
   dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
   dplyr::filter(obsday == seromidpt) %>%  # sero obs day
