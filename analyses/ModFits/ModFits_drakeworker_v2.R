@@ -347,8 +347,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.73,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(130.5,   3308.5),
-                                dsc2 =  c(27.5,    16.5))
+                                dsc1 =  c(25.5,    30.5),
+                                dsc2 =  c(12.5,    0.5))
 
 #......................
 # agebands
