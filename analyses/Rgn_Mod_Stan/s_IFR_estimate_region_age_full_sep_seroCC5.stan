@@ -51,7 +51,7 @@ transformed parameters {
   vector[nr] Rne;
   vector[na_s] Ane;
 
-  // rescale params to distribute infections by region and age, acc to upper limit in each group
+  // rescale params to distribute infections by region and age, with upper limit in each group
   Rne = 0.0001 + Rne_raw .* popr ./ (tot_inf * prop_pop_reg);
   Ane = 0.0001 + Ane_raw .* popas ./ (tot_inf * prop_pop_as);
 
