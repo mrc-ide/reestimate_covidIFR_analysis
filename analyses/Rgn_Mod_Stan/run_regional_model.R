@@ -73,19 +73,21 @@ deaths_reg<-curr_dat_reg$deaths_propMCMC %>%
 N_deaths_reg<-round(deaths_at_sero$cumdeaths * deaths_reg$death_prop)
 
 N_deaths_age<-round(deaths_at_sero$cumdeaths * curr_dat_age$cumdeaths/sum(curr_dat_age$cumdeaths))
+#### check total deaths are the same by age and region
+if(sum(N_deaths_reg)!=sum(N_deaths_age)) print("Error, different mortality totals by age versus by region")
 
 
 
 # pop by age and region
-pop_reg_age<-dplyr::select(curr_dat_reg$prop_pop, -popN) %>%
+pop_reg_age<-dplyr::select(curr_dat_reg$prop_pop, -pop_prop) %>%
   dplyr::arrange(region)
-pop_reg <- curr_dat_reg$prop_pop %>%
+pop_reg <- pop_reg_age %>%
   dplyr::arrange(region) %>%
   dplyr::group_by(region) %>%
   dplyr::summarise(popN = sum(popN)) %>%
   dplyr::pull(popN)
 
-pop_reg_age<-spread(pop_reg_age, key = ageband, value = pop_prop)
+pop_reg_age<-spread(pop_reg_age, key = ageband, value = popN)
 pop_reg_age<-as.matrix(pop_reg_age[2:ncol(pop_reg_age)])
 colnames(pop_reg_age) <- NULL
 
@@ -102,6 +104,28 @@ nIter<-20000
 
 options(mc.cores = 2) # parallel::detectCores())
 
+# save model input:
+assign("curr_dat_list", list(nr=length(pop_reg),
+  na=length(pop_age),
+  x_seror=x_sero_reg,
+  N_seror=N_sero_reg,
+  x_seroa = x_sero_age,
+  N_seroa = N_sero_age,
+  N_deathsr=N_deaths_reg,
+  N_deathsa=N_deaths_age,
+  tot_obsd = sum(N_deaths_age),
+  popr=pop_reg,
+  prop_pop_reg = pop_reg/sum(pop_reg),
+  popa=pop_age,
+  prop_pop_age = pop_age/sum(pop_age),
+  pop_reg_age = pop_reg_age),
+  prop_pop_reg_age = pop_reg_age/sum(pop_reg_age),
+  x_sens_validat=x_sens_validat,
+  N_sens_validat=N_sens_validat,
+  x_spec_validat=x_spec_validat,
+  N_spec_validat=N_spec_validat)
+saveRDS(curr_dat_list,file=paste0("analyses/Rgn_Mod_Stan/input_data/",curr_study_id,"input_dat.RDS"))
+
 t1<-Sys.time()  #### RUN TAKES APPROX 19 MINS ON 2 CORES, less on 4.
 fit_reg_age_full <- sampling(model_reg_age_full,list(nr=length(pop_reg),
                                                      na=length(pop_age),
@@ -116,8 +140,8 @@ fit_reg_age_full <- sampling(model_reg_age_full,list(nr=length(pop_reg),
                                                      prop_pop_reg = pop_reg/sum(pop_reg),
                                                      popa=pop_age,
                                                      prop_pop_age = pop_age/sum(pop_age),
-                                                     pop_reg_age = round(pop_reg_age*sum(pop_reg)),
-                                                     prop_pop_reg_age = pop_reg_age,
+                                                     pop_reg_age = pop_reg_age,
+                                                     prop_pop_reg_age = pop_reg_age/sum(pop_reg_age),
                                                      x_sens_validat=x_sens_validat,
                                                      N_sens_validat=N_sens_validat,
                                                      x_spec_validat=x_spec_validat,
@@ -131,8 +155,11 @@ if(write2file) saveRDS(fit_reg_age_full, "C:/Users/Lucy/Dropbox (SPH Imperial Co
 
 params<-rstan::extract(fit_reg_age_full)
 #plot(density(params$specificity))
-if(write2file) write.csv(params$specificity, file="analyses/Rgn_Mod_Stan/results/spain_spec_reg_age.csv",row.names = F,col.names = NULL)
-if(write2file) write.csv(params$sensitivity, file="analyses/Rgn_Mod_Stan/results/spain_sens_reg_age.csv",row.names = F,col.names = NULL)
+if(write2file) write.csv(params$specificity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_spec_reg_age.csv"),row.names = F,col.names = NULL)
+if(write2file) write.csv(params$sensitivity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_sens_reg_age.csv"),row.names = F,col.names = NULL)
+
+## file too big for github so write elsewhere.
+if(write2file) saveRDS(fit_reg_age_full, paste0("C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/final_fits/fit_",curr_study_id,"_reg_age_full.rds"))
 
 
 
@@ -219,6 +246,28 @@ plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
 ## age plot to check all is well.
 plot(1:length(pop_age),N_deaths_age/pop_age)
 
+# save model input:
+assign("curr_dat_list", list(nr=length(pop_reg),
+                             na=length(pop_age),
+                             x_seror=x_sero_reg,
+                             N_seror=N_sero_reg,
+                             x_seroa = x_sero_age,
+                             N_seroa = N_sero_age,
+                             N_deathsr=N_deaths_reg,
+                             N_deathsa=N_deaths_age,
+                             tot_obsd = sum(N_deaths_age),
+                             popr=pop_reg,
+                             prop_pop_reg = pop_reg/sum(pop_reg),
+                             popa=pop_age,
+                             prop_pop_age = pop_age/sum(pop_age),
+                             pop_reg_age = round(pop_reg_age*sum(pop_reg)),
+                             prop_pop_reg_age = pop_reg_age,
+                             x_sens_validat=x_sens_validat,
+                             N_sens_validat=N_sens_validat,
+                             x_spec_validat=x_spec_validat,
+                             N_spec_validat=N_spec_validat))
+saveRDS(curr_dat_list,file=paste0("analyses/Rgn_Mod_Stan/input_data/",curr_study_id,"input_dat.RDS"))
+
 ########################
 # FIT RSTAN MODEL - SWEDEN
 ########################
@@ -253,8 +302,11 @@ if(write2file) saveRDS(fit_reg_age_full, "C:/Users/Lucy/Dropbox (SPH Imperial Co
 
 params<-rstan::extract(fit_reg_age_full)
 #plot(density(params$specificity))
-if(write2file) write.csv(params$specificity, file="analyses/Rgn_Mod_Stan/results/sweden_spec_reg_age.csv",row.names = F,col.names = NULL)
-if(write2file) write.csv(params$sensitivity, file="analyses/Rgn_Mod_Stan/results/sweden_sens_reg_age.csv",row.names = F,col.names = NULL)
+if(write2file) write.csv(params$specificity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_spec_reg_age.csv"),row.names = F,col.names = NULL)
+if(write2file) write.csv(params$sensitivity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_sens_reg_age.csv"),row.names = F,col.names = NULL)
+
+## file too big for github so write elsewhere.
+if(write2file) saveRDS(fit_reg_age_full, paste0("C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/final_fits/fit_",curr_study_id,"_reg_age_full.rds"))
 
 
 #################
@@ -395,6 +447,27 @@ plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg0)
 ## age plot to check all is well.
 plot(1:length(pop_age),N_deaths_age/pop_age)
 
+# save model input:
+assign("curr_dat_list", list(nr=length(pop_reg),
+                             na=length(pop_age),
+                             x_seror=x_sero_reg,
+                             N_seror=N_sero_reg,
+                             x_seroa = x_sero_age,
+                             N_seroa = N_sero_age,
+                             N_deathsr=N_deaths_reg,
+                             N_deathsa=N_deaths_age,
+                             tot_obsd = sum(N_deaths_age),
+                             popr=pop_reg,
+                             prop_pop_reg = pop_reg/sum(pop_reg),
+                             popa=pop_age,
+                             prop_pop_age = pop_age/sum(pop_age),
+                             pop_reg_age = round(pop_reg_age*sum(pop_reg)),
+                             prop_pop_reg_age = pop_reg_age,
+                             x_sens_validat=x_sens_validat,
+                             N_sens_validat=N_sens_validat,
+                             x_spec_validat=x_spec_validat,
+                             N_spec_validat=N_spec_validat))
+saveRDS(curr_dat_list,file=paste0("analyses/Rgn_Mod_Stan/input_data/",curr_study_id,"input_dat.RDS"))
 
 ########################
 # FIT RSTAN MODELS
@@ -434,8 +507,11 @@ print(fit_reg_age_full)
 
 params<-rstan::extract(fit_reg_age_full)
 #plot(density(params$specificity))
-if(write2file) write.csv(params$specificity, file="analyses/Rgn_Mod_Stan/results/",curr_study_id,"_spec_reg_age.csv",row.names = F,col.names = NULL)
-if(write2file) write.csv(params$sensitivity, file="analyses/Rgn_Mod_Stan/results/",curr_study_id,"_sens_reg_age.csv",row.names = F,col.names = NULL)
+if(write2file) write.csv(params$specificity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_spec_reg_age.csv"),row.names = F,col.names = NULL)
+if(write2file) write.csv(params$sensitivity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_sens_reg_age.csv"),row.names = F,col.names = NULL)
+
+## file too big for github so write elsewhere.
+if(write2file) saveRDS(fit_reg_age_full, paste0("C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/final_fits/fit_",curr_study_id,"_reg_age_full.rds"))
 
 
 #################
@@ -526,6 +602,9 @@ N_deaths_reg<-round(deaths_at_sero$cumdeaths * deaths_reg$death_prop)
 
 N_deaths_age<-round(deaths_at_sero$cumdeaths * curr_dat_age$cumdeaths/sum(curr_dat_age$cumdeaths))
 
+#### check total deaths are the same by age and region
+if(sum(N_deaths_reg)!=sum(N_deaths_age)) print("Error, different mortality totals by age versus by region")
+
 # pop by age and region
 dat_pop<-read.csv("data/raw/italy_pop_region_age_10yrbands.csv")
 summ_pop<-spread(dat_pop, key = age, value = population)
@@ -554,6 +633,28 @@ for(r in 1:nr) {
 plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
 ## age plot to check all is well.
 plot(1:length(pop_age),N_deaths_age/pop_age)
+
+# save model input:
+assign("curr_dat_list", list(nr=length(pop_reg),
+                             na=length(pop_age),
+                             x_seror=x_sero_reg,
+                             N_seror=N_sero_reg,
+                             x_seroa = x_sero_age,
+                             N_seroa = N_sero_age,
+                             N_deathsr=N_deaths_reg,
+                             N_deathsa=N_deaths_age,
+                             tot_obsd = sum(N_deaths_age),
+                             popr=pop_reg,
+                             prop_pop_reg = pop_reg/sum(pop_reg),
+                             popa=pop_age,
+                             prop_pop_age = pop_age/sum(pop_age),
+                             pop_reg_age = round(pop_reg_age*sum(pop_reg)),
+                             prop_pop_reg_age = pop_reg_age,
+                             x_sens_validat=x_sens_validat,
+                             N_sens_validat=N_sens_validat,
+                             x_spec_validat=x_spec_validat,
+                             N_spec_validat=N_spec_validat))
+saveRDS(curr_dat_list,file=paste0("analyses/Rgn_Mod_Stan/input_data/",curr_study_id,"input_dat.RDS"))
 
 ###########################
 # Run RStan model - Italy.
@@ -595,4 +696,399 @@ if(write2file) write.csv(params$specificity, file=paste0("analyses/Rgn_Mod_Stan/
 if(write2file) write.csv(params$sensitivity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_sens_reg_age.csv"),row.names = F,col.names = NULL)
 
 ## file too big for github so write elsewhere.
-if(write2file) saveRDS(fit_reg_age_full, "C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/fit_",curr_study_id,"_reg_age_full.rds")
+if(write2file) saveRDS(fit_reg_age_full, paste0("C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/final_fits/fit_",curr_study_id,"_reg_age_full.rds"))
+
+
+#############################
+# Denmark
+#############################
+####### Extract data
+# seroprevalence data
+curr_study_id<-"DNK1"
+curr_dat_age <- dat_age$plotdat[[which(dat_age$study_id==curr_study_id)]] %>%
+  dplyr::filter(seromidpt == obsday & obsdaymax==max(obsdaymax))
+seromidpt<-curr_dat_age$seromidpt[1]
+
+
+####### Filter out duplicated seroprevalence data
+# Use average seroprevalence, not age specific, due to poor age group overlap.
+agebrks_d<-c(seq(0,90,10),999)
+
+# seroassay validation data
+x_sens_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_sens$npos
+N_sens_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_sens$ntest
+N_spec_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_spec$ntest
+x_spec_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_spec$nneg
+
+
+# pop by age
+pop_age<-curr_dat_age$popn
+
+### regional data - seroprevalence and deaths
+i<-which(dat_reg$study_id==curr_study_id)
+curr_dat_reg<-dat_reg$data[[i]]
+sero_reg<- curr_dat_reg$seroprev_group %>%
+  dplyr::filter(ObsDaymax==max(ObsDaymax)) %>%
+  dplyr::mutate(n_positive=round(n_positive)) %>%
+  dplyr::arrange(region)
+x_sero_reg<-round(sero_reg$n_positive)
+N_sero_reg<-sero_reg$n_tested
+# death data
+# total deaths
+deaths_at_sero <- curr_dat_reg$deaths_TSMCMC %>%
+  dplyr::mutate(cumdeaths=cumsum(deaths)) %>%
+  dplyr::filter(ObsDay == seromidpt)
+deaths_reg<-curr_dat_reg$deaths_propMCMC %>%
+  dplyr::arrange(region)
+N_deaths_reg<-round(deaths_at_sero$cumdeaths * deaths_reg$death_prop)
+
+N_deaths_age<-round(deaths_at_sero$cumdeaths * curr_dat_age$cumdeaths/sum(curr_dat_age$cumdeaths))
+#### check total deaths are the same by age and region
+if(sum(N_deaths_reg)!=sum(N_deaths_age)) print("Error, different mortality totals by age versus by region")
+
+
+
+# pop by age and region
+pop_reg_age<-dplyr::select(curr_dat_reg$prop_pop, -pop_prop) %>%
+  dplyr::arrange(region)
+pop_reg <- pop_reg_age %>%
+  dplyr::arrange(region) %>%
+  dplyr::group_by(region) %>%
+  dplyr::summarise(popN = sum(popN)) %>%
+  dplyr::pull(popN)
+
+pop_reg_age<-spread(pop_reg_age, key = ageband, value = popN)
+pop_reg_age<-as.matrix(pop_reg_age[2:ncol(pop_reg_age)])
+colnames(pop_reg_age) <- NULL
+
+## region plot to check all is well.
+plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
+## age plot to check all is well.
+plot(1:length(pop_age),N_deaths_age/pop_age)
+
+# save model input:
+assign("curr_dat_list", list(nr=length(pop_reg),
+                             na=length(pop_age),
+                             x_seror=x_sero_reg,
+                             N_seror=N_sero_reg,
+                             N_deathsr=N_deaths_reg,
+                             N_deathsa=N_deaths_age,
+                             tot_obsd = sum(N_deaths_age),
+                             popr=pop_reg,
+                             prop_pop_reg = pop_reg/sum(pop_reg),
+                             popa=pop_age,
+                             prop_pop_age = pop_age/sum(pop_age),
+                             pop_reg_age = round(pop_reg_age*sum(pop_reg)),
+                             prop_pop_reg_age = pop_reg_age,
+                             x_sens_validat=x_sens_validat,
+                             N_sens_validat=N_sens_validat,
+                             x_spec_validat=x_spec_validat,
+                             N_spec_validat=N_spec_validat))
+saveRDS(curr_dat_list,file=paste0("analyses/Rgn_Mod_Stan/input_data/",curr_study_id,"input_dat.RDS"))
+
+##############
+# Fit RStan model - Denmark
+##############
+
+nIter<-20000
+
+fit_reg_age_full <- sampling(model_reg_only_full,list(nr=length(pop_reg),
+                                                      na=length(pop_age),
+                                                      x_seror=x_sero_reg,
+                                                      N_seror=N_sero_reg,
+                                                      N_deathsr=N_deaths_reg,
+                                                      N_deathsa=N_deaths_age,
+                                                      tot_obsd = sum(N_deaths_reg),
+                                                      popr=pop_reg,
+                                                      prop_pop_reg = pop_reg/sum(pop_reg),
+                                                      popa=pop_age,
+                                                      prop_pop_age = pop_age/sum(pop_age),
+                                                      pop_reg_age = pop_reg_age,
+                                                      prop_pop_reg_age = pop_reg_age/sum(pop_reg_age),
+                                                      x_sens_validat=x_sens_validat,
+                                                      N_sens_validat=N_sens_validat,
+                                                      x_spec_validat=x_spec_validat,
+                                                      N_spec_validat=N_spec_validat),
+                             iter=nIter, chains=4,control = list(adapt_delta = 0.99, max_treedepth = 15))
+
+params<-rstan::extract(fit_reg_age_full)
+#plot(density(params$specificity))
+if(write2file) write.csv(params$specificity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_spec_reg_age.csv"),row.names = F,col.names = NULL)
+if(write2file) write.csv(params$sensitivity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_sens_reg_age.csv"),row.names = F,col.names = NULL)
+
+## file too big for github so write elsewhere.
+if(write2file) saveRDS(fit_reg_age_full, paste0("C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/final_fits/fit_",curr_study_id,"_reg_age_full.rds"))
+
+
+
+##################
+# England
+##################
+
+####### Extract data & filter to most recent survey
+curr_study_id<-"GBR3"
+curr_dat_age <- dat_age$plotdat[[which(dat_age$study_id==curr_study_id)]] %>%
+  dplyr::filter(seromidpt == obsday & obsdaymax==max(obsdaymax))
+seromidpt<-curr_dat_age$seromidpt[1]
+
+x_sero_age<-curr_dat_age$n_positive[inds]
+N_sero_age<-curr_dat_age$n_tested[inds]
+
+agebrks_d<-c(0,44,64,74,999)
+
+# seroassay validation data
+x_sens_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_sens$npos
+N_sens_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_sens$ntest
+N_spec_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_spec$ntest
+x_spec_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_spec$nneg
+
+
+# pop by age
+pop_age<-curr_dat_age$popn
+
+### regional data - seroprevalence and deaths
+i<-which(dat_reg$study_id==curr_study_id)
+curr_dat_reg<-dat_reg$data[[i]]
+sero_reg<- curr_dat_reg$seroprev_group %>%
+  dplyr::filter(ObsDaymax==max(ObsDaymax)) %>%
+  dplyr::mutate(n_positive=round(n_positive)) %>%
+  dplyr::arrange(region)
+x_sero_reg<-round(sero_reg$n_positive)
+N_sero_reg<-sero_reg$n_tested
+# death data
+# total deaths
+deaths_at_sero <- curr_dat_reg$deaths_TSMCMC %>%
+  dplyr::mutate(cumdeaths=cumsum(deaths)) %>%
+  dplyr::filter(ObsDay == seromidpt)
+deaths_reg<-curr_dat_reg$deaths_propMCMC %>%
+  dplyr::arrange(region)
+N_deaths_reg<-round(deaths_at_sero$cumdeaths * deaths_reg$death_prop)
+
+N_deaths_age<-round(deaths_at_sero$cumdeaths * curr_dat_age$cumdeaths/sum(curr_dat_age$cumdeaths))
+
+
+
+# pop by age and region
+pop_reg_age<-read.csv("data/raw/ukpop_age_nuts_region.csv") %>%
+  dplyr::filter(Geography1=="Region")
+
+pop_reg_age<-melt(pop_reg_age)
+pop_reg_age<-pop_reg_age %>%
+  dplyr::filter(variable!="All.ages") %>%
+  dplyr::mutate(age=gsub("X","",variable),
+                Name=ifelse(Name=="EAST","East of England",Name))
+
+pop_reg_age$age[which(pop_reg_age$age=="90.")]<-"90"
+
+pop_reg_age0<-pop_reg_age %>%
+  dplyr::mutate(age=as.numeric(age),
+                agegp_d=cut(age,breaks=agebrks_d,include.lowest = T))
+
+summ_pop<- pop_reg_age0 %>%
+  dplyr::group_by(agegp_d,Name) %>%
+  dplyr::summarise(pop=sum(value)) %>%
+  dplyr::ungroup()
+
+summ_pop<-spread(summ_pop, key = agegp_d, value = pop)
+pop_reg_age<-as.matrix(summ_pop[2:ncol(summ_pop)])
+colnames(pop_reg_age) <- NULL
+
+
+## region plot to check all is well.
+plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
+## age plot to check all is well.
+plot(1:length(pop_age),N_deaths_age/pop_age)
+
+########################
+# FIT RSTAN MODEL - England
+########################
+
+nIter<-20000
+
+options(mc.cores = 2) # parallel::detectCores())
+
+# save model input:
+assign("curr_dat_list", list(nr=length(pop_reg),
+                             na=length(pop_age),
+                             x_seror=x_sero_reg,
+                             N_seror=N_sero_reg,
+                             x_seroa = x_sero_age,
+                             N_seroa = N_sero_age,
+                             N_deathsr=N_deaths_reg,
+                             N_deathsa=N_deaths_age,
+                             tot_obsd = sum(N_deaths_age),
+                             popr=pop_reg,
+                             prop_pop_reg = pop_reg/sum(pop_reg),
+                             popa=pop_age,
+                             prop_pop_age = pop_age/sum(pop_age),
+                             pop_reg_age = pop_reg_age,
+       prop_pop_reg_age = pop_reg_age/sum(pop_reg_age),
+       x_sens_validat=x_sens_validat,
+       N_sens_validat=N_sens_validat,
+       x_spec_validat=x_spec_validat,
+       N_spec_validat=N_spec_validat))
+saveRDS(curr_dat_list,file=paste0("analyses/Rgn_Mod_Stan/input_data/",curr_study_id,"input_dat.RDS"))
+
+t1<-Sys.time()  ####
+fit_reg_age_full <- sampling(model_reg_age_full,list(nr=length(pop_reg),
+                                                     na=length(pop_age),
+                                                     x_seror=x_sero_reg,
+                                                     N_seror=N_sero_reg,
+                                                     x_seroa = x_sero_age,
+                                                     N_seroa = N_sero_age,
+                                                     N_deathsr=N_deaths_reg,
+                                                     N_deathsa=N_deaths_age,
+                                                     tot_obsd = sum(N_deaths_age),
+                                                     popr=pop_reg,
+                                                     prop_pop_reg = pop_reg/sum(pop_reg),
+                                                     popa=pop_age,
+                                                     prop_pop_age = pop_age/sum(pop_age),
+                                                     pop_reg_age = pop_reg_age,
+                                                     prop_pop_reg_age = pop_reg_age/sum(pop_reg_age),
+                                                     x_sens_validat=x_sens_validat,
+                                                     N_sens_validat=N_sens_validat,
+                                                     x_spec_validat=x_spec_validat,
+                                                     N_spec_validat=N_spec_validat),
+                             iter=nIter, chains=4,control = list(adapt_delta = 0.98, max_treedepth = 15))
+t2<-Sys.time()
+t2-t1
+#print(fit_reg_age_full)
+## file too big for github so write elsewhere.
+if(write2file) saveRDS(fit_reg_age_full, "C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/fit_spain_reg_age_full.rds")
+
+params<-rstan::extract(fit_reg_age_full)
+#plot(density(params$specificity))
+if(write2file) write.csv(params$specificity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_spec_reg_age.csv"),row.names = F,col.names = NULL)
+if(write2file) write.csv(params$sensitivity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_sens_reg_age.csv"),row.names = F,col.names = NULL)
+
+## file too big for github so write elsewhere.
+if(write2file) saveRDS(fit_reg_age_full, paste0("C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/final_fits/fit_",curr_study_id,"_reg_age_full.rds"))
+
+
+
+####################
+# BRAZIL
+####################
+dat_pop <- read.csv("C:/Users/Lucy/Documents/GitHub/reestimate_covidIFR_analysis/data/raw/bra1_city_pops.csv")
+curr_study_id<-"BRA1"
+curr_dat_age <- dat_age$plotdat[[which(dat_age$study_id==curr_study_id)]] %>%
+  dplyr::filter(seromidpt == obsday & obsdaymax==max(obsdaymax))
+seromidpt<-curr_dat_age$seromidpt[1]
+
+####### Filter out duplicated seroprevalence data
+curr_dat_age$ageband2<-c(1,1:(nrow(curr_dat_age)-1))
+
+curr_dat_age<-curr_dat_age %>%
+  dplyr::group_by(ageband2) %>% ## group 0-4 and 5-9 together
+  dplyr::summarise(n_positive=sum(n_positive),
+                   n_tested=sum(n_tested),
+                   cumdeaths=sum(cumdeaths))
+x_sero_age<-curr_dat_age$n_positive
+N_sero_age<-curr_dat_age$n_tested
+
+agebrks_d<-c(0,seq(9,79,10),999)
+
+
+# seroassay validation data
+x_sens_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_sens$npos
+N_sens_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_sens$ntest
+N_spec_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_spec$ntest
+x_spec_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_spec$nneg
+
+# regional level
+curr_dat_reg <- read.csv("C:/Users/Lucy/Documents/GitHub/reestimate_covidIFR_analysis/data/derived/BRA1/BRA1_city.csv") %>%
+  dplyr::arrange(city)
+N_sero_reg<-curr_dat_reg$Tests
+x_sero_reg<-round(N_sero_reg*curr_dat_reg$seroprevalence)
+
+
+# death data
+## use the city data as authoritative deaths data for these regions.
+N_deaths_age<-round(sum(curr_dat_reg$deaths)*curr_dat_age$cumdeaths/sum(curr_dat_age$cumdeaths))
+N_deaths_reg<-round(curr_dat_reg$deaths)
+
+# pop by age and region
+
+pop_reg_age<-dat_pop %>%
+  dplyr::select(city,age_low,age_high,population) %>%
+  dplyr::arrange(city,age_high) %>%
+  dplyr::mutate(ageband=cut(age_high,agebrks_d, include.lowest = T)) %>%
+  dplyr::select(-age_low,-age_high)
+
+pop_reg_age<-spread(pop_reg_age, key = ageband, value = population)
+pop_reg_age<-as.matrix(pop_reg_age[2:ncol(pop_reg_age)])
+colnames(pop_reg_age) <- NULL
+
+pop_age<-colSums(pop_reg_age)
+pop_reg<-rowSums(pop_reg_age)
+
+## region plot to check all is well.
+plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
+## age plot to check all is well.
+plot(1:length(pop_age),N_deaths_age/pop_age)
+
+########################
+# FIT RSTAN MODEL - Brazil
+########################
+
+nIter<-20000
+
+options(mc.cores = parallel::detectCores())
+
+# save model input:
+assign("curr_dat_list", list(nr=length(pop_reg),
+                             na=length(pop_age),
+                             x_seror=x_sero_reg,
+                             N_seror=N_sero_reg,
+                             x_seroa = x_sero_age,
+                             N_seroa = N_sero_age,
+                             N_deathsr=N_deaths_reg,
+                             N_deathsa=N_deaths_age,
+                             tot_obsd = sum(N_deaths_age),
+                             popr=pop_reg,
+                             prop_pop_reg = pop_reg/sum(pop_reg),
+                             popa=pop_age,
+                             prop_pop_age = pop_age/sum(pop_age),
+                             pop_reg_age = pop_reg_age,
+                             prop_pop_reg_age = pop_reg_age/sum(pop_reg_age),
+                             x_sens_validat=x_sens_validat,
+                             N_sens_validat=N_sens_validat,
+                             x_spec_validat=x_spec_validat,
+                             N_spec_validat=N_spec_validat))
+saveRDS(curr_dat_list,file=paste0("analyses/Rgn_Mod_Stan/input_data/",curr_study_id,"input_dat.RDS"))
+
+t1<-Sys.time()  ####
+fit_reg_age_full <- sampling(model_reg_age_full,list(nr=length(pop_reg),
+                                                     na=length(pop_age),
+                                                     x_seror=x_sero_reg,
+                                                     N_seror=N_sero_reg,
+                                                     x_seroa = x_sero_age,
+                                                     N_seroa = N_sero_age,
+                                                     N_deathsr=N_deaths_reg,
+                                                     N_deathsa=N_deaths_age,
+                                                     tot_obsd = sum(N_deaths_age),
+                                                     popr=pop_reg,
+                                                     prop_pop_reg = pop_reg/sum(pop_reg),
+                                                     popa=pop_age,
+                                                     prop_pop_age = pop_age/sum(pop_age),
+                                                     pop_reg_age = pop_reg_age,
+                                                     prop_pop_reg_age = pop_reg_age/sum(pop_reg_age),
+                                                     x_sens_validat=x_sens_validat,
+                                                     N_sens_validat=N_sens_validat,
+                                                     x_spec_validat=x_spec_validat,
+                                                     N_spec_validat=N_spec_validat),
+                             iter=nIter, chains=4,control = list(adapt_delta = 0.98, max_treedepth = 15))
+t2<-Sys.time()
+t2-t1
+#print(fit_reg_age_full)
+## file too big for github so write elsewhere.
+if(write2file) saveRDS(fit_reg_age_full, "C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/fit_spain_reg_age_full.rds")
+
+params<-rstan::extract(fit_reg_age_full)
+#plot(density(params$specificity))
+if(write2file) write.csv(params$specificity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_spec_reg_age.csv"),row.names = F,col.names = NULL)
+if(write2file) write.csv(params$sensitivity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_sens_reg_age.csv"),row.names = F,col.names = NULL)
+
+## file too big for github so write elsewhere.
+if(write2file) saveRDS(fit_reg_age_full, paste0("C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/final_fits/fit_",curr_study_id,"_reg_age_full.rds"))
+
