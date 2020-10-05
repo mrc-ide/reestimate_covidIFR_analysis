@@ -767,16 +767,6 @@ saveRDS(NLD.agebands.dat, "data/derived/NLD1/NLD1_agebands.RDS")
 #............................................................
 #--- SWE1 #----
 #...........................................................
-SWEdeathsdf <- deathsdf %>%
-  dplyr::filter(study_id == "SWE1" & region == "all" & gender == "both") %>%
-  dplyr::mutate(region = "SWE",
-                age_low = 0,
-                age_high = 999,
-                n_deaths = sum(n_deaths),
-                for_regional_analysis = 1,
-                age_breakdown = 1,
-                gender_breakdown = 1) %>%
-  dplyr::filter(!duplicated(.))
 
 #......................
 # ages
@@ -806,7 +796,9 @@ swe_adj_seroprev <- lapply(SWE.agebands.dat$prop_pop$ageband, function(x){
   swe_adj_seroprev %>%
     dplyr::mutate(ageband = x)}) %>%
   dplyr::bind_rows() %>%
-  dplyr::arrange(ObsDaymin, ObsDaymax, ageband)
+  dplyr::mutate(age_high = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
+  dplyr::arrange(ObsDaymin, ObsDaymax, age_high) %>%
+  dplyr::select(-c("age_high"))
 
 SWEnatprev <- SWE.agebands.dat$seroprev_group %>%
   dplyr::select(c("ObsDaymin", "ObsDaymax", "seroprevalence_unadjusted", "range_sero_low", "range_sero_high")) %>%
@@ -815,9 +807,7 @@ SWEnatprev <- SWE.agebands.dat$seroprev_group %>%
                 SeroUCI = range_sero_high)
 
 
-swe_adj_seroprev <- dplyr::left_join(swe_adj_seroprev,
-                                     SWEnatprev, by = c("ObsDaymin", "ObsDaymax"))
-
+swe_adj_seroprev <- dplyr::left_join(swe_adj_seroprev, SWEnatprev)
 # overwrite
 SWE.agebands.dat$seroprevMCMC <- swe_adj_seroprev
 
