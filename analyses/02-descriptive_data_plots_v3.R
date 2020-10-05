@@ -595,7 +595,7 @@ SeroPrevPlotDat <- datmap %>%
   dplyr::filter(!grepl("_nch", study_id)) %>%
   dplyr::select(c("study_id", "seroprev_adjdat")) %>%
   dplyr::filter(! study_id %in% c(c("CHE2", "DNK1", "LUX1", "NLD1",
-                                  "SWE1", "LA_CA1"))) %>% # excluding studies w/ constant assumption
+                                    "SWE1", "LA_CA1"))) %>% # excluding studies w/ constant assumption
   tidyr::unnest(cols = "seroprev_adjdat")
 
 # filter to latest date if multiple serosurveys
@@ -653,6 +653,7 @@ graphics.off()
 #............................................................
 #---- Figure of Seroprevalence vs. Not-Modelled Adj. IFR #----
 #...........................................................
+source("R/monte_carlo_cis.R")
 # get regions
 rgns <- datmap %>%
   dplyr::filter(breakdown == "region") %>%
@@ -709,62 +710,67 @@ rgns <- dplyr::bind_rows(rgns, brargn)
 #......................
 # calculate CIs for binomial
 #......................
-rgnsSE_sub <- rgns %>%
+rgns_binom <- rgns %>%
   dplyr::filter(study_id != "ITA1") %>%
   dplyr::group_by(study_id) %>%
   dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
+  dplyr::filter(obsday == seromidpt) %>% # latest serostudy
   dplyr::ungroup(.) %>%
-  dplyr::select(c("study_id", "region", "n_positive", "n_tested")) %>%
+  dplyr::select(c("study_id", "region", "cumdeaths", "popn", "n_positive", "n_tested")) %>%
   dplyr::filter(!duplicated(.)) %>%
+  dplyr::group_by(study_id, region) %>%
   dplyr::mutate(seroprev = n_positive/n_tested,
-                binom_se = sqrt(seroprev * (1-seroprev))) %>%
-  dplyr::select(c("study_id", "region", "binom_se"))
+                ifr_range = purrr::map(cumdeaths, get_binomial_monte_carlo_cis, popN = popn,
+                                       npos = n_positive, ntest = n_tested, iters = 1e5),
+                crudeIFR = cumdeaths/((seroprev * popn) + cumdeaths),
+                lower_ci = purrr::map_dbl(ifr_range, quantile, 0.025),
+                upper_ci = purrr::map_dbl(ifr_range, quantile, 0.975)) %>%
+  dplyr::select(c("study_id", "region", "seroprev", "crudeIFR", "lower_ci", "upper_ci")) %>%
+  dplyr::ungroup(.)
 
-rgnsSE_ita <- rgns %>%
+#......................
+# calculate CIs for logit
+#......................
+rgns_logit <- rgns %>%
   dplyr::filter(study_id == "ITA1") %>%
   dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
-  dplyr::select(c("study_id", "region", "serolci", "serouci")) %>%
+  dplyr::filter(obsday == seromidpt) %>% # latest serostudy
+  dplyr::select(c("study_id", "region", "cumdeaths", "popn", "seroprev",  "serolci", "serouci")) %>%
   dplyr::filter(!duplicated(.)) %>%
-  dplyr::mutate(binom_se = (COVIDCurve:::logit(serouci) - COVIDCurve:::logit(serolci))/(1.96 * 2))  %>%
-  dplyr::select(c("study_id", "region", "binom_se"))
-
-rgnsSE <- dplyr::bind_rows(rgnsSE_sub, rgnsSE_ita)
-
-
-#......................
-# subset regions to parts we need
-# and perform calculation
-#......................
-binom_IFR <- rgns %>%
   dplyr::group_by(study_id, region) %>%
-  dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
-  dplyr::filter(obsday == seromidpt) %>%  # sero obs day
-  dplyr::select(c("study_id", "region", "cumdeaths", "popn", "seroprev")) %>%
-  dplyr::left_join(., rgnsSE, by = c("study_id", "region")) %>%
-  dplyr::mutate(IFRcalc = cumdeaths  / (seroprev * popn + cumdeaths),
-                IFRbound = purrr::map(seroprev, get_delta_CI_vals, deaths = cumdeaths, popN = popn, SE = binom_se, tol = 1e-4),
-                lower_ci = purrr::map_dbl(IFRbound, "lower.ci"),
-                upper_ci = purrr::map_dbl(IFRbound, "upper.ci"))
+  dplyr::mutate(SE = (COVIDCurve:::logit(serouci) - COVIDCurve:::logit(serolci))/(1.96 * 2))  %>%
+  dplyr::mutate(ifr_range = purrr::map(cumdeaths, get_normal_monte_carlo_cis, popN = popn,
+                                       mu = seroprev, sigma = SE, iters = 1e5),
+                crudeIFR = cumdeaths/((seroprev * popn) + cumdeaths),
+                lower_ci = purrr::map_dbl(ifr_range, quantile, 0.025),
+                upper_ci = purrr::map_dbl(ifr_range, quantile, 0.975)) %>%
+  dplyr::select(c("study_id", "region", "seroprev", "crudeIFR", "lower_ci", "upper_ci")) %>%
+  dplyr::ungroup(.)
+
+rgns_crudeIFRs_CI <- dplyr::bind_rows(rgns_binom, rgns_logit)
+
+
 
 #......................
 # make plots
 #......................
-upperbounds <- delta_IFR %>%
+upperbounds <- rgns_crudeIFRs_CI %>%
+  dplyr::left_join(., locatkey, by = "study_id") %>%
   dplyr::filter(upper_ci > 0.05) %>%
   dplyr::mutate(upbound = 0.05)
 
-Rgn_IFR_plotObj <- delta_IFR %>%
+Rgn_IFR_plotObj <- rgns_crudeIFRs_CI %>%
+  dplyr::left_join(., locatkey, by = "study_id") %>%
   dplyr::filter(seroprev != 0) %>%
-  dplyr::filter(cumdeaths != 0) %>% # drop observations w/ 0 deaths or 0 seroprev
   dplyr::mutate(upper_ci = ifelse(upper_ci > 0.05, 0.05, upper_ci),
-                IFRcalc = IFRcalc * 100,
+                crudeIFR = crudeIFR * 100,
                 lower_ci = lower_ci * 100,
                 upper_ci = upper_ci * 100) %>%
   ggplot() +
-  geom_pointrange(aes(x = seroprev, y = IFRcalc,
+  geom_pointrange(aes(x = seroprev, y = crudeIFR,
                       ymin = lower_ci, ymax = upper_ci,
-                      color = study_id), alpha = 0.8) +
-  geom_point(data = upperbounds, aes(x = seroprev, y = upbound, color = study_id),
+                      color = location), alpha = 0.8) +
+  geom_point(data = upperbounds, aes(x = seroprev, y = upbound, color = location),
              shape = 3, size = 1.5, alpha = 0.8) +
   scale_color_manual("Study ID", values = mycolors) +
   xlab("Observed Seroprevalence (%)") + ylab("Crude IFR (95% CI)") +
@@ -806,16 +812,16 @@ stanFit<-ggplot() + theme_bw() +
   geom_point(aes(x = 100*spainDat$seroprev, y = spainDat$std_cum_deaths,color="Spain data"), shape = 19, size = 1.5,stroke=1.5) +
   geom_point(aes(x = 100*colMeans(params$prev_sero_truer), y = 1000000*colMeans(params$expdr)/spainDat$popn,
                  color="fitted"),
-              shape = 19, size = 2.5) +
+             shape = 19, size = 2.5) +
   expand_limits(x = 0) +
   expand_limits(y = 1700) +
   scale_color_manual(name="",values=c("Spain data"="black","fitted"="dodgerblue"), labels=c("fitted","Spain data")) +
   xlab("Seroprevalence (%)") + ylab("Cumulative Deaths per Million") +
-    xyaxis_plot_theme
+  xyaxis_plot_theme
 
 
 
 rgnPlots <- cowplot::plot_grid(std_deaths_seroplot, stanFit,
-                           ncol = 2, nrow = 1, align = "h",
-                           labels = c("(A)", "(B)"), rel_widths = c(1.2,1))
+                               ncol = 2, nrow = 1, align = "h",
+                               labels = c("(A)", "(B)"), rel_widths = c(1.2,1))
 if(write2file) ggsave(filename = "results/descriptive_figures/rgnPlots.tiff", plot = rgnPlots, width = 13, height = 5)
