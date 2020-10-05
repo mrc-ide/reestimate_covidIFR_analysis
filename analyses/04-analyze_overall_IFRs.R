@@ -7,26 +7,16 @@ library(tidyverse)
 library(COVIDCurve)
 source("R/my_themes.R")
 source("R/covidcurve_helper_functions.R")
-source("R/delta_method.R")
-# colors
-study_cols <- readr::read_csv("data/plot_aesthetics/color_studyid_map.csv")
-mycolors <- study_cols$cols
-names(mycolors) <- study_cols$study_id
+# colors now based on location
+locatkey <- readr::read_csv("data/plot_aesthetics/color_studyid_map.csv")
+mycolors <- locatkey$cols
+names(mycolors) <- locatkey$location
 # order
 order <- readr::read_csv("data/plot_aesthetics/study_id_order.csv")
 
 #............................................................
-# read in data
+# read in results
 #...........................................................
-dscdat <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS")
-
-dsc_agedat <- dscdat %>%
-  dplyr::filter(breakdown == "ageband") %>%
-  dplyr::filter(!grepl("_nch", study_id))
-
-#......................
-# results
-#......................
 regrets <- list.files("results/Modfits_noserorev/", full.names = T)
 regretmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(regrets), "_age", simplify = T)[,1]),
                             sero = "reg",
@@ -48,6 +38,15 @@ retmap <- dplyr::bind_rows(regretmap, serorevretmap) %>%
 #............................................................
 #---- Table of Overall IFR  #----
 #...........................................................
+#.........................................
+# read in observed data
+#.........................................
+dscdat <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS")
+
+dsc_agedat <- dscdat %>%
+  dplyr::filter(breakdown == "ageband") %>%
+  dplyr::filter(!grepl("_nch", study_id))
+
 #......................
 # get colum death data
 #......................
@@ -92,77 +91,88 @@ simp_seroprevdat <- simp_seroprevdat %>%
 
 seroprev_column <- simp_seroprevdat %>%
   dplyr::mutate(seroprev = round(seroprev * 100, 2),
-                serocol = paste0(seroprev, "%", " (", sero_start, "-", sero_end, ")")) %>%
+                serocol = paste0(seroprev, "%", " (", sero_start, " - ", sero_end, ")"),
+                serocol = gsub("2020-", "", serocol),
+                serocol = str_replace_all(serocol,
+                                          c("01-" = "Jan. ",
+                                            "02-" = "Feb. ",
+                                            "03-" = "Mar. ",
+                                            "04-" = "Apr. ",
+                                            "05-" = "May ",
+                                            "06-" = "Jun. ",
+                                            "07-" = "Jul. ",
+                                            "08-" = "Aug. "))) %>%
   dplyr::select(c("study_id", "serocol"))
 
 #......................
 # crude IFRs
 #......................
-# get standard errors
-# Delta method needs standard error of seroprev SE(p)
-# where SE(p) is the standard error of the binomial proportion for all studies except ITA
-# for ITA, SWE, DNK we use SE(p) as the logit transformed SE gleaned from the provided CIs
-
-SE_subn <- dsc_agedat %>%
-  dplyr::select(c("study_id", "location", "seroprev_adjdat")) %>%
-  tidyr::unnest(cols = "seroprev_adjdat") %>%
+source("R/monte_carlo_cis.R")
+# calculate CIs for binomial
+crude_IFRs_binomial <- dsc_agedat %>%
+  dplyr::select(c("study_id", "plotdat")) %>%
+  dplyr::filter(!study_id %in% c("ITA1", "SWE1", "DNK1")) %>%
+  tidyr::unnest(cols = plotdat) %>%
   dplyr::group_by(study_id) %>%
   dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
-  dplyr::summarise(n_positive = sum(n_positive),
-                   n_tested = sum(n_tested)) %>%
-  dplyr::filter(!is.na(n_positive) & !is.na(n_tested)) %>%
-  dplyr::mutate(seroprev = n_positive/n_tested,
-                binom_se = sqrt(seroprev * (1-seroprev))) %>%
-  dplyr::select(c("study_id", "binom_se"))
-
-SE_cis <- dsc_agedat %>%
-  dplyr::select(c("study_id", "location", "seroprev_adjdat")) %>%
-  tidyr::unnest(cols = "seroprev_adjdat") %>%
-  dplyr::group_by(study_id) %>%
-  dplyr::filter(seromidpt == max(seromidpt)) %>%
-  dplyr::filter(study_id %in% c("ITA1", "DNK1", "SWE1")) %>%
-  dplyr::summarise(serolci = mean(serolci),
-                   serouci = mean(serouci)) %>%
-  dplyr::mutate(binom_se = (COVIDCurve:::logit(serouci) - COVIDCurve:::logit(serolci))/(1.96 * 2))  %>%
-  dplyr::select(c("study_id", "binom_se"))
-
-deltaSE <- dplyr::bind_rows(SE_subn, SE_cis)
-
-
-#......................
-# subset regions to parts we need
-# and perform calculation
-#......................
-delta_IFR <- dsc_agedat %>%
-  dplyr::select(c("study_id", "location", "plotdat")) %>%
-  tidyr::unnest(cols = "plotdat") %>%
-  dplyr::group_by(study_id) %>%
-  dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
-  dplyr::filter(obsday == seromidpt) %>%  # sero obs day
+  dplyr::filter(obsday == seromidpt) %>% # latest serostudy
+  dplyr::ungroup(.) %>%
+  dplyr::group_by(study_id) %>% # sum over agebands
   dplyr::summarise(cumdeaths = sum(cumdeaths),
-                   popn = sum(popn)) %>% # sum across agebands
-  dplyr::left_join(., simp_seroprevdat, by = "study_id") %>%
-  dplyr::select(c("study_id", "cumdeaths", "popn", "seroprev")) %>%
-  dplyr::left_join(., deltaSE, by = "study_id") %>%
+                   popn = sum(popn),
+                   n_positive = sum(n_positive),
+                   n_tested = sum(n_tested)) %>%
+  dplyr::select(c("study_id", "cumdeaths", "popn", "n_positive", "n_tested")) %>%
   dplyr::group_by(study_id) %>%
-  dplyr::mutate(IFRcalc = cumdeaths  / (seroprev * popn + cumdeaths),
-                IFRbound = purrr::map(seroprev, get_delta_CI_vals, deaths = cumdeaths, popN = popn, SE = binom_se, tol = 1e-4),
-                lower_ci = purrr::map_dbl(IFRbound, "lower.ci"),
-                upper_ci = purrr::map_dbl(IFRbound, "upper.ci"))
+  dplyr::mutate(seroprev = n_positive/n_tested,
+                ifr_range = purrr::map(cumdeaths, get_binomial_monte_carlo_cis, popN = popn,
+                                       npos = n_positive, ntest = n_tested, iters = 1e5),
+                crudeIFR = cumdeaths/((seroprev * popn) + cumdeaths),
+                lower_ci = purrr::map_dbl(ifr_range, quantile, 0.025),
+                upper_ci = purrr::map_dbl(ifr_range, quantile, 0.975)) %>%
+  dplyr::select(c("study_id", "seroprev", "crudeIFR", "lower_ci", "upper_ci")) %>%
+  dplyr::ungroup(.)
 
+# calculate CIs for logit
+crude_IFRs_logit <- dsc_agedat %>%
+  dplyr::select(c("study_id", "plotdat")) %>%
+  dplyr::filter(study_id %in% c("ITA1", "SWE1", "DNK1")) %>%
+  tidyr::unnest(cols = plotdat) %>%
+  dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
+  dplyr::filter(obsday == seromidpt) %>% # latest serostudy
+  dplyr::ungroup(.) %>%
+  dplyr::group_by(study_id) %>% # sum over agebands
+  dplyr::summarise(cumdeaths = sum(cumdeaths),
+                   popn = sum(popn),
+                   seroprev = mean(seroprev),
+                   serolci = mean(serolci),
+                   serouci = mean(serouci)) %>%
+  dplyr::select(c("study_id", "cumdeaths", "popn", "seroprev",  "serolci", "serouci")) %>%
+  dplyr::group_by(study_id) %>%
+  dplyr::mutate(SE = (COVIDCurve:::logit(serouci) - COVIDCurve:::logit(serolci))/(1.96 * 2))  %>%
+  dplyr::mutate(ifr_range = purrr::map(cumdeaths, get_normal_monte_carlo_cis, popN = popn,
+                                       mu = seroprev, sigma = SE, iters = 1e5),
+                crudeIFR = cumdeaths/((seroprev * popn) + cumdeaths),
+                lower_ci = purrr::map_dbl(ifr_range, quantile, 0.025),
+                upper_ci = purrr::map_dbl(ifr_range, quantile, 0.975)) %>%
+  dplyr::select(c("study_id", "seroprev", "crudeIFR", "lower_ci", "upper_ci"))
 
-delta_IFR_column <- delta_IFR %>%
-  dplyr::mutate(IFRcalc = round(IFRcalc * 100, 2),
+# out
+crudeIFRs_CI <- dplyr::bind_rows(crude_IFRs_binomial, crude_IFRs_logit)
+crude_IFR_column <- crudeIFRs_CI %>%
+  dplyr::mutate(crudeIFR = round(crudeIFR * 100, 2),
                 lower_ci = round(lower_ci * 100, 2),
                 upper_ci = round(upper_ci * 100, 2)) %>%
-  dplyr::mutate(delta_ifr_col = paste0(IFRcalc, " (", lower_ci, ", ", upper_ci, ")")) %>%
-  dplyr::select(c("study_id", "delta_ifr_col"))
+  dplyr::mutate(crude_ifr_col = paste0(crudeIFR, " (", lower_ci, ", ", upper_ci, ")")) %>%
+  dplyr::select(c("study_id", "crude_ifr_col"))
 
 
 #......................
 # Sens Spec
 #......................
 no_serorev_sensspec <- retmap %>%
+  dplyr::select(c("study_id", "sero", "path")) %>%
+  dplyr::mutate(sero_spec_sens = purrr::map(path, get_sens_spec)) %>%
   tidyr::unnest(cols = "sero_spec_sens") %>%
   dplyr::filter(sero == "reg") %>%
   dplyr::mutate(median = round(median * 100, 2),
@@ -196,8 +206,9 @@ serorev_ifrs <- retmap %>%
 #......................
 # bring together
 #......................
+dir.create("tables/final_tables/", recursive = TRUE)
 dplyr::left_join(death_col, seroprev_column, by = "study_id") %>%
-  dplyr::left_join(., delta_IFR_column, by = "study_id") %>%
+  dplyr::left_join(., crude_IFR_column, by = "study_id") %>%
   dplyr::left_join(., no_serorev_sensspec, by = "study_id") %>%
   dplyr::left_join(., no_serorev_ifrs, by = "study_id") %>%
   dplyr::left_join(., serorev_ifrs, by = "study_id") %>%
