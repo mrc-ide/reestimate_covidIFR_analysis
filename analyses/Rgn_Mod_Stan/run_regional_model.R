@@ -7,6 +7,10 @@ library(tidyr)
 library(plotrix)
 library(reshape)
 
+#### save output? (overwrite existing files)
+write2file<-T
+
+
 ################################
 # COMPILE RSTAN MODEL
 ################################
@@ -96,37 +100,38 @@ plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
 ## age plot to check all is well.
 plot(1:length(pop_age),N_deaths_age/pop_age)
 
+# save model input:
+assign("curr_dat_list", list(nr=length(pop_reg),
+                             na=length(pop_age),
+                             x_seror=x_sero_reg,
+                             N_seror=N_sero_reg,
+                             x_seroa = x_sero_age,
+                             N_seroa = N_sero_age,
+                             N_deathsr=N_deaths_reg,
+                             N_deathsa=N_deaths_age,
+                             tot_obsd = sum(N_deaths_age),
+                             popr=pop_reg,
+                             prop_pop_reg = pop_reg/sum(pop_reg),
+                             popa=pop_age,
+                             prop_pop_age = pop_age/sum(pop_age),
+                             pop_reg_age = pop_reg_age,
+       prop_pop_reg_age = pop_reg_age/sum(pop_reg_age),
+       x_sens_validat=x_sens_validat,
+       N_sens_validat=N_sens_validat,
+       x_spec_validat=x_spec_validat,
+       N_spec_validat=N_spec_validat))
+saveRDS(curr_dat_list,file=paste0("analyses/Rgn_Mod_Stan/input_data/",curr_study_id,"input_dat.RDS"))
+
 ########################
 # FIT RSTAN MODEL - SPAIN
 ########################
 
 nIter<-20000
 
-options(mc.cores = 2) # parallel::detectCores())
+options(mc.cores = 4) # parallel::detectCores())
 
-# save model input:
-assign("curr_dat_list", list(nr=length(pop_reg),
-  na=length(pop_age),
-  x_seror=x_sero_reg,
-  N_seror=N_sero_reg,
-  x_seroa = x_sero_age,
-  N_seroa = N_sero_age,
-  N_deathsr=N_deaths_reg,
-  N_deathsa=N_deaths_age,
-  tot_obsd = sum(N_deaths_age),
-  popr=pop_reg,
-  prop_pop_reg = pop_reg/sum(pop_reg),
-  popa=pop_age,
-  prop_pop_age = pop_age/sum(pop_age),
-  pop_reg_age = pop_reg_age),
-  prop_pop_reg_age = pop_reg_age/sum(pop_reg_age),
-  x_sens_validat=x_sens_validat,
-  N_sens_validat=N_sens_validat,
-  x_spec_validat=x_spec_validat,
-  N_spec_validat=N_spec_validat)
-saveRDS(curr_dat_list,file=paste0("analyses/Rgn_Mod_Stan/input_data/",curr_study_id,"input_dat.RDS"))
 
-t1<-Sys.time()  #### RUN TAKES APPROX 19 MINS ON 2 CORES, less on 4.
+t1<-Sys.time()  ####
 fit_reg_age_full <- sampling(model_reg_age_full,list(nr=length(pop_reg),
                                                      na=length(pop_age),
                                                      x_seror=x_sero_reg,
@@ -150,8 +155,6 @@ fit_reg_age_full <- sampling(model_reg_age_full,list(nr=length(pop_reg),
 t2<-Sys.time()
 t2-t1
 #print(fit_reg_age_full)
-## file too big for github so write elsewhere.
-if(write2file) saveRDS(fit_reg_age_full, "C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/fit_spain_reg_age_full.rds")
 
 params<-rstan::extract(fit_reg_age_full)
 #plot(density(params$specificity))
@@ -831,8 +834,8 @@ curr_dat_age <- dat_age$plotdat[[which(dat_age$study_id==curr_study_id)]] %>%
   dplyr::filter(seromidpt == obsday & obsdaymax==max(obsdaymax))
 seromidpt<-curr_dat_age$seromidpt[1]
 
-x_sero_age<-curr_dat_age$n_positive[inds]
-N_sero_age<-curr_dat_age$n_tested[inds]
+x_sero_age<-curr_dat_age$n_positive
+N_sero_age<-curr_dat_age$n_tested
 
 agebrks_d<-c(0,44,64,74,999)
 
@@ -892,7 +895,7 @@ summ_pop<- pop_reg_age0 %>%
 summ_pop<-spread(summ_pop, key = agegp_d, value = pop)
 pop_reg_age<-as.matrix(summ_pop[2:ncol(summ_pop)])
 colnames(pop_reg_age) <- NULL
-
+pop_reg<-rowSums(pop_reg_age)
 
 ## region plot to check all is well.
 plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
@@ -1080,9 +1083,6 @@ fit_reg_age_full <- sampling(model_reg_age_full,list(nr=length(pop_reg),
                              iter=nIter, chains=4,control = list(adapt_delta = 0.98, max_treedepth = 15))
 t2<-Sys.time()
 t2-t1
-#print(fit_reg_age_full)
-## file too big for github so write elsewhere.
-if(write2file) saveRDS(fit_reg_age_full, "C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/fit_spain_reg_age_full.rds")
 
 params<-rstan::extract(fit_reg_age_full)
 #plot(density(params$specificity))
