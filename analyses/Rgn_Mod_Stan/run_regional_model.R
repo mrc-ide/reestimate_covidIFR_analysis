@@ -591,8 +591,8 @@ fit_reg_age_full <- sampling(model_reg_age_full_sepSero,list(nr=length(pop_reg),
 
 params<-rstan::extract(fit_reg_age_full)
 #plot(density(params$specificity))
-if(write2file) write.csv(params$specificity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_spec_reg_age.csv",row.names = F,col.names = NULL))
-if(write2file) write.csv(params$sensitivity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_sens_reg_age.csv",row.names = F,col.names = NULL))
+if(write2file) write.csv(params$specificity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_spec_reg_age.csv"),row.names = F,col.names = NULL)
+if(write2file) write.csv(params$sensitivity, file=paste0("analyses/Rgn_Mod_Stan/results/",curr_study_id,"_sens_reg_age.csv"),row.names = F,col.names = NULL)
 
 ## file too big for github so write elsewhere.
 if(write2file) saveRDS(fit_reg_age_full, "C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/fit_",curr_study_id,"_reg_age_full.rds")
