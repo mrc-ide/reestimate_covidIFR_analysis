@@ -720,6 +720,7 @@ rgns_binom <- rgns %>%
   dplyr::filter(!duplicated(.)) %>%
   dplyr::group_by(study_id, region) %>%
   dplyr::mutate(seroprev = n_positive/n_tested,
+                cumdeaths=ifelse(cumdeaths==0,0.1,cumdeaths),
                 ifr_range = purrr::map(cumdeaths, get_binomial_monte_carlo_cis, popN = popn,
                                        npos = n_positive, ntest = n_tested, iters = 1e5),
                 crudeIFR = cumdeaths/((seroprev * popn) + cumdeaths),
@@ -731,6 +732,7 @@ rgns_binom <- rgns %>%
 #......................
 # calculate CIs for logit
 #......................
+logit<-function(x) {log(x/(1-x))}
 rgns_logit <- rgns %>%
   dplyr::filter(study_id == "ITA1") %>%
   dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
@@ -738,7 +740,7 @@ rgns_logit <- rgns %>%
   dplyr::select(c("study_id", "region", "cumdeaths", "popn", "seroprev",  "serolci", "serouci")) %>%
   dplyr::filter(!duplicated(.)) %>%
   dplyr::group_by(study_id, region) %>%
-  dplyr::mutate(SE = (COVIDCurve:::logit(serouci) - COVIDCurve:::logit(serolci))/(1.96 * 2))  %>%
+  dplyr::mutate(SE = (logit(serouci) - logit(serolci))/(1.96 * 2))  %>%
   dplyr::mutate(ifr_range = purrr::map(cumdeaths, get_normal_monte_carlo_cis, popN = popn,
                                        mu = seroprev, sigma = SE, iters = 1e5),
                 crudeIFR = cumdeaths/((seroprev * popn) + cumdeaths),
@@ -765,14 +767,15 @@ Rgn_IFR_plotObj <- rgns_crudeIFRs_CI %>%
   dplyr::mutate(upper_ci = ifelse(upper_ci > 0.05, 0.05, upper_ci),
                 crudeIFR = crudeIFR * 100,
                 lower_ci = lower_ci * 100,
-                upper_ci = upper_ci * 100) %>%
+                upper_ci = upper_ci * 100,
+                seroprev=seroprev*100) %>%
   ggplot() +
   geom_pointrange(aes(x = seroprev, y = crudeIFR,
                       ymin = lower_ci, ymax = upper_ci,
                       color = location), alpha = 0.8) +
   geom_point(data = upperbounds, aes(x = seroprev, y = upbound, color = location),
              shape = 3, size = 1.5, alpha = 0.8) +
-  scale_color_manual("Study ID", values = mycolors) +
+  scale_color_manual("", values = mycolors) +
   xlab("Observed Seroprevalence (%)") + ylab("Crude IFR (95% CI)") +
   xyaxis_plot_theme +
   theme(legend.position = "bottom") +
