@@ -28,7 +28,7 @@ serorevretmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(s
                                 path = serorevrets)
 # bring together
 retmap <- dplyr::bind_rows(regretmap, serorevretmap) %>%
-  dplyr::mutate(overallIFRret = purrr::map(path, get_overall_IFRs)) %>%
+  dplyr::mutate(overallIFRret = purrr::map(path, get_overall_IFRs, whichstandard = "pop")) %>%
   tidyr::unnest(cols = "overallIFRret")
 
 
@@ -36,7 +36,7 @@ retmap <- dplyr::bind_rows(regretmap, serorevretmap) %>%
 
 
 #............................................................
-#---- Table of Overall IFR  #----
+#---- Table of Overall IFR Standardized by Pop  #----
 #...........................................................
 #.........................................
 # read in observed data
@@ -216,7 +216,42 @@ dplyr::left_join(death_col, seroprev_column, by = "study_id") %>%
   dplyr::arrange(order) %>%
   dplyr::select(-c("order")) %>%
   dplyr::mutate(totdeaths = prettyNum(totdeaths, big.mark=",", scientific=FALSE)) %>%
-  readr::write_tsv(., path = "tables/final_tables/overall_ifr_data.tsv")
+  readr::write_tsv(., path = "tables/final_tables/overall_ifr_data_popstandardized.tsv")
+
+
+#............................................................
+#---- Supp Table of Overall IFR Standardized by AR and Pop  #----
+#...........................................................
+# run new standardization
+retmap <- dplyr::bind_rows(regretmap, serorevretmap) %>%
+  dplyr::mutate(overallIFRret = purrr::map(path, get_overall_IFRs, whichstandard = "arpop")) %>%
+  tidyr::unnest(cols = "overallIFRret")
+
+#......................
+# Modeled IFRs
+#......................
+no_serorev_ifrs <- retmap %>%
+  dplyr::filter(sero == "reg") %>%
+  dplyr::mutate(median = round(median * 100, 2),
+                LCI = round(LCI * 100, 2),
+                UCI = round(UCI * 100, 2)) %>%
+  dplyr::mutate(mod_no_serorev_ifr_col = paste0(median, " (", LCI, ", ", UCI, ")")) %>%
+  dplyr::select(c("study_id", "mod_no_serorev_ifr_col"))
+
+serorev_ifrs <- retmap %>%
+  dplyr::filter(sero == "serorev") %>%
+  dplyr::mutate(median = round(median * 100, 2),
+                LCI = round(LCI * 100, 2),
+                UCI = round(UCI * 100, 2)) %>%
+  dplyr::mutate(mod_serorev_ifr_col = paste0(median, " (", LCI, ", ", UCI, ")")) %>%
+  dplyr::select(c("study_id", "mod_serorev_ifr_col"))
+
+  dplyr::left_join(crude_IFR_column, no_serorev_ifrs, by = "study_id") %>%
+  dplyr::left_join(., serorev_ifrs, by = "study_id") %>%
+  dplyr::left_join(., order, by = "study_id") %>%
+  dplyr::arrange(order) %>%
+  dplyr::select(-c("order")) %>%
+  readr::write_tsv(., path = "tables/final_tables/overall_ifr_data_attackrate_pop_standardized.tsv")
 
 
 

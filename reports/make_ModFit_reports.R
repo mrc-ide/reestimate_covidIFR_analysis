@@ -7,7 +7,7 @@ paths <- list.files("results/Modfits_noserorev/", full.names = TRUE)
 # render
 #......................
 renderMyDocument <- function(path) {
-  countrychar <- toupper(stringr::str_split(basename(path), "_age|_carehomes", simplify = T))[[1]]
+  countrychar <- toupper(stringr::str_split(basename(path), "_age", simplify = T))[[1]]
   rmarkdown::render("reports/Modfit_report_base.Rmd",
                     params = list( path = path ),
                     output_file = paste0(here::here(), "/reports/", countrychar, "_NoSeroRev_report.pdf"))
@@ -26,7 +26,7 @@ paths <- list.files("results/Modfits_serorev/", full.names = TRUE)
 # render
 #......................
 renderMyDocument <- function(path) {
-  countrychar <- toupper(stringr::str_split(basename(path), "_age|_carehomes", simplify = T))[[1]]
+  countrychar <- toupper(stringr::str_split(basename(path), "_age", simplify = T))[[1]]
   rmarkdown::render("reports/Modfit_report_base.Rmd",
                     params = list( path = path ),
                     output_file = paste0(here::here(), "/reports/", countrychar, "_SeroRev_report.pdf"))
@@ -52,4 +52,21 @@ renderMyDocument <- function(path) {
 
 lapply(paths, renderMyDocument)
 
+
+#......................
+# get results for confirmed deaths
+#......................
+paths <- list.files("results/Modfits_ConfirmedDeaths/", full.names = TRUE)
+
+#......................
+# render
+#......................
+renderMyDocument <- function(path) {
+  countrychar <- toupper(stringr::str_split(basename(path), "_age|_confirmeddeaths", simplify = T))[[1]]
+  rmarkdown::render("reports/Modfit_report_base.Rmd",
+                    params = list( path = path ),
+                    output_file = paste0(here::here(), "/reports/", countrychar, "_ConfirmedDeaths_report.pdf"))
+}
+
+lapply(paths, renderMyDocument)
 

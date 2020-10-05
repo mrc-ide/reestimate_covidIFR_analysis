@@ -84,15 +84,18 @@ get_strata_IFRs <- function(path) {
                   strata = forcats::fct_reorder(strata, as.numeric(param)))
 }
 
-#' @title Calculate overall IFR from a path
+#' @title Calculate overall IFR weighted for demography from a path
 #' @details goal here is to be memory light
-get_overall_IFRs <- function(path) {
+get_overall_IFRs <- function(path, whichstandard) {
   modout <- readRDS(path)
   out <- COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout,
                                                   whichrung = "rung1",
+                                                  whichstandard = whichstandard,
                                                   by_chain = FALSE)
   return(out)
 }
+
+
 
 
 #' @title Calculate overall IFR from a path
