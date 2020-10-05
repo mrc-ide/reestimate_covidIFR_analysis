@@ -33,12 +33,14 @@ transformed parameters {
   real expdr[nr];
   real expda[na];
   real prev_sero_obsr[nr];
-  real<lower=0.0001,upper=0.9999> prev_sero_truer[nr];
+  //real<lower=0.0001,upper=0.9999> prev_sero_truer[nr];
+  real prev_sero_truer[nr];
   real exp_infxns_r[nr];
   real exp_infxns_a[na];
   real exp_infxns[nr,na];
   vector[nr] Rne;
-  real<lower=0.0001,upper=0.6000> ifr[na];
+  //real<lower=0.0001,upper=0.6000> ifr[na];
+  real ifr[na];
 
   // reparameterize
   Rne = 0.0001 + Rne_raw .* popr ./ (tot_inf * prop_pop_reg);
