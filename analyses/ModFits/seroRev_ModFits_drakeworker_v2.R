@@ -402,9 +402,9 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 #......................
 # get fits from stan model
 #......................
-nyssens <- readr::read_csv("results/prior_inputs/NYS_sens_reg_age.csv")
+nyssens <- readr::read_csv("results/prior_inputs/NYS1_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(nyssens), distr = "beta", method = "mme")
-nysspec <- readr::read_csv("results/prior_inputs/NYS_spec_reg_age.csv")
+nysspec <- readr::read_csv("results/prior_inputs/NYS1_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(nysspec), distr = "beta", method = "mme")
 sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
 sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
