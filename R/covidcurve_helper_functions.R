@@ -88,10 +88,10 @@ get_strata_IFRs <- function(path) {
 #' @details goal here is to be memory light
 get_overall_IFRs <- function(path, whichstandard) {
   modout <- readRDS(path)
-  out <- COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout,
-                                                  whichrung = "rung1",
-                                                  whichstandard = whichstandard,
-                                                  by_chain = FALSE)
+  out <- COVIDCurve::get_overall_IFR_cred_intervals(IFRmodel_inf = modout,
+                                                    whichrung = "rung1",
+                                                    whichstandard = whichstandard,
+                                                    by_chain = FALSE)
   return(out)
 }
 
