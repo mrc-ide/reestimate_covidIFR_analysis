@@ -80,9 +80,9 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 #......................
 # get fits from stan model
 #......................
-dnksens <- readr::read_csv("results/prior_inputs/denmark_sens_reg_age.csv")
+dnksens <- readr::read_csv("results/prior_inputs/DNK1_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(dnksens), distr = "beta", method = "mme")
-dnkspec <- readr::read_csv("results/prior_inputs/denmark_spec_reg_age.csv")
+dnkspec <- readr::read_csv("results/prior_inputs/DNK1_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(dnkspec), distr = "beta", method = "mme")
 sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
 sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
@@ -111,9 +111,9 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 #......................
 # get fits from stan model
 #......................
-espsens <- readr::read_csv("results/prior_inputs/spain_sens_reg_age.csv")
+espsens <- readr::read_csv("results/prior_inputs/ESP1-2_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(espsens), distr = "beta", method = "mme")
-espspec <- readr::read_csv("results/prior_inputs/spain_spec_reg_age.csv")
+espspec <- readr::read_csv("results/prior_inputs/ESP1-2_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(espspec), distr = "beta", method = "mme")
 sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
 sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
@@ -146,9 +146,9 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 #......................
 # get fits from stan model
 #......................
-gbrsens <- readr::read_csv("results/prior_inputs/gbr_sens_reg_age.csv")
+gbrsens <- readr::read_csv("results/prior_inputs/GBR3_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(gbrsens), distr = "beta", method = "mme")
-gbrspec <- readr::read_csv("results/prior_inputs/gbr_spec_reg_age.csv")
+gbrspec <- readr::read_csv("results/prior_inputs/GBR3_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(gbrspec), distr = "beta", method = "mme")
 sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
 sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
@@ -178,9 +178,9 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 #......................
 # get fits from stan model
 #......................
-nyssens <- readr::read_csv("results/prior_inputs/nys_sens_reg_age.csv")
+nyssens <- readr::read_csv("results/prior_inputs/NYS_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(nyssens), distr = "beta", method = "mme")
-nysspec <- readr::read_csv("results/prior_inputs/nys_spec_reg_age.csv")
+nysspec <- readr::read_csv("results/prior_inputs/NYS_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(nysspec), distr = "beta", method = "mme")
 sens_spec_tbl$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
 sens_spec_tbl$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
