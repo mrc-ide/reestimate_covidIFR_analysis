@@ -42,10 +42,10 @@ curr_dat_age <- dat_age$plotdat[[which(dat_age$study_id==curr_study_id)]] %>%
 seromidpt<-curr_dat_age$seromidpt[1]
 
 ####### Filter out duplicated seroprevalence data
-inds<-!duplicated(curr_dat_age$n_positive,curr_dat_age$n_tested)
-x_sero_age<-curr_dat_age$n_positive[inds]
-N_sero_age<-curr_dat_age$n_tested[inds]
+x_sero_age<-curr_dat_age$n_positive
+N_sero_age<-curr_dat_age$n_tested
 
+agebands<-curr_dat_age$ageband
 agebrks_d<-c(seq(0,90,10),999)
 
 # seroassay validation data
@@ -101,7 +101,8 @@ plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
 plot(1:length(pop_age),N_deaths_age/pop_age)
 
 # save model input:
-assign("curr_dat_list", list(nr=length(pop_reg),
+assign("curr_dat_list", list(sero_agebands=as.character(agebands),
+                             nr=length(pop_reg),
                              na=length(pop_age),
                              x_seror=x_sero_reg,
                              N_seror=N_sero_reg,
@@ -333,6 +334,7 @@ inds<-!duplicated(curr_dat_age$n_positive,curr_dat_age$n_tested)
 x_sero_age<-curr_dat_age$n_positive[inds]
 N_sero_age<-curr_dat_age$n_tested[inds]
 
+
 # seroassay validation data
 x_sens_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_sens$npos
 N_sens_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_sens$ntest
@@ -442,7 +444,7 @@ for(i in 1:length(N_deaths_age)) {
     pop_reg_age_sero[r,d_i[i]]<-pop_reg_age_sero[r,d_i[i]] + pop_reg_age[r,i]
   }
 }
-
+agebands<-c("0-59","60+")
 
 
 ## quick region plot to check all is well.
@@ -451,7 +453,8 @@ plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg0)
 plot(1:length(pop_age),N_deaths_age/pop_age)
 
 # save model input:
-assign("curr_dat_list", list(nr=length(pop_reg),
+assign("curr_dat_list", list(sero_agebands=agebands,
+                             nr=length(pop_reg),
                              na=length(pop_age),
                              x_seror=x_sero_reg,
                              N_seror=N_sero_reg,
@@ -527,9 +530,11 @@ curr_dat_age <- dat_age$plotdat[[which(dat_age$study_id==curr_study_id)]] %>%
 seromidpt<-curr_dat_age$seromidpt[1]
 
 agebrks_sero<-c(0,49,59,69,999)
+agebands<-paste0(agebrks_sero[1:(length(agebrks_sero)-1)],"-",agebrks_sero[2:length(agebrks_sero)])
 
 agebrks_d<-c(0,seq(9,89,10),999)
 d_i<-c(1,1,1,1,1,2,3,4,4,4)
+
 
 ## rearrange non overlapping age groups
 age_sero_dat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$seroprev_group
@@ -638,7 +643,8 @@ plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
 plot(1:length(pop_age),N_deaths_age/pop_age)
 
 # save model input:
-assign("curr_dat_list", list(nr=length(pop_reg),
+assign("curr_dat_list", list(sero_agebands=agebands,
+                            nr=length(pop_reg),
                              na=length(pop_age),
                              x_seror=x_sero_reg,
                              N_seror=N_sero_reg,
@@ -770,7 +776,8 @@ plot(x_sero_reg/N_sero_reg, 100000*N_deaths_reg/pop_reg)
 plot(1:length(pop_age),N_deaths_age/pop_age)
 
 # save model input:
-assign("curr_dat_list", list(nr=length(pop_reg),
+assign("curr_dat_list", list(sero_agebands=NULL,
+                             nr=length(pop_reg),
                              na=length(pop_age),
                              x_seror=x_sero_reg,
                              N_seror=N_sero_reg,
@@ -837,6 +844,7 @@ seromidpt<-curr_dat_age$seromidpt[1]
 x_sero_age<-curr_dat_age$n_positive
 N_sero_age<-curr_dat_age$n_tested
 
+agebands<-as.character(curr_dat_age$ageband)
 agebrks_d<-c(0,44,64,74,999)
 
 # seroassay validation data
@@ -911,7 +919,8 @@ nIter<-20000
 options(mc.cores = 2) # parallel::detectCores())
 
 # save model input:
-assign("curr_dat_list", list(nr=length(pop_reg),
+assign("curr_dat_list", list(sero_agebands=agebands,
+                             nr=length(pop_reg),
                              na=length(pop_age),
                              x_seror=x_sero_reg,
                              N_seror=N_sero_reg,
@@ -978,19 +987,19 @@ curr_dat_age <- dat_age$plotdat[[which(dat_age$study_id==curr_study_id)]] %>%
   dplyr::filter(seromidpt == obsday & obsdaymax==max(obsdaymax))
 seromidpt<-curr_dat_age$seromidpt[1]
 
-####### Filter out duplicated seroprevalence data
-curr_dat_age$ageband2<-c(1,1:(nrow(curr_dat_age)-1))
-
 curr_dat_age<-curr_dat_age %>%
+  dplyr::mutate(ageband2=ifelse(ageband %in% c("0-4","4-9"),"0-9",as.character(ageband))) %>%
   dplyr::group_by(ageband2) %>% ## group 0-4 and 5-9 together
   dplyr::summarise(n_positive=sum(n_positive),
                    n_tested=sum(n_tested),
-                   cumdeaths=sum(cumdeaths))
+                   cumdeaths=sum(cumdeaths),
+                   age_mid=mean(age_mid)) %>%
+  dplyr::arrange(age_mid)
 x_sero_age<-curr_dat_age$n_positive
 N_sero_age<-curr_dat_age$n_tested
 
 agebrks_d<-c(0,seq(9,79,10),999)
-
+agebands<-paste0(agebrks_d[1:length(agebrks_d)-1],"-",agebrks_d[2:length(agebrks_d)])
 
 # seroassay validation data
 x_sens_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_sens$npos
@@ -1039,7 +1048,8 @@ nIter<-20000
 options(mc.cores = parallel::detectCores())
 
 # save model input:
-assign("curr_dat_list", list(nr=length(pop_reg),
+assign("curr_dat_list", list(sero_agebands=agebands,
+                             nr=length(pop_reg),
                              na=length(pop_age),
                              x_seror=x_sero_reg,
                              N_seror=N_sero_reg,
