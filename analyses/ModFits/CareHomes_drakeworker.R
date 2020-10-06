@@ -93,7 +93,7 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 # agebands
 #......................
 rawch <- readRDS("data/derived/carehomes/DNK1_agebands_noCH.RDS")
-DNK_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 2, maxMa = "ma2",
+DNK_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 3, maxMa = "ma3",
                                                   groupvar = "ageband",  dat = rawch,
                                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
                                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
