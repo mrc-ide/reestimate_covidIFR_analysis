@@ -16,8 +16,9 @@ names(mycolors) <- locatkey$location
 order <- readr::read_csv("data/plot_aesthetics/study_id_order.csv")
 
 
+
 #............................................................
-#---- Read in Fitted data #----
+#---- Read in Fitted and observed data #----
 #...........................................................
 regrets <- list.files("results/Modfits_noserorev/", full.names = T)
 regretmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(regrets), "_age", simplify = T)[,1]),
@@ -28,6 +29,12 @@ serorevrets <- list.files("results/ModFits_SeroRev/", full.names = T)
 serorevretmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(serorevrets), "_age", simplify = T)[,1]),
                                 sero = "serorev",
                                 path = serorevrets)
+
+# read in observed data
+dscdat <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS")
+dsc_agedat <- dscdat %>%
+  dplyr::filter(breakdown == "ageband") %>%
+  dplyr::filter(!grepl("_nch", study_id))
 
 #............................................................
 #---- Long Table Age Specific Results #----
@@ -134,11 +141,6 @@ seroprev_age_column <- retmapSero %>%
 # get crude IFRs
 #......................
 source("R/monte_carlo_cis.R")
-# read in observed data
-dscdat <- readRDS("results/descriptive_results/descriptive_results_datamap.RDS")
-dsc_agedat <- dscdat %>%
-  dplyr::filter(breakdown == "ageband") %>%
-  dplyr::filter(!grepl("_nch", study_id))
 
 # calculate CIs for binomial
 crude_IFRs_binomial <- dsc_agedat %>%
@@ -236,6 +238,7 @@ log_retmapIFR_dat <- log_retmapIFR %>%
 #......................
 
 log_age_IFR_plotObj <- log_retmapIFR_dat %>%
+  dplyr::left_join(., locatkey, by = "study_id") %>%
   dplyr::filter(sero == "reg") %>%
   ggplot() +
   geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  location),
@@ -257,11 +260,13 @@ modIFR_age <- modIFR_age %>%
   dplyr::filter(sero == "reg")
 
 modIFR_age_plotObj <- modIFR_age %>%
+  dplyr::left_join(., locatkey, by = "study_id") %>%
   dplyr::filter(sero == "reg") %>%
   ggplot() +
-  geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  study_id),
+  geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI,
+                      color =  location),
                   alpha = 0.75, shape = 16, size = 0.9) +
-  scale_color_manual("Study ID", values = mycolors) +
+  scale_color_manual("Location", values = mycolors) +
   ylab("Age-Specific IFR (95% CrI)") + xlab("Mid. Age") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -282,7 +287,7 @@ legend <- cowplot::get_legend(modIFR_age_plotObj +
 mainFig <- cowplot::plot_grid(mainFig, legend,
                               nrow = 2, ncol = 1, rel_heights = c(0.9, 0.1))
 
-jpeg("figures/final_figures/IFR_age_spec_logplot.jpg",
+jpeg("figures/final_figures/IFR_age_spec_logplot_nofit.jpg",
      width = 11, height = 8, units = "in", res = 600)
 plot(mainFig)
 graphics.off()
@@ -297,13 +302,25 @@ graphics.off()
 # get "precision" based on overall IFR
 #......................
 studyprecision <- retmapIFR %>%
-  dplyr::mutate(overallIFRret = purrr::map(path, get_overall_IFRs)) %>%
-  tidyr::unnest(cols = "overallIFRret") %>%
-  dplyr::mutate(wi = (UCI-LCI)) %>%
-  dplyr::select(c("study_id", "wi"))
+  dplyr::group_by(study_id, sero) %>%
+  dplyr::mutate(ifrvar = purrr::map(path, get_strata_IFR_variance, by_chain = F)) %>%
+  tidyr::unnest(cols = "ifrvar") %>%
+  dplyr::mutate(precision = 1/var) %>%
+  dplyr::select(c("study_id", "sero", "param", "precision")) %>%
+  dplyr::ungroup()
+
+data_dicts <- retmapIFR %>%
+  dplyr::group_by(study_id, sero) %>%
+  dplyr::mutate(datadict = purrr::map(path, get_data_dict)) %>%
+  dplyr::select(c("study_id", "sero", "datadict")) %>%
+  tidyr::unnest(cols = "datadict") %>%
+  dplyr::ungroup(.)
+
+# bring together
+studyprecision <- dplyr::left_join(studyprecision, data_dicts)
 
 #......................
-# unpack data from NLLS
+# unpack data for MLE
 #......................
 ifrdat <- retmapIFR %>%
   dplyr::select(c("study_id", "sero", "strataIFRret")) %>%
@@ -313,51 +330,75 @@ ifrdat <- retmapIFR %>%
     nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
     nums[nums == 999] <- 100
     return(mean(nums))})) %>%
-  dplyr::left_join(., studyprecision, by = "study_id") %>%
-  dplyr::rename(mas = median) %>%
-  dplyr::select(c("study_id", "sero", "ageband", "age_mid", "mas", "wi"))
+  dplyr::left_join(., studyprecision, by = c("study_id", "ageband", "sero")) %>%
+  dplyr::select(c("study_id", "sero", "ageband", "age_mid", "mean", "precision")) %>%
+  dplyr::rename(age = age_mid,
+                mu = mean)
 
 #......................
-# optim approach
+# MLE approach
+# define -ve log likelihood function
 #......................
-find_pars <- function(dat) {
-  if( !all(c("wi", "mas", "age_mid") %in% colnames(dat)) ) {
-    stop()
+ll <- function(x, df) {
+  alpha <- x[1]
+  beta <- x[2]
+  gamma <- x[3]
+  ret <- 0
+  for (i in seq_len(nrow(df))) {
+    ret <- ret + df$precision[i]*dlnorm(exp(df$mu[i]), meanlog = alpha + beta*df$age[i],
+                                        sdlog = gamma, log = TRUE)
   }
-  # optimize exponential distribution by weighted residual sum of squares
-  wi_rss <- function(par, dat) {
-    sum( dat$wi * ((par[1] * exp(dat$age_mid * par[1])) - dat$mas)^2 )
-  }
-  # run optim
-  out <- optim(par = c(1e-18), fn = wi_rss, dat = dat,
-               method = "L-BFGS-B", lower = .Machine$double.xmin)
-  names(out$par) <- c("lambda")
-  return(out)
+  return(-ret)
 }
 
-retoptim <- find_pars(ifrdat)
-retoptim$par
-retoptim$convergence
+# get maximum likelihood parameters
+theta <- optim(par = c(0, 0, 1), fn = ll, df = ifrdat)$par
+theta
+
 
 #......................
 # get new observations
 #......................
-run_exp_growth <- function(par1, age){ par1 * exp(age * par1) }
 newagedat <- seq(5, 95, 10)
-best_est <- tibble::tibble(agemid = newagedat,
-                           IFR = sapply(newagedat, run_exp_growth, par1 = retoptim$par[[1]])
-                           ) %>%
-  dplyr::mutate(IFR = IFR * 100)
+best_est <- tibble::tibble(agemid = newagedat)
+fit2 <- theta[1] + theta[2]*best_est$agemid
+best_est$Q50 <- qlnorm(0.5, meanlog = fit2, sdlog = theta[3])
+best_est$Q2.5 <- qlnorm(0.025, meanlog = fit2, sdlog = theta[3])
+best_est$Q97.5 <- qlnorm(0.975, meanlog = fit2, sdlog = theta[3])
 
-
+best_est <- best_est %>%
+  dplyr::mutate(Q2.5 = Q2.5 * 100,
+                Q50 = Q50 * 100,
+                Q97.5 = Q97.5 * 100)
 
 modIFR_age_plotObj +
-  geom_line(data = best_est, aes(x = agemid, y = IFR), color = "#FF0018",
+  geom_line(data = best_est, aes(x = agemid, y = Q50), color = "#FF0018",
             size = 1.2,
             linetype = "dashed")
 
+
+best_est %>%
+  dplyr::mutate(IFR = IFR * 100)
 
 
 # out
 best_est %>%
   readr::write_tsv(., path = "tables/final_tables/overall_best_est_for_IFRs.tsv")
+#......................
+# bring together adding fit
+#......................
+FigA <- modIFR_age_plotObj + theme(legend.position = "none")
+FigB <- log_age_IFR_plotObj + theme(legend.position = "none")
+mainFig <- cowplot::plot_grid(FigA, FigB,
+                              align = "h", ncol = 2, nrow = 1,
+                              labels = c("(A)", "(B)"))
+legend <- cowplot::get_legend(modIFR_age_plotObj +
+                                guides(color = guide_legend(nrow = 2)) +
+                                theme(legend.position = "bottom"))
+mainFig <- cowplot::plot_grid(mainFig, legend,
+                              nrow = 2, ncol = 1, rel_heights = c(0.9, 0.1))
+
+jpeg("figures/final_figures/IFR_age_spec_logplot_nofit.jpg",
+     width = 11, height = 8, units = "in", res = 600)
+plot(mainFig)
+graphics.off()

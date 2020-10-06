@@ -52,21 +52,3 @@ renderMyDocument <- function(path) {
 
 lapply(paths, renderMyDocument)
 
-
-#......................
-# get results for confirmed deaths
-#......................
-paths <- list.files("results/Modfits_ConfirmedDeaths/", full.names = TRUE)
-
-#......................
-# render
-#......................
-renderMyDocument <- function(path) {
-  countrychar <- toupper(stringr::str_split(basename(path), "_age|_confirmeddeaths", simplify = T))[[1]]
-  rmarkdown::render("reports/Modfit_report_base.Rmd",
-                    params = list( path = path ),
-                    output_file = paste0(here::here(), "/reports/", countrychar, "_ConfirmedDeaths_report.pdf"))
-}
-
-lapply(paths, renderMyDocument)
-
