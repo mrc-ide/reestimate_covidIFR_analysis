@@ -1,5 +1,5 @@
 ##................................................................................................
-## Purpose: Analyze differences in IFRs
+## Purpose: Get Age Based Model PPCs
 ##
 ## Notes:
 ##................................................................................................
@@ -37,72 +37,6 @@ datmap <- dplyr::bind_rows(mod_NOserorev_retmap, mod_serorev_retmap)
 datmap <- datmap %>%
   dplyr::mutate(modout = purrr::map(paths, readRDS))
 
-#............................................................
-# internal functions to get result tables
-#...........................................................
-# sens/spec
-get_study_seros_posts <- function(modout) {
-  COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, what = "Serotestparams",
-                                 whichrung = "rung1", by_chain = F) %>%
-    dplyr::mutate_if(is.numeric, round, 2) %>%
-    dplyr::mutate(outcol = paste0(median, " (", LCI, ", ", UCI, ")" )) %>%
-    dplyr::filter(param %in% c("sens", "spec")) %>%
-    dplyr::select(c("param", "outcol")) %>%
-    tidyr::pivot_wider(., id_cols = "param", names_from = "param",
-                       values_from = "outcol")
-}
-
-# delays
-get_study_delays_posts <- function(modout) {
-  sero_delays <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, what = "Serotestparams",
-                                                whichrung = "rung1", by_chain = F) %>%
-    dplyr::filter(!param %in% c("sens", "spec"))
-  death_delays <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, what = "DeathDelayparams",
-                                                 whichrung = "rung1", by_chain = F)
-
-  dplyr::bind_rows(sero_delays, death_delays) %>%
-    dplyr::mutate_if(is.numeric, round, 2) %>%
-    dplyr::mutate(outcol = paste0(median, " (", LCI, ", ", UCI, ")" )) %>%
-    dplyr::select(c("param", "outcol")) %>%
-    tidyr::pivot_wider(., id_cols = "param", names_from = "param",
-                       values_from = "outcol")
-
-}
-
-
-#............................................................
-#---- Posterior Sero Characteristics and Noise Effects Table  #----
-#...........................................................
-datmap %>%
-  dplyr::mutate(sero_spec_sens = purrr::map(paths, get_sens_spec)) %>%
-  tidyr::unnest(cols = "sero_spec_sens") %>%
-  dplyr::mutate(median = round(median * 100, 2),
-                LCI = round(LCI * 100, 2),
-                UCI = round(UCI * 100, 2)) %>%
-  dplyr::mutate(sens_spec = paste0(median, " (", LCI, ", ", UCI, ")"),
-                lvl = paste0(lvl, "_", param)) %>%
-  dplyr::select("study_id", "lvl", "sens_spec") %>%
-  tidyr::pivot_wider(., names_from = "lvl", values_from = "sens_spec") %>%
-  dplyr::select(c("study_id", "NoSeroRev_sens", "NoSeroRev_spec", "SeroRev_sens", "SeroRev_spec")) %>%
-  dplyr::left_join(., order, by = "study_id") %>%
-  dplyr::arrange(order) %>%
-  dplyr::select(-c("order")) %>%
-  readr::write_tsv(., path = "tables/final_tables/overall_sens_spec_for_all.tsv")
-
-
-#...........................................................
-#---- Posterior Delay Param Table  #----
-#...........................................................
-datmap %>%
-  dplyr::mutate(tbl = purrr::map(modout, get_study_delays_posts)) %>%
-  dplyr::left_join(order, .) %>%
-  dplyr::arrange(order) %>%
-  dplyr::select(c("study_id", "lvl", "tbl")) %>%
-  tidyr::unnest(cols = "tbl") %>%
-  dplyr::mutate(lvl = factor(lvl,
-                             levels = c("NoSeroRev", "SeroRev"),
-                             labels = c("Without Serorev.", "With Serorev."))) %>%
-  readr::write_tsv(., path = "tables/final_tables/onset_delay_params_posterior_tbl.tsv")
 
 #............................................................
 # internal functions for PPC plots
