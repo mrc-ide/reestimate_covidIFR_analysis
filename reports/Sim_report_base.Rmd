@@ -159,7 +159,7 @@ tibble::tibble(gelman_mpsrf = gdiag$mpsrf) %>%
   dplyr::mutate(
     gelman_mpsrf = round(gelman_mpsrf, 2),
     gelman_mpsrf = kableExtra::cell_spec(gelman_mpsrf, "latex", 
-                                         color = ifelse(gelman_mpsrf > 1.1, "red", "green"),
+                                         color = ifelse(gelman_mpsrf >= 1.05, "red", "green"),
                                          bold = T,
                                          font_size = 16)) %>% 
   knitr::kable(., format = "simple")
@@ -238,16 +238,21 @@ serocurvedat <- seropnts %>%
                   dplyr::starts_with("crude_pd_"))) %>% 
   tidyr::pivot_longer(., cols = -c("sim", "ObsDay"),
                       names_to = "seroprev_strata_lvl", values_to = "seroprev") %>% 
-  dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG Corr.", "Crude"),
+  dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RGCorr", "Crude"),
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
-  dplyr::filter(seroprevlvl == "Crude")
+  dplyr::select(-c("seroprev_strata_lvl")) %>% 
+ tidyr::pivot_wider(., names_from = "seroprevlvl", values_from = "seroprev")
 
 # plot
+labcaption <- paste(strwrap("The blue ribbon is the inferred pserorevalence adjusted for sensitivity and specificity (Rogan-Gladen Correctiion) while the yellow ribbon is the crude seroprevalence. The green and red lines are the simulated true seroprevalence and the observed prevalence (Rogen-Gladen Corrected), respectively. Grey boxes indicate model inputs (serosuvery dates and seroprevalences). N.B. If seroreversion is considered, the true prevalence (green) will also be greater than the observed/inferred prevalences.", width = 180), collapse = "\n") 
+
 pB <- serocurvedat %>% 
   dplyr::left_join(., trueseroprev) %>% 
   ggplot() +
-  geom_line(aes(x = ObsDay, y = seroprev), alpha = 0.5, color = "#9ecae1") +
-  geom_line(aes(x = ObsDay, y = TruePrev), color = "#000000") +
+  geom_line(aes(x = ObsDay, y = Crude), alpha = 0.5, color = "#FFD301") + # yellow
+  geom_line(aes(x = ObsDay, y = RGCorr), alpha = 0.5, color = "#246BCF") + # blue
+  geom_line(aes(x = ObsDay, y = TruePrev), color = "#34A853") + # green
+  geom_line(aes(x = ObsDay, y = ObsPrev), color = "#EA4335") +
   geom_rect(aes(xmin = 135, xmax = 145, ymin = 0, ymax = Inf), 
             alpha = 0.05, color = "#bdbdbd", fill = "#bdbdbd") + 
   geom_rect(aes(xmin = 155, xmax = 165, ymin = 0, ymax = Inf), 
@@ -255,7 +260,7 @@ pB <- serocurvedat %>%
   facet_wrap(~Strata) + 
   xyaxis_plot_theme + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold")) +
-  labs(caption = "Blue is inferred, Black Line is Simulated Seroprevalence while grey boxes indicate model inputs (serosuvery dates and prevalences)") +
+  labs(caption = labcaption) +
   ylab("Seroprevalence") + xlab("Time")
 
 #...................... 

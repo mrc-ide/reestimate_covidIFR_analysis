@@ -70,7 +70,7 @@ tibble::tibble(gelman_mpsrf = gdiag$mpsrf) %>%
   dplyr::mutate(
     gelman_mpsrf = round(gelman_mpsrf, 2),
     gelman_mpsrf = kableExtra::cell_spec(gelman_mpsrf, "latex", 
-                                         color = ifelse(gelman_mpsrf > 1.1, "red", "green"),
+                                         color = ifelse(gelman_mpsrf >= 1.05, "red", "green"),
                                          bold = T,
                                          font_size = 16)) %>% 
   knitr::kable(., format = "simple")
