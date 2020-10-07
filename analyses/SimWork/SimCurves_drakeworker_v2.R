@@ -215,10 +215,10 @@ run_MCMC <- function(path) {
                                       reparamKnots = TRUE,
                                       chains = n_chains,
                                       burnin = 1e4,
-                                      samples = 1e4,
+                                      samples = 2e4,
                                       rungs = 50,
                                       GTI_pow = 3,
-                                      thinning = 10,
+                                      thinning = 20,
                                       cluster = cl)
   parallel::stopCluster(cl)
   gc()

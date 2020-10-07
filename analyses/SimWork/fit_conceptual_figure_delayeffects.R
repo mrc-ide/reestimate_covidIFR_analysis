@@ -177,7 +177,7 @@ serorev <- tibble::tibble(name = "sero_rev_rate",
                           init = 139,
                           max =  145,
                           dsc1 = serorev_rate_param,
-                          dsc2 = 1)
+                          dsc2 = 0.1)
 
 # combine
 tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
@@ -244,8 +244,8 @@ fit_map <- tibble::tibble(
   rungs = 50,
   GTI_pow = list(bvec),
   burnin = 1e4,
-  samples = 1e4,
-  thinning = 10)
+  samples = 2e4,
+  thinning = 20)
 
 
 #......................
