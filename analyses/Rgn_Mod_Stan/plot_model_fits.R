@@ -1,11 +1,13 @@
 
 library(rstan)
+library(plotrix)
 
 #/// MODEL FITS REGIONAL MODEL - PLOTS
 
 studies<-c("ESP1-2","ITA1","GBR3","DNK1","NYS1","BRA1")
 
 for(i in 1:length(studies)) {
+  print(i)
   curr_study_id<-studies[i]
   fit<-readRDS(paste0("C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/final_fits/fit_",curr_study_id,"_reg_age_full.rds"))
   dat<-readRDS(paste0("analyses/Rgn_Mod_Stan/input_data/",curr_study_id,"input_dat.rds"))
@@ -28,14 +30,14 @@ for(i in 1:length(studies)) {
 
   plot2file<-T
   if(plot2file) { # overwrite
-    tiff(paste0("analyses/Rgn_Mod_Stan/results/" ,curr_study_id, "_regional_fit.tiff"),width=3000,height=950,compression="lzw",res=300)
+    jpeg(paste0("analyses/Rgn_Mod_Stan/results/" ,curr_study_id, "_regional_fit.jpg"),width=3000,height=950,res=300)
     layout(matrix(c(1:4), nrow = 1, ncol = 4, byrow = TRUE), widths=c(2,2,1.5,2))
 
     max_x<-0.5+max(prev_sero_reg_uci,100*dat$x_seror/dat$N_seror)
     plot(100*dat$x_seror/dat$N_seror,100000*dat$N_deathsr/dat$popr,pch=19,
          ylab="deaths per 100,000",xlab="Seroprevalence (%)",
          ylim=c(0,max(expdr_uci)),
-         xlim=xlim)
+         xlim=c(0,max_x))
     plotCI(prev_sero_reg,expdr,
            li=prev_sero_reg_lci,
            ui=prev_sero_reg_uci,
@@ -99,8 +101,51 @@ for(i in 1:length(studies)) {
 
 }
 
-### PLOT SENSITIVITY
-d<-density(params$sensitivity)
-plot(d$x,d$y/sum(d$y),xlim=c(0.7,1.005),type="l",xlab="parameter",ylab="density",main="")
-lines(rep(dat$x_sens_validat/dat$N_sens_validat,2),c(0,500),lty=2)
 
+####################
+# Print specificity estimates from regional model
+studies<-c("ESP1-2","ITA1","GBR3","DNK1","NYS1","BRA1")
+
+for(i in 1:length(studies)) {
+  curr_study_id<-studies[i]
+  print(curr_study_id)
+  fit<-readRDS(paste0("C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/final_fits/fit_",curr_study_id,"_reg_age_full.rds"))
+  params<-rstan::extract(fit)
+  print(paste0(round(100*mean(params$specificity),2)," ",
+               round(100*quantile(params$specificity, 0.025),2),"-",
+               round(100*quantile(params$specificity,0.975),2)))
+}
+
+####################
+# schematic of relationship of seroprevalence and mortality with different test sensitivity and specificity.
+####################
+if(plot2file) {
+  jpeg("analyses/Rgn_Mod_Stan/results/regional_schematic.jpg",width=1600,height=1300,res=300)
+  true_sero<-1:30/100
+  sens<-0.8
+  spec<-0.98
+  obs_sero<-true_sero*sens + (1-true_sero)*(1-spec)
+  deaths<-true_sero*0.007*100000
+
+  par(mar=c(5,4,5,2))
+  plot(true_sero*100,deaths,type="l",xlab="Seroprevalence % (observed or true)", ylab="deaths per 100,000",lwd=2)
+  lines(obs_sero*100,deaths,col="blue")
+  sens<-1
+  obs_sero<-true_sero*sens + (1-true_sero)*(1-spec)
+  lines(obs_sero*100,deaths,col="red")
+  sens<-0.8
+  spec<-1
+  obs_sero<-true_sero*sens + (1-true_sero)*(1-spec)
+  lines(obs_sero*100,deaths,col="orange")
+  legend(0,300, c("true relationship","observed, sens=80%, spec=98%", "observed, sens=100%, spec=98%",
+                  "observed, sens=80%, spec=100%"),
+         col=c("black","blue","red","orange"),lty=1,bty='n',xpd=T,cex=0.85)
+  dev.off()
+}
+
+
+### PLOT SENSITIVITY
+# d<-density(params$sensitivity)
+# plot(d$x,d$y/sum(d$y),xlim=c(0.7,1.005),type="l",xlab="parameter",ylab="density",main="")
+# lines(rep(dat$x_sens_validat/dat$N_sens_validat,2),c(0,500),lty=2)
+#
