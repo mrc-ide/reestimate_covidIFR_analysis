@@ -180,15 +180,17 @@ ifrs %>%
 ##### Overall IFR
 ```{r, results='asis', fig.height=3, fig.width=8}
 # overall
-COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout, 
+COVIDCurve::get_overall_IFR_cred_intervals(IFRmodel_inf = modout, 
                                          whichrung = "rung1", 
+                                         whichstandard = "pop",
                                          by_chain = FALSE) %>% 
   dplyr::mutate_if(is.numeric, round, 4) %>% 
   knitr::kable(., format = "simple")
 
 # by chain
-COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout, 
+COVIDCurve::get_overall_IFR_cred_intervals(IFRmodel_inf = modout, 
                                          whichrung = "rung1", 
+                                          whichstandard = "pop",
                                          by_chain = TRUE) %>% 
   dplyr::mutate_if(is.numeric, round, 4) %>% 
   knitr::kable(., format = "simple")

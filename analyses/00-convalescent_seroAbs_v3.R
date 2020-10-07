@@ -1,14 +1,11 @@
-#....................................................................................................
+## ....................................................................................................
 ## Purpose:
 ## Reads in seroconversion/reversion data and fits the mean time to reversion
 ## (mu) under a simple model of constant hazard lambda of seroconverting and
 ## constant hazard mu of seroreverting.
 ##
 ## Notes: Data shared from Muecksch et. al 2020
-# ------------------------------------------------------------------
-
-
-#....................................................................................................
+## ....................................................................................................
 library(tidyverse)
 library(survival)
 library(survminer)

@@ -50,9 +50,9 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 #......................
 # get fits from stan model
 #......................
-brasens <- readr::read_csv("results/prior_inputs/brazil_sens_reg_age.csv")
+brasens <- readr::read_csv("results/prior_inputs/BRA1_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(brasens), distr = "beta", method = "mme")
-braspec <- readr::read_csv("results/prior_inputs/brazil_spec_reg_age.csv")
+braspec <- readr::read_csv("results/prior_inputs/BRA1_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(braspec), distr = "beta", method = "mme")
 sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
 sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
@@ -131,9 +131,9 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 #......................
 # get fits from stan model
 #......................
-dnksens <- readr::read_csv("results/prior_inputs/denmark_sens_reg_age.csv")
+dnksens <- readr::read_csv("results/prior_inputs/DNK1_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(dnksens), distr = "beta", method = "mme")
-dnkspec <- readr::read_csv("results/prior_inputs/denmark_spec_reg_age.csv")
+dnkspec <- readr::read_csv("results/prior_inputs/DNK1_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(dnkspec), distr = "beta", method = "mme")
 sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
 sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
@@ -150,13 +150,7 @@ DNK_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
                                           num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
                                           sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
-# # need to account for duplicate DNK start date
-# dnkstart <- DNK_age_mod$data$obs_serology %>%
-#   dplyr::filter(SeroStartSurvey != 97 & SeroEndSurvey != 124)
-# dnkend <- DNK_age_mod$data$obs_serology %>%
-#   dplyr::filter(SeroStartSurvey == 97 & SeroEndSurvey == 124)
-#
-# DNK_age_mod$data$obs_serology <- dplyr::bind_rows(dnkstart, dnkend)
+
 
 #............................................................
 #---- ESP1-2 #-----
@@ -172,9 +166,9 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 #......................
 # get fits from stan model
 #......................
-espsens <- readr::read_csv("results/prior_inputs/spain_sens_reg_age.csv")
+espsens <- readr::read_csv("results/prior_inputs/ESP1-2_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(espsens), distr = "beta", method = "mme")
-espspec <- readr::read_csv("results/prior_inputs/spain_spec_reg_age.csv")
+espspec <- readr::read_csv("results/prior_inputs/ESP1-2_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(espspec), distr = "beta", method = "mme")
 sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
 sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
@@ -206,9 +200,9 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 #......................
 # get fits from stan model
 #......................
-gbrsens <- readr::read_csv("results/prior_inputs/gbr_sens_reg_age.csv")
+gbrsens <- readr::read_csv("results/prior_inputs/GBR3_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(gbrsens), distr = "beta", method = "mme")
-gbrspec <- readr::read_csv("results/prior_inputs/gbr_spec_reg_age.csv")
+gbrspec <- readr::read_csv("results/prior_inputs/GBR3_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(gbrspec), distr = "beta", method = "mme")
 sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
 sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
@@ -241,9 +235,9 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 #......................
 # get fits from stan model
 #......................
-itasens <- readr::read_csv("results/prior_inputs/ita_sens_reg_age.csv")
+itasens <- readr::read_csv("results/prior_inputs/ITA1_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(itasens), distr = "beta", method = "mme")
-itaspec <- readr::read_csv("results/prior_inputs/ita_spec_reg_age.csv")
+itaspec <- readr::read_csv("results/prior_inputs/ITA1_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(itaspec), distr = "beta", method = "mme")
 sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
 sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
@@ -261,27 +255,27 @@ ITA_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                           sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
-#............................................................
-#---- LUX1 #----
-#...........................................................
-# using GBR numbers for sens bc LUX study sens so small
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
-                                min =   c(0.50,    0.50),
-                                init =  c(0.85,    0.99),
-                                max =   c(1.00,    1.00),
-                                dsc1 =  c(56.5,    181.5),
-                                dsc2 =  c(16.5,     4.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
-
-#......................
-# agebands
-#......................
-rawage <- readRDS("data/derived/LUX1/LUX1_agebands.RDS")
-LUX_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
-                                          groupvar = "ageband",  dat = rawage,
-                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
-                                          num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.34, dsc1 = 0, dsc2 = 13.34),
-                                          sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
+# #............................................................
+# #---- LUX1 #----
+# #...........................................................
+# # using GBR numbers for sens bc LUX study sens so small
+# sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+#                                 min =   c(0.50,    0.50),
+#                                 init =  c(0.85,    0.99),
+#                                 max =   c(1.00,    1.00),
+#                                 dsc1 =  c(56.5,    181.5),
+#                                 dsc2 =  c(16.5,     4.5))
+# sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
+#
+# #......................
+# # agebands
+# #......................
+# rawage <- readRDS("data/derived/LUX1/LUX1_agebands.RDS")
+# LUX_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
+#                                           groupvar = "ageband",  dat = rawage,
+#                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
+#                                           num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.34, dsc1 = 0, dsc2 = 13.34),
+#                                           sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 #............................................................
 #---- SWE1 #----
@@ -350,26 +344,26 @@ CHN_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                           sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
-#............................................................
-#---- KEN1 #----
-#...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
-                                min =   c(0.50,    0.50),
-                                init =  c(0.83,    0.99),
-                                max =   c(1.00,    1.00),
-                                dsc1 =  c(15.5,    901.5),
-                                dsc2 =  c(3.5,     9.5))
-sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
-
-#......................
-# agebands
-#......................
-rawage <- readRDS("data/derived/KEN1/KEN1_agebands.RDS")
-KEN1_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 6, maxMa = "ma6",
-                                           groupvar = "ageband",  dat = rawage,
-                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
-                                           num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.11, dsc1 = 0, dsc2 = 17.11),
-                                           sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
+# #............................................................
+# #---- KEN1 #----
+# #...........................................................
+# sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+#                                 min =   c(0.50,    0.50),
+#                                 init =  c(0.83,    0.99),
+#                                 max =   c(1.00,    1.00),
+#                                 dsc1 =  c(15.5,    901.5),
+#                                 dsc2 =  c(3.5,     9.5))
+# sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
+#
+# #......................
+# # agebands
+# #......................
+# rawage <- readRDS("data/derived/KEN1/KEN1_agebands.RDS")
+# KEN1_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 6, maxMa = "ma6",
+#                                            groupvar = "ageband",  dat = rawage,
+#                                            num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
+#                                            num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.11, dsc1 = 0, dsc2 = 17.11),
+#                                            sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
@@ -379,8 +373,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.73,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(130.5,   3308.5),
-                                dsc2 =  c(27.5,    16.5))
+                                dsc1 =  c(25.5,    30.5),
+                                dsc2 =  c(12.5,    0.5))
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
@@ -408,9 +402,9 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 #......................
 # get fits from stan model
 #......................
-nyssens <- readr::read_csv("results/prior_inputs/nys_sens_reg_age.csv")
+nyssens <- readr::read_csv("results/prior_inputs/NYS1_sens_reg_age.csv")
 sens <- fitdistrplus::fitdist(unlist(nyssens), distr = "beta", method = "mme")
-nysspec <- readr::read_csv("results/prior_inputs/nys_spec_reg_age.csv")
+nysspec <- readr::read_csv("results/prior_inputs/NYS1_spec_reg_age.csv")
 spec <- fitdistrplus::fitdist(unlist(nysspec), distr = "beta", method = "mme")
 sens_spec_tbl_serorev$dsc1[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape1"]]
 sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "sens"] <- sens$estimate[["shape2"]]
@@ -444,11 +438,9 @@ fit_map <- tibble::tibble(
            "ESP1-2_age",
            "GBR3_age",
            "ITA1_age",
-           "LUX1_age",
            "NLD1_age",
            "SWE_age",
            "CHN1_age",
-           "KEN1_age",
            "LA_CA1_age",
            "NYS1_age"),
   modelobj = list(BRA1_age_mod,
@@ -458,11 +450,9 @@ fit_map <- tibble::tibble(
                   ESP_age_mod,
                   GBR3_age_mod,
                   ITA_age_mod,
-                  LUX_age_mod,
                   NLD_age_mod,
                   SWE_age_mod,
                   CHN_age_mod,
-                  KEN1_age_mod,
                   LACA_age_mod,
                   NYS_age_mod),
   rungs = 50,

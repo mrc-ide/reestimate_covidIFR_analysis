@@ -651,7 +651,7 @@ graphics.off()
 
 
 #............................................................
-#---- Figure of Seroprevalence vs. Not-Modelled Adj. IFR #----
+#---- Figure of Obs Seroprevalence vs. Cum Deaths and Not-Modelled Adj. IFR #----
 #...........................................................
 source("R/monte_carlo_cis.R")
 # get regions
@@ -698,7 +698,8 @@ bracities_deaths <- readr::read_csv("data/raw/bra1_city_deaths.csv") %>%
 brargn <- dplyr::left_join(bracities_sero, bracities_deaths) %>%
   dplyr::select(-c("cases_100k", "deaths_100k", "ifr")) %>%
   dplyr::mutate(seromidpt = 1,
-                obsday = 1) %>% # just a place holder
+                obsday = 1, # just a place holder
+                std_cum_deaths = (cumdeaths/popn) * 1e6) %>%
   dplyr::filter(seroprev > 0)
 
 
@@ -716,7 +717,7 @@ rgns_binom <- rgns %>%
   dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
   dplyr::filter(obsday == seromidpt) %>% # latest serostudy
   dplyr::ungroup(.) %>%
-  dplyr::select(c("study_id", "region", "cumdeaths", "popn", "n_positive", "n_tested")) %>%
+  dplyr::select(c("study_id", "region", "cumdeaths", "popn", "n_positive", "n_tested", "std_cum_deaths")) %>%
   dplyr::filter(!duplicated(.)) %>%
   dplyr::group_by(study_id, region) %>%
   dplyr::mutate(seroprev = n_positive/n_tested,
@@ -726,7 +727,7 @@ rgns_binom <- rgns %>%
                 crudeIFR = cumdeaths/((seroprev * popn) + cumdeaths),
                 lower_ci = purrr::map_dbl(ifr_range, quantile, 0.025),
                 upper_ci = purrr::map_dbl(ifr_range, quantile, 0.975)) %>%
-  dplyr::select(c("study_id", "region", "seroprev", "crudeIFR", "lower_ci", "upper_ci")) %>%
+  dplyr::select(c("study_id", "region", "seroprev", "crudeIFR", "lower_ci", "upper_ci", "std_cum_deaths")) %>%
   dplyr::ungroup(.)
 
 #......................
@@ -737,7 +738,7 @@ rgns_logit <- rgns %>%
   dplyr::filter(study_id == "ITA1") %>%
   dplyr::filter(seromidpt == max(seromidpt)) %>% # latest serostudy
   dplyr::filter(obsday == seromidpt) %>% # latest serostudy
-  dplyr::select(c("study_id", "region", "cumdeaths", "popn", "seroprev",  "serolci", "serouci")) %>%
+  dplyr::select(c("study_id", "region", "cumdeaths", "popn", "seroprev",  "serolci", "serouci", "std_cum_deaths")) %>%
   dplyr::filter(!duplicated(.)) %>%
   dplyr::group_by(study_id, region) %>%
   dplyr::mutate(SE = (logit(serouci) - logit(serolci))/(1.96 * 2))  %>%
@@ -746,7 +747,7 @@ rgns_logit <- rgns %>%
                 crudeIFR = cumdeaths/((seroprev * popn) + cumdeaths),
                 lower_ci = purrr::map_dbl(ifr_range, quantile, 0.025),
                 upper_ci = purrr::map_dbl(ifr_range, quantile, 0.975)) %>%
-  dplyr::select(c("study_id", "region", "seroprev", "crudeIFR", "lower_ci", "upper_ci")) %>%
+  dplyr::select(c("study_id", "region", "seroprev", "crudeIFR", "lower_ci", "upper_ci", "std_cum_deaths")) %>%
   dplyr::ungroup(.)
 
 rgns_crudeIFRs_CI <- dplyr::bind_rows(rgns_binom, rgns_logit)
@@ -761,7 +762,21 @@ upperbounds <- rgns_crudeIFRs_CI %>%
   dplyr::filter(upper_ci > 0.05) %>%
   dplyr::mutate(upbound = 0.05)
 
-Rgn_IFR_plotObj <- rgns_crudeIFRs_CI %>%
+
+PanelA <- rgns_crudeIFRs_CI %>%
+  dplyr::left_join(., locatkey, by = "study_id") %>%
+  dplyr::filter(seroprev != 0) %>%
+  ggplot() +
+  geom_point(aes(x = seroprev, y = std_cum_deaths, color = location),
+              size = 3, alpha = 0.7) +
+  scale_color_manual("Location", values = mycolors) +
+  xlab("Observed Seroprevalence (%)") + ylab("Cum. Deaths Per Million") +
+  xyaxis_plot_theme +
+  theme(legend.position = "bottom")  +
+  theme(plot.margin = unit(c(0.05, 0.05, 0.5, 1),"cm"))
+
+
+PanelB <- rgns_crudeIFRs_CI %>%
   dplyr::left_join(., locatkey, by = "study_id") %>%
   dplyr::filter(seroprev != 0) %>%
   dplyr::mutate(upper_ci = ifelse(upper_ci > 0.05, 0.05, upper_ci),
@@ -779,7 +794,18 @@ Rgn_IFR_plotObj <- rgns_crudeIFRs_CI %>%
   xlab("Observed Seroprevalence (%)") + ylab("Crude IFR (95% CI)") +
   xyaxis_plot_theme +
   theme(legend.position = "bottom") +
-  theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+  theme(plot.margin = unit(c(0.05, 0.05, 0.5, 1),"cm"))
+
+
+
+# bring together
+PanelA_nolegend <- PanelA + theme(legend.position = "none")
+PanelB_nolegend <- PanelB + theme(legend.position = "none")
+legend <- get_legend(PanelA)
+mainfig <- cowplot::plot_grid(PanelA_nolegend, PanelB_nolegend,
+                              labels = c("(A)", "(B)", nrow = 1))
+(mainfig <- cowplot::plot_grid(mainfig, legend, ncol = 1, rel_heights = c(1, 0.1)))
+
 
 jpeg("figures/final_figures/Figure_Rgn_crude_IFR.jpg",
      width = 11, height = 8, units = "in", res = 500)
@@ -787,9 +813,10 @@ plot(Rgn_IFR_plotObj)
 graphics.off()
 
 
+
+
 #............................................................
 #---- Figure of Regional Serofit Summaries #----
-###### Figure 1
 #...........................................................
 library(rstan)
 # Death rate vs seroprevalence

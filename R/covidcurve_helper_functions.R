@@ -38,8 +38,7 @@ get_log10_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
       median = median(est),
       mean = mean(est),
       UCI = quantile(est, 0.975),
-      max = max(est),
-      precision = 1/var(est)
+      max = max(est)
     )
 }
 
@@ -84,16 +83,46 @@ get_strata_IFRs <- function(path) {
                   strata = forcats::fct_reorder(strata, as.numeric(param)))
 }
 
-#' @title Calculate overall IFR from a path
+#' @title Calculate overall IFR weighted for demography from a path
 #' @details goal here is to be memory light
-get_overall_IFRs <- function(path) {
+get_overall_IFRs <- function(path, whichstandard) {
   modout <- readRDS(path)
-  out <- COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout,
-                                                  whichrung = "rung1",
-                                                  by_chain = FALSE)
+  out <- COVIDCurve::get_overall_IFR_cred_intervals(IFRmodel_inf = modout,
+                                                    whichrung = "rung1",
+                                                    whichstandard = whichstandard,
+                                                    by_chain = FALSE)
   return(out)
 }
 
+
+#' @title Calculate stratified IFR precision from a path
+#' @details goal here is to be memory light
+get_strata_IFR_variance <- function(path, by_chain) {
+  # read in
+  IFRmodel_inf <- readRDS(path)
+  # checks
+  assert_custom_class(IFRmodel_inf$inputs$IFRmodel, "IFRmodel")
+  assert_custom_class(IFRmodel_inf$mcmcout, "drjacoby_output")
+  assert_custom_class(IFRmodel_inf, "IFRmodel_inf")
+  assert_logical(by_chain)
+
+  # grouping vars
+  if (by_chain) {
+    groupingvar <- c("chain", "param")
+    params <- c("chain", IFRmodel_inf$inputs$IFRmodel$IFRparams)
+  } else {
+    groupingvar <- "param"
+    params <- IFRmodel_inf$inputs$IFRmodel$IFRparams
+  }
+
+  IFRmodel_inf$mcmcout$output %>%
+    dplyr::filter(stage == "sampling" & rung == "rung1") %>%
+    dplyr::select_at(params) %>%
+    tidyr::pivot_longer(., cols = params[!grepl("chain", params)], # if chain isn't included in vector, grepl won't do anything
+                        names_to = "param", values_to = "est") %>%
+    dplyr::group_by_at(groupingvar) %>%
+    dplyr::summarise(var = var(est))
+}
 
 #' @title Calculate overall IFR from a path
 #' @details goal here is to be memory light
