@@ -340,25 +340,25 @@ CHN_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
 #                                              sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
-#............................................................
-#---- Los Angeles County #----
-#...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
-                                min =   c(0.50,    0.50),
-                                init =  c(0.73,    0.99),
-                                max =   c(1.00,    1.00),
-                                dsc1 =  c(25.5,    30.5),
-                                dsc2 =  c(12.5,    0.5))
-
-#......................
-# agebands
-#......................
-rawage <- readRDS("data/derived/USA/LA_CA1_agebands.RDS")
-LACA_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 3, maxMa = "ma3",
-                                               groupvar = "ageband",  dat = rawage,
-                                               num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
-                                               num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.12, dsc1 = 0, dsc2 = 16.12),
-                                               sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+# #............................................................
+# #---- Los Angeles County #----
+# #...........................................................
+# sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+#                                 min =   c(0.50,    0.50),
+#                                 init =  c(0.73,    0.99),
+#                                 max =   c(1.00,    1.00),
+#                                 dsc1 =  c(25.5,    30.5),
+#                                 dsc2 =  c(12.5,    0.5))
+#
+# #......................
+# # agebands
+# #......................
+# rawage <- readRDS("data/derived/USA/LA_CA1_agebands.RDS")
+# LACA_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 3, maxMa = "ma3",
+#                                                groupvar = "ageband",  dat = rawage,
+#                                                num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
+#                                                num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.12, dsc1 = 0, dsc2 = 16.12),
+#                                                sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
@@ -415,7 +415,6 @@ fit_map <- tibble::tibble(
            "NLD1_age",
            "SWE1_age",
            "CHN1_age",
-           "LA_CA1_age",
            "NYS1_age"),
   modelobj = list(BRA1_age_mod,
                   CHE1_age_mod,
@@ -427,13 +426,12 @@ fit_map <- tibble::tibble(
                   NLD_age_mod,
                   SWE_age_mod,
                   CHN_age_mod,
-                  LACA_age_mod,
                   NYS_age_mod),
   rungs = 50,
   GTI_pow = list(bvec),
   burnin = 1e4,
-  samples = 1e4,
-  thinning = 10)
+  samples = 2e4,
+  thinning = 20)
 
 
 #......................
