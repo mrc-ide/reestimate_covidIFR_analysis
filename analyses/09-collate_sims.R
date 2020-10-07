@@ -163,17 +163,17 @@ collated_serorev_plotObj <-  datmap %>%
 together_serorev_plotObj <- cowplot::plot_grid(collated_infxn_curve_serorev_plotObj,
                                                collated_serorev_plotObj,
                                                nrow = 1, labels = c("(A)", "(B)"),
-                                               rel_widths = c(0.6, 0.4))
+                                               rel_widths = c(0.6, 0.5))
 
 
 # out
 jpeg("figures/final_figures/collated_simulation_noserorev.jpg",
-     width = 10, height = 7, units = "in", res = 600)
+     width = 11, height = 8, units = "in", res = 600)
 plot(together_NOserorev_plotObj)
 graphics.off()
 
 jpeg("figures/final_figures/collated_simulation_withserorev.jpg",
-     width = 10, height = 7, units = "in", res = 600)
+     width = 11, height = 8, units = "in", res = 600)
 plot(together_serorev_plotObj)
 graphics.off()
 

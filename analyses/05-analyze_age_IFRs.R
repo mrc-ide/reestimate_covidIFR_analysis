@@ -314,7 +314,7 @@ data_dicts <- retmapIFR %>%
   dplyr::mutate(datadict = purrr::map(path, get_data_dict)) %>%
   dplyr::select(c("study_id", "sero", "datadict")) %>%
   tidyr::unnest(cols = "datadict") %>%
-  dplyr::ungroup(.)
+  dplyr::rename(param = Strata)
 
 # bring together
 studyprecision <- dplyr::left_join(studyprecision, data_dicts)
@@ -333,7 +333,9 @@ ifrdat <- retmapIFR %>%
   dplyr::left_join(., studyprecision, by = c("study_id", "ageband", "sero")) %>%
   dplyr::select(c("study_id", "sero", "ageband", "age_mid", "mean", "precision")) %>%
   dplyr::rename(age = age_mid,
-                mu = mean)
+                mu = mean) %>%
+  dplyr::group_by(sero) %>%
+  tidyr::nest(.)
 
 #......................
 # MLE approach
@@ -345,26 +347,31 @@ ll <- function(x, df) {
   gamma <- x[3]
   ret <- 0
   for (i in seq_len(nrow(df))) {
-    ret <- ret + df$precision[i]*dlnorm(exp(df$mu[i]), meanlog = alpha + beta*df$age[i],
-                                        sdlog = gamma, log = TRUE)
+    ret <- ret + dlnorm(df$mu[i], meanlog = alpha + beta*df$age[i],
+                        sdlog = gamma, log = TRUE)
   }
   return(-ret)
 }
 
 # get maximum likelihood parameters
-theta <- optim(par = c(0, 0, 1), fn = ll, df = ifrdat)$par
+dat <- ifrdat$data[[1]]
+theta <- optim(par = c(0, 0, 1), fn = ll, df = dat)$par
 theta
-
 
 #......................
 # get new observations
 #......................
 newagedat <- seq(5, 95, 10)
 best_est <- tibble::tibble(agemid = newagedat)
-fit2 <- theta[1] + theta[2]*best_est$agemid
+fit2 <- theta[1] + theta[2]*best_est$agemid # divide by 10 to control for scaling above
 best_est$Q50 <- qlnorm(0.5, meanlog = fit2, sdlog = theta[3])
 best_est$Q2.5 <- qlnorm(0.025, meanlog = fit2, sdlog = theta[3])
 best_est$Q97.5 <- qlnorm(0.975, meanlog = fit2, sdlog = theta[3])
+
+best_est
+theta
+
+
 
 best_est <- best_est %>%
   dplyr::mutate(Q2.5 = Q2.5 * 100,
@@ -372,9 +379,10 @@ best_est <- best_est %>%
                 Q97.5 = Q97.5 * 100)
 
 modIFR_age_plotObj +
-  geom_line(data = best_est, aes(x = agemid, y = Q50), color = "#FF0018",
-            size = 1.2,
-            linetype = "dashed")
+  geom_ribbon(data = best_est, aes(x = agemid, ymin = Q2.5, ymax = Q97.5),
+              fill = "#bdbdbd", linetype = "dashed", alpha = 0.3) +
+  geom_line(data = best_est, aes(x = agemid, y = Q50),
+            color = "#636363", linetype = "dashed", alpha = 0.5)
 
 
 best_est %>%

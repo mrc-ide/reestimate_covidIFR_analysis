@@ -69,3 +69,76 @@ quick_sero_diagnostics(param_map$fit[[1]])
 quick_sero_diagnostics(param_map$fit[[2]])
 COVIDCurve::get_gelman_rubin_diagnostic(param_map$fit[[1]])
 COVIDCurve::get_gelman_rubin_diagnostic(param_map$fit[[2]])
+
+
+#............................................................
+# plot out
+#...........................................................
+#......................
+# get ifrs
+#......................
+param_map$ifrs <- purrr::map(param_map$fit, COVIDCurve::get_cred_intervals,
+                             whichrung = "rung1",
+                             what = "IFRparams", by_chain = FALSE)
+#......................
+# get incidence curve
+#......................
+param_map$infxncurve <- purrr::map(param_map$fit, COVIDCurve::draw_posterior_infxn_cubic_splines,
+                                                             dwnsmpl = 1e2,
+                                                             by_chain = FALSE,
+                                                             by_strata = TRUE)
+
+#......................
+# get crude ifrs from sim
+#......................
+fatalitydata <- tibble::tibble(param = c("ma1", "ma2", "ma3"),
+                               IFR = c(1e-3, 0.05, 0.1))
+
+#......................
+# one seroday
+#......................
+oneday_ifrs <- ggplot() +
+  geom_pointrange(data = param_map$ifrs[param_map$name == "OneDay_mod"][[1]],
+                  aes(x = param, ymin = LCI, ymax = UCI, y = median),
+                  color = "#969696", size = 1.2) +
+  geom_point(data = fatalitydata,
+             aes(x = param, y = IFR),
+             color = "#000000", shape = 2,
+             size = 3, alpha = 0.75, show.legend = F) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"),
+        legend.position = "right") +
+  xlab("") + ylab("Median (95% CrIs)") +
+  ylim(0, 0.125) +
+  xyaxis_plot_theme +
+  theme(plot.margin = unit(c(0.1, 0.1, 0.1, 1),"cm"))
+#......................
+# two seroday
+#......................
+twoday_ifrs <- ggplot() +
+  geom_pointrange(data = param_map$ifrs[param_map$name == "TwoDays_mod"][[1]],
+                  aes(x = param, ymin = LCI, ymax = UCI, y = median),
+                  color = "#969696", size = 1.2) +
+  geom_point(data = fatalitydata,
+             aes(x = param, y = IFR),
+             color = "#000000", shape = 2,
+             size = 3, alpha = 0.75, show.legend = F) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"),
+        legend.position = "right") +
+  xlab("") + ylab("Median (95% CrIs)") +
+  ylim(0, 0.125) +
+  xyaxis_plot_theme +
+  theme(plot.margin = unit(c(0.1, 0.1, 0.1, 1),"cm"))
+
+
+#......................
+# come togehter
+#......................
+mainFig <- cowplot::plot_grid(oneday_ifrs, twoday_ifrs, labels = c("(A)", "(B)", ncol = 1))
+jpeg("figures/final_figures/seroday_comparinson.jpg",
+     width = 11, height = 8, units = "in", res = 500)
+plot(mainFig)
+graphics.off()
+
+
