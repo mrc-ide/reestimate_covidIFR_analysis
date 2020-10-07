@@ -99,8 +99,37 @@ for(i in 1:length(studies)) {
 
 }
 
-### PLOT SENSITIVITY
-d<-density(params$sensitivity)
-plot(d$x,d$y/sum(d$y),xlim=c(0.7,1.005),type="l",xlab="parameter",ylab="density",main="")
-lines(rep(dat$x_sens_validat/dat$N_sens_validat,2),c(0,500),lty=2)
 
+####################
+# schematic of relationship of seroprevalence and mortality with different test sensitivity and specificity.
+####################
+if(plot2file) {
+  jpeg("analyses/Rgn_Mod_Stan/results/regional_schematic.jpg",width=1600,height=1300,res=300)
+  true_sero<-1:30/100
+  sens<-0.8
+  spec<-0.98
+  obs_sero<-true_sero*sens + (1-true_sero)*(1-spec)
+  deaths<-true_sero*0.007*100000
+
+  par(mar=c(5,4,5,2))
+  plot(true_sero*100,deaths,type="l",xlab="Seroprevalence % (observed or true)", ylab="deaths per 100,000",lwd=2)
+  lines(obs_sero*100,deaths,col="blue")
+  sens<-1
+  obs_sero<-true_sero*sens + (1-true_sero)*(1-spec)
+  lines(obs_sero*100,deaths,col="red")
+  sens<-0.8
+  spec<-1
+  obs_sero<-true_sero*sens + (1-true_sero)*(1-spec)
+  lines(obs_sero*100,deaths,col="orange")
+  legend(0,300, c("true relationship","observed, sens=80%, spec=98%", "observed, sens=100%, spec=98%",
+                  "observed, sens=80%, spec=100%"),
+         col=c("black","blue","red","orange"),lty=1,bty='n',xpd=T,cex=0.85)
+  dev.off()
+}
+
+
+### PLOT SENSITIVITY
+# d<-density(params$sensitivity)
+# plot(d$x,d$y/sum(d$y),xlim=c(0.7,1.005),type="l",xlab="parameter",ylab="density",main="")
+# lines(rep(dat$x_sens_validat/dat$N_sens_validat,2),c(0,500),lty=2)
+#
