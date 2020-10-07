@@ -853,6 +853,7 @@ N_sens_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_sens
 N_spec_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_spec$ntest
 x_spec_validat<-dat_age$data[[which(dat_age$study_id==curr_study_id)]]$sero_spec$nneg
 
+#N_sens_validat<-48
 
 # pop by age
 pop_age<-curr_dat_age$popn

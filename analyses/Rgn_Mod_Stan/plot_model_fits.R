@@ -1,11 +1,13 @@
 
 library(rstan)
+library(plotrix)
 
 #/// MODEL FITS REGIONAL MODEL - PLOTS
 
 studies<-c("ESP1-2","ITA1","GBR3","DNK1","NYS1","BRA1")
 
 for(i in 1:length(studies)) {
+  print(i)
   curr_study_id<-studies[i]
   fit<-readRDS(paste0("C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/final_fits/fit_",curr_study_id,"_reg_age_full.rds"))
   dat<-readRDS(paste0("analyses/Rgn_Mod_Stan/input_data/",curr_study_id,"input_dat.rds"))
@@ -28,14 +30,14 @@ for(i in 1:length(studies)) {
 
   plot2file<-T
   if(plot2file) { # overwrite
-    tiff(paste0("analyses/Rgn_Mod_Stan/results/" ,curr_study_id, "_regional_fit.tiff"),width=3000,height=950,compression="lzw",res=300)
+    jpeg(paste0("analyses/Rgn_Mod_Stan/results/" ,curr_study_id, "_regional_fit.jpg"),width=3000,height=950,res=300)
     layout(matrix(c(1:4), nrow = 1, ncol = 4, byrow = TRUE), widths=c(2,2,1.5,2))
 
     max_x<-0.5+max(prev_sero_reg_uci,100*dat$x_seror/dat$N_seror)
     plot(100*dat$x_seror/dat$N_seror,100000*dat$N_deathsr/dat$popr,pch=19,
          ylab="deaths per 100,000",xlab="Seroprevalence (%)",
          ylim=c(0,max(expdr_uci)),
-         xlim=xlim)
+         xlim=c(0,max_x))
     plotCI(prev_sero_reg,expdr,
            li=prev_sero_reg_lci,
            ui=prev_sero_reg_uci,
@@ -99,6 +101,20 @@ for(i in 1:length(studies)) {
 
 }
 
+
+####################
+# Print specificity estimates from regional model
+studies<-c("ESP1-2","ITA1","GBR3","DNK1","NYS1","BRA1")
+
+for(i in 1:length(studies)) {
+  curr_study_id<-studies[i]
+  print(curr_study_id)
+  fit<-readRDS(paste0("C:/Users/Lucy/Dropbox (SPH Imperial College)/IFR update/rgn_mod_results/final_fits/fit_",curr_study_id,"_reg_age_full.rds"))
+  params<-rstan::extract(fit)
+  print(paste0(round(100*mean(params$specificity),2)," ",
+               round(100*quantile(params$specificity, 0.025),2),"-",
+               round(100*quantile(params$specificity,0.975),2)))
+}
 
 ####################
 # schematic of relationship of seroprevalence and mortality with different test sensitivity and specificity.
