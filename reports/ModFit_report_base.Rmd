@@ -70,7 +70,7 @@ tibble::tibble(gelman_mpsrf = gdiag$mpsrf) %>%
   dplyr::mutate(
     gelman_mpsrf = round(gelman_mpsrf, 2),
     gelman_mpsrf = kableExtra::cell_spec(gelman_mpsrf, "latex", 
-                                         color = ifelse(gelman_mpsrf >= 1.05, "red", "green"),
+                                         color = ifelse(gelman_mpsrf >= 1.1, "red", "green"),
                                          bold = T,
                                          font_size = 16)) %>% 
   knitr::kable(., format = "simple")
@@ -223,7 +223,7 @@ modout$mcmcout$output %>%
 \pagebreak
 #### Seroprevalence Observed vs. Inferred True Prev
 ```{r}
-# population denom
+# population denom 
 demog <- modout$inputs$IFRmodel$demog %>% 
   dplyr::rename(param = Strata)
 demog <- demog %>% 
@@ -238,8 +238,10 @@ serocurvedat <- seropnts %>%
                   dplyr::starts_with("crude_pd_"))) %>% 
   tidyr::pivot_longer(., cols = -c("sim", "ObsDay"),
                       names_to = "seroprev_strata_lvl", values_to = "seroprev") %>% 
-  dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG Corr.", "Crude"),
+  dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RGCorr", "Crude"),
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
+  dplyr::select(-c("seroprev_strata_lvl")) %>% 
+ tidyr::pivot_wider(., names_from = "seroprevlvl", values_from = "seroprev") %>% 
   dplyr::left_join(., dictkey) %>% 
   dplyr::left_join(., demog) %>% 
   dplyr::mutate(strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(param, "[0-9]+"))))
@@ -249,7 +251,9 @@ SeroPrevObs <- crudedat %>%
   dplyr::select(c("obsdaymin", "obsdaymax", "strata", "seroprev")) %>% 
   dplyr::filter(!duplicated(.)) %>% 
   dplyr::left_join(., demog) %>% 
-  dplyr::mutate(obsmidday = (obsdaymin + obsdaymax)/2)
+  dplyr::mutate(obsmidday = (obsdaymin + obsdaymax)/2,
+                strata = forcats::fct_reorder(strata, as.numeric(stringr::str_extract(param, "[0-9]+"))))
+
 
 
 ```
@@ -257,13 +261,17 @@ SeroPrevObs <- crudedat %>%
 ```{r}
 serocurvedatPlotObj <- serocurvedat %>% 
   ggplot() +
-  geom_line(aes(x = ObsDay, y = seroprev, color = seroprevlvl, group = sim), alpha = 0.5) +
+  geom_line(aes(x = ObsDay, y = Crude, group = sim, color = "Crude"), 
+            alpha = 0.5) +
+    geom_line(aes(x = ObsDay, y = RGCorr,  group = sim, color = "RGCorr"),
+            alpha = 0.5) +
   geom_rect(data = SeroPrevObs, aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf), 
             color = "#d9d9d9", fill = "#d9d9d9", alpha = 0.8) +
   geom_point(data = SeroPrevObs, aes(x = obsmidday, y = seroprev, group = strata),
              color = "#000000", size = 1.2) +
   facet_wrap(.~strata) +
-  scale_color_manual("Seroprev. \n Adjustment", values = c("#FFD301", "#246BCF"),
+  scale_color_manual("Seroprev. \n Adjustment", 
+                     values = c("Crude" = "#FFD301", "RGCorr" = "#246BCF"),
                      labels = c("Inferred 'Truth'", "Inferred 'Observed' - \n Rogan-Gladen Corrected")) +
   labs(caption = "Grey box is observed seroprevalence across study period") +
   xyaxis_plot_theme + 

@@ -413,7 +413,7 @@ fit_map <- tibble::tibble(
            "GBR3_age",
            "ITA1_age",
            "NLD1_age",
-           "SWE_age",
+           "SWE1_age",
            "CHN1_age",
            "LA_CA1_age",
            "NYS1_age"),

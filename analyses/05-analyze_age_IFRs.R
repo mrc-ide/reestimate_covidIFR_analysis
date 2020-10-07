@@ -410,3 +410,35 @@ jpeg("figures/final_figures/IFR_age_spec_logplot_nofit.jpg",
      width = 11, height = 8, units = "in", res = 600)
 plot(mainFig)
 graphics.off()
+
+
+
+#............................................................
+# tidy up UN World Population Prospects
+#...........................................................
+wpp <- readxl::read_excel("data/raw/wpp_un_agepopulations.xlsx") %>%
+  dplyr::select(c("Region, subregion, country or area *", "0-4", "5-9", "10-14", "15-19", "20-24",
+                  "25-29", "30-34", "35-39", "40-44", "50-54", "55-59", "60-64", "65-69", "70-74",
+                  "75-79", "80-84", "85-89", "90-94", "95-99", "100+"))
+colnames(wpp)[1] <- "georegion"
+
+wpp <- wpp %>%
+  dplyr::filter(georegion %in% c("Madagascar", "Nicaragua", "Grenada", "Malta")) %>%
+  tidyr::pivot_longer(., cols = -c("georegion"), names_to = "ageband", values_to = "popN") %>%
+  dplyr::mutate(popN = as.numeric(popN)*1e3) # wpp adjustment
+
+#......................
+# cuts
+#......................
+agebrks <- c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 999)
+wpp <- wpp %>%
+  dplyr::mutate(age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,2]),
+                ageband = cut(age_high, agebrks,
+                              labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
+                ageband = as.character(ageband)) %>%
+  dplyr::group_by(georegion, ageband) %>%
+  dplyr::summarise(popN = sum(popN)) %>%
+  dplyr::mutate(age_mid = purrr::map_dbl(ageband, function(x){
+    nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
+    nums[nums == 999] <- 100
+    return(mean(nums))}))

@@ -159,7 +159,7 @@ tibble::tibble(gelman_mpsrf = gdiag$mpsrf) %>%
   dplyr::mutate(
     gelman_mpsrf = round(gelman_mpsrf, 2),
     gelman_mpsrf = kableExtra::cell_spec(gelman_mpsrf, "latex", 
-                                         color = ifelse(gelman_mpsrf >= 1.05, "red", "green"),
+                                         color = ifelse(gelman_mpsrf >= 1.1, "red", "green"),
                                          bold = T,
                                          font_size = 16)) %>% 
   knitr::kable(., format = "simple")
@@ -244,19 +244,25 @@ serocurvedat <- seropnts %>%
  tidyr::pivot_wider(., names_from = "seroprevlvl", values_from = "seroprev")
 
 # plot
-labcaption <- paste(strwrap("The blue ribbon is the inferred pserorevalence adjusted for sensitivity and specificity (Rogan-Gladen Correctiion) while the yellow ribbon is the crude seroprevalence. The green and red lines are the simulated true seroprevalence and the observed prevalence (Rogen-Gladen Corrected), respectively. Grey boxes indicate model inputs (serosuvery dates and seroprevalences). N.B. If seroreversion is considered, the true prevalence (green) will also be greater than the observed/inferred prevalences.", width = 180), collapse = "\n") 
+labcaption <- paste(strwrap("Grey boxes indicate model inputs (serosuvery dates and seroprevalences). N.B. If seroreversion is considered, the true prevalence (green) will also be greater than the observed/inferred prevalences.", width = 180), collapse = "\n") 
 
 pB <- serocurvedat %>% 
   dplyr::left_join(., trueseroprev) %>% 
   ggplot() +
-  geom_line(aes(x = ObsDay, y = Crude), alpha = 0.5, color = "#FFD301") + # yellow
-  geom_line(aes(x = ObsDay, y = RGCorr), alpha = 0.5, color = "#246BCF") + # blue
-  geom_line(aes(x = ObsDay, y = TruePrev), color = "#34A853") + # green
-  geom_line(aes(x = ObsDay, y = ObsPrev), color = "#EA4335") +
+  geom_line(aes(x = ObsDay, y = Crude, color = "Crude"), alpha = 0.5) + # yellow
+  geom_line(aes(x = ObsDay, y = RGCorr, color = "RGCorr"), alpha = 0.5) + # blue
+  geom_line(aes(x = ObsDay, y = TruePrev, color = "TruePrev")) + # green
+  geom_line(aes(x = ObsDay, y = ObsPrev, color = "ObsPrev")) +
   geom_rect(aes(xmin = 135, xmax = 145, ymin = 0, ymax = Inf), 
             alpha = 0.05, color = "#bdbdbd", fill = "#bdbdbd") + 
   geom_rect(aes(xmin = 155, xmax = 165, ymin = 0, ymax = Inf), 
             alpha = 0.05, color = "#bdbdbd", fill = "#bdbdbd") + 
+  scale_color_manual("", 
+                     values = c("Crude" = "#FFD301", "RGCorr" = "#246BCF",
+                                "TruePrev" = "#34A853", "ObsPrev" = "#EA4335"),
+                     labels = c("Inferred 'Truth'", 
+                                "Inferred 'Observed' - \n Rogan-Gladen Corrected",
+                                "Simulated True Prev.", "Simulated Obs. Prev.")) +
   facet_wrap(~Strata) + 
   xyaxis_plot_theme + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold")) +
