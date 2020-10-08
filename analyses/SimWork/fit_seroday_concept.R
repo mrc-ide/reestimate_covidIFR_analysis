@@ -201,7 +201,7 @@ bvec <- seq(5, 2.5, length.out = 50)
 
 fit_map <- tibble::tibble(
   name = c("OneDay_mod", "TwoDays_mod"),
-  infxns = list(intrvnshape, NULL), # Null sinse same infections
+  infxns = list(intrvnshape, NULL), # Null since same infections
   simdat = list(dat, NULL),
   modelobj = list(mod1_oneday, mod1_twodays),
   rungs = 50,
