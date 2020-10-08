@@ -73,39 +73,41 @@ retmapSero <- dplyr::bind_rows(regretmap, serorevretmap) %>%
 simp_seroprevdat <- dsc_agedat %>%
   dplyr::select(c("study_id", "location", "seroprev_adjdat")) %>%
   tidyr::unnest(cols = "seroprev_adjdat") %>%
-  dplyr::group_by(study_id, location, ageband) %>%
+  dplyr::group_by(study_id, location) %>%
   dplyr::filter(seromidpt == max(seromidpt)) %>% # subset to latest serostudy
-  group_by(study_id, location, seromidpt, ageband) %>%
-  dplyr::summarise(n_totpos = sum(n_positive),
-                   n_tottest = sum(n_tested)) %>%
-  dplyr::ungroup(.) %>%
+  dplyr::filter(!is.na(n_positive) & !is.na(n_tested)) %>%
   dplyr::mutate(sero_midday = seromidpt + lubridate::ymd("2020-01-01") - 1,
-                seroprev = n_totpos/n_tottest)
+                seroprev = n_positive/n_tested) %>%
+  dplyr::select(c("study_id", "location", "ageband", "sero_midday", "seroprev"))
 # manual liftover for studies that only reported CIs
 ci_simp_seroprevdat <- dsc_agedat %>%
   dplyr::select(c("study_id", "location", "seroprev_adjdat")) %>%
   tidyr::unnest(cols = "seroprev_adjdat") %>%
-  dplyr::group_by(study_id, location, ageband) %>%
+  dplyr::group_by(study_id, location) %>%
   dplyr::filter(seromidpt == max(seromidpt)) %>% # subset to latest serostudy
   dplyr::filter(is.na(n_positive) & is.na(n_tested)) %>%
-  dplyr::summarise(seroprev_ci = mean(seroprev))
+  dplyr::mutate(sero_midday = seromidpt + lubridate::ymd("2020-01-01") - 1) %>%
+  dplyr::select(c("study_id", "location", "ageband", "sero_midday", "seroprev"))
 
-# fix and take to simple column
-simp_seroprevdat <- simp_seroprevdat %>%
-  dplyr::left_join(., ci_simp_seroprevdat, by = c("study_id", "location", "ageband")) %>%
-  dplyr::mutate(seroprev = ifelse(is.na(seroprev), seroprev_ci, seroprev)) %>%
-  dplyr::select(c("study_id", "location", "ageband", "seromidpt", "sero_midday", "seroprev")) %>%
-  dplyr::rename(obs_input_seropev = seroprev)
+# bring together
+simp_seroprevdat <- dplyr::bind_rows(simp_seroprevdat, ci_simp_seroprevdat) %>%
+  dplyr::rename(obs_input_seropev = seroprev) %>%
+  dplyr::mutate(obs_input_seropev = round(obs_input_seropev * 100, 2))
 
-# now bring together
-middays <- simp_seroprevdat %>%
-  dplyr::select(c("study_id", "seromidpt")) %>%
-  dplyr::filter(!duplicated(.))
 
+#......................
+# now to get inferred seroprevalence
+#......................
 # am going to need data dictionaries
 datdict <- dplyr::bind_rows(regretmap, serorevretmap) %>%
   dplyr::mutate(dictkey = purrr::map(path, get_data_dict)) %>%
   tidyr::unnest(cols = "dictkey")
+
+# am also going to need the seromiddays for comparison
+middays <- simp_seroprevdat %>%
+  dplyr::select(c("study_id", "location", "ageband", "sero_midday")) %>%
+  dplyr::mutate(seromidpt = as.numeric(sero_midday - lubridate::ymd("2020-01-01")) + 1) %>%
+  dplyr::select(-c("sero_midday"))
 
 # now out
 seroprev_age_column <- retmapSero %>%
@@ -122,8 +124,7 @@ seroprev_age_column <- retmapSero %>%
   dplyr::summarise(
     LCI = quantile(RG_pd_seroprev, 0.025, na.rm = T),
     median = median(RG_pd_seroprev, na.rm = T),
-    UCI = quantile(RG_pd_seroprev, 0.975, na.rm = T),
-  )  %>%
+    UCI = quantile(RG_pd_seroprev, 0.975, na.rm = T))  %>%
   dplyr::mutate(median = round(median * 100, 2),
                 LCI = round(LCI * 100, 2),
                 UCI = round(UCI * 100, 2)) %>%
@@ -140,6 +141,7 @@ seroprev_age_column <- retmapSero %>%
 #......................
 # get crude IFRs
 #......................
+set.seed(48)
 source("R/monte_carlo_cis.R")
 
 # calculate CIs for binomial
@@ -207,16 +209,210 @@ dplyr::left_join(simp_seroprevdat, seroprev_age_column, by = c("study_id", "ageb
   dplyr::left_join(., modIFR_age_column, by = c("study_id", "ageband")) %>%
   dplyr::select(c("location", "study_id", "sero_midday", "obs_input_seropev", "ageband", "seroprev_reg", "seroprev_serorev", "crude_IFRs", "regIFR", "serorevIFR")) %>%
   dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n=2)[,1])) %>%
-  dplyr::mutate(obs_input_seropev = round(obs_input_seropev, 2)) %>%
   dplyr::arrange(location, study_id, age_low) %>%
   dplyr::select(-c("age_low")) %>%
   dplyr::select("location", "ageband", "sero_midday", "obs_input_seropev", "seroprev_reg", "seroprev_serorev", "crude_IFRs", "regIFR", "serorevIFR") %>%  # fix order
   readr::write_tsv(., path = "tables/final_tables/age_specific_ifr_data.tsv")
 
+#............................................................
+#---- Best Age IFR Est Table  #----
+#...........................................................
+#......................
+# unpack data for est
+#......................
+ifrdat <- retmapIFR %>%
+  dplyr::select(c("study_id", "sero", "strataIFRret")) %>%
+  tidyr::unnest(cols = "strataIFRret") %>%
+  dplyr::rename(ageband = strata) %>%
+  dplyr::mutate(age_mid = purrr::map_dbl(ageband, function(x){
+    nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
+    nums[nums == 999] <- 100
+    return(mean(nums))})) %>%
+  dplyr::select(c("study_id", "sero", "ageband", "age_mid", "mean")) %>%
+  dplyr::rename(age = age_mid,
+                mu = mean) %>%
+  dplyr::group_by(sero) %>%
+  tidyr::nest(.)
+
+#......................
+# MLE approach
+# define -ve log likelihood function
+#......................
+ll <- function(x, df) {
+  alpha <- x[1]
+  beta <- x[2]
+  gamma <- x[3]
+  delta <- x[4]
+  ret <- 0
+  fit <- alpha + beta*df$age
+  s <- exp(gamma) + delta*(100 - df$age)
+  s <- sqrt(s)
+  for (i in seq_len(nrow(df))) {
+    ret <- ret + dlnorm(df$mu[i], meanlog = fit[i], sdlog = s[i], log = TRUE)
+  }
+  return(-ret)
+}
+
+
+#..........................................
+# Fitting models to mu and residuals
+# for no seroreversion
+#..........................................
+fit_pred_intervals_log_linear_mod <- function(dat) {
+  # fit a log-linear model
+  mod1 <- lm(log(mu) ~ age, data = dat)
+
+  # get residual variance in 10-year age groups
+  dat$cut <- cut(dat$age, breaks = seq(0, 100, 10))
+  new_dat <- data.frame(age_range = levels(dat$cut))
+  new_dat$var <- mapply(var, split(mod1$residuals, f = dat$cut))
+
+  # get first- and second-order age terms
+  new_dat$age <- seq(5, 95, 10)
+  new_dat$age_squared <- new_dat$age^2
+
+  # fit quadratic model to log of residual variance
+  mod2 <- lm(log(var) ~ age + age_squared, data = new_dat)
+  new_dat$var_fit <- exp(predict(mod2, newdata = new_dat))
+
+  # get corresponding mod1 prediction
+  new_dat$fit <- predict(mod1, newdata = new_dat)
+
+  # get prediction intervals in linear space
+  new_dat$Q025 <- qlnorm(0.025, mean = new_dat$fit, sd = sqrt(new_dat$var_fit))
+  new_dat$Q20 <- qlnorm(0.2, mean = new_dat$fit, sd = sqrt(new_dat$var_fit))
+  new_dat$Q50 <- qlnorm(0.5, mean = new_dat$fit, sd = sqrt(new_dat$var_fit))
+  new_dat$Q80 <- qlnorm(0.8, mean = new_dat$fit, sd = sqrt(new_dat$var_fit))
+  new_dat$Q975 <- qlnorm(0.975, mean = new_dat$fit, sd = sqrt(new_dat$var_fit))
+  # out
+  out <- list(new_dat = new_dat,
+              mod = mod1)
+  return(out)
+}
+
+#.............
+# get fits
+#.............
+ifrdat <- ifrdat %>%
+  dplyr::mutate(bestestmod = purrr::map(data, fit_pred_intervals_log_linear_mod),
+                mod = purrr::map(bestestmod, "mod"),
+                predints = purrr::map(bestestmod, "new_dat"))
+
+summary(ifrdat$mod[[1]])
+summary(ifrdat$mod[[2]])
+
+#......................
+# write out the age-specific best fit
+#......................
+
+ifrdat %>%
+  tidyr::unnest(cols = "predints") %>%
+  dplyr::select(c("sero", "age_range", "Q025", "Q50", "Q975")) %>%
+  dplyr::mutate(Q025 = round(Q025 * 100, 2),
+                Q50 = round(Q50 * 100, 2),
+                Q975 = round(Q975 * 100, 2)) %>%
+  dplyr::mutate(bestest = paste0(Q50, " (", Q025, ", ", Q975, ")")) %>%
+  dplyr::select(c("sero", "age_range", "bestest")) %>%
+  tidyr::pivot_wider(., names_from = "sero", values_from = "bestest") %>%
+  readr::write_tsv(., path = "tables/final_tables/overall_best_est_for_age_IFRs.tsv")
+
+
 
 #............................................................
-#---- Log Fig Age Specific Results #----
+#---- Best Overall IFR Est Rows  #----
 #...........................................................
+#......................
+# tidy up UN World Population Prospects
+#........................
+wpp <- readxl::read_excel("data/raw/wpp_un_agepopulations.xlsx") %>%
+  dplyr::select(c("Region, subregion, country or area *", "0-4", "5-9", "10-14", "15-19", "20-24",
+                  "25-29", "30-34", "35-39", "40-44", "50-54", "55-59", "60-64", "65-69", "70-74",
+                  "75-79", "80-84", "85-89", "90-94", "95-99", "100+"))
+colnames(wpp)[1] <- "georegion"
+
+wpp <- wpp %>%
+  dplyr::filter(georegion %in% c("Madagascar", "Nicaragua", "Grenada", "Malta")) %>%
+  tidyr::pivot_longer(., cols = -c("georegion"), names_to = "ageband", values_to = "popN") %>%
+  dplyr::mutate(popN = as.numeric(popN)*1e3) # wpp adjustment
+
+#......................
+# cuts
+#......................
+agebrks <- c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 999)
+wpp <- wpp %>%
+  dplyr::mutate(ageband = ifelse(ageband == "100+", "999-999", ageband),
+                age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,2]),
+                ageband = cut(age_high, agebrks,
+                              labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
+                ageband = as.character(ageband)) %>%
+  dplyr::group_by(georegion, ageband) %>%
+  dplyr::summarise(pop_size = sum(popN)) %>%
+  dplyr::mutate(age = purrr::map_dbl(ageband, function(x){
+    nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
+    nums[nums == 999] <- 100
+    return(mean(nums))})) %>%
+  dplyr::group_by(georegion) %>%
+  tidyr::nest(.) %>%
+  dplyr::rename(popN = data)
+
+
+#........................
+# Monte Carlo Calculations
+#........................
+calc_monte_carlo_overall_IFRs <- function(new_dat, popN, reps = 1e5) {
+  if (!all(c("age", "pop_size") %in% colnames(popN))) {
+    stop()
+  }
+  # bring in demog
+  new_dat <- dplyr::left_join(new_dat, popN)
+
+  # calculate
+  z <- mapply(function(i) {
+    sum(new_dat$pop_size * rlnorm(nrow(new_dat), meanlog = new_dat$fit, sdlog = sqrt(new_dat$var_fit)))
+  }, seq_len(reps))
+  z <- z / sum(new_dat$pop_size)
+
+  # get summarys
+  Q025 <- round(quantile(z, 0.025) * 100, 2)
+  Q50 <- round(quantile(z, 0.5) * 100, 2)
+  Q975 <- round(quantile(z, 0.975) * 100, 2)
+  # out
+  ret <- tibble::tibble(Q025 = Q025,
+                        Q50 = Q50,
+                        Q975 = Q975)
+  return(ret)
+}
+
+# tidy up pieces
+overall_IFR_best_est <- tidyr::expand_grid(ifrdat, wpp) %>%
+  dplyr::select(c("sero", "predints", "georegion", "popN")) %>%
+  dplyr::rename(new_dat = predints)
+overall_IFR_best_est$bestest <- purrr::pmap(overall_IFR_best_est[, c("new_dat", "popN")],
+                                            calc_monte_carlo_overall_IFRs,
+                                            reps = 1e5)
+
+# send out
+overall_IFR_best_est %>%
+  dplyr::select(c("sero", "georegion", "bestest")) %>%
+  tidyr::unnest(cols = "bestest") %>%
+  dplyr::mutate(bestest = paste0(Q50, " (", Q025, ", ", Q975, ")")) %>%
+  dplyr::select(c("sero", "georegion", "bestest")) %>%
+  tidyr::pivot_wider(., names_from = "sero", values_from = "bestest") %>%
+  readr::write_tsv(., path = "tables/final_tables/overall_best_est_for_georegions_IFRs.tsv")
+
+
+
+#............................................................
+#---- Figure of Age Specific Results #----
+#...........................................................
+#......................
+# tidy modelled and plot
+#......................
+modIFR_age <- modIFR_age %>%
+  dplyr::mutate(age_mid = purrr::map_dbl(ageband, function(x){
+    nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
+    nums[nums == 999] <- 100
+    return(mean(nums))}))
 
 #......................
 # get log transformed variables
@@ -234,60 +430,115 @@ log_retmapIFR_dat <- log_retmapIFR %>%
     return(mean(nums))}))
 
 #......................
-# plot out
+# Panel A -- No Seroreversion Linear Space
 #......................
+ribbondat <- ifrdat$predints[ifrdat$sero == "reg"][[1]] %>%
+  dplyr::mutate(Q025 = Q025 *100,
+                Q20 = Q20 * 100,
+                Q80 = Q80 * 100,
+                Q975 = Q975 * 100)
 
-log_age_IFR_plotObj <- log_retmapIFR_dat %>%
+
+PanelA <- modIFR_age %>%
+  dplyr::left_join(., locatkey, by = "study_id") %>%
+  dplyr::filter(sero == "reg") %>%
+  ggplot() +
+  geom_ribbon(data = ribbondat,
+              aes(x = age, ymin = Q025, ymax = Q975),
+              fill = "#d9d9d9", alpha = 0.8) +
+  geom_ribbon(data = ribbondat,
+              aes(x = age, ymin = Q20, ymax = Q80),
+              fill = "#969696", alpha = 0.8) +
+  geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI,
+                      color =  location),
+                  alpha = 0.75, shape = 16, size = 0.9) +
+  scale_color_manual("Location", values = mycolors) +
+  ylab("IFR (95% CrI)") + xlab("Mid. Age") +
+  xyaxis_plot_theme +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+
+
+
+
+#......................
+# Panel B --  No Seroreversion Log10 Space
+#......................
+PanelB <- log_retmapIFR_dat %>%
   dplyr::left_join(., locatkey, by = "study_id") %>%
   dplyr::filter(sero == "reg") %>%
   ggplot() +
   geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  location),
                   alpha = 0.75, shape = 16, size = 0.9) +
   scale_color_manual("Location", values = mycolors) +
-  ylab("Log-10 Age-Specific IFR (95% CrI)") + xlab("Mid. Age") +
+  ylab("Log-10 IFR (95% CrI)") + xlab("Mid. Age") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
 
 #......................
-# tidy modelled and plot
+# Panel C -- Seroreversion Linear Space
 #......................
-modIFR_age <- modIFR_age %>%
-  dplyr::mutate(age_mid = purrr::map_dbl(ageband, function(x){
-    nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
-    nums[nums == 999] <- 100
-    return(mean(nums))})) %>%
-  dplyr::filter(sero == "reg")
+ribbondat <- ifrdat$predints[ifrdat$sero == "serorev"][[1]] %>%
+  dplyr::mutate(Q025 = Q025 *100,
+                Q20 = Q20 * 100,
+                Q80 = Q80 * 100,
+                Q975 = Q975 * 100)
 
-modIFR_age_plotObj <- modIFR_age %>%
+
+PanelC <- modIFR_age %>%
   dplyr::left_join(., locatkey, by = "study_id") %>%
-  dplyr::filter(sero == "reg") %>%
+  dplyr::filter(sero == "serorev") %>%
   ggplot() +
+  geom_ribbon(data = ribbondat,
+              aes(x = age, ymin = Q025, ymax = Q975),
+              fill = "#d9d9d9", alpha = 0.8) +
+  geom_ribbon(data = ribbondat,
+              aes(x = age, ymin = Q20, ymax = Q80),
+              fill = "#969696", alpha = 0.8) +
   geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI,
                       color =  location),
                   alpha = 0.75, shape = 16, size = 0.9) +
   scale_color_manual("Location", values = mycolors) +
-  ylab("Age-Specific IFR (95% CrI)") + xlab("Mid. Age") +
+  ylab("IFR (95% CrI)") + xlab("Mid. Age") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+  theme(plot.margin = unit(c(1, 0.05, 0.05, 1),"cm"))
+
+#......................
+# Panel D -- Seroreversion Log10 Space
+#......................
+PanelD <- log_retmapIFR_dat %>%
+  dplyr::left_join(., locatkey, by = "study_id") %>%
+  dplyr::filter(sero == "serorev") %>%
+  ggplot() +
+  geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  location),
+                  alpha = 0.75, shape = 16, size = 0.9) +
+  scale_color_manual("Location", values = mycolors) +
+  ylab("Log-10 IFR (95% CrI)") + xlab("Mid. Age") +
+  xyaxis_plot_theme +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(plot.margin = unit(c(1, 0.05, 0.05, 1),"cm"))
+
 
 
 #......................
 # bring together
 #......................
-FigA <- modIFR_age_plotObj + theme(legend.position = "none")
-FigB <- log_age_IFR_plotObj + theme(legend.position = "none")
-mainFig <- cowplot::plot_grid(FigA, FigB,
-                              align = "h", ncol = 2, nrow = 1,
-                              labels = c("(A)", "(B)"))
-legend <- cowplot::get_legend(modIFR_age_plotObj +
-                                guides(color = guide_legend(nrow = 2)) +
+PanelAnl <- PanelA + theme(legend.position = "none")
+PanelBnl <- PanelB + theme(legend.position = "none")
+PanelCnl <- PanelC + theme(legend.position = "none")
+PanelDnl <- PanelD + theme(legend.position = "none")
+mainFig <- cowplot::plot_grid(PanelAnl, PanelBnl, PanelCnl, PanelDnl,
+                              align = "h", ncol = 2, nrow = 2,
+                              labels = c("(A)", "", "(B)", ""))
+legend <- cowplot::get_legend(PanelA +
+                                guides(color = guide_legend(nrow = 3)) +
                                 theme(legend.position = "bottom"))
 mainFig <- cowplot::plot_grid(mainFig, legend,
-                              nrow = 2, ncol = 1, rel_heights = c(0.9, 0.1))
+                              nrow = 2, ncol = 1, rel_heights = c(0.9, 0.15))
 
-jpeg("figures/final_figures/IFR_age_spec_logplot_nofit.jpg",
+jpeg("figures/final_figures/IFR_age_spec_logplot.jpg",
      width = 11, height = 8, units = "in", res = 600)
 plot(mainFig)
 graphics.off()
@@ -295,150 +546,3 @@ graphics.off()
 
 
 
-#............................................................
-#---- Best IFR Est Table  #----
-#...........................................................
-#......................
-# get "precision" based on overall IFR
-#......................
-studyprecision <- retmapIFR %>%
-  dplyr::group_by(study_id, sero) %>%
-  dplyr::mutate(ifrvar = purrr::map(path, get_strata_IFR_variance, by_chain = F)) %>%
-  tidyr::unnest(cols = "ifrvar") %>%
-  dplyr::mutate(precision = 1/var) %>%
-  dplyr::select(c("study_id", "sero", "param", "precision")) %>%
-  dplyr::ungroup()
-
-data_dicts <- retmapIFR %>%
-  dplyr::group_by(study_id, sero) %>%
-  dplyr::mutate(datadict = purrr::map(path, get_data_dict)) %>%
-  dplyr::select(c("study_id", "sero", "datadict")) %>%
-  tidyr::unnest(cols = "datadict") %>%
-  dplyr::rename(param = Strata)
-
-# bring together
-studyprecision <- dplyr::left_join(studyprecision, data_dicts)
-
-#......................
-# unpack data for MLE
-#......................
-ifrdat <- retmapIFR %>%
-  dplyr::select(c("study_id", "sero", "strataIFRret")) %>%
-  tidyr::unnest(cols = "strataIFRret") %>%
-  dplyr::rename(ageband = strata) %>%
-  dplyr::mutate(age_mid = purrr::map_dbl(ageband, function(x){
-    nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
-    nums[nums == 999] <- 100
-    return(mean(nums))})) %>%
-  dplyr::left_join(., studyprecision, by = c("study_id", "ageband", "sero")) %>%
-  dplyr::select(c("study_id", "sero", "ageband", "age_mid", "mean", "precision")) %>%
-  dplyr::rename(age = age_mid,
-                mu = mean) %>%
-  dplyr::group_by(sero) %>%
-  tidyr::nest(.)
-
-#......................
-# MLE approach
-# define -ve log likelihood function
-#......................
-ll <- function(x, df) {
-  alpha <- x[1]
-  beta <- x[2]
-  gamma <- x[3]
-  ret <- 0
-  for (i in seq_len(nrow(df))) {
-    ret <- ret + dlnorm(df$mu[i], meanlog = alpha + beta*df$age[i],
-                        sdlog = gamma, log = TRUE)
-  }
-  return(-ret)
-}
-
-# get maximum likelihood parameters
-dat <- ifrdat$data[[1]]
-theta <- optim(par = c(0, 0, 1), fn = ll, df = dat)$par
-theta
-
-#......................
-# get new observations
-#......................
-newagedat <- seq(5, 95, 10)
-best_est <- tibble::tibble(agemid = newagedat)
-fit2 <- theta[1] + theta[2]*best_est$agemid # divide by 10 to control for scaling above
-best_est$Q50 <- qlnorm(0.5, meanlog = fit2, sdlog = theta[3])
-best_est$Q2.5 <- qlnorm(0.025, meanlog = fit2, sdlog = theta[3])
-best_est$Q97.5 <- qlnorm(0.975, meanlog = fit2, sdlog = theta[3])
-
-best_est
-theta
-
-
-
-best_est <- best_est %>%
-  dplyr::mutate(Q2.5 = Q2.5 * 100,
-                Q50 = Q50 * 100,
-                Q97.5 = Q97.5 * 100)
-
-modIFR_age_plotObj +
-  geom_ribbon(data = best_est, aes(x = agemid, ymin = Q2.5, ymax = Q97.5),
-              fill = "#bdbdbd", linetype = "dashed", alpha = 0.3) +
-  geom_line(data = best_est, aes(x = agemid, y = Q50),
-            color = "#636363", linetype = "dashed", alpha = 0.5)
-
-
-best_est %>%
-  dplyr::mutate(IFR = IFR * 100)
-
-
-# out
-best_est %>%
-  readr::write_tsv(., path = "tables/final_tables/overall_best_est_for_IFRs.tsv")
-#......................
-# bring together adding fit
-#......................
-FigA <- modIFR_age_plotObj + theme(legend.position = "none")
-FigB <- log_age_IFR_plotObj + theme(legend.position = "none")
-mainFig <- cowplot::plot_grid(FigA, FigB,
-                              align = "h", ncol = 2, nrow = 1,
-                              labels = c("(A)", "(B)"))
-legend <- cowplot::get_legend(modIFR_age_plotObj +
-                                guides(color = guide_legend(nrow = 2)) +
-                                theme(legend.position = "bottom"))
-mainFig <- cowplot::plot_grid(mainFig, legend,
-                              nrow = 2, ncol = 1, rel_heights = c(0.9, 0.1))
-
-jpeg("figures/final_figures/IFR_age_spec_logplot_nofit.jpg",
-     width = 11, height = 8, units = "in", res = 600)
-plot(mainFig)
-graphics.off()
-
-
-
-#............................................................
-# tidy up UN World Population Prospects
-#...........................................................
-wpp <- readxl::read_excel("data/raw/wpp_un_agepopulations.xlsx") %>%
-  dplyr::select(c("Region, subregion, country or area *", "0-4", "5-9", "10-14", "15-19", "20-24",
-                  "25-29", "30-34", "35-39", "40-44", "50-54", "55-59", "60-64", "65-69", "70-74",
-                  "75-79", "80-84", "85-89", "90-94", "95-99", "100+"))
-colnames(wpp)[1] <- "georegion"
-
-wpp <- wpp %>%
-  dplyr::filter(georegion %in% c("Madagascar", "Nicaragua", "Grenada", "Malta")) %>%
-  tidyr::pivot_longer(., cols = -c("georegion"), names_to = "ageband", values_to = "popN") %>%
-  dplyr::mutate(popN = as.numeric(popN)*1e3) # wpp adjustment
-
-#......................
-# cuts
-#......................
-agebrks <- c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 999)
-wpp <- wpp %>%
-  dplyr::mutate(age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,2]),
-                ageband = cut(age_high, agebrks,
-                              labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
-                ageband = as.character(ageband)) %>%
-  dplyr::group_by(georegion, ageband) %>%
-  dplyr::summarise(popN = sum(popN)) %>%
-  dplyr::mutate(age_mid = purrr::map_dbl(ageband, function(x){
-    nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
-    nums[nums == 999] <- 100
-    return(mean(nums))}))

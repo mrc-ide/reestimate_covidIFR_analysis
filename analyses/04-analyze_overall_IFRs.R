@@ -111,6 +111,7 @@ seroprev_column <- simp_seroprevdat %>%
 #......................
 # crude IFRs
 #......................
+set.seed(48)
 source("R/monte_carlo_cis.R")
 # calculate CIs for binomial
 crude_IFRs_binomial <- dsc_agedat %>%
@@ -264,6 +265,7 @@ dplyr::left_join(crude_IFR_column, no_serorev_ifrs, by = "study_id") %>%
 
 #............................................................
 #---- Fig of IFR-Death Comparisons #----
+# internal plot
 #...........................................................
 
 #......................
@@ -329,9 +331,9 @@ modelled_IFRs <- retmap %>%
   dplyr::mutate(median = median * 100,
                 LCI = LCI * 100,
                 UCI = UCI * 100,
-                upperbound_inf = ifelse(UCI >= 3 & sero == "reg", 3, NA),
-                upperbound_rev = ifelse(UCI >= 3 & sero == "serorev", 3, NA),
-                UCI = ifelse(UCI >= 3, 3, UCI),
+                upperbound_inf = ifelse(UCI >= 2.5 & sero == "reg", 2.5, NA),
+                upperbound_rev = ifelse(UCI >= 2.5 & sero == "serorev", 2.5, NA),
+                UCI = ifelse(UCI >= 2.5, 2.5, UCI),
                 sero = factor(sero, levels = c("reg", "serorev"),
                               labels = c("Without Serorev.", "With Serorev.")))
 

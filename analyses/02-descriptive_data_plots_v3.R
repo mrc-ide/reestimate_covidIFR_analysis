@@ -653,6 +653,7 @@ graphics.off()
 #............................................................
 #---- Figure of Obs Seroprevalence vs. Cum Deaths and Not-Modelled Adj. IFR #----
 #...........................................................
+set.seed(48)
 source("R/monte_carlo_cis.R")
 # get regions
 rgns <- datmap %>%
