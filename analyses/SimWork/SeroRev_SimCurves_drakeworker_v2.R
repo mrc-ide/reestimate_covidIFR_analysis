@@ -17,7 +17,7 @@ set.seed(48)
 infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
 
 # read in fitted rate of seroreversion parameter
-serorev_rate_param <- readRDS("results/prior_inputs/serorev_param.RDS")
+weibullparams <- readRDS("results/prior_inputs/weibull_params.RDS")
 
 #............................................................
 # setup fatality data
@@ -56,7 +56,8 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     curr_day = 200,
     infections = curve,
     simulate_seroreversion = TRUE,
-    sero_rev_rate = serorev_rate_param,
+    sero_rev_shape = weibullparams$wshape,
+    sero_rev_scale = weibullparams$wscale,
     sens = sens,
     spec = spec,
     sero_delay_rate = 18.3,
@@ -113,12 +114,12 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(125, 175))
 #......................
 # sens/spec
 get_sens_spec_tbl <- function(sens, spec) {
-  tibble::tibble(name =  c("sens",          "spec",        "sero_rev_rate"),
-                 min =   c(0.5,              0.5,           135),
-                 init =  c(0.8,              0.8,           139),
-                 max =   c(1,                1,             145),
-                 dsc1 =  c(sens*1e3,        spec*1e3,       serorev_rate_param),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 0.1))
+  tibble::tibble(name =  c("sens",          "spec",        "sero_rev_shape",     "sero_rev_scale"),
+                 min =   c(0.5,              0.5,           2,                    138),
+                 init =  c(0.8,              0.8,           3.5,                  143),
+                 max =   c(1,                1,             5,                    148),
+                 dsc1 =  c(sens*1e3,        spec*1e3,       weibullparams$wshape, weibullparams$wscale),
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 0.1,                  0.1))
 
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec_tbl)
@@ -160,7 +161,7 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_Infxnparams(paste0("y", 1:5))
   mod1$set_relInfxn("y3")
   mod1$set_Noiseparams(c(paste0("Ne", 1:5)))
-  mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_rate"))
+  mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
   mod1$set_data(inputdata)
   mod1$set_demog(demog)
   mod1$set_paramdf(df_params)
@@ -220,7 +221,7 @@ run_MCMC <- function(path) {
                                       reparamKnots = TRUE,
                                       chains = n_chains,
                                       burnin = 1e4,
-                                      samples = 2e4,
+                                      samples = 1e4,
                                       rungs = 50,
                                       GTI_pow = 3,
                                       thinning = 20,

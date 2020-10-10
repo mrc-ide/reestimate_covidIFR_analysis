@@ -1,11 +1,9 @@
-## ....................................................................................................
-## Purpose:
-## Reads in seroconversion/reversion data and fits the mean time to reversion
-## (mu) under a simple model of constant hazard lambda of seroconverting and
-## constant hazard mu of seroreverting.
+#....................................................................................................
+## Purpose: Determine the distribution for the onset-of-symptoms to seroreversion
+## using the Weibull Distribution Fit
 ##
 ## Notes: Data shared from Muecksch et. al 2020
-## ....................................................................................................
+#....................................................................................................
 library(tidyverse)
 library(survival)
 library(survminer)
@@ -41,6 +39,7 @@ serotime <- serotime %>%
 #---- Explore Data and Summarize Dist #----
 #...........................................................
 summary(serotime)
+# must be positive at baseline
 thresholds <- tibble::tibble(assay = c("Diasorin", "Siemens", "Abbott", "Roche"),
                              threshold = c(15, 1, 1.4, 1))
 # look at post pcr -- figure 1
@@ -62,48 +61,15 @@ serotime %>%
   ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") +
   xyaxis_plot_theme
 
-# sex pattern not apparent
-serotime %>%
-  ggplot() +
-  geom_line(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay)) +
-  scale_color_manual(values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
-  facet_grid(assay ~ sex, scales = "free_y") +
-  xyaxis_plot_theme
-
-
-# function of start -- most decline
-serotime %>%
-  dplyr::group_by(donor_id, assay) %>%
-  dplyr::mutate(diffAb = log2(min(titres)/max(titres)),
-                difftime = max(days_post_symptoms)) %>%
-  ggplot() +
-  geom_point(aes(x = difftime, y = diffAb, color = assay)) +
-  scale_color_manual(values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
-  facet_wrap(~assay, scales = "free_y") +
-  ylab("Fold Change") +
-  xyaxis_plot_theme
-
-# function of start and end important by age?
-serotime %>%
-  dplyr::group_by(donor_id, assay) %>%
-  dplyr::mutate(diffAb = log2(min(titres)/max(titres)),
-                difftime = max(days_post_symptoms),
-                age = mean(age)) %>%
-  ggplot() +
-  geom_point(aes(x = difftime, y = diffAb, color = age)) +
-  ylab("Fold Change") +
-  scale_color_gradientn("Age",
-                        colors = c(wesanderson::wes_palette("Zissou1", 100, type = "continuous"))) +
-  facet_wrap(~assay, scales = "free_y") +
-  xyaxis_plot_theme
-
 
 #............................................................
 # Here we will subset just the abbot assay, which has the
 # largest declines in sensitivity
+# also will drop missing post-sx observation times
 #...........................................................
+# three missing post day sxs
 serotime <- serotime %>%
-  dplyr::filter(!is.na(post_pcr_days)) %>%
+  dplyr::filter(!is.na(days_post_symptoms)) %>%
   dplyr::filter(assay == "Abbott")
 
 
@@ -112,6 +78,7 @@ serotime <- serotime %>%
 # Exclude individuals negative at baseline
 #...........................................................
 neg_at_baseline <-  serotime %>%
+  dplyr::filter(!is.na(days_post_symptoms)) %>% # remove missing post symp days
   dplyr::group_by(donor_id, assay) %>%
   dplyr::filter(days_post_symptoms == min(days_post_symptoms)) %>%
   dplyr::left_join(., thresholds, by = c("assay")) %>%
@@ -160,40 +127,18 @@ serotime %>%
   dplyr::left_join(., thresholds, by = "assay") %>%
   dplyr::filter(assay == "Abbott") %>%
   ggplot() +
-  geom_line(aes(x = post_pcr_days, y = titres, group = donor_id, color = assay),
-            color = "#3182bd") +
-  geom_point(aes(x = post_pcr_days, y = titres, group = donor_id, color = assay),
-            color = "#3182bd") +
-  geom_hline(aes(yintercept = threshold), linetype = "dashed") +
-  facet_wrap(~assay, scales = "free_y") +
-  ylab("Ab. Titres") + xlab("Days Post-PCR") + ggtitle("Final Included") +
-  xyaxis_plot_theme
-
-
-
-#......................
-# does anyone serorevert but then become seropositive later --> no
-#......................
-serorevert_ids <-  serotime %>%
-  dplyr::group_by(donor_id, assay) %>%
-  dplyr::summarise(mintitre = min(titres)) %>%
-  dplyr::filter(mintitre <= 1.4) %>%
-  dplyr::pull(donor_id)
-serorevert_ids <- as.character( serorevert_ids[!duplicated(serorevert_ids)] )
-serotime %>%
-  dplyr::filter(donor_id %in% serorevert_ids) %>%
-  ggplot() +
   geom_line(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay),
             color = "#3182bd") +
   geom_point(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay),
              color = "#3182bd") +
-  geom_hline(yintercept = 1.4, linetype = "dashed") +
+  geom_hline(aes(yintercept = threshold), linetype = "dashed") +
   facet_wrap(~assay, scales = "free_y") +
-  ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") +
+  ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") + ggtitle("Final Included") +
   xyaxis_plot_theme
 
+
 #............................................................
-# quick look at final group characteristics
+# quick look at characteristics
 #...........................................................
 serotime_char <- serotime %>%
   dplyr::select(c("age", "sex", "donor_id")) %>%
@@ -202,30 +147,16 @@ table(serotime_char$sex)
 summary(serotime_char$age)
 
 #............................................................
-# redistribute time from seroconversion to serorev
+#---- Survival Analysis #----
 #...........................................................
-# for each individual, find time of seroconversion
-# know from figure, no one seroconverts then seroreverts then seroconverts
-serocon <- serotime %>%
-  dplyr::group_by(donor_id) %>%
-  dplyr::filter(titres >= 1.4) %>%
-  dplyr::summarise(day_of_serocon = min(post_pcr_days))
+# Wrangle Survival Data
+# know from above no one seroconverts later than start and that no one
+# who was -ve at baseline later converts
 
-# add in
-serotime <- serotime %>%
-  dplyr::left_join(., serocon, by = "donor_id") %>%
-  dplyr::mutate(days_since_serocon = post_pcr_days - day_of_serocon)
-
-# plot out
-serotime %>%
-  ggplot() +
-  geom_point(aes(x = days_since_serocon, y = day_of_serocon))
-
-# tidy up
 sero_final_survival <- serotime %>%
   dplyr::group_by(donor_id) %>%
   dplyr::mutate(status = ifelse(titres < 1.4, 1, 0)) %>%
-  dplyr::arrange(donor_id, days_since_serocon) %>%
+  dplyr::arrange(donor_id, days_post_symptoms) %>%
   dplyr::ungroup(.)
 
 # get min time to event for positives
@@ -235,106 +166,106 @@ posdonors <- sero_final_survival %>%
   dplyr::filter(!duplicated(.)) %>%
   dplyr::pull("donor_id")
 
-# time 2 for interval
+# time 1 for interval
 min_righttime_to_event_pos <- sero_final_survival %>%
   dplyr::filter(donor_id %in% posdonors) %>%
   dplyr::filter(status == 1) %>%
   dplyr::group_by(donor_id) %>%
-  dplyr::summarise(time_to_event2 = min(days_since_serocon)) %>%
+  dplyr::summarise(time_to_event2 = min(days_post_symptoms)) %>%
   dplyr::mutate(status = 1)
 
-# time 1 for interval
+# time w for interval
 min_lefttime_to_event_pos <- sero_final_survival %>%
   dplyr::filter(donor_id %in% posdonors) %>%
   dplyr::group_by(donor_id) %>%
   dplyr::filter(status == 0) %>%
-  dplyr::summarise(time_to_event = max(days_since_serocon)) %>%
+  dplyr::summarise(time_to_event = max(days_post_symptoms)) %>%
   dplyr::select(c("donor_id", "time_to_event"))
 
 
 min_time_to_event_pos <- dplyr::left_join(min_righttime_to_event_pos,
                                           min_lefttime_to_event_pos, by = "donor_id")
 
-# get last observation date as time to event for never seroreverteds
+# get last observation date as time to event for seroNEVERts
 max_time_to_event_neg <- sero_final_survival %>%
   dplyr::group_by(donor_id) %>%
+  dplyr::filter(status == 0) %>%
   dplyr::filter(! donor_id %in% posdonors) %>%
-  dplyr::summarise(time_to_event = NA,
-                   time_to_event2 = max(days_since_serocon)) %>%
+  dplyr::summarise(time_to_event = max(days_post_symptoms),
+                   time_to_event2 = NA) %>%
   dplyr::mutate(status = 0)
+
+
 
 # combine serorev
 sero_rev_comb <- dplyr::bind_rows(max_time_to_event_neg, min_time_to_event_pos)
 
-
-
-#............................................................
-# Fit Seroreversion
-#...........................................................
-# define fixed parameters -- this is onset of infxn to seroconversion
-lambda <- 13.3 + 5
-
-# pdf of seroconverting at time t
-ft <- function(t, mu) {
-  1/(mu - lambda)*exp(-t/mu) - 1/(mu - lambda)*exp(-t/lambda)
-}
-
-# cdf of seroconverting at time t
-Ft <- function(t, mu) {
-  lambda/(mu - lambda)*(exp(-t/lambda) - 1) - mu/(mu - lambda)*(exp(-t/mu) - 1)
-}
-
-# probability of seroconverting between times t1 and t2, returned in log space
-loglike <- function(t1, t2, mu) {
-  ret <- Ft(t2, mu) - Ft(t1, mu)
-  return(log(ret))
-}
-
-# calculate loglikelihood over range of mu
-mu_vec <- seq(20, 400)
-ll <- rep(0, length(mu_vec))
-for (j in seq_along(mu_vec)) {
-  for (i in seq_len(nrow(sero_rev_comb))) {
-    t1 <- sero_rev_comb$time_to_event[i]
-    t2 <- sero_rev_comb$time_to_event2[i]
-    if (sero_rev_comb$status[i] == 1) {
-      ll[j] <- ll[j] + loglike(t1, t2, mu_vec[j])
-    } else {
-      ll[j] <- ll[j] + loglike(t2, Inf, mu_vec[j])
-    }
-  }
-}
-
-# plot likelihood curve
-plot(mu_vec, exp(ll), type = 'l')
-
-# get maximum likelihood mu
-mu_best <- mu_vec[which.max(ll)]
-
-# save out fitted rate of seroreversion parameter
-saveRDS(mu_best, "results/prior_inputs/serorev_param.RDS")
-
+# for no interval censoring account for time of failure
+sero_rev_comb <- sero_rev_comb %>%
+  dplyr::mutate(time_obs_fail = ifelse(status == 1, time_to_event2, time_to_event))
 
 #............................................................
-# Plot Out
+# Weibull Regression
 #...........................................................
-# get survival curve from complementary cdf
-t <- seq(0, 300)
-FSurv <- 1 - Ft(t, mu_best)
-# plot Survivla curve in base
-plot(t, FSurv, type = "l")
-tof_fit <- data.frame(tof = t,
-                      prob = 1 - Ft(t, mu_best))
+#......................
+# NO interval censoring
+#......................
+survobj_km <- survival::Surv(time = sero_rev_comb$time_obs_fail,
+                          event = sero_rev_comb$status)
 
-#......................
-# make kaplan meier object
-#......................
-survobj_km <- survival::Surv(time = sero_rev_comb$time_to_event2,
-                             event = sero_rev_comb$status)
+#make kaplan meier object
 KM1_mod <- survival::survfit(survobj_km ~ 1, data = sero_rev_comb)
 
-# KM plot
+# fit weibull
+WBmod <- survival::survreg(survobj_km ~ 1,
+                           dist="weibull",
+                           data = sero_rev_comb)
+summary(WBmod)
+
+
+#......................
+# WITH interval censoring
+#......................
+survobj <- survival::Surv(time = sero_rev_comb$time_to_event,
+                          time2 =sero_rev_comb$time_to_event2,
+                          type = "interval2" )
+
+# fit weibull
+WBmod <- survival::survreg(survobj ~ 1,
+                           dist="weibull",
+                           data = sero_rev_comb)
+summary(WBmod)
+
+
+#............................................................
+# Extract Weibull Params (with interval censoring)
+#...........................................................
+# survreg's scale = 1/(rweibull shape)
+# survreg's intercept = log(rweibull scale)
+weibull_params <- list(wshape = 1/exp(WBmod$icoef[2]),
+                       wscale = exp(WBmod$icoef[1]))
+
+# save out parameters
+dir.create(path = "results/prior_inputs/", recursive = TRUE)
+saveRDS(weibull_params, "results/prior_inputs/weibull_params.RDS")
+
+#............................................................
+#---- Figure of Seroreversion #----
+#...........................................................
+#......................
+#  Kaplan Meier plot
+#......................
 KMplot <- survminer::ggsurvplot(fit = KM1_mod)
+
+#......................
+# Weibull plot
+#......................
+# fitted 'survival'
+# https://stackoverflow.com/questions/9151591/how-to-plot-the-survival-curve-generated-by-survreg-package-survival-of-r
+pw <- seq(from = 0.01, to = 0.99,by = 0.01)
+tof_weibull <- tibble::tibble(prob = 1 - pw,
+                              tof = predict(WBmod, type="quantile", p = pw)[1,])
+
 # KM pieces
 censored <- KMplot$data.survplot %>%
   dplyr::filter(n.censor != 0)
@@ -350,17 +281,35 @@ SurvPlotObj <- ggplot() +
              color = "#3C3B6E", alpha = 0.9, shape = 124, show.legend = F) +
   geom_point(data = events, aes(x = time, y = surv, size = n.event),
              color = "#3C3B6E", alpha = 0.9, shape = 19, show.legend = F) +
-  geom_line(data = tof_fit, aes(x = tof, y = prob),
+  geom_line(data = tof_weibull, aes(x = tof, y = prob),
             size = 1.25, color = "#B22234", alpha = 0.8) +
-  ylab("Prob. of Seroreversion after Seroconversion") +
+  ylab("Prob. of Seropositivity Persistence") +
   xlab("Time (Days)") +
   xyaxis_plot_theme
 
 
-jpeg("figures/final_figures/exp_survplot.jpg",
+
+inset <- ggplot() +
+  geom_histogram(data = sero_rev_comb,
+                 aes(x = time_to_event, y = ..density.., fill = factor(status)),
+                 position = "identity",
+                 alpha = 0.6) +
+  scale_fill_manual(values = c("#95D840FF", "#DCE319FF")) +
+  ylab("Density") +
+  xlab("Seroreversion Times (Days)") +
+  xyaxis_plot_theme +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none",
+        plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+
+
+# bring together
+(survplot_together <- cowplot::ggdraw() +
+    cowplot::draw_plot(SurvPlotObj, x = 0, y = 0, width = 1, height = 1, scale = 1) +
+    cowplot::draw_plot(inset, x = 0.5, y= 0.5, width = 0.45, height = 0.45))
+
+jpeg("figures/final_figures/weibull_survplot.jpg",
      width = 11, height = 8, units = "in", res = 500)
-plot(SurvPlotObj)
+plot(survplot_together)
 graphics.off()
 
-# save out
-saveRDS(SurvPlotObj, "figures/final_figures/exp_survplot.RDS")
