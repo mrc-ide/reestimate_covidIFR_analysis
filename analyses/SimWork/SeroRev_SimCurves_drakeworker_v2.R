@@ -18,6 +18,7 @@ infxn_shapes <- readr::read_csv("data/simdat/infxn_curve_shapes.csv")
 
 # read in fitted rate of seroreversion parameter
 weibullparams <- readRDS("results/prior_inputs/weibull_params.RDS")
+weibullparams$wscale <- weibullparams$wscale - 13.3 # account for delay in onset of symptoms to seroconversion
 
 #............................................................
 # setup fatality data
@@ -115,11 +116,11 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(125, 175))
 # sens/spec
 get_sens_spec_tbl <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",        "sero_rev_shape",     "sero_rev_scale"),
-                 min =   c(0.5,              0.5,           2,                    138),
-                 init =  c(0.8,              0.8,           3.5,                  143),
-                 max =   c(1,                1,             5,                    148),
+                 min =   c(0.5,              0.5,           2,                    127),
+                 init =  c(0.8,              0.8,           3.5,                  130.4),
+                 max =   c(1,                1,             5,                    133),
                  dsc1 =  c(sens*1e3,        spec*1e3,       weibullparams$wshape, weibullparams$wscale),
-                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 0.1,                  0.1))
+                 dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 0.5,                  0.1))
 
 }
 map$sens_spec_tbl <- purrr::map2(map$sens, map$spec, get_sens_spec_tbl)
@@ -221,10 +222,10 @@ run_MCMC <- function(path) {
                                       reparamKnots = TRUE,
                                       chains = n_chains,
                                       burnin = 1e4,
-                                      samples = 1e4,
+                                      samples = 2e4,
                                       rungs = 50,
                                       GTI_pow = 3,
-                                      thinning = 20,
+                                      thinning = 10,
                                       cluster = cl)
   parallel::stopCluster(cl)
   gc()

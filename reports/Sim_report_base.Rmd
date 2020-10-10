@@ -60,15 +60,22 @@ quick_sim_sero_diagnostics <- function(modout, spec, sens) {
                                                       legend.title = element_blank()))
   
   if (modout$inputs$account_seroreversion) {
-    revratechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_rate", display = FALSE)
-    revratechain <- revratechain[[1]][["trace"]] +
-      labs(caption = paste0("Prior was Norm+(",  paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sero_rev_rate", c("dsc1", "dsc2")], collapse = ","),
+    # weibull shape
+    rev_shapechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_shape", display = FALSE)
+    rev_shapechain <- rev_shapechain[[1]][["trace"]] +
+      labs(caption = paste0("Prior was Norm+(",  paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sero_rev_shape", c("dsc1", "dsc2")], collapse = ","),
+                            ")")) +
+      theme(legend.position = "none")
+    # weibull scale
+    rev_scalechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_scale", display = FALSE)
+    rev_scalechain <- rev_scalechain[[1]][["trace"]] +
+      labs(caption = paste0("Prior was Norm+(",  paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sero_rev_scale", c("dsc1", "dsc2")], collapse = ","),
                             ")")) +
       theme(legend.position = "none")
     
     
     topp <- cowplot::plot_grid(spechain, senschain, modchain, sodchain, maxmachain, seroratechain,
-                               revratechain,
+                               rev_shapechain, rev_scalechain,
                                ncol = 2, nrow = 4)
   } else {
     # out
@@ -241,7 +248,7 @@ serocurvedat <- seropnts %>%
   dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RGCorr", "Crude"),
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
   dplyr::select(-c("seroprev_strata_lvl")) %>% 
- tidyr::pivot_wider(., names_from = "seroprevlvl", values_from = "seroprev")
+  tidyr::pivot_wider(., names_from = "seroprevlvl", values_from = "seroprev")
 
 # plot
 labcaption <- paste(strwrap("Grey boxes indicate model inputs (serosuvery dates and seroprevalences). N.B. If seroreversion is considered, the true prevalence (green) will also be greater than the observed/inferred prevalences.", width = 180), collapse = "\n") 

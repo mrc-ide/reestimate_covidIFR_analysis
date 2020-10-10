@@ -23,8 +23,8 @@ interveneflat <- c(interveneflat, round(seq(from = interveneflat[200],
 
 
 # read in fitted rate of seroreversion parameter
-serorev_rate_param <- readRDS("results/prior_inputs/serorev_param.RDS")
-
+weibullparams <- readRDS("results/prior_inputs/weibull_params.RDS")
+weibullparams$wscale <- weibullparams$wscale - 13.3 # account for delay in onset of symptoms to seroconversion
 
 #............................................................
 # setup fatality data
@@ -59,7 +59,8 @@ serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = TRUE,
-  sero_rev_rate = serorev_rate_param,
+  sero_rev_shape = weibullparams$wshape,
+  sero_rev_scale = weibullparams$wscale,
   smplfrac = 1e-3,
   sens = 0.85,
   spec = 0.95,
@@ -172,12 +173,12 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                dsc1 = c(19.8,   2550,  18.3),
                                dsc2 = c(0.1,    450,   0.1))
 
-serorev <- tibble::tibble(name = "sero_rev_rate",
-                          min  = 135,
-                          init = 139,
-                          max =  145,
-                          dsc1 = serorev_rate_param,
-                          dsc2 = 0.1)
+serorev <- tibble::tibble(name = "sero_rev_shape",     "sero_rev_scale",
+                          min  = 2,                     127,
+                          init = 3.5,                   130.4,
+                          max =  5,                     133,
+                          dsc1 = weibullparams$wshape,  weibullparams$wscale,
+                          dsc2 = 0.5,                   0.1)
 
 # combine
 tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
@@ -226,7 +227,7 @@ mod1_serorev$set_relKnot("x4")
 mod1_serorev$set_Infxnparams(paste0("y", 1:5))
 mod1_serorev$set_relInfxn("y3")
 mod1_serorev$set_Noiseparams(c(paste0("Ne", 1:3)))
-mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_rate"))
+mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
 mod1_serorev$set_data(serorev_inputdata)
 mod1_serorev$set_demog(demog)
 mod1_serorev$set_paramdf(df_params_serorev)
@@ -246,7 +247,7 @@ fit_map <- tibble::tibble(
   GTI_pow = list(bvec),
   burnin = 1e4,
   samples = 2e4,
-  thinning = 20)
+  thinning = 10)
 
 
 #......................
@@ -290,7 +291,7 @@ run_MCMC <- function(path) {
                                       rungs = mod$rungs,
                                       GTI_pow = mod$GTI_pow[[1]],
                                       cluster = cl,
-                                      thinning = 10)
+                                      thinning = mod$thinning)
   parallel::stopCluster(cl)
   gc()
 

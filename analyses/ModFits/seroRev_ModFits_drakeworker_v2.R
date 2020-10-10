@@ -28,13 +28,17 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
 # seroreversion weibull scale/shape for various assay
 #......................
 # read in fitted rate of seroreversion parameter
-serorev_rate_param <- readRDS("results/prior_inputs/serorev_param.RDS")
-abbott <- tibble::tibble(name = "sero_rev_rate",
-                         min  = 135,
-                         init = 139,
-                         max =  145,
-                         dsc1 = serorev_rate_param,
-                         dsc2 = 0.1)
+weibullparams <- readRDS("results/prior_inputs/weibull_params.RDS")
+weibullparams$wscale <- weibullparams$wscale - 13.3 # account for delay in onset of symptoms to seroconversion
+
+
+abbott <- tibble::tibble(name = "sero_rev_shape",     "sero_rev_scale",
+                          min  = 2,                     127,
+                          init = 3.5,                   130.4,
+                          max =  5,                     133,
+                          dsc1 = weibullparams$wshape,  weibullparams$wscale,
+                          dsc2 = 0.5,                   0.1)
+
 
 #............................................................
 #---- BRA1 #----
@@ -457,7 +461,7 @@ fit_map <- tibble::tibble(
   GTI_pow = list(bvec),
   burnin = 1e4,
   samples = 2e4,
-  thinning = 20)
+  thinning = 10)
 
 #......................
 # fitmap out
@@ -503,7 +507,7 @@ run_MCMC <- function(path) {
                                         rungs = mod$rungs,
                                         GTI_pow = mod$GTI_pow[[1]],
                                         cluster = cl,
-                                        thinning = 10)
+                                        thinning = mod$thinning)
 
   } else {
     # normal binomial case
@@ -518,7 +522,7 @@ run_MCMC <- function(path) {
                                         rungs = mod$rungs,
                                         GTI_pow = mod$GTI_pow[[1]],
                                         cluster = cl,
-                                        thinning = 10)
+                                        thinning = mod$thinning)
   }
   parallel::stopCluster(cl)
   gc()

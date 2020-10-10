@@ -221,7 +221,7 @@ fit_map <- tibble::tibble(
   GTI_pow = list(bvec),
   burnin = 1e4,
   samples = 2e4,
-  thinning = 20)
+  thinning = 10)
 
 #......................
 # fitmap out
@@ -267,7 +267,7 @@ run_MCMC <- function(path) {
                                         rungs = mod$rungs,
                                         GTI_pow = mod$GTI_pow[[1]],
                                         cluster = cl,
-                                        thinning = 10)
+                                        thinning = mod$thinning)
 
   } else {
     # normal binomial case
@@ -282,7 +282,7 @@ run_MCMC <- function(path) {
                                         rungs = mod$rungs,
                                         GTI_pow = mod$GTI_pow[[1]],
                                         cluster = cl,
-                                        thinning = 10)
+                                        thinning = mod$thinning)
   }
   parallel::stopCluster(cl)
   gc()
