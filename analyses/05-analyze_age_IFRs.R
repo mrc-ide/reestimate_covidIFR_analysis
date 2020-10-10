@@ -331,7 +331,8 @@ wpp <- readxl::read_excel("data/raw/wpp_un_agepopulations.xlsx") %>%
 colnames(wpp)[1] <- "georegion"
 
 wpp <- wpp %>%
-  dplyr::filter(georegion %in% c("Madagascar", "Nicaragua", "Grenada", "Malta")) %>%
+  dplyr::filter(georegion %in% c("Madagascar", "Nicaragua", "Grenada", "Malta",
+                                 "Spain", "Netherlands")) %>%
   tidyr::pivot_longer(., cols = -c("georegion"), names_to = "ageband", values_to = "popN") %>%
   dplyr::mutate(popN = as.numeric(popN)*1e3) # wpp adjustment
 
