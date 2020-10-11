@@ -32,12 +32,12 @@ weibullparams <- readRDS("results/prior_inputs/weibull_params.RDS")
 weibullparams$wscale <- weibullparams$wscale - 13.3 # account for delay in onset of symptoms to seroconversion
 
 
-abbott <- tibble::tibble(name = "sero_rev_shape",     "sero_rev_scale",
-                          min  = 2,                     127,
-                          init = 3.5,                   130.4,
-                          max =  5,                     133,
-                          dsc1 = weibullparams$wshape,  weibullparams$wscale,
-                          dsc2 = 0.5,                   0.1)
+abbott <- tibble::tibble(name = c("sero_rev_shape",     "sero_rev_scale"),
+                          min  = c(2,                     127),
+                          init = c(3.5,                   130.4),
+                          max =  c(5,                     133),
+                          dsc1 = c(weibullparams$wshape,  weibullparams$wscale),
+                          dsc2 = c(0.5,                   0.1))
 
 
 #............................................................
