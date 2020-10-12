@@ -2,6 +2,23 @@ source("R/assertions_v5.R")
 library(tidyverse)
 library(stringr)
 
+
+#' @title get mid age from agebands (factorized from cut)
+get_mid_age <- function(ageband) {
+  # character from factor
+  ageband <- as.character(ageband)
+  # extract and get mean
+  age_mid <- purrr::map_dbl(ageband, function(x){
+    lwr <- as.numeric(stringr::str_extract(ageband, "[0-9]+(?=\\,)")) + 1 # treat (1, as 1-based, so this is a two year old (since they are >1)
+    upr <- as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))
+    # fix upper
+    upr[upr == 999] <- 100
+    midages <- purrr::map2_dbl(lwr, upr, function(x, y) mean(c(x,y)))
+    return(midages)})
+  # out
+  return(age_mid)
+}
+
 #' @title Log Transform IFR params
 #' @details goal here is to be memory light
 #' @importFrom magrittr %>%
