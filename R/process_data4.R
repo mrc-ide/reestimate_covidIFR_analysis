@@ -176,11 +176,8 @@ process_seroprev_data <- function(seroprev, origin, study_ids, sero_agebreaks, g
     seroprev <- seroprev %>%
       dplyr::mutate(
         ageband = cut(age_high,
-                      breaks = agebrks_sero,
-                      labels = c(paste0(agebrks_sero[1:(length(agebrks_sero)-1)], "-", lead(agebrks_sero)[1:(length(agebrks_sero)-1)])),
-                      ageband = as.character(ageband))
-
-      ) %>%
+                      breaks = agebrks_sero),
+        ageband = as.character(ageband)) %>%
       dplyr::arrange(age_low)
   }
 
@@ -227,7 +224,7 @@ process_seroprev_data <- function(seroprev, origin, study_ids, sero_agebreaks, g
   # make sure age order perserved which can be overwritten in the group_by_at, so for safety
   if (groupingvar == "ageband") {
     seroprevMCMC <- seroprevMCMC %>%
-      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
+      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
       dplyr::arrange(age_low) %>%
       dplyr::select(-c("age_low"))
   }
@@ -274,8 +271,7 @@ process_population_data <- function(population, cum_tp_deaths, death_agebreaks, 
   population <- population %>%
     dplyr::mutate(
       ageband = cut(age_high,
-                    breaks = agebrks,
-                    labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
+                    breaks = agebrks),
       ageband = as.character(ageband))
 
   # do any neccesary age filtering
@@ -346,7 +342,7 @@ process_population_data <- function(population, cum_tp_deaths, death_agebreaks, 
   # make sure  order perserved which can be overwritten in the group_by_at, so for safety
   if (groupingvar == "ageband") {
     pop_prop.summ <- pop_prop.summ %>%
-      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
+      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
       dplyr::arrange(age_low) %>%
       dplyr::select(-c("age_low"))
   }
@@ -412,10 +408,8 @@ process_death_data <- function(cum_tp_deaths, time_series_totdeaths_df, time_ser
   cum_tp_deaths <- cum_tp_deaths %>%
     dplyr::mutate(
       ageband = cut(age_high,
-                    breaks = agebrks,
-                    labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
-      ageband = as.character(ageband)
-    )
+                    breaks = agebrks),
+      ageband = as.character(ageband))
 
   # do any neccesary age filtering
   if (groupingvar == "ageband") {
@@ -469,7 +463,7 @@ process_death_data <- function(cum_tp_deaths, time_series_totdeaths_df, time_ser
   # make sure age order perserved which can be overwritten in the group_by_at, so for safety
   if (groupingvar == "ageband") {
     cum_tp_deaths.prop <- cum_tp_deaths.prop %>%
-      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
+      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
       dplyr::arrange(age_low) %>%
       dplyr::select(-c("age_low"))
   }

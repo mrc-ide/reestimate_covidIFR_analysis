@@ -42,7 +42,8 @@ deathsdf <- readr::read_tsv("data/raw/cumulative_deaths.tsv") %>%
 # demography (non-US Census data and BRA on its own)
 populationdf <- readr::read_tsv("data/raw/non_usa_non_bra_population.tsv") %>%
   dplyr::select(-c("reference")) %>%
-  dplyr::mutate(age_high = ifelse(age_low == age_high, age_high + 1, age_high))  # liftover for our cuts when age is reported for every year
+  dplyr::mutate(
+    age_high = ifelse(age_high == 0 & age_low == 0, 0.99, age_high)) # for cut
 
 #..................................................................................
 #---- Preprocess Latin America Data  #-----
@@ -56,8 +57,7 @@ populationdf <- readr::read_tsv("data/raw/non_usa_non_bra_population.tsv") %>%
 bra_cumdeaths <- readRDS("data/raw/Brazil_state_age_sex_deaths.rds") %>%
   magrittr::set_colnames(tolower(colnames(.))) %>%
   dplyr::rename(gender = sex) %>%
-  dplyr::mutate(age = ifelse(age >= 100, 100, age), # liftover some very old ages -- capping at 100
-                age = factor(age, levels = c(0:100), labels = c(0:100))) %>% # ugly code to fill in dates
+  dplyr::mutate(age = ifelse(age >= 100, 100, age)) %>%
   dplyr::group_by(region, age, gender, .drop = FALSE) %>%
   dplyr::summarise( deaths = sum(count) ) %>%
   dplyr::ungroup(.) %>%
@@ -66,19 +66,21 @@ bra_cumdeaths <- readRDS("data/raw/Brazil_state_age_sex_deaths.rds") %>%
     country = "BRA",
     study_id = "BRA1",
     age_low = age,
-    age_high = age + 1, # make 1-based for cuts
+    age_high = age,
     age_breakdown = 1,
     gender_breakdown = 1,
     for_regional_analysis = 1) %>%
   dplyr::ungroup(.) %>%
   dplyr::rename(n_deaths = deaths) %>%
-  dplyr::arrange(region)
+  dplyr::arrange(region) %>%
+  dplyr::mutate(
+    age_high = ifelse(age_high == 0 & age_low == 0, 0.99, age_high))
 
 
 bra_populationdf <- readr::read_csv("data/raw/Brazil_2020_Population_Data.csv") %>%
   magrittr::set_colnames(tolower(colnames(.))) %>%
   dplyr::mutate(
-    age_group = stringr::str_replace(age_group, "\\+", "-1000"),
+    age_group = stringr::str_replace(age_group, "\\+", "-999"),
     age_low = as.numeric(stringr::str_split_fixed(age_group, "-[0-9]+", n = 2)[,1]),
     age_high = as.numeric(stringr::str_split_fixed(age_group, "[0-9]-", n = 2)[,2])
   ) %>%
@@ -92,6 +94,11 @@ bra_populationdf <- readr::read_csv("data/raw/Brazil_2020_Population_Data.csv") 
     for_regional_analysis = 1,
     gender_breakdown = 1) %>%
   dplyr::ungroup(.)
+
+# bra populations reported 0-5, 5-10 --> change to be 0-4, 5-9 (correct format)
+bra_populationdf <- bra_populationdf %>%
+  dplyr::mutate(age_high = ifelse(age_high == 999, age_high, age_high - 1),
+                age_high = ifelse(age_high == 0 & age_low == 0, 0.99, age_high)) # for cut
 
 #......................
 # regions
@@ -121,8 +128,8 @@ BRA.agebands.dat <- process_data4(cum_tp_deaths = bra_cumdeaths,
                                   groupingvar = "ageband",
                                   study_ids = "BRA1",
                                   origin = lubridate::ymd("2020-01-01"),
-                                  agebreaks = c(0, 10, 20, 30, 40,
-                                                50, 60, 70, 80, 90, 999))
+                                  agebreaks = c(0, 9, 19, 29, 39,
+                                                49, 59, 69, 79, 89, 999))
 
 
 #............................................................
@@ -189,26 +196,26 @@ CHE1.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                    get_descriptive_dat = TRUE,
                                    study_ids = "CHE1",
                                    groupingvar = "ageband",
-                                   agebreaks = c(0, 10, 20, 30,
-                                                 40, 50, 60, 70,
-                                                 80, 999)) # for pop splits
+                                   agebreaks = c(0, 9, 19, 29,
+                                                 39, 49, 59, 69,
+                                                 79, 999)) # for pop splits
 
 #......................
 # MANUAL ADJUSTMENTS
 #......................
 # Assume:
-# (1) seroprevalence 5-9 is representative of ages 0-10
-# (2) seroprevalence 10-19 is representative of ages 10-20
-# (3) seroprevalence 20-49 is representative of ages 20-30 and 30-40 and 40-50
-# (4) seroprevalence 50-64 is representative of ages 50-60 and 60-70
-# (5) seroprevalence 65+ is representative of ages 70-80 and 80+
+# (1) seroprevalence 5-9 is representative of ages 0-9
+# (2) seroprevalence 10-19 is representative of ages 10-19
+# (3) seroprevalence 20-49 is representative of ages 20-29 and 30-39 and 40-49
+# (4) seroprevalence 50-64 is representative of ages 50-59 and 60-69
+# (5) seroprevalence 65+ is representative of ages 70-79 and 80+
 ageband <- unique(CHE1.agebands.dat$deaths_propMCMC$ageband)
 che_adj_seroprev <- tibble::tibble(
   ObsDaymin = unique(CHE1.agebands.dat$seroprevMCMC$ObsDaymin),
   ObsDaymax = unique(CHE1.agebands.dat$seroprevMCMC$ObsDaymax))
 che_adj_seroprev <- tidyr::expand_grid(che_adj_seroprev, ageband) %>%
-  dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-[0-9]+", n=2)[,1]),
-                age_high= as.numeric(stringr::str_split_fixed(ageband, "[0-9]+-", n=2)[,2])) %>%
+  dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+(?=\\,)")),
+                age_high= as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
   dplyr::arrange(age_low)
 
 # pull out original
@@ -220,41 +227,41 @@ che_org_seroprev <- CHE1.agebands.dat$seroprev_group %>%
 che_org_seroprev_assum1 <- che_org_seroprev %>%
   dplyr::filter(age_low == 5 & age_high == 9) %>%
   dplyr::mutate(age_low = 0,
-                age_high = 10)
+                age_high = 9)
 # assumption 2
 che_org_seroprev_assum2 <- che_org_seroprev %>%
   dplyr::filter(age_low == 10 & age_high == 19) %>%
   dplyr::mutate(age_low = 10,
-                age_high = 20)
+                age_high = 19)
 # assumption 3
 che_org_seroprev_assum3.1 <- che_org_seroprev %>%
   dplyr::filter(age_low == 20 & age_high == 49) %>%
   dplyr::mutate(age_low = 20,
-                age_high = 30)
+                age_high = 29)
 che_org_seroprev_assum3.2 <- che_org_seroprev %>%
   dplyr::filter(age_low == 20 & age_high == 49) %>%
   dplyr::mutate(age_low = 30,
-                age_high = 40)
+                age_high = 39)
 che_org_seroprev_assum3.3 <- che_org_seroprev %>%
   dplyr::filter(age_low == 20 & age_high == 49) %>%
   dplyr::mutate(age_low = 40,
-                age_high = 50)
+                age_high = 49)
 che_org_seroprev_assum3 <- dplyr::bind_rows(che_org_seroprev_assum3.1, che_org_seroprev_assum3.2, che_org_seroprev_assum3.3)
 # assumption 4
 che_org_seroprev_assum4.1 <- che_org_seroprev %>%
   dplyr::filter(age_low == 50 & age_high == 64) %>%
   dplyr::mutate(age_low = 50,
-                age_high = 60)
+                age_high = 59)
 che_org_seroprev_assum4.2 <- che_org_seroprev %>%
   dplyr::filter(age_low == 50 & age_high == 64) %>%
   dplyr::mutate(age_low = 60,
-                age_high = 70)
+                age_high = 69)
 che_org_seroprev_assum4 <- dplyr::bind_rows(che_org_seroprev_assum4.1, che_org_seroprev_assum4.2)
 # assumption 5
 che_org_seroprev_assum5.1 <- che_org_seroprev %>%
   dplyr::filter(age_low == 65 & age_high == 999) %>%
   dplyr::mutate(age_low = 70,
-                age_high = 80)
+                age_high = 79)
 che_org_seroprev_assum5.2 <- che_org_seroprev %>%
   dplyr::filter(age_low == 65 & age_high == 999) %>%
   dplyr::mutate(age_low = 80,
@@ -313,9 +320,9 @@ CHE2.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                    get_descriptive_dat = TRUE,
                                    groupingvar = "ageband",
                                    study_ids = "CHE2",
-                                   agebreaks = c(0, 10, 20, 30,
-                                                 40, 50, 60, 70,
-                                                 80, 999)) # for pop splits
+                                   agebreaks = c(0, 9, 19, 29,
+                                                 39, 49, 59, 69,
+                                                 79, 999)) # for pop splits
 
 #......................
 # MANUAL ADJUSTMENTS
@@ -330,8 +337,8 @@ che2_adj_seroprev <- tibble::tibble(
   n_tested = unique(CHE2.agebands.dat$seroprevMCMC$n_tested),
   SeroPrev = unique(CHE2.agebands.dat$seroprevMCMC$SeroPrev))
 che2_adj_seroprev <- tidyr::expand_grid(che2_adj_seroprev, ageband) %>%
-  dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-[0-9]+", n=2)[,1]),
-                age_high= as.numeric(stringr::str_split_fixed(ageband, "[0-9]+-", n=2)[,2]))
+  dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+(?=\\,)")),
+                age_high= as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])")))
 
 che2_adj_seroprev <- che2_adj_seroprev %>%
   dplyr::arrange(ObsDaymin, ObsDaymax, ageband) %>%
@@ -350,9 +357,9 @@ saveRDS(CHE2.agebands.dat, "data/derived/CHE2/CHE2_agebands.RDS")
 #............................................................
 #---- DNK1 #----
 #...........................................................
-# #......................
-# # regions
-# #......................
+#......................
+# regions
+#......................
 dnk_rgn_sero <- sero_prevdf %>%
   dplyr::filter(study_id == "DNK1") %>%
   dplyr::mutate(for_regional_analysis = ifelse(region == "all", 0, 1))
@@ -444,10 +451,6 @@ saveRDS(DNK.agebands_age_sero.dat, "data/derived/DNK1/DNK1_agebands_age_sero.dat
 #............................................................
 #--- ESP1-2 #----
 #...........................................................
-sero_prevdfESP <- sero_prevdf %>%
-  dplyr::mutate(age_high = ifelse(study_id == "ESP1-2" & age_low == 0 & age_high == 0, 0.99, # to make the cut easier
-                                  age_high))
-
 #......................
 # regions
 #......................
@@ -456,12 +459,12 @@ ESP.regions.dat <- process_data4(cum_tp_deaths = deathsdf,
                                  time_series_totdeaths_geocode = "ESP",
                                  population = populationdf,
                                  sero_val = sero_valdf,
-                                 seroprev = sero_prevdfESP,
+                                 seroprev = sero_prevdf,
                                  get_descriptive_dat = TRUE,
                                  groupingvar = "region",
                                  study_ids = "ESP1-2",
-                                 agebreaks = c(0, 10, 20, 30, 40,
-                                               50, 60, 70, 80, 90, 999))
+                                 agebreaks = c(0, 9, 19, 29, 39,
+                                               49, 59, 69, 79, 89, 999))
 
 #......................
 # agebands
@@ -471,12 +474,13 @@ ESP.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                   time_series_totdeaths_geocode = "ESP",
                                   population = populationdf,
                                   sero_val = sero_valdf,
-                                  seroprev = sero_prevdfESP,
+                                  seroprev = sero_prevdf,
                                   get_descriptive_dat = TRUE,
                                   groupingvar = "ageband",
                                   study_ids = "ESP1-2",
-                                  agebreaks = c(0, 10, 20, 30, 40,
-                                                50, 60, 70, 80, 90, 999))
+                                  agebreaks = c(0, 9, 19, 29, 39,
+                                                49, 59, 69, 79, 89, 999))
+
 #......................
 # MANUAL ADJUSTMENTS
 #......................
@@ -846,9 +850,9 @@ saveRDS(CHN.agebands.dat, "data/derived/CHN1/CHN1_agebands.RDS")
 #---- Preprocess USA Data  #-----
 #..................................................................................
 populationdf <- readr::read_csv("data/raw/USA_County_Demographic_Data.csv") %>%
-  tidyr::gather(., key = "strata", value = "population", 3:ncol(.)) %>%
-  dplyr::filter(stringr::str_detect(strata, "Both_", negate = TRUE)) %>%
-  dplyr::filter(stringr::str_detect(strata, "_Total", negate = TRUE)) %>%
+  dplyr::select(-c("Male_Total", "Female_Total")) %>%
+  dplyr::select(-c(dplyr::starts_with("Both"))) %>%
+  tidyr::pivot_longer(., cols = -c("State", "County"), names_to = "strata", values_to = "population") %>%
   dplyr::mutate(
     country = "USA",
     Countysp = gsub(" County", "", County),
@@ -867,6 +871,11 @@ populationdf <- readr::read_csv("data/raw/USA_County_Demographic_Data.csv") %>%
   ) %>%
   dplyr::select(c("country", "age_low", "age_high", "region", "gender", "population", "age_breakdown", "for_regional_analysis")) %>%
   dplyr::left_join(., readr::read_csv("data/raw/usa_study_id_county_key.csv"), by = "region")
+
+# fix USA coding 0-5, 5-9, 10-14 ... to match int format
+populationdf <- populationdf %>%
+  dplyr::mutate(age_high = ifelse(age_high == 5 & age_low == 0, 4, age_high))
+
 
 # JHU data for new recast df
 JHUdf <- readr::read_csv("data/raw/time_series_covid19_deaths_US.csv") %>%
