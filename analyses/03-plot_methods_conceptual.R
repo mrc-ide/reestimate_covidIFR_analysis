@@ -18,7 +18,8 @@ interveneflat <- c(interveneflat, round(seq(from = interveneflat[200],
                                             to = 10, length.out = 100)))
 
 # read in fitted rate of seroreversion parameter
-serorev_rate_param <- readRDS("results/prior_inputs/serorev_param.RDS")
+weibullparams <- readRDS("results/prior_inputs/weibull_params.RDS")
+weibullparams$wscale <- weibullparams$wscale - 13.3 # account for delay in onset of symptoms to seroconversion
 
 # make up fatality data
 fatalitydata <- tibble::tibble(Strata = c("ma1"),
@@ -52,7 +53,8 @@ serorevdat <- COVIDCurve::Agesim_infxn_2_death(
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = TRUE,
-  sero_rev_rate = serorev_rate_param,
+  sero_rev_shape = weibullparams$wshape,
+  sero_rev_scale = weibullparams$wscale,
   smplfrac = 1,
   sens = 0.85,
   spec = 0.95,
@@ -63,7 +65,7 @@ serorevdat <- COVIDCurve::Agesim_infxn_2_death(
 #----- Conceptual Diagram #-----
 #...........................................................
 # read-in in Panel A
-panelA <- readRDS("figures/final_figures/exp_survplot.RDS")  +
+panelA <- readRDS("figures/final_figures/weibull_survplot.RDS")  +
   theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
 
 #............................................................
@@ -119,14 +121,14 @@ arrows <- tibble::tibble(
   x =    c(87,    139,       250,    10,     290),
   xend = c(136,    160,        250,    10,        290),
   y =    c(0.02,    0.4,       0.715,   0,     0.725),
-  yend = c(0.02,    0.4,       0.615,  0.05,   0.285)
+  yend = c(0.02,    0.4,       0.615,  0.05,   0.265)
 )
 
 
 labels <- tibble::tibble(
   lvl =    c("mod",       "serocon",    "sens",    "spec",  "serorev"),
   label =  c("O-D Delay", "O-S Delay",  "Sens.",   "Spec.",  "O-R Delay"),
-  x =      c(172,          102,          225,       12,       252),
+  x =      c(172,          102,          225,       12,       262),
   y =      c(0.02,          0.4,         0.65,    0.09,      0.50),
 )
 

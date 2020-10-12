@@ -210,31 +210,39 @@ sero_rev_comb <- sero_rev_comb %>%
 #......................
 # NO interval censoring
 #......................
-survobj_km <- survival::Surv(time = sero_rev_comb$time_obs_fail,
+survobj_rcens <- survival::Surv(time = sero_rev_comb$time_obs_fail,
                           event = sero_rev_comb$status)
 
-#make kaplan meier object
-KM1_mod <- survival::survfit(survobj_km ~ 1, data = sero_rev_comb)
+# kaplan meier fit
+KM1_mod <- survival::survfit(survobj_rcens ~ 1, data = sero_rev_comb)
+summary(KM1_mod)
 
 # fit weibull
-WBmod <- survival::survreg(survobj_km ~ 1,
+WBmod1 <- survival::survreg(survobj_rcens ~ 1,
                            dist="weibull",
                            data = sero_rev_comb)
-summary(WBmod)
+summary(WBmod1)
 
 
 #......................
 # WITH interval censoring
 #......................
-survobj <- survival::Surv(time = sero_rev_comb$time_to_event,
+survobj_intcens <- survival::Surv(time = sero_rev_comb$time_to_event,
                           time2 =sero_rev_comb$time_to_event2,
                           type = "interval2" )
 
+# fit KM
+KM2_mod <- survival::survfit(survobj_intcens ~ 1,
+                             data = sero_rev_comb)
+summary(KM2_mod)
+
+
+
 # fit weibull
-WBmod <- survival::survreg(survobj ~ 1,
+WBmod2 <- survival::survreg(survobj_intcens ~ 1,
                            dist="weibull",
                            data = sero_rev_comb)
-summary(WBmod)
+summary(WBmod2)
 
 
 #............................................................
@@ -242,8 +250,8 @@ summary(WBmod)
 #...........................................................
 # survreg's scale = 1/(rweibull shape)
 # survreg's intercept = log(rweibull scale)
-weibull_params <- list(wshape = 1/exp(WBmod$icoef[2]),
-                       wscale = exp(WBmod$icoef[1]))
+weibull_params <- list(wshape = 1/exp(WBmod2$icoef[2]),
+                       wscale = exp(WBmod2$icoef[1]))
 
 # save out parameters
 dir.create(path = "results/prior_inputs/", recursive = TRUE)
@@ -255,24 +263,26 @@ saveRDS(weibull_params, "results/prior_inputs/weibull_params.RDS")
 #......................
 #  Kaplan Meier plot
 #......................
-KMplot <- survminer::ggsurvplot(fit = KM1_mod)
+KMplot <- survminer::ggsurvplot(fit = KM2_mod)
 
 #......................
 # Weibull plot
 #......................
 # fitted 'survival'
 # https://stackoverflow.com/questions/9151591/how-to-plot-the-survival-curve-generated-by-survreg-package-survival-of-r
-pw <- seq(from = 0.01, to = 0.99,by = 0.01)
+pw <- seq(from = 0.01, to = 0.99, by = 0.01)
 tof_weibull <- tibble::tibble(prob = 1 - pw,
-                              tof = predict(WBmod, type="quantile", p = pw)[1,])
+                              tof = predict(WBmod2, type="quantile", p = pw)[1,])
 
 # KM pieces
 censored <- KMplot$data.survplot %>%
   dplyr::filter(n.censor != 0)
 events <- KMplot$data.survplot %>%
   dplyr::filter(n.event != 0)
+
+
 # polotObj pieces
-SurvPlotObj <- ggplot() +
+WeibullSurvPlotObj <- ggplot() +
   geom_line(data = KMplot$data.survplot, aes(x = time, y = surv),
             color = "#3C3B6E", alpha = 0.9, size = 1.2) +
   geom_ribbon(data = KMplot$data.survplot, aes(x = time, ymin = lower, ymax = upper),
@@ -289,27 +299,12 @@ SurvPlotObj <- ggplot() +
 
 
 
-inset <- ggplot() +
-  geom_histogram(data = sero_rev_comb,
-                 aes(x = time_to_event, y = ..density.., fill = factor(status)),
-                 position = "identity",
-                 alpha = 0.6) +
-  scale_fill_manual(values = c("#95D840FF", "#DCE319FF")) +
-  ylab("Density") +
-  xlab("Seroreversion Times (Days)") +
-  xyaxis_plot_theme +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.position = "none",
-        plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
-
-
-# bring together
-(survplot_together <- cowplot::ggdraw() +
-    cowplot::draw_plot(SurvPlotObj, x = 0, y = 0, width = 1, height = 1, scale = 1) +
-    cowplot::draw_plot(inset, x = 0.5, y= 0.5, width = 0.45, height = 0.45))
-
 jpeg("figures/final_figures/weibull_survplot.jpg",
      width = 11, height = 8, units = "in", res = 500)
-plot(survplot_together)
+plot(WeibullSurvPlotObj)
 graphics.off()
+
+
+# save out
+saveRDS(WeibullSurvPlotObj, "figures/final_figures/weibull_survplot.RDS")
 

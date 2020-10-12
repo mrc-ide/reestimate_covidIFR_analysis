@@ -767,7 +767,7 @@ PanelA <- rgns_crudeIFRs_CI %>%
   dplyr::filter(seroprev != 0) %>%
   ggplot() +
   geom_point(aes(x = seroprev, y = std_cum_deaths, color = location),
-              size = 3, alpha = 0.7) +
+             size = 3, alpha = 0.7) +
   scale_color_manual("Location", values = mycolors) +
   xlab("Observed Seroprevalence (%)") + ylab("Cum. Deaths Per Million") +
   xyaxis_plot_theme +
@@ -807,7 +807,7 @@ mainfig <- cowplot::plot_grid(PanelA_nolegend, PanelB_nolegend,
 
 jpeg("figures/final_figures/Figure_Rgn_crude_IFR.jpg",
      width = 11, height = 8, units = "in", res = 500)
-plot(Rgn_IFR_plotObj)
+plot(mainfig)
 graphics.off()
 
 

@@ -454,7 +454,7 @@ PanelA <- modIFR_age %>%
                       color =  location),
                   alpha = 0.75, shape = 16, size = 0.9) +
   scale_color_manual("Location", values = mycolors) +
-  ylab("IFR (95% CrI)") + xlab("Mid. Age") +
+  ylab("IFR (95% CrI)") + xlab("Age (years)") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
@@ -472,7 +472,7 @@ PanelB <- log_retmapIFR_dat %>%
   geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  location),
                   alpha = 0.75, shape = 16, size = 0.9) +
   scale_color_manual("Location", values = mycolors) +
-  ylab("Log-10 IFR (95% CrI)") + xlab("Mid. Age") +
+  ylab("Log-10 IFR (95% CrI)") + xlab("Age (years)") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
@@ -501,7 +501,7 @@ PanelC <- modIFR_age %>%
                       color =  location),
                   alpha = 0.75, shape = 16, size = 0.9) +
   scale_color_manual("Location", values = mycolors) +
-  ylab("IFR (95% CrI)") + xlab("Mid. Age") +
+  ylab("IFR (95% CrI)") + xlab("Age (years)") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   theme(plot.margin = unit(c(1, 0.05, 0.05, 1),"cm"))
@@ -516,7 +516,7 @@ PanelD <- log_retmapIFR_dat %>%
   geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  location),
                   alpha = 0.75, shape = 16, size = 0.9) +
   scale_color_manual("Location", values = mycolors) +
-  ylab("Log-10 IFR (95% CrI)") + xlab("Mid. Age") +
+  ylab("Log-10 IFR (95% CrI)") + xlab("Age (years)") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   theme(plot.margin = unit(c(1, 0.05, 0.05, 1),"cm"))
