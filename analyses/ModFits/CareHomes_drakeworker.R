@@ -33,14 +33,14 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(156.5,   176.5),
-                                dsc2 =  c(25.5,    0.5))
+                                dsc1 =  c(165.5,   176.5),
+                                dsc2 =  c(16.5,    0.5))
 
 #......................
 # carehomes
 #......................
 rawch <- readRDS("data/derived/carehomes/CHE1_agebands_noCH.RDS")
-CHE1_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
+CHE1_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
                                                    groupvar = "ageband",  dat = rawch,
                                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
                                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.12, dsc1 = 0, dsc2 = 13.12),
@@ -60,7 +60,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 # carehomes
 #......................
 rawch <- readRDS("data/derived/carehomes/CHE2_agebands_noCH.RDS")
-CHE2_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
+CHE2_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
                                                    groupvar = "ageband",  dat = rawch,
                                                    num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
                                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14.24, dsc1 = 0, dsc2 = 14.24),
@@ -125,7 +125,7 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 # agebands
 #......................
 rawch <- readRDS("data/derived/carehomes/ESP1-2_agebands_noCH.RDS")
-ESP_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
+ESP_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
                                                   groupvar = "ageband",  dat = rawch,
                                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
                                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 17.66),
@@ -173,7 +173,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(204.5,   92.5),
+                                dsc1 =  c(204.5,   287.5),
                                 dsc2 =  c(30.5,    0.5))
 #......................
 # get fits from stan model

@@ -52,7 +52,7 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 # agebands
 #......................
 rawage <- readRDS("data/derived/BRA1/BRA1_agebands.RDS")
-BRA1_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
+BRA1_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                              groupvar = "ageband",  dat = rawage,
                                              num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
                                              num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
@@ -205,13 +205,12 @@ GBR3_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
 #............................................................
 #---- ITA1 #----
 #...........................................................
-# note ITA are made up -- moot point since using rgn fits
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(80.5,   99.5),
-                                dsc2 =  c(20.5,    1.5))
+                                dsc1 =  c(41.5,   1011.5),
+                                dsc2 =  c(2.5,    2.5))
 #......................
 # get fits from stan model
 #......................
@@ -235,26 +234,6 @@ ITA_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.91, dsc1 = 0, dsc2 = 17.91),
                                             sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
-
-# #............................................................
-# #---- LUX1 #----
-# #...........................................................
-# sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
-#                                 min =   c(0.50,    0.50),
-#                                 init =  c(0.85,    0.99),
-#                                 max =   c(1.00,    1.00),
-#                                 dsc1 =  c(56.5,    181.5),
-#                                 dsc2 =  c(16.5,     4.5))
-#
-# #......................
-# # agebands
-# #......................
-# rawage <- readRDS("data/derived/LUX1/LUX1_agebands.RDS")
-# LUX_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 7, maxMa = "ma7",
-#                                             groupvar = "ageband",  dat = rawage,
-#                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
-#                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.34, dsc1 = 0, dsc2 = 13.34),
-#                                             sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 #............................................................
 #---- SWE1 #----
@@ -312,53 +291,12 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 # agebands
 #......................
 rawage <- readRDS("data/derived/CHN1/CHN1_agebands.RDS")
-CHN_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
+CHN_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
                                             groupvar = "ageband",  dat = rawage,
                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.20, dsc1 = 0, dsc2 = 16.20),
                                             sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
-
-# #............................................................
-# #---- KEN1 #----
-# #...........................................................
-# sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
-#                                 min =   c(0.50,    0.50),
-#                                 init =  c(0.83,    0.99),
-#                                 max =   c(1.00,    1.00),
-#                                 dsc1 =  c(15.5,    901.5),
-#                                 dsc2 =  c(3.5,     9.5))
-#
-# #......................
-# # agebands
-# #......................
-# rawage <- readRDS("data/derived/KEN1/KEN1_agebands.RDS")
-# KEN1_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 6, maxMa = "ma6",
-#                                              groupvar = "ageband",  dat = rawage,
-#                                              num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
-#                                              num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.11, dsc1 = 0, dsc2 = 17.11),
-#                                              sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
-
-
-# #............................................................
-# #---- Los Angeles County #----
-# #...........................................................
-# sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
-#                                 min =   c(0.50,    0.50),
-#                                 init =  c(0.73,    0.99),
-#                                 max =   c(1.00,    1.00),
-#                                 dsc1 =  c(25.5,    30.5),
-#                                 dsc2 =  c(12.5,    0.5))
-#
-# #......................
-# # agebands
-# #......................
-# rawage <- readRDS("data/derived/USA/LA_CA1_agebands.RDS")
-# LACA_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 3, maxMa = "ma3",
-#                                                groupvar = "ageband",  dat = rawage,
-#                                                num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
-#                                                num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.12, dsc1 = 0, dsc2 = 16.12),
-#                                                sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
