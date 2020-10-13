@@ -234,24 +234,6 @@ ifrdat <- retmapIFR %>%
   dplyr::group_by(sero) %>%
   tidyr::nest(.)
 
-#......................
-# MLE approach
-# define -ve log likelihood function
-#......................
-ll <- function(x, df) {
-  alpha <- x[1]
-  beta <- x[2]
-  gamma <- x[3]
-  delta <- x[4]
-  ret <- 0
-  fit <- alpha + beta*df$age
-  s <- exp(gamma) + delta*(100 - df$age)
-  s <- sqrt(s)
-  for (i in seq_len(nrow(df))) {
-    ret <- ret + dlnorm(df$mu[i], meanlog = fit[i], sdlog = s[i], log = TRUE)
-  }
-  return(-ret)
-}
 
 
 #..........................................
@@ -263,8 +245,8 @@ fit_pred_intervals_log_linear_mod <- function(dat) {
   mod1 <- lm(log(mu) ~ age, data = dat)
 
   # get residual variance in 10-year age groups
-  dat$cut <- cut(dat$age, breaks = seq(0, 100, 10))
-  new_dat <- data.frame(age_range = levels(dat$cut))
+  dat$cut <- cut(dat$age, breaks = c(0, seq(9, 89, 10), 100))
+  new_dat <- data.frame(ageband = levels(dat$cut))
   new_dat$var <- mapply(var, split(mod1$residuals, f = dat$cut))
 
   # get first- and second-order age terms
@@ -307,12 +289,12 @@ summary(ifrdat$mod[[2]])
 
 ifrdat %>%
   tidyr::unnest(cols = "predints") %>%
-  dplyr::select(c("sero", "age_range", "Q025", "Q50", "Q975")) %>%
+  dplyr::select(c("sero", "ageband", "Q025", "Q50", "Q975")) %>%
   dplyr::mutate(Q025 = round(Q025 * 100, 2),
                 Q50 = round(Q50 * 100, 2),
                 Q975 = round(Q975 * 100, 2)) %>%
   dplyr::mutate(bestest = paste0(Q50, " (", Q025, ", ", Q975, ")")) %>%
-  dplyr::select(c("sero", "age_range", "bestest")) %>%
+  dplyr::select(c("sero", "ageband", "bestest")) %>%
   tidyr::pivot_wider(., names_from = "sero", values_from = "bestest") %>%
   readr::write_tsv(., path = "tables/final_tables/overall_best_est_for_age_IFRs.tsv")
 
@@ -324,34 +306,34 @@ ifrdat %>%
 #......................
 # tidy up UN World Population Prospects
 #........................
-wpp <- readxl::read_excel("data/raw/wpp_un_agepopulations.xlsx") %>%
+wpp <- readxl::read_excel("data/raw/wpp_un_agepopulations.xlsx")
+wpp <- wpp[wpp$`Reference date (as of 1 July)` == 2020,]
+wpp <- wpp %>%
   dplyr::select(c("Region, subregion, country or area *", "0-4", "5-9", "10-14", "15-19", "20-24",
                   "25-29", "30-34", "35-39", "40-44", "50-54", "55-59", "60-64", "65-69", "70-74",
                   "75-79", "80-84", "85-89", "90-94", "95-99", "100+"))
 colnames(wpp)[1] <- "georegion"
 
 wpp <- wpp %>%
-  dplyr::filter(georegion %in% c("Madagascar", "Nicaragua", "Grenada", "Malta",
-                                 "Spain", "Netherlands")) %>%
+  dplyr::filter(georegion %in% c("Madagascar", "Nicaragua", "Grenada", "Malta")) %>%
   tidyr::pivot_longer(., cols = -c("georegion"), names_to = "ageband", values_to = "popN") %>%
   dplyr::mutate(popN = as.numeric(popN)*1e3) # wpp adjustment
 
 #......................
 # cuts
 #......................
-agebrks <- c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 999)
 wpp <- wpp %>%
-  dplyr::mutate(ageband = ifelse(ageband == "100+", "999-999", ageband),
-                age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,2]),
-                ageband = cut(age_high, agebrks,
-                              labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
-                ageband = as.character(ageband)) %>%
+  dplyr::mutate(
+    ageband = ifelse(ageband == "100+", "95-99", ageband),
+    age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n=2)[,2]),
+    ageband = cut(age_high,
+                  breaks = c(0, seq(9, 89, by = 10), 100)),
+    ageband = as.character(ageband)) %>%
   dplyr::group_by(georegion, ageband) %>%
   dplyr::summarise(pop_size = sum(popN)) %>%
-  dplyr::mutate(age = purrr::map_dbl(ageband, function(x){
-    nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
-    nums[nums == 999] <- 100
-    return(mean(nums))})) %>%
+  dplyr::mutate(age_high = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
+  dplyr::arrange(age_high) %>%
+  dplyr::select(-c("age_high")) %>%
   dplyr::group_by(georegion) %>%
   tidyr::nest(.) %>%
   dplyr::rename(popN = data)
@@ -361,7 +343,7 @@ wpp <- wpp %>%
 # Monte Carlo Calculations
 #........................
 calc_monte_carlo_overall_IFRs <- function(new_dat, popN, reps = 1e5) {
-  if (!all(c("age", "pop_size") %in% colnames(popN))) {
+  if (!all(c("ageband", "pop_size") %in% colnames(popN))) {
     stop()
   }
   # bring in demog
