@@ -126,11 +126,10 @@ crudeplotdat <- crudedat %>%
   dplyr::filter(seromidpt == obsday) %>%
   dplyr::mutate(infxns = popn * seroprev,
                 crudeIFR =  cumdeaths/infxns,
-                crudeIFR = ifelse(crudeIFR > 1, NA, crudeIFR) # protect against small denom
-  ) %>% 
-  dplyr::select(c("strata", "crudeIFR")) %>% 
-  dplyr::group_by(strata) %>% 
-  dplyr::mutate(serodayfct = factor(1:dplyr::n())) %>% 
+                crudeIFR = ifelse(crudeIFR > 1, NA, crudeIFR)) %>%  # protect against small denom
+  dplyr::select(c("strata", "crudeIFR")) %>%
+  dplyr::group_by(strata) %>%
+  dplyr::mutate(serodayfct = factor(1:dplyr::n())) %>%
   dplyr::ungroup(.)
 
 
@@ -147,14 +146,14 @@ infxncurve <- COVIDCurve::draw_posterior_infxn_cubic_splines(IFRmodel_inf = modo
 plot1 <- ggplot() +
   geom_pointrange(data = ifrs, aes(x = strata, ymin = LCI, ymax = UCI, y = median), 
                   color = "#969696", size = 1.2) +
-  geom_point(data = crudeplotdat, aes(x = strata, y = crudeIFR, shape = serodayfct), 
-             color = "#000000", size = 3, alpha = 0.75, show.legend = F) +
+  # geom_point(data = crudeplotdat, aes(x = strata, y = crudeIFR, shape = serodayfct), 
+  #            color = "#000000", size = 3, alpha = 0.75, show.legend = F) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"),
         legend.position = "right") +
   xlab("") + ylab("Median (95% CIs)") +
   labs(caption = "Grey and black points represent model fits and crude IFR estimates, respectively")
-plot2 <- infxncurve$plotObj
+plot2 <- infxncurve$plotObj 
 # main plot
 main_plotObj <- cowplot::plot_grid(plot1, plot2, ncol = 1, nrow = 2)
 
@@ -182,7 +181,7 @@ ifrs %>%
 # overall
 COVIDCurve::get_overall_IFR_cred_intervals(IFRmodel_inf = modout, 
                                          whichrung = "rung1", 
-                                         whichstandard = "pop",
+                                         whichstandard = "arpop",
                                          by_chain = FALSE) %>% 
   dplyr::mutate_if(is.numeric, round, 4) %>% 
   knitr::kable(., format = "simple")
@@ -190,7 +189,7 @@ COVIDCurve::get_overall_IFR_cred_intervals(IFRmodel_inf = modout,
 # by chain
 COVIDCurve::get_overall_IFR_cred_intervals(IFRmodel_inf = modout, 
                                          whichrung = "rung1", 
-                                          whichstandard = "pop",
+                                          whichstandard = "arpop",
                                          by_chain = TRUE) %>% 
   dplyr::mutate_if(is.numeric, round, 4) %>% 
   knitr::kable(., format = "simple")
@@ -265,10 +264,10 @@ serocurvedatPlotObj <- serocurvedat %>%
             alpha = 0.5) +
     geom_line(aes(x = ObsDay, y = RGCorr,  group = sim, color = "RGCorr"),
             alpha = 0.5) +
-  geom_rect(data = SeroPrevObs, aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf), 
-            color = "#d9d9d9", fill = "#d9d9d9", alpha = 0.8) +
-  geom_point(data = SeroPrevObs, aes(x = obsmidday, y = seroprev, group = strata),
-             color = "#000000", size = 1.2) +
+  # geom_rect(data = SeroPrevObs, aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf), 
+  #           color = "#d9d9d9", fill = "#d9d9d9", alpha = 0.8) +
+  # geom_point(data = SeroPrevObs, aes(x = obsmidday, y = seroprev, group = strata),
+  #            color = "#000000", size = 1.2) +
   facet_wrap(.~strata) +
   scale_color_manual("Seroprev. \n Adjustment", 
                      values = c("Crude" = "#FFD301", "RGCorr" = "#246BCF"),
