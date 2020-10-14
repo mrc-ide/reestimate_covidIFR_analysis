@@ -1,5 +1,24 @@
 source("R/assertions_v5.R")
 
+
+
+#' @title get mid age from agebands (factorized from cut)
+#' @details function is copied over from covidcurve helper just for convenience
+get_mid_age <- function(ageband) {
+  # character from factor
+  ageband <- as.character(ageband)
+  # extract and get mean
+  age_mid <- purrr::map_dbl(ageband, function(x){
+    lwr <- as.numeric(stringr::str_extract(ageband, "[0-9]+(?=\\,)")) + 1 # treat (1, as 1-based, so this is a two year old (since they are >1)
+    upr <- as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))
+    # fix upper
+    upr[upr == 999] <- 100
+    midages <- purrr::map2_dbl(lwr, upr, function(x, y) mean(c(x,y)))
+    return(midages)})
+  # out
+  return(age_mid)
+}
+
 #' @title Rogan-Gladen Estimator for Correct Prevalence Observations
 #' @return Rogan-Gladen Correct Sens/Spec
 rogan_gladen <- function(obs_prev, sens, spec){
@@ -58,11 +77,7 @@ standardize_deathdat <- function(deathdat_long, popdat, groupingvar, Nstandardiz
   # for plot
   if (groupingvar == "ageband") {
     ret <- ret %>%
-      dplyr::mutate(age_mid = purrr::map_dbl(ageband, function(x){
-        nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
-        nums[nums == 999] <- 100
-        return(mean(nums))})
-      )
+      dplyr::mutate(age_mid = purrr::map_dbl(ageband, get_mid_age))
   } else {
     ret$age_mid = NA
   }
@@ -70,7 +85,7 @@ standardize_deathdat <- function(deathdat_long, popdat, groupingvar, Nstandardiz
   # make sure factor order preserved which can be overwritten in the group_by_at, so for safety
   if (groupingvar == "ageband") {
     ret <- ret %>%
-      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
+      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+(?=\\,)"))) %>%
       dplyr::arrange(age_low) %>%
       dplyr::mutate(ageband = forcats::fct_reorder(.f = ageband, .x = age_low)) %>%
       dplyr::select(-c("age_low"))

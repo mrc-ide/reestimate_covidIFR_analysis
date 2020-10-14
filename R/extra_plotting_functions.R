@@ -54,11 +54,15 @@ quick_sero_diagnostics <- function(modout) {
                                                       legend.title = element_blank()))
 
   if (modout$inputs$account_seroreversion) {
-    revratechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_rate", display = FALSE)
-    revratechain <- revratechain[[1]][["trace"]] + theme(legend.position = "none")
+    # weibull shape
+    rev_shapechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_shape", display = FALSE)
+    rev_shapechain <- rev_shapechain[[1]][["trace"]] + theme(legend.position = "none")
+    # weibull scale
+    rev_scalechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_scale", display = FALSE)
+    rev_scalechain <- rev_scalechain[[1]][["trace"]] + theme(legend.position = "none")
 
     topp <- cowplot::plot_grid(spechain, senschain, modchain, sodchain, maxmachain, seroratechain,
-                               revratechain,
+                               rev_shapechain, rev_scalechain,
                                ncol = 2, nrow = 4)
   } else {
     # out

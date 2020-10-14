@@ -225,7 +225,7 @@ process_seroprev_data <- function(seroprev, origin, study_ids, sero_agebreaks, g
   if (groupingvar == "ageband") {
     seroprevMCMC <- seroprevMCMC %>%
       dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
-      dplyr::arrange(age_low) %>%
+      dplyr::arrange(ObsDaymin, ObsDaymax, age_low) %>%
       dplyr::select(-c("age_low"))
   }
 

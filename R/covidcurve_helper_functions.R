@@ -182,7 +182,8 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
   #......................
   # format data
   #......................
-  dictkey <- tibble::tibble(groupvar = as.character(unlist(unique(dat$seroprevMCMC[, groupvar]))), "Strata" = paste0("ma", 1:num_mas))
+  dictkey <- tibble::tibble(groupvar = as.character(unlist(unique(dat$seroprevMCMC[, groupvar]))),
+                            "Strata" = paste0("ma", 1:num_mas))
   colnames(dictkey) <- c(paste(groupvar), "Strata")
 
   # time series deaths
