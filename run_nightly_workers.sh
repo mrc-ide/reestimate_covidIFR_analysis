@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # model fits
-sbatch -n 1 --time=72:00:00 --mem=36g --wrap="Rscript analyses/ModFits/ModFits_drakeworker_v2.R"
-sbatch -n 1 --time=72:00:00 --mem=36g --wrap="Rscript analyses/ModFits/seroRev_ModFits_drakeworker_v2.R"
+sbatch -n 1 --time=72:00:00 --mem=24g --wrap="Rscript analyses/ModFits/ModFits_drakeworker_v2.R"
+sbatch -n 1 --time=72:00:00 --mem=24g --wrap="Rscript analyses/ModFits/seroRev_ModFits_drakeworker_v2.R"
 sbatch -n 1 --time=72:00:00 --mem=18g --wrap="Rscript analyses/ModFits/CareHomes_drakeworker.R"
 
 # simulation fits
