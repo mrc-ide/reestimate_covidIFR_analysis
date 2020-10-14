@@ -15,14 +15,14 @@ source("R/my_themes.R")
 #----- Simulation Results #-----
 #...........................................................
 dat_map <- tibble::tibble(lvl = c("reg", "serorev"),
-                          mod = c("data/param_map/Fig_ConceptualFits/reg_mod_rung50_burn10000_smpl10000.RDS",
-                                  "data/param_map/Fig_ConceptualFits/serorev_mod_rung50_burn10000_smpl10000.RDS")) %>%
+                          mod = c("data/param_map/Fig_ConceptualFits/reg_mod_rung50_burn10000_smpl20000.RDS",
+                                  "data/param_map/Fig_ConceptualFits/serorev_mod_rung50_burn10000_smpl20000.RDS")) %>%
   dplyr::mutate(mod = purrr::map(mod, readRDS)) %>%
   tidyr::unnest(cols = mod)
 
 fits <- tibble::tibble(lvl = c("reg", "serorev"),
-                       fit = c("results/Fig_ConceptualFits/reg_mod_rung50_burn10000_smpl10000.RDS",
-                               "results/Fig_ConceptualFits/serorev_mod_rung50_burn10000_smpl10000.RDS")) %>%
+                       fit = c("results/Fig_ConceptualFits/reg_mod_rung50_burn10000_smpl20000.RDS",
+                               "results/Fig_ConceptualFits/serorev_mod_rung50_burn10000_smpl20000.RDS")) %>%
   dplyr::mutate(fit = purrr::map(fit, readRDS))
 
 # bring together
@@ -81,6 +81,7 @@ get_data_IFR_longit <- function(simdat, modelobj, fit, sens, spec, dwnsmpl = 1e2
   cumdat <-  simdat$StrataAgg_Seroprev %>%
     dplyr::left_join(simdat$StrataAgg_TimeSeries_Death, ., by = c("ObsDay", "Strata")) %>%
     dplyr::left_join(., modelobj$demog, by = "Strata") %>%
+    dplyr::group_by(Strata) %>%
     dplyr::mutate(
       cumdeaths = cumsum(Deaths),
       RGIFR = cumdeaths/(popN * rogan_gladen(obs_prev = ObsPrev, sens = sens, spec = spec)),
@@ -103,7 +104,7 @@ get_data_IFR_longit <- function(simdat, modelobj, fit, sens, spec, dwnsmpl = 1e2
 
   # inferred IFR
   infIFR <- mcmcout.nodes %>%
-    dplyr::select(c("iteration", "ma1"))
+    dplyr::select(c("iteration", "ma3"))
 
   #......................
   # bring together
@@ -128,8 +129,8 @@ param_map$plotdat <- purrr::pmap(param_map[, c("simdat", "modelobj", "fit")],
 fatalitydata_intercept <- 0.1
 
 cumplotdat <- param_map$plotdat[[1]]$cumdat %>%
+  dplyr::filter(ObsDay >= 50 & Strata == "ma3") %>%
   dplyr::select(c("ObsDay", "RGIFR", "CrudeIFR")) %>%
-  dplyr::filter(ObsDay >= 50) %>%
   tidyr::pivot_longer(., cols = c("RGIFR", "CrudeIFR"), names_to = "IFRlvl", values_to = "IFR") %>%
   dplyr::mutate(IFRlvl = factor(IFRlvl, levels = c("RGIFR", "CrudeIFR"), labels = c("Test-Adj.", "Crude")))
 
@@ -162,8 +163,8 @@ no_serorev_infIFR_plotObj <- ggplot() +
 # Plot w. SeroReversion
 #................................
 cumplotdat <- param_map$plotdat[[2]]$cumdat %>%
+  dplyr::filter(ObsDay >= 50 & Strata == "ma3") %>%
   dplyr::select(c("ObsDay", "RGIFR", "CrudeIFR")) %>%
-  dplyr::filter(ObsDay >= 50) %>%
   tidyr::pivot_longer(., cols = c("RGIFR", "CrudeIFR"), names_to = "IFRlvl", values_to = "IFR") %>%
   dplyr::mutate(IFRlvl = factor(IFRlvl, levels = c("RGIFR", "CrudeIFR"), labels = c("Test Adj.", "Crude")))
 
@@ -198,29 +199,36 @@ serorev_infIFR_plotObj <- ggplot() +
 #----- Figure of Crude/RG vs Modelled IFR #-----
 #...........................................................
 popN <- param_map$modelobj[[1]]$demog %>%
+  dplyr::filter(Strata == "ma3") %>%
   dplyr::pull("popN")
+# rho was 1 so were spread according to population size
+pwi <- popN/sum(param_map$modelobj[[1]]$demog$popN)
 
 #......................
 # tidy up and combine
 #......................
 cuminxns <-  tibble::tibble(time = 1:length(param_map$infxns[[1]]),
-                            infxns = param_map$infxns[[1]])%>%
-  dplyr::mutate(cumincidence = (cumsum(infxns) * 1/3 )/popN) %>% # rho infections were split evenly across
+                            infxns = param_map$infxns[[1]]) %>%
+  dplyr::mutate(infxns = infxns * pwi, # rho infections were split evenly across
+                cumincidence = cumsum(infxns)/popN) %>%
   dplyr::select(-c("infxns"))
 
 
 cumdeaths <- param_map$simdat[[1]]$StrataAgg_TimeSeries_Death %>%
+  dplyr::filter(Strata == "ma3") %>%
   dplyr::mutate(cumDeaths = cumsum(Deaths)/popN) %>%
   dplyr::rename(time = ObsDay)
 
 
 serodf_norev <- param_map$simdat[[1]]$StrataAgg_Seroprev %>%
+  dplyr::filter(Strata == "ma3") %>%
   dplyr::select(c("ObsDay", "TruePrev", "ObsPrev")) %>%
   dplyr::rename(time = ObsDay,
                 regTruePrev = TruePrev,
                 regObsPrev = ObsPrev)
 
 serodf_rev <- param_map$simdat[[2]]$StrataAgg_Seroprev %>%
+  dplyr::filter(Strata == "ma3") %>%
   dplyr::select(c("ObsDay", "ObsPrev")) %>%
   dplyr::rename(time = ObsDay,
                 revObsPrev = ObsPrev)
@@ -233,7 +241,7 @@ datdf <- dplyr::left_join(cumdeaths, cuminxns, by = "time") %>%
 
 # long
 plotdatdf <- datdf %>%
-  dplyr::select(-c("Deaths")) %>%
+  dplyr::select(-c("Strata", "Deaths")) %>%
   tidyr::pivot_longer(., cols = -c("time"), names_to = "datlevel", values_to = "prop") %>%
   dplyr::mutate(datlevel = factor(datlevel,
                                   levels = c("cumincidence", "cumDeaths",
@@ -250,18 +258,19 @@ plotdatdf <- datdf %>%
 arrows <- tibble::tibble(
   lvl =  c("mod", "serocon", "sens", "spec", "serorev"),
   x =    c(87,    139,       250,    10,     290),
-  xend = c(160,    162,        250,    10,        290),
+  xend = c(136,    160,        250,    10,        290),
   y =    c(0.02,    0.4,       0.715,   0,     0.725),
-  yend = c(0.02,    0.4,       0.615,  0.05,   0.29)
+  yend = c(0.02,    0.4,       0.615,  0.05,   0.265)
 )
 
 
 labels <- tibble::tibble(
   lvl =    c("mod",       "serocon",    "sens",    "spec",  "serorev"),
   label =  c("O-D Delay", "O-S Delay",  "Sens.",   "Spec.",  "O-R Delay"),
-  x =      c(170,          110,          230,       12,       260),
-  y =      c(0.05,          0.4,         0.65,    0.07,      0.50),
+  x =      c(172,          102,          225,       12,       262),
+  y =      c(0.02,          0.4,         0.65,    0.09,      0.50),
 )
+
 
 
 #......................
@@ -334,10 +343,10 @@ bottomrow <- cowplot::plot_grid(no_serorev_infIFR_plotObj, serorev_infIFR_plotOb
 # bring together
 #......................
 (mainfig <- cowplot::plot_grid(delay_plotObj, bottomrow, labels = c("(A)", ""),
-                               nrow = 2, rel_heights = c(0.6, 1)))
+                               nrow = 2, rel_heights = c(0.8, 1)))
 
 dir.create("figures/final_figures/", recursive = TRUE)
 jpeg("figures/final_figures/Fig_crude_RG_versus_modelled_diagram.jpg",
-     height = 9, width = 8, units = "in", res = 800)
+     height = 8, width = 8, units = "in", res = 800)
 plot(mainfig)
 graphics.off()

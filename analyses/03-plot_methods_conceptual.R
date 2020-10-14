@@ -208,7 +208,7 @@ mainfig <- cowplot::plot_grid(panelA, panelB, labels = c("(A)", "(B)"),
 
 dir.create("figures/final_figures/", recursive = TRUE)
 jpeg("figures/final_figures/Fig_concept_diagram.jpg",
-     height = 9, width = 8, units = "in", res = 800)
+     height = 8, width = 11, units = "in", res = 800)
 plot(mainfig)
 graphics.off()
 

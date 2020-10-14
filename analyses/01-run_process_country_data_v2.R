@@ -331,12 +331,10 @@ che2_adj_seroprev <- tibble::tibble(
   n_positive = unique(CHE2.agebands.dat$seroprevMCMC$n_positive),
   n_tested = unique(CHE2.agebands.dat$seroprevMCMC$n_tested),
   SeroPrev = unique(CHE2.agebands.dat$seroprevMCMC$SeroPrev))
-che2_adj_seroprev <- tidyr::expand_grid(che2_adj_seroprev, ageband) %>%
-  dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+(?=\\,)")),
-                age_high= as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])")))
+che2_adj_seroprev <- tidyr::expand_grid(che2_adj_seroprev, ageband)
 
 che2_adj_seroprev <- che2_adj_seroprev %>%
-  dplyr::mutate(age_high= as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
+  dplyr::mutate(age_high = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
   dplyr::arrange(ObsDaymin, ObsDaymax, age_high) %>%
   dplyr::select(-c("age_high"))
 
@@ -697,6 +695,10 @@ nld_adj_seroprev$n_positive[nld_adj_seroprev$ageband %in%
 nld_adj_seroprev$n_tested[nld_adj_seroprev$ageband %in%
                             c("(59,69]", "(69,79]", "(79,89]", "(89,999]")] <- timepoint1$n_tested[5]
 
+# calculate seroprev for timepoints 1
+nld_adj_seroprev <- nld_adj_seroprev %>%
+  dplyr::mutate(SeroPrev = n_positive/n_tested)
+
 # time point2
 timepoint2 <- tibble::tibble(
   ObsDaymin = 131,
@@ -832,6 +834,11 @@ chn_adj_seroprev$n_tested[5] <- sum(CHN.agebands.dat$seroprev_group$n_tested[8:9
 # assumption 3
 chn_adj_seroprev$n_positive[6:8] <- CHN.agebands.dat$seroprev_group$n_positive[10]
 chn_adj_seroprev$n_tested[6:8] <- CHN.agebands.dat$seroprev_group$n_tested[10]
+
+# add in seroprevalences
+chn_adj_seroprev <- chn_adj_seroprev %>%
+  dplyr::mutate(SeroPrev = n_positive/n_tested)
+
 # out
 CHN.agebands.dat$seroprevMCMC <- chn_adj_seroprev
 

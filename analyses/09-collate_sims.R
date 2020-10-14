@@ -81,7 +81,7 @@ collated_infxn_curve_NOserorev_plotObj <- datmap %>%
   xlab("Time") + ylab("Num. Infxns") +
   xyaxis_plot_theme +
   theme(legend.position = "bottom",
-        strip.text = element_text(size = 11, face = "bold"),
+        strip.text = element_text(size = 10, face = "bold"),
         plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
 # ifr ests
 collated_Noserorev_plotObj <-  datmap %>%
@@ -105,7 +105,7 @@ collated_Noserorev_plotObj <-  datmap %>%
   theme(axis.title.x = element_blank(),
         axis.ticks.x = element_blank(),
         legend.position = "bottom",
-        strip.text = element_text(size = 11, face = "bold"),
+        strip.text = element_text(size = 10, face = "bold"),
         plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
 
 # come togther
@@ -113,6 +113,12 @@ together_NOserorev_plotObj <- cowplot::plot_grid(collated_infxn_curve_NOserorev_
                                                  collated_Noserorev_plotObj,
                                                  nrow = 1, labels = c("(A)", "(B)"),
                                                  rel_widths = c(0.6, 0.4))
+# out
+jpeg("figures/final_figures/collated_simulation_noserorev.jpg",
+     width = 11, height = 8, units = "in", res = 600)
+plot(together_NOserorev_plotObj)
+graphics.off()
+
 
 # with serorev
 collated_infxn_curve_serorev_plotObj <- datmap %>%
@@ -132,7 +138,7 @@ collated_infxn_curve_serorev_plotObj <- datmap %>%
   xlab("Time") + ylab("Num. Infxns") +
   xyaxis_plot_theme +
   theme(legend.position = "bottom",
-        strip.text = element_text(size = 11, face = "bold"),
+        strip.text = element_text(size = 10, face = "bold"),
         plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
 # ifr ests
 collated_serorev_plotObj <-  datmap %>%
@@ -156,7 +162,7 @@ collated_serorev_plotObj <-  datmap %>%
   theme(axis.title.x = element_blank(),
         axis.ticks.x = element_blank(),
         legend.position = "bottom",
-        strip.text = element_text(size = 11, face = "bold"),
+        strip.text = element_text(size = 10, face = "bold"),
         plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
 
 # come togther
@@ -167,11 +173,6 @@ together_serorev_plotObj <- cowplot::plot_grid(collated_infxn_curve_serorev_plot
 
 
 # out
-jpeg("figures/final_figures/collated_simulation_noserorev.jpg",
-     width = 11, height = 8, units = "in", res = 600)
-plot(together_NOserorev_plotObj)
-graphics.off()
-
 jpeg("figures/final_figures/collated_simulation_withserorev.jpg",
      width = 11, height = 8, units = "in", res = 600)
 plot(together_serorev_plotObj)

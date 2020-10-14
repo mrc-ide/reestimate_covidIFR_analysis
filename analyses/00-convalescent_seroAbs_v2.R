@@ -270,11 +270,14 @@ KMplot <- survminer::ggsurvplot(fit = KM2_mod)
 #......................
 # fitted 'survival'
 # https://stackoverflow.com/questions/9151591/how-to-plot-the-survival-curve-generated-by-survreg-package-survival-of-r
-pw <- seq(from = 0.01, to = 0.99, by = 0.01)
+pw <- seq(from = 0, to = 1, by = 0.01)
 tof_weibull <- tibble::tibble(prob = 1 - pw,
                               tof = predict(WBmod2, type="quantile", p = pw)[1,])
 
 # KM pieces
+survdat <- KMplot$data.survplot
+runin <- tibble::tibble(time = c(0, min(survdat$time)), surv = c(1, 1))
+survdat <- dplyr::bind_rows(runin, survdat)
 censored <- KMplot$data.survplot %>%
   dplyr::filter(n.censor != 0)
 events <- KMplot$data.survplot %>%
@@ -283,7 +286,7 @@ events <- KMplot$data.survplot %>%
 
 # polotObj pieces
 WeibullSurvPlotObj <- ggplot() +
-  geom_line(data = KMplot$data.survplot, aes(x = time, y = surv),
+  geom_line(data = survdat, aes(x = time, y = surv),
             color = "#3C3B6E", alpha = 0.9, size = 1.2) +
   geom_ribbon(data = KMplot$data.survplot, aes(x = time, ymin = lower, ymax = upper),
               fill = "#6967bf", alpha = 0.5) +

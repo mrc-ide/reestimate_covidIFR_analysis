@@ -8,6 +8,7 @@
 #......................
 library(tidyverse)
 source("R/crude_plot_summ.R")
+source("R/covidcurve_helper_functions.R")
 source("R/my_themes.R")
 source("R/extra_plotting_functions.R")
 dir.create("figures/descriptive_figures/", recursive = TRUE)
@@ -626,10 +627,7 @@ SeroPrevPlotDat <- SeroPrevPlotDat %>%
 # plot out
 SeroPrevPlotObj <- SeroPrevPlotDat %>%
   dplyr::left_join(., locatkey, by = "study_id") %>%
-  dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,1]),
-                age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,2]),
-                age_high = ifelse(age_high == 999, 100, age_high),
-                age_mid = (age_high + age_low)/2,
+  dplyr::mutate(age_mid = purrr::map_dbl(ageband, get_age),
                 crude_seroprev = round(crude_seroprev * 100, 2),
                 crude_seroprevLCI = round(crude_seroprevLCI * 100, 2),
                 crude_seroprevUCI = round(crude_seroprevUCI * 100, 2)) %>%

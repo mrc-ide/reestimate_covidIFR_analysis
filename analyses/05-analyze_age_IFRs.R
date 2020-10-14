@@ -234,31 +234,75 @@ ifrdat <- retmapIFR %>%
   dplyr::group_by(sero) %>%
   tidyr::nest(.)
 
+#......................
+# get log variance for each age band
+#......................
+get_age_log_variance <- function(path) {
+  # read in
+  IFRmodel_inf <- readRDS(path)
+  # get variance
+  var <- IFRmodel_inf$mcmcout$output %>%
+    dplyr::filter(stage == "sampling" & rung == "rung1") %>%
+    dplyr::select(c("iteration", dplyr::starts_with("ma"))) %>%
+    tidyr::pivot_longer(., cols = -c("iteration"), names_to = "param", values_to = "est") %>%
+    dplyr::group_by(param) %>%
+    dplyr::mutate(est = log(est)) %>%
+    dplyr::summarise(param_logvar = var(est))
+  # get data dictionary
+  dict <- get_data_dict(path) %>%
+    dplyr::rename(param = Strata)
+  # out
+  dplyr::left_join(dict, var, by = "param") %>%
+    dplyr::select(-c("param"))
+}
+logvardat <- retmapIFR %>%
+  dplyr::select(c("study_id", "path", "sero")) %>%
+  dplyr::mutate(paramvar = purrr::map(path, get_age_log_variance)) %>%
+  dplyr::select(-c("path")) %>%
+  tidyr::unnest(cols = "paramvar") %>%
+  dplyr::group_by(sero) %>% # put back in structure to match ifr data
+  tidyr::nest(.) %>%
+  dplyr::rename(vardata = data)
 
 
 #..........................................
 # Fitting models to mu and residuals
 # for no seroreversion
 #..........................................
-fit_pred_intervals_log_linear_mod <- function(dat) {
-  # fit a log-linear model
-  mod1 <- lm(log(mu) ~ age, data = dat)
+fit_pred_intervals_log_linear_mod <- function(ifrdata, vardata) {
+  # joing dat
+  moddat <- dplyr::left_join(ifrdata, vardata)
+  # fit a weighted log-linear model using absolute sum of residuals
+  loss_ifr <- function(par, dat) {
+    # expected
+    exptd <- par[1] * dat$age + par[2]
+    # observerd minus expected weighted
+    ret <- abs(log(dat$mu) - exptd)
+    ret <- ret * 1/dat$param_logvar
+    return(sum(ret))
+  }
+  # get slope and intercept
+  parret <- optim(par = c(0.1, -10), fn = loss_ifr, dat = moddat)
+  if (parret$convergence != 0) {
+    stop("Convergence not reach in weighted log linear model")
+  }
 
   # get residual variance in 10-year age groups
-  dat$cut <- cut(dat$age, breaks = c(0, seq(9, 89, 10), 100))
-  new_dat <- data.frame(ageband = levels(dat$cut))
-  new_dat$var <- mapply(var, split(mod1$residuals, f = dat$cut))
+  moddat$residuals <- moddat$mu - (parret$par[1] * moddat$age + parret$par[2])
+  moddat$cut <- cut(moddat$age, breaks = c(0, seq(9, 89, 10), 100))
+  new_dat <- data.frame(ageband = levels(moddat$cut))
+  new_dat$var <- mapply(var, split(moddat$residuals, f = moddat$cut))
 
   # get first- and second-order age terms
-  new_dat$age <- seq(5, 95, 10)
+  new_dat$age <- purrr::map_dbl(new_dat$ageband, get_mid_age)
   new_dat$age_squared <- new_dat$age^2
 
   # fit quadratic model to log of residual variance
   mod2 <- lm(log(var) ~ age + age_squared, data = new_dat)
   new_dat$var_fit <- exp(predict(mod2, newdata = new_dat))
 
-  # get corresponding mod1 prediction
-  new_dat$fit <- predict(mod1, newdata = new_dat)
+  # get corresponding prediction from optim fit
+  new_dat$fit <- parret$par[1] * new_dat$age + parret$par[2]
 
   # get prediction intervals in linear space
   new_dat$Q025 <- qlnorm(0.025, mean = new_dat$fit, sd = sqrt(new_dat$var_fit))
@@ -268,7 +312,7 @@ fit_pred_intervals_log_linear_mod <- function(dat) {
   new_dat$Q975 <- qlnorm(0.975, mean = new_dat$fit, sd = sqrt(new_dat$var_fit))
   # out
   out <- list(new_dat = new_dat,
-              mod = mod1)
+              mod = parret)
   return(out)
 }
 
@@ -276,12 +320,14 @@ fit_pred_intervals_log_linear_mod <- function(dat) {
 # get fits
 #.............
 ifrdat <- ifrdat %>%
-  dplyr::mutate(bestestmod = purrr::map(data, fit_pred_intervals_log_linear_mod),
+  rename(ifrdata = data) %>%
+  dplyr::left_join(., logvardat) %>%
+  dplyr::mutate(bestestmod = purrr::map2(ifrdata, vardata, fit_pred_intervals_log_linear_mod),
                 mod = purrr::map(bestestmod, "mod"),
                 predints = purrr::map(bestestmod, "new_dat"))
 
-summary(ifrdat$mod[[1]])
-summary(ifrdat$mod[[2]])
+ifrdat$mod[[1]]
+ifrdat$mod[[2]]
 
 #......................
 # write out the age-specific best fit
@@ -355,13 +401,15 @@ calc_monte_carlo_overall_IFRs <- function(new_dat, popN, reps = 1e5) {
   }, seq_len(reps))
   z <- z / sum(new_dat$pop_size)
 
-  # get summarys
+  # get prediction intervals
   Q025 <- round(quantile(z, 0.025) * 100, 2)
-  Q50 <- round(quantile(z, 0.5) * 100, 2)
   Q975 <- round(quantile(z, 0.975) * 100, 2)
+
+  # get weighted mean
+  mean <- sum(exp(new_dat$fit) * new_dat$pop_size/sum(new_dat$pop_size))
   # out
   ret <- tibble::tibble(Q025 = Q025,
-                        Q50 = Q50,
+                        mean = round(mean *100, 2),
                         Q975 = Q975)
   return(ret)
 }
@@ -378,7 +426,7 @@ overall_IFR_best_est$bestest <- purrr::pmap(overall_IFR_best_est[, c("new_dat", 
 overall_IFR_best_est %>%
   dplyr::select(c("sero", "georegion", "bestest")) %>%
   tidyr::unnest(cols = "bestest") %>%
-  dplyr::mutate(bestest = paste0(Q50, " (", Q025, ", ", Q975, ")")) %>%
+  dplyr::mutate(bestest = paste0(mean, " (", Q025, ", ", Q975, ")")) %>%
   dplyr::select(c("sero", "georegion", "bestest")) %>%
   tidyr::pivot_wider(., names_from = "sero", values_from = "bestest") %>%
   readr::write_tsv(., path = "tables/final_tables/overall_best_est_for_georegions_IFRs.tsv")

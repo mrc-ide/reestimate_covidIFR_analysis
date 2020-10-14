@@ -15,14 +15,14 @@ source("R/my_themes.R")
 # read results in
 #...........................................................
 dat_map <- tibble::tibble(lvl = c("oneday", "twoday"),
-                          mod = c("data/param_map/SeroDays_Concept/OneDay_mod_rung50_burn10000_smpl10000.RDS",
-                                  "data/param_map/SeroDays_Concept/TwoDays_mod_rung50_burn10000_smpl10000.RDS")) %>%
+                          mod = c("data/param_map/SeroDays_Concept/OneDay_mod_rung50_burn10000_smpl20000.RDS",
+                                  "data/param_map/SeroDays_Concept/TwoDays_mod_rung50_burn10000_smpl20000.RDS")) %>%
   dplyr::mutate(mod = purrr::map(mod, readRDS)) %>%
   tidyr::unnest(cols = mod)
 
 fits <- tibble::tibble(lvl = c("oneday", "twoday"),
-                       fit = c("results/SeroDays_Concept/OneDay_mod_rung50_burn10000_smpl10000.RDS",
-                               "results/SeroDays_Concept/TwoDays_mod_rung50_burn10000_smpl10000.RDS")) %>%
+                       fit = c("results/SeroDays_Concept/OneDay_mod_rung50_burn10000_smpl20000.RDS",
+                               "results/SeroDays_Concept/TwoDays_mod_rung50_burn10000_smpl20000.RDS")) %>%
   dplyr::mutate(fit = purrr::map(fit, readRDS))
 
 # bring together
@@ -137,7 +137,7 @@ twoday_ifrs <- ggplot() +
 #......................
 mainFig <- cowplot::plot_grid(oneday_ifrs, twoday_ifrs, labels = c("(A)", "(B)", ncol = 1))
 jpeg("figures/final_figures/seroday_comparinson.jpg",
-     width = 11, height = 8, units = "in", res = 500)
+     width = 8, height = 6, units = "in", res = 500)
 plot(mainFig)
 graphics.off()
 
