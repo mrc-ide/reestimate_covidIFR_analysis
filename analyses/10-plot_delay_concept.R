@@ -15,14 +15,14 @@ source("R/my_themes.R")
 #----- Simulation Results #-----
 #...........................................................
 dat_map <- tibble::tibble(lvl = c("reg", "serorev"),
-                          mod = c("data/param_map/Fig_ConceptualFits/reg_mod_rung50_burn10000_smpl20000.RDS",
-                                  "data/param_map/Fig_ConceptualFits/serorev_mod_rung50_burn10000_smpl20000.RDS")) %>%
+                          mod = c("data/param_map/Fig_ConceptualFits/reg_mod_rung50_burn10000_smpl10000.RDS",
+                                  "data/param_map/Fig_ConceptualFits/serorev_mod_rung50_burn10000_smpl10000.RDS")) %>%
   dplyr::mutate(mod = purrr::map(mod, readRDS)) %>%
   tidyr::unnest(cols = mod)
 
 fits <- tibble::tibble(lvl = c("reg", "serorev"),
-                       fit = c("results/Fig_ConceptualFits/reg_mod_rung50_burn10000_smpl20000.RDS",
-                               "results/Fig_ConceptualFits/serorev_mod_rung50_burn10000_smpl20000.RDS")) %>%
+                       fit = c("results/Fig_ConceptualFits/reg_mod_rung50_burn10000_smpl10000.RDS",
+                               "results/Fig_ConceptualFits/serorev_mod_rung50_burn10000_smpl10000.RDS")) %>%
   dplyr::mutate(fit = purrr::map(fit, readRDS))
 
 # bring together
@@ -306,25 +306,6 @@ delay_plotObj <- plotdatdf %>%
 
 delay_plotObj
 
-#..........................
-# Inset of Infxn Curve
-#..........................
-true_infxns <- tibble::tibble(time = 1:length(param_map$infxns[[1]]),
-                                 infxns = param_map$infxns[[1]])
-
-infxninset_plotObj <- ggplot() +
-  geom_line(data = true_infxns, aes(x = time, y = infxns), color = "#252525", size = 1.1, linetype = "dashed") +
-  xlab("Time (days)") + ylab("Daily INfections") +
-  theme(axis.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 10),
-        axis.text = element_text(family = "Helvetica", hjust = 0.5, size = 8),
-        legend.position = "right",
-        legend.title = element_blank(),
-        legend.text = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 10),
-        panel.background = element_rect(fill = "transparent"),
-        plot.background = element_rect(fill = "transparent", color = "#000000", size = 0.25),
-        panel.grid = element_blank(),
-        panel.border = element_blank(),
-        axis.line = element_line(color = "#000000", size = 1))
 
 
 #......................
