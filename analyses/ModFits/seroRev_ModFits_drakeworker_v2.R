@@ -393,7 +393,7 @@ fit_map <- tibble::tibble(
   rungs = 50,
   GTI_pow = list(bvec),
   burnin = 1e4,
-  samples = 1e4,
+  samples = 2e4,
   thinning = 10)
 
 #......................
