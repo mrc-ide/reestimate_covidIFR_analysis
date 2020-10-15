@@ -270,8 +270,8 @@ logvardat <- retmapIFR %>%
 # for no seroreversion
 #..........................................
 fit_pred_intervals_log_linear_mod <- function(ifrdata, vardata) {
-  # joing dat
-  moddat <- dplyr::left_join(ifrdata, vardata)
+  # join age-specific ifrs across studies w/ variance for each age group
+  moddat <- dplyr::left_join(ifrdata, vardata, by = c("study_id", "ageband"))
   # fit a weighted log-linear model using absolute sum of residuals
   loss_ifr <- function(par, dat) {
     # expected
