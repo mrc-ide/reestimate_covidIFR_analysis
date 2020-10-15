@@ -146,8 +146,8 @@ infxncurve <- COVIDCurve::draw_posterior_infxn_cubic_splines(IFRmodel_inf = modo
 plot1 <- ggplot() +
   geom_pointrange(data = ifrs, aes(x = strata, ymin = LCI, ymax = UCI, y = median), 
                   color = "#969696", size = 1.2) +
-  # geom_point(data = crudeplotdat, aes(x = strata, y = crudeIFR, shape = serodayfct), 
-  #            color = "#000000", size = 3, alpha = 0.75, show.legend = F) +
+  geom_point(data = crudeplotdat, aes(x = strata, y = crudeIFR, shape = serodayfct), 
+             color = "#000000", size = 3, alpha = 0.75, show.legend = F) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"),
         legend.position = "right") +
