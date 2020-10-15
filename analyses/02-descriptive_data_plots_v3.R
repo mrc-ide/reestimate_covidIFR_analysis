@@ -256,8 +256,8 @@ cumu_deaths <- age_prop_deaths_plotdat %>%
 age_prop_deaths_plotdat <-age_prop_deaths_plotdat %>%
   dplyr::mutate(cum_prop_deaths=cumu_deaths$cum_prop_deaths,
                 cum_prop_deaths_std=cumu_deaths$cum_prop_deaths_std,
-                age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)")),
-                age_high = as.numeric(gsub( "(.*)-(.*)", "\\2",  ageband)))
+                age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+(?=\\,)")),
+                age_high= as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])")))
 
 prop_deaths_70<-age_prop_deaths_plotdat %>%
   dplyr::mutate(ageband2=ifelse(age_low<69,"0-69","70+")) %>%
@@ -595,12 +595,12 @@ SeroPrevPlotDat <- datmap %>%
   dplyr::filter(breakdown == "ageband") %>%
   dplyr::filter(!grepl("_nch", study_id)) %>%
   dplyr::select(c("study_id", "seroprev_adjdat")) %>%
-  dplyr::filter(! study_id %in% c(c("CHE2", "DNK1", "LUX1", "NLD1",
-                                    "SWE1", "LA_CA1"))) %>% # excluding studies w/ constant assumption
+  dplyr::filter(! study_id %in% c(c("CHE2", "DNK1", "SWE1"))) %>% # excluding studies w/ constant assumption
   tidyr::unnest(cols = "seroprev_adjdat")
 
 # filter to latest date if multiple serosurveys
 SeroPrevPlotDat <- SeroPrevPlotDat %>%
+  dplyr::filter(!c(study_id == "NLD1" & obsdaymin == 131)) %>% # manually handle NLD1 which has constant for timepoint 2 but not for timepoint 1
   dplyr::group_by(study_id, ageband) %>%
   dplyr::filter(obsdaymax == max(obsdaymax))
 
@@ -627,7 +627,7 @@ SeroPrevPlotDat <- SeroPrevPlotDat %>%
 # plot out
 SeroPrevPlotObj <- SeroPrevPlotDat %>%
   dplyr::left_join(., locatkey, by = "study_id") %>%
-  dplyr::mutate(age_mid = purrr::map_dbl(ageband, get_age),
+  dplyr::mutate(age_mid = purrr::map_dbl(ageband, get_mid_age),
                 crude_seroprev = round(crude_seroprev * 100, 2),
                 crude_seroprevLCI = round(crude_seroprevLCI * 100, 2),
                 crude_seroprevUCI = round(crude_seroprevUCI * 100, 2)) %>%
@@ -696,7 +696,7 @@ bracities_deaths <- readr::read_csv("data/raw/bra1_city_deaths.csv") %>%
 # bring together brazil
 brargn <- dplyr::left_join(bracities_sero, bracities_deaths) %>%
   dplyr::select(-c("cases_100k", "deaths_100k", "ifr")) %>%
-  dplyr::mutate(seromidpt = 1,
+  dplyr::mutate(seromidpt = 1, # just a place holder
                 obsday = 1, # just a place holder
                 std_cum_deaths = (cumdeaths/popn) * 1e6) %>%
   dplyr::filter(seroprev > 0)
@@ -757,7 +757,7 @@ rgns_crudeIFRs_CI <- dplyr::bind_rows(rgns_binom, rgns_logit)
 upperbounds <- rgns_crudeIFRs_CI %>%
   dplyr::left_join(., locatkey, by = "study_id") %>%
   dplyr::filter(upper_ci > 0.05) %>%
-  dplyr::mutate(upbound = 0.05)
+  dplyr::mutate(upbound = 5) # we multiple by 100 below
 
 
 PanelA <- rgns_crudeIFRs_CI %>%
@@ -797,7 +797,7 @@ PanelB <- rgns_crudeIFRs_CI %>%
 # bring together
 PanelA_nolegend <- PanelA + theme(legend.position = "none")
 PanelB_nolegend <- PanelB + theme(legend.position = "none")
-legend <- get_legend(PanelA)
+legend <- cowplot::get_legend(PanelA)
 mainfig <- cowplot::plot_grid(PanelA_nolegend, PanelB_nolegend,
                               labels = c("(A)", "(B)", nrow = 1))
 (mainfig <- cowplot::plot_grid(mainfig, legend, ncol = 1, rel_heights = c(1, 0.1)))
