@@ -166,6 +166,28 @@ GBR3_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 3, maxMa = "ma3",
                                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
                                                    sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
+
+#............................................................
+#---- SWE1 #----
+#...........................................................
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.99,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(156.5,   267.5),
+                                dsc2 =  c(1.5,     3.5))
+#......................
+# agebands
+#......................
+rawch <- readRDS("data/derived/carehomes/SWE1_agebands_noCH.RDS")
+SWE_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
+                                                  groupvar = "ageband",  dat = rawch,
+                                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
+                                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.15, dsc1 = 0, dsc2 = 16.15),
+                                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+
+
+
 #............................................................
 #---- New York State #----
 #...........................................................
@@ -210,12 +232,14 @@ fit_map <- tibble::tibble(
            "DNK1_carehomes",
            "ESP1-2_carehomes",
            "GBR3_carehomes",
+           "SWE1_carehomes",
            "NYS1_carehomes"),
   modelobj = list(CHE1_carehomes_mod,
                   CHE2_carehomes_mod,
                   DNK_carehomes_mod,
                   ESP_carehomes_mod,
                   GBR3_carehomes_mod,
+                  SWE_carehomes_mod,
                   NYS_carehomes_mod),
   rungs = 50,
   GTI_pow = list(bvec),
@@ -254,7 +278,7 @@ run_MCMC <- function(path) {
 
   cl <- parallel::makeCluster(mkcores)
 
-  if (grepl("DNK", basename(path))) {
+  if (grepl("DNK|SWE", basename(path))) {
     # logit case for DNK with multiple age groups
     fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
