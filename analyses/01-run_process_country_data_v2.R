@@ -351,6 +351,21 @@ saveRDS(CHE2.agebands.dat, "data/derived/CHE2/CHE2_agebands.RDS")
 #............................................................
 #---- DNK1 #----
 #...........................................................
+DNK_timeseries<-read.csv("data/raw/DNK_timeseries.csv") %>%
+  dplyr::mutate(date = lubridate::dmy(date)) %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+  dplyr::filter(date<="2020-08-17") %>%
+  dplyr::arrange(date) %>%
+  dplyr::select(date,georegion,deaths)
+DNK_timeseries$deaths[2:nrow(DNK_timeseries)]<-DNK_timeseries$deaths[2:nrow(DNK_timeseries)] -
+  DNK_timeseries$deaths[1:(nrow(DNK_timeseries)-1)]
+
+### quick comparison of JHU vs govt date of deaths
+DNKJHU<-filter(JHUdf,georegion=="DNK")
+plot(DNK_timeseries$date,DNK_timeseries$deaths,xlab="date",ylab="deaths")
+points(DNKJHU$date,DNKJHU$deaths,col="red")
+legend("topright",c("Govt","JHU"),pch=1,col=c("black","red"))
+
+
 #......................
 # regions
 #......................
