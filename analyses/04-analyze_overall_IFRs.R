@@ -32,16 +32,16 @@ serorevretmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(s
 retmap <- dplyr::bind_rows(regretmap, serorevretmap) %>%
   dplyr::mutate(overallIFRret = purrr::map(path,
                                            get_overall_IFRs,
-                                           whichstandard = "pop")) %>%
+                                           whichstandard = "arpop")) %>%
   tidyr::unnest(cols = "overallIFRret")
 
 
 
 
 
-#............................................................
-#---- Table of Overall IFR Standardized by Pop  #----
-#...........................................................
+#......................................................................
+#---- Table of Overall IFR Standardized by Attack Rate and Pop  #----
+#......................................................................
 #.........................................
 # read in observed data
 #.........................................
@@ -218,17 +218,17 @@ dplyr::left_join(death_col, seroprev_column, by = "study_id") %>%
   dplyr::arrange(order) %>%
   dplyr::select(-c("order")) %>%
   dplyr::mutate(totdeaths = prettyNum(totdeaths, big.mark=",", scientific=FALSE)) %>%
-  readr::write_tsv(., path = "tables/final_tables/overall_ifr_data_popstandardized.tsv")
+  readr::write_tsv(., path = "tables/final_tables/overall_ifr_data_attackrate_pop_standardized.tsv")
 
 
 #............................................................
-#---- Supp Table of Overall IFR Standardized by AR and Pop  #----
+#---- Supp Table of Overall IFR Standardized by Pop  #----
 #...........................................................
 # run new standardization
 alt_stand_retmap <- dplyr::bind_rows(regretmap, serorevretmap) %>%
   dplyr::mutate(overallIFRret = purrr::map(path,
                                            get_overall_IFRs,
-                                           whichstandard = "arpop")) %>%
+                                           whichstandard = "pop")) %>%
   tidyr::unnest(cols = "overallIFRret")
 
 #......................
@@ -258,7 +258,7 @@ dplyr::left_join(crude_IFR_column, no_serorev_ifrs, by = "study_id") %>%
   dplyr::left_join(., order, by = "study_id") %>%
   dplyr::arrange(order) %>%
   dplyr::select(-c("order")) %>%
-  readr::write_tsv(., path = "tables/final_tables/overall_ifr_data_attackrate_pop_standardized.tsv")
+  readr::write_tsv(., path = "tables/final_tables/overall_ifr_data_popstandardized.tsv")
 
 
 
@@ -309,8 +309,6 @@ percap_deaths <- dsc_agedat %>%
 extra_deaths <- percap_deaths %>%
   dplyr::mutate(capita = capita * 100) %>%
   dplyr::left_join(., crude_IFRs, by = c("study_id", "location")) %>%
-  #dplyr::left_join(., y = excess_deaths, by = "study_id") %>%
-  #dplyr::left_join(., y = carehome_deaths, by = "study_id") %>%
   tidyr::pivot_longer(., cols = -c("study_id", "location"), names_to = "param", values_to = "est") %>%
   dplyr::mutate(param = factor(param,
                                levels = c("crude", "capita", "excess", "carehome"),
