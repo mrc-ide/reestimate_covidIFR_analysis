@@ -1104,6 +1104,13 @@ GBR3.agebands_noCH.dat <- remove_ch_deaths(ageband_dat = GBR3.agebands.dat,
                                            studyid = "GBR3")
 saveRDS(GBR3.agebands_noCH.dat, "data/derived/carehomes/GBR3_agebands_noCH.RDS")
 
+### SWE1
+SWE1.agebands_noCH.dat <- remove_ch_deaths(ageband_dat = SWE.agebands.dat,
+                                           carehomesdf = deaths_ch,
+                                           studyid = "SWE1")
+saveRDS(SWE1.agebands_noCH.dat, "data/derived/carehomes/SWE1_agebands_noCH.RDS")
+
+
 ### NYS1
 NYS1.agebands_noCH.dat <- remove_ch_deaths(ageband_dat = NYS.age.dat,
                                            carehomesdf = deaths_ch,
