@@ -726,8 +726,21 @@ saveRDS(NLD.agebands.dat, "data/derived/NLD1/NLD1_agebands.RDS")
 #......................
 # ages
 #......................
+SWE1_timeseries<-read.csv("data/raw/SWE_timeseries.csv") %>%
+  dplyr::rename(date=Datum_avliden,
+                deaths=Antal_avlidna) %>%
+  dplyr::mutate(date = lubridate::dmy(date),
+                georegion="SWE") %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+  dplyr::filter(date<="2020-08-17")
+
+### quick comparison of JHU vs SWE govt date of deaths
+SWEJHU<-filter(JHUdf,georegion=="SWE")
+plot(SWE1_timeseries$date,SWE1_timeseries$deaths,xlab="date",ylab="deaths")
+points(SWEJHU$date,SWEJHU$deaths,col="red")
+legend("topright",c("Swedish govt","JHU"),pch=1,col=c("black","blue"))
+
 SWE.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
-                                  time_series_totdeaths_df = JHUdf,
+                                  time_series_totdeaths_df = SWE1_timeseries,
                                   time_series_totdeaths_geocode = "SWE",
                                   population = populationdf,
                                   sero_val = sero_valdf,
