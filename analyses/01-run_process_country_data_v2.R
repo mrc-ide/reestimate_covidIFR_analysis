@@ -455,10 +455,10 @@ ESP_timeseries$deaths[2:nrow(ESP_timeseries)]<-ESP_timeseries$deaths[2:nrow(ESP_
   ESP_timeseries$deaths[1:(nrow(ESP_timeseries)-1)]
 
 ### quick comparison of JHU vs SWE govt date of deaths
-ESPJHU<-filter(JHUdf,georegion=="ESP")
-plot(ESP_timeseries$date,ESP_timeseries$deaths,xlab="date",ylab="deaths")
-points(ESPJHU$date,ESPJHU$deaths,col="red")
-legend("topright",c("Govt","JHU"),pch=1,col=c("black","red"))
+# ESPJHU<-filter(JHUdf,georegion=="ESP")
+# plot(ESP_timeseries$date,ESP_timeseries$deaths,xlab="date",ylab="deaths")
+# points(ESPJHU$date,ESPJHU$deaths,col="red")
+# legend("topright",c("Govt","JHU"),pch=1,col=c("black","red"))
 
 #......................
 # regions
@@ -663,6 +663,20 @@ saveRDS(ITA.regions.dat, "data/derived/ITA1/ITA1_regions.RDS")
 #............................................................
 #---- NLD1 #-----
 #...........................................................
+NLD_timeseries<-read.csv("data/raw/NLD_timeseries.csv") %>%
+  dplyr::mutate(date = lubridate::dmy(date)) %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+  dplyr::filter(date<="2020-08-17") %>%
+  dplyr::arrange(date) %>%
+  dplyr::select(date,georegion,deaths)
+NLD_timeseries$deaths[2:nrow(NLD_timeseries)]<-NLD_timeseries$deaths[2:nrow(NLD_timeseries)] -
+  NLD_timeseries$deaths[1:(nrow(NLD_timeseries)-1)]
+
+### quick comparison of JHU vs govt date of deaths
+NLDJHU<-filter(JHUdf,georegion=="NLD")
+plot(NLD_timeseries$date,NLD_timeseries$deaths,xlab="date",ylab="deaths")
+points(NLDJHU$date,NLDJHU$deaths,col="red")
+legend("topright",c("Govt","JHU"),pch=1,col=c("black","red"))
+
 #......................
 # ages
 #......................
