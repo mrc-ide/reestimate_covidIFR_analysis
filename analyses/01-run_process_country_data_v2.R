@@ -696,7 +696,7 @@ legend("topright",c("Govt","JHU"),pch=1,col=c("black","red"))
 # ages
 #......................
 NLD.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
-                                  time_series_totdeaths_df = JHUdf,
+                                  time_series_totdeaths_df = NLD_timeseries,
                                   time_series_totdeaths_geocode = "NLD",
                                   population = populationdf,
                                   sero_val = sero_valdf,
