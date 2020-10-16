@@ -5,7 +5,7 @@
 ####################################################################################
 
 # white background but strong x-y axes
-xyaxis_plot_theme <- theme(plot.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 14),
+xyaxis_plot_theme <- theme(plot.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 13),
                           axis.title = element_text(family = "Helvetica", face = "bold", hjust = 0.5, size = 12),
                           axis.text = element_text(family = "Helvetica", hjust = 0.5, size = 11),
                           legend.position = "right",
