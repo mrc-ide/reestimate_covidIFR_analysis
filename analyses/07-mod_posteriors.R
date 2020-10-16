@@ -7,7 +7,6 @@ library(tidyverse)
 library(COVIDCurve)
 source("R/my_themes.R")
 source("R/covidcurve_helper_functions.R")
-source("R/delta_method.R")
 # colors now based on location
 locatkey <- readr::read_csv("data/plot_aesthetics/color_studyid_map.csv")
 mycolors <- locatkey$cols
@@ -109,7 +108,7 @@ datmap %>%
   dplyr::left_join(locatkey, ., by = "study_id") %>%
   dplyr::left_join(., order, by = "study_id") %>%
   dplyr::arrange(order) %>%
-  dplyr::select(-c("order")) %>%
+  dplyr::select(-c("order", "study_id", "cols")) %>%
   readr::write_tsv(., path = "tables/final_tables/overall_sens_spec_for_all.tsv")
 
 

@@ -140,11 +140,33 @@ SeroPrevObs <- crudedat %>%
   dplyr::mutate(obsmidday = (obsdaymin + obsdaymax)/2) %>%
   dplyr::rename(crude_obs_seroprev = seroprev) %>%
   dplyr::group_by(study_id) %>%
-  dplyr::mutate(age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n=2)[,2])) %>%
+  dplyr::mutate(age_high= as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
   dplyr::filter(age_high == max(age_high)) %>%
   dplyr::filter(obsday == seromidpt) %>%
-  dplyr::ungroup(.) %>%
-  dplyr::select(c("study_id", "location", "ageband", "obsdaymin", "obsmidday", "obsdaymax", "crude_obs_seroprev"))
+  dplyr::ungroup(.)
+#......................
+# get uncertainty
+#......................
+SeroPrevObs_binom <- SeroPrevObs %>%
+  dplyr::filter(!is.na(n_positive)) %>%
+  dplyr::filter(!is.na(n_tested)) %>%
+  dplyr::mutate(crude_seroprev_obj = purrr::map2(n_positive, n_tested, .f = function(x,n){ binom.test(x,n) }),
+                crude_seroprev_CI = purrr::map(crude_seroprev_obj, "conf.int"),
+                crude_obs_seroprevLCI = purrr::map_dbl(crude_seroprev_CI, function(x){x[[1]]}),
+                crude_obs_seroprevUCI = purrr::map_dbl(crude_seroprev_CI, function(x){x[[2]]}),
+                crude_obs_seroprev = purrr::map_dbl(crude_seroprev_obj, "estimate"))
+# observed 95% CI
+SeroPrevObs_logit <- SeroPrevObs %>%
+  dplyr::filter(study_id %in% c("ITA1", "SWE1", "DNK1")) %>%
+  dplyr::mutate(crude_seroprev_obj = NA,
+                crude_seroprev_CI = NA,
+                crude_obs_seroprevLCI = serolci,
+                crude_obs_seroprevUCI = serouci)
+
+
+SeroPrevObs <- dplyr::bind_rows(SeroPrevObs_binom, SeroPrevObs_logit)%>%
+  dplyr::select(c("study_id", "location", "ageband", "obsdaymin", "obsmidday", "obsdaymax",
+                  "crude_obs_seroprev", "crude_obs_seroprevLCI", "crude_obs_seroprevUCI"))
 
 #..................................
 # standard model
@@ -163,13 +185,15 @@ noserorev_ppc_seroPlotObj <- datmap %>% # NB with these functions have already s
   geom_rect(data = SeroPrevObs,
             aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf),
             fill = "#d9d9d9", alpha = 0.4) +
-  geom_point(data = SeroPrevObs,
-             aes(x = obsmidday, y = crude_obs_seroprev),
-             color = "#000000", size = 1.2, alpha = 0.6) +
+  geom_pointrange(data = SeroPrevObs,
+             aes(x = obsmidday, y = crude_obs_seroprev,
+                 ymin = crude_obs_seroprevLCI, max = crude_obs_seroprevUCI),
+             color = "#000000", size = 0.75, alpha = 0.6) +
   facet_wrap(.~location, scales = "free_y") +
   scale_color_manual("Seroprev. \n Adjustment",
                      values = c("Crude" = "#FFD301", "RGCorr" = "#246BCF"),
                      labels = c("Inferred 'Truth'", "Inferred 'Observed' - \n Rogan-Gladen Corrected")) +
+  ggtitle("Seroprevalence in Oldest Age-Group Modelled without Seroreversion") +
   xyaxis_plot_theme +
   ylab("Seropev.") +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"),
@@ -178,7 +202,7 @@ noserorev_ppc_seroPlotObj <- datmap %>% # NB with these functions have already s
 
 # out
 jpeg("figures/final_figures/ppc_seroprev_NOSeroRev.jpg",
-     width = 8, height = 11, units = "in", res = 600)
+     width = 11, height = 8, units = "in", res = 600)
 plot(noserorev_ppc_seroPlotObj)
 graphics.off()
 
@@ -202,14 +226,16 @@ serorev_ppc_seroPlotObj <- datmap %>% # NB with these functions have already sub
   geom_rect(data = SeroPrevObs,
             aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf),
             fill = "#d9d9d9", alpha = 0.4) +
-  geom_point(data = SeroPrevObs,
-             aes(x = obsmidday, y = crude_obs_seroprev),
-             color = "#000000", size = 1.2, alpha = 0.6) +
+  geom_pointrange(data = SeroPrevObs,
+                  aes(x = obsmidday, y = crude_obs_seroprev,
+                      ymin = crude_obs_seroprevLCI, max = crude_obs_seroprevUCI),
+             color = "#000000", size = 0.75, alpha = 0.6) +
   facet_wrap(.~location, scales = "free_y") +
   scale_color_manual("Seroprev. \n Adjustment",
                      values = c("Crude" = "#FFD301", "RGCorr" = "#246BCF"),
                      labels = c("Inferred 'Truth'", "Inferred 'Observed' - \n Rogan-Gladen Corrected")) +
   xyaxis_plot_theme +
+  ggtitle("Seroprevalence in Oldest Age-Group Modelled with Seroreversion") +
   ylab("Seropev.") +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold"),
         legend.position = "bottom",
@@ -218,7 +244,7 @@ serorev_ppc_seroPlotObj <- datmap %>% # NB with these functions have already sub
 
 # out
 jpeg("figures/final_figures/ppc_seroprev_SeroRev.jpg",
-     width = 8, height = 11, units = "in", res = 600)
+     width = 11, height = 8, units = "in", res = 600)
 plot(serorev_ppc_seroPlotObj)
 graphics.off()
 
@@ -255,6 +281,7 @@ noserorev_ppc_DeathPlotObj <- ggplot() +
   facet_wrap(.~location, scales = "free_y") +
   theme_bw() +
   xlab("Time") + ylab("Deaths") +
+  ggtitle("Deaths in Oldest Age-Group Modelled without Seroreversion") +
   theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5, vjust = 0.5))
 
@@ -294,6 +321,7 @@ serorev_ppc_DeathPlotObj <- ggplot() +
   facet_wrap(.~location, scales = "free_y") +
   theme_bw() +
   xlab("Time") + ylab("Deaths") +
+  ggtitle("Deaths in Oldest Age-Group Modelled with Seroreversion") +
   theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5, vjust = 0.5))
 
