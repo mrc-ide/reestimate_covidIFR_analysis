@@ -374,7 +374,7 @@ dnk_rgn_sero <- sero_prevdf %>%
   dplyr::mutate(for_regional_analysis = ifelse(region == "all", 0, 1))
 
 DNK.regions.dat <- process_data4(cum_tp_deaths = deathsdf,
-                                 time_series_totdeaths_df = JHUdf,
+                                 time_series_totdeaths_df = DNK_timeseries,
                                  time_series_totdeaths_geocode = "DNK",
                                  population = populationdf,
                                  sero_val = sero_valdf,
@@ -392,7 +392,7 @@ dnk_age_sero<-read.csv("data/raw/DNK1_age.csv") %>%
                 seroprevalence_unadjusted = ifelse(is.na(seroprevalence_unadjusted), n_positive/n_tested, seroprevalence_unadjusted))
 
 DNK.agebands_age_sero.dat <- process_data4(cum_tp_deaths = deathsdf,
-                                           time_series_totdeaths_df = JHUdf,
+                                           time_series_totdeaths_df = DNK_timeseries,
                                            time_series_totdeaths_geocode = "DNK",
                                            population = populationdf,
                                            sero_val = sero_valdf,
@@ -407,7 +407,7 @@ DNK.agebands_age_sero.dat <- process_data4(cum_tp_deaths = deathsdf,
 # ages
 #......................
 DNK.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
-                                  time_series_totdeaths_df = JHUdf,
+                                  time_series_totdeaths_df = DNK_timeseries,
                                   time_series_totdeaths_geocode = "DNK",
                                   population = populationdf,
                                   sero_val = sero_valdf,
