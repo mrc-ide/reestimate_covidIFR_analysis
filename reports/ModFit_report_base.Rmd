@@ -264,10 +264,10 @@ serocurvedatPlotObj <- serocurvedat %>%
             alpha = 0.5) +
     geom_line(aes(x = ObsDay, y = RGCorr,  group = sim, color = "RGCorr"),
             alpha = 0.5) +
-  # geom_rect(data = SeroPrevObs, aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf), 
-  #           color = "#d9d9d9", fill = "#d9d9d9", alpha = 0.8) +
-  # geom_point(data = SeroPrevObs, aes(x = obsmidday, y = seroprev, group = strata),
-  #            color = "#000000", size = 1.2) +
+  geom_rect(data = SeroPrevObs, aes(xmin = obsdaymin, xmax = obsdaymax, ymin = -Inf, ymax = Inf),
+            color = "#d9d9d9", fill = "#d9d9d9", alpha = 0.8) +
+  geom_point(data = SeroPrevObs, aes(x = obsmidday, y = seroprev, group = strata),
+             color = "#000000", size = 1.2) +
   facet_wrap(.~strata) +
   scale_color_manual("Seroprev. \n Adjustment", 
                      values = c("Crude" = "#FFD301", "RGCorr" = "#246BCF"),
