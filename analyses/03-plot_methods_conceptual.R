@@ -109,8 +109,8 @@ plotdatdf <- datdf %>%
                                              "regTruePrev", "regObsPrev", "revObsPrev"),
                                   labels = c("Infected",
                                              "Deaths",
-                                             "True Seroprev.", "Seroprevalence without Serorev.",
-                                             "Seroprevalence with Serorev."
+                                             "True Seroprev.", "Seroprev. without Serorev.",
+                                             "Seroprev. with Serorev."
                                   )))
 
 #......................

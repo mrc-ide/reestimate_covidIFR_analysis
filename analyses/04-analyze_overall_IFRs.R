@@ -239,16 +239,16 @@ alt_no_serorev_ifrs <- alt_stand_retmap %>%
   dplyr::mutate(median = round(median * 100, 2),
                 LCI = round(LCI * 100, 2),
                 UCI = round(UCI * 100, 2)) %>%
-  dplyr::mutate(alt_mod_no_serorev_ifr_col = paste0(median, " (", LCI, ", ", UCI, ")")) %>%
-  dplyr::select(c("study_id", "alt_mod_no_serorev_ifr_col"))
+  dplyr::mutate(popstandard_no_serorev_ifr_col = paste0(median, " (", LCI, ", ", UCI, ")")) %>%
+  dplyr::select(c("study_id", "popstandard_no_serorev_ifr_col"))
 
 alt_serorev_ifrs <- alt_stand_retmap %>%
   dplyr::filter(sero == "serorev") %>%
   dplyr::mutate(median = round(median * 100, 2),
                 LCI = round(LCI * 100, 2),
                 UCI = round(UCI * 100, 2)) %>%
-  dplyr::mutate(alt_mod_serorev_ifr_col = paste0(median, " (", LCI, ", ", UCI, ")")) %>%
-  dplyr::select(c("study_id", "alt_mod_serorev_ifr_col"))
+  dplyr::mutate(popstandard_serorev_ifr_col = paste0(median, " (", LCI, ", ", UCI, ")")) %>%
+  dplyr::select(c("study_id", "popstandard_serorev_ifr_col"))
 
 # alternative overall IFR out
 dplyr::left_join(crude_IFR_column, no_serorev_ifrs, by = "study_id") %>%
@@ -376,7 +376,7 @@ death_type_plot <- ggplot() +
     panel.border = element_blank()
   )
 # out
-jpeg("figures/final_figures/Figure_IFR_ranges.jpg", width = 10, height = 7, units = "in", res = 500)
+jpeg("figures/Figure_IFR_ranges.jpg", width = 10, height = 7, units = "in", res = 500)
 plot(death_type_plot)
 graphics.off()
 

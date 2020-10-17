@@ -222,7 +222,7 @@ dplyr::left_join(simp_seroprevdat, seroprev_age_column, by = c("study_id", "ageb
 #......................
 # unpack data for est
 #......................
-ifrdat <- retmapIFR %>%
+inputdat <- retmapIFR %>%
   dplyr::select(c("study_id", "sero", "strataIFRret")) %>%
   tidyr::unnest(cols = "strataIFRret") %>%
   dplyr::rename(ageband = strata) %>%
@@ -280,7 +280,7 @@ fit_pred_intervals_log_linear_mod <- function(ifrdata, vardata) {
 
   # internal check for leverage
   # plot(moddat$age, moddat$residuals)
-  moddat$cut <- cut(moddat$age, breaks = c(0, seq(9, 89, 10), 100))
+  moddat$cut <- cut(moddat$age, breaks = c(0, seq(9, 89, 10), 999))
   new_dat <- data.frame(ageband = levels(moddat$cut))
   new_dat$var <- mapply(var, split(moddat$residuals, f = moddat$cut))
 
@@ -325,7 +325,7 @@ fit_pred_intervals_log_linear_mod <- function(ifrdata, vardata) {
 #.............
 # get fits
 #.............
-ifrdat <- ifrdat %>%
+ifrdat <- inputdat %>%
   rename(ifrdata = data) %>%
   dplyr::left_join(., logvardat) %>%
   dplyr::mutate(bestestmod = purrr::map2(ifrdata, vardata, fit_pred_intervals_log_linear_mod),
@@ -388,19 +388,20 @@ dplyr::left_join(t1, t2, by = "age") %>%
 #......................
 # write out the age-specific best fit
 #......................
-
 ifrdat %>%
   tidyr::unnest(cols = "linear_predints") %>%
-  dplyr::select(c("sero", "ageband", "Q025", "mean", "Q975")) %>%
+  dplyr::select(c("sero", "ageband", "Q025", "Q50", "Q975")) %>%
   dplyr::mutate(Q025 = round(Q025 * 100, 2),
-                mean = round(mean * 100, 2),
+                Q50 = round(Q50 * 100, 2),
                 Q975 = round(Q975 * 100, 2)) %>%
-  dplyr::mutate(bestest = paste0(mean, " (", Q025, ", ", Q975, ")")) %>%
+  dplyr::mutate(bestest = paste0(Q50, " (", Q025, ", ", Q975, ")")) %>%
   dplyr::select(c("sero", "ageband", "bestest")) %>%
   tidyr::pivot_wider(., names_from = "sero", values_from = "bestest") %>%
   readr::write_tsv(., path = "tables/final_tables/overall_best_est_for_age_IFRs.tsv")
-
-
+# look at mean for reference
+ifrdat %>%
+  tidyr::unnest(cols = "linear_predints") %>%
+  dplyr::select(c("sero", "ageband", "mean"))
 
 #............................................................
 #---- Best Overall IFR Est Rows  #----
@@ -486,12 +487,15 @@ overall_IFR_best_est$bestest <- purrr::pmap(overall_IFR_best_est[, c("new_dat", 
 overall_IFR_best_est %>%
   dplyr::select(c("sero", "georegion", "bestest")) %>%
   tidyr::unnest(cols = "bestest") %>%
-  dplyr::mutate(bestest = paste0(mean, " (", Q025, ", ", Q975, ")")) %>%
+  dplyr::mutate(bestest = paste0(Q50, " (", Q025, ", ", Q975, ")")) %>%
   dplyr::select(c("sero", "georegion", "bestest")) %>%
   tidyr::pivot_wider(., names_from = "sero", values_from = "bestest") %>%
   readr::write_tsv(., path = "tables/final_tables/overall_best_est_for_georegions_IFRs.tsv")
 
-
+# look at mean for reference
+overall_IFR_best_est %>%
+  dplyr::select(c("sero", "georegion", "bestest")) %>%
+  tidyr::unnest(cols = "bestest")
 
 #............................................................
 #---- Figure of Age Specific Results #----
