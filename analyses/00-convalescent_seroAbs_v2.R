@@ -228,7 +228,7 @@ summary(WBmod1)
 # WITH interval censoring
 #......................
 survobj_intcens <- survival::Surv(time = sero_rev_comb$time_to_event,
-                          time2 =sero_rev_comb$time_to_event2,
+                          time2 = sero_rev_comb$time_to_event2,
                           type = "interval2" )
 
 # fit KM
@@ -301,7 +301,7 @@ WeibullSurvPlotObj <- ggplot() +
   xyaxis_plot_theme
 
 
-
+dir.create("figures/final_figures/", recursive = TRUE)
 jpeg("figures/final_figures/weibull_survplot.jpg",
      width = 11, height = 8, units = "in", res = 500)
 plot(WeibullSurvPlotObj)
