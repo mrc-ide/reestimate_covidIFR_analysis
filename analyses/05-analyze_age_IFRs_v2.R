@@ -64,6 +64,7 @@ modIFR_age_column <- modIFR_age %>%
 #......................
 # get modelled seroprevs
 #......................
+set.seed(48)
 retmapSero <- dplyr::bind_rows(regretmap, serorevretmap) %>%
   dplyr::mutate(strataIFRret = purrr::map(path, get_strata_seroprevs))
 
@@ -270,29 +271,18 @@ logvardat <- retmapIFR %>%
 fit_pred_intervals_log_linear_mod <- function(ifrdata, vardata) {
   # join age-specific ifrs across studies w/ variance for each age group
   moddat <- dplyr::left_join(ifrdata, vardata, by = c("study_id", "ageband"))
-  # fit a weighted log-linear model using absolute sum of residuals
-  loss_ifr <- function(par, dat) {
-    # expected
-    exptd <- par[1] * dat$age + par[2]
-    # observerd minus expected weighted
-    ret <- abs(log(dat$mu) - exptd)
-    #ret <- ret * 1/dat$param_logvar
-    return(sum(ret))
-  }
-  # get slope and intercept
-  parret <- optim(par = c(0.1, -10), fn = loss_ifr, dat = moddat)
-  if (parret$convergence != 0) {
-    stop("Convergence not reach in weighted log linear model")
-  }
+  # fit a weighted log-linear model
+  logmod <- lm(log(mu) ~ age, data = moddat, weights = 1/param_logvar)
 
   # get residual variance in 10-year age groups
-  moddat$residuals <- log(moddat$mu) - (parret$par[1] * moddat$age + parret$par[2])
+  moddat$residuals <- logmod$residuals
+  logmodcoeffs <- logmod$coefficients
+
   # internal check for leverage
   # plot(moddat$age, moddat$residuals)
   moddat$cut <- cut(moddat$age, breaks = c(0, seq(9, 89, 10), 100))
   new_dat <- data.frame(ageband = levels(moddat$cut))
   new_dat$var <- mapply(var, split(moddat$residuals, f = moddat$cut))
-
 
   # get first- and second-order age terms
   new_dat$age <- purrr::map_dbl(new_dat$ageband, get_mid_age)
@@ -303,7 +293,7 @@ fit_pred_intervals_log_linear_mod <- function(ifrdata, vardata) {
   new_dat$var_fit <- exp(predict(mod2, newdata = new_dat))
 
   # get corresponding prediction from optim fit
-  new_dat$fit <- parret$par[1] * new_dat$age + parret$par[2]
+  new_dat$fit <- logmodcoeffs[2] * new_dat$age + logmodcoeffs[1]
 
   # get prediction intervals in linear space
   new_dat_log <- new_dat
@@ -317,14 +307,18 @@ fit_pred_intervals_log_linear_mod <- function(ifrdata, vardata) {
   new_dat_linear <- new_dat
   new_dat_linear$Q025 <- qlnorm(0.025, mean = new_dat$fit, sd = sqrt(new_dat$var_fit))
   new_dat_linear$Q20 <- qlnorm(0.2, mean = new_dat$fit, sd = sqrt(new_dat$var_fit))
+  new_dat_linear$mean = exp(new_dat$fit + new_dat$var_fit/2)
   new_dat_linear$Q50 <- qlnorm(0.5, mean = new_dat$fit, sd = sqrt(new_dat$var_fit))
   new_dat_linear$Q80 <- qlnorm(0.8, mean = new_dat$fit, sd = sqrt(new_dat$var_fit))
   new_dat_linear$Q975 <- qlnorm(0.975, mean = new_dat$fit, sd = sqrt(new_dat$var_fit))
 
   # out
-  out <- list(linear_new_dat = new_dat_linear,
+  out <- list(residuals = moddat[, c("age", "residuals")],
+              newvar = new_dat[, c("age", "var")],
+              linear_new_dat = new_dat_linear,
               log_new_data = new_dat_log,
-              mod = parret)
+              logmod = logmod,
+              varmod = mod2)
   return(out)
 }
 
@@ -335,12 +329,16 @@ ifrdat <- ifrdat %>%
   rename(ifrdata = data) %>%
   dplyr::left_join(., logvardat) %>%
   dplyr::mutate(bestestmod = purrr::map2(ifrdata, vardata, fit_pred_intervals_log_linear_mod),
-                mod = purrr::map(bestestmod, "mod"),
+                logmod = purrr::map(bestestmod, "logmod"),
+                varmod = purrr::map(bestestmod, "varmod"),
+                residuals = purrr::map(bestestmod, "residuals"),
+                logvar = purrr::map(bestestmod, "newvar"),
                 linear_predints = purrr::map(bestestmod, "linear_new_dat"),
                 log_predints = purrr::map(bestestmod, "log_new_data"))
 
-ifrdat$mod[[1]]
-ifrdat$mod[[2]]
+ifrdat$logmod[[1]]
+ifrdat$logmod[[2]]
+
 
 #......................
 # internal checks
@@ -357,16 +355,47 @@ ggplot() +
 
 
 #......................
+# plot out residuals
+#......................
+pA <- ifrdat$residuals[[1]] %>%
+  ggplot() +
+  geom_point(aes(x = age, y = residuals)) +
+  xlab("Age") + ylab("Residuals") +
+  xyaxis_plot_theme
+
+pB <- ifrdat$residuals[[2]] %>%
+  ggplot() +
+  geom_point(aes(x = age, y = residuals)) +
+  xlab("Age") + ylab("Residuals") +
+  xyaxis_plot_theme
+
+jpeg("figures/final_figures/bestest_residuals_overall_ifr_est.jpg",
+     width = 8, heigh = 6, units = "in", res = 500)
+cowplot::plot_grid(pA, pB, nrow = 1, labels = c("(A)", "(B)"))
+graphics.off()
+
+#......................
+# send out variance of new dat for supp
+#......................
+t1 <- ifrdat$logvar[[1]]
+t2 <- ifrdat$logvar[[2]]
+dplyr::left_join(t1, t2, by = "age") %>%
+  magrittr::set_colnames(c("age", "noserorev_var", "serorev_var")) %>%
+  dplyr::mutate_if(is.numeric, round, 4) %>%
+  readr::write_tsv(., "tables/final_tables/bestest_ifr_variance_for_mod.tsv")
+
+
+#......................
 # write out the age-specific best fit
 #......................
 
 ifrdat %>%
   tidyr::unnest(cols = "linear_predints") %>%
-  dplyr::select(c("sero", "ageband", "Q025", "Q50", "Q975")) %>%
+  dplyr::select(c("sero", "ageband", "Q025", "mean", "Q975")) %>%
   dplyr::mutate(Q025 = round(Q025 * 100, 2),
-                Q50 = round(Q50 * 100, 2),
+                mean = round(mean * 100, 2),
                 Q975 = round(Q975 * 100, 2)) %>%
-  dplyr::mutate(bestest = paste0(Q50, " (", Q025, ", ", Q975, ")")) %>%
+  dplyr::mutate(bestest = paste0(mean, " (", Q025, ", ", Q975, ")")) %>%
   dplyr::select(c("sero", "ageband", "bestest")) %>%
   tidyr::pivot_wider(., names_from = "sero", values_from = "bestest") %>%
   readr::write_tsv(., path = "tables/final_tables/overall_best_est_for_age_IFRs.tsv")
@@ -432,10 +461,15 @@ calc_monte_carlo_overall_IFRs <- function(new_dat, popN, reps = 1e5) {
   Q025 <- round(quantile(z, 0.025) * 100, 2)
   Q50 <- round(quantile(z, 0.50) * 100, 2)
   Q975 <- round(quantile(z, 0.975) * 100, 2)
+  # get mean
+  mean <- exp(new_dat$fit + new_dat$var_fit/2)
+  mean <- sum( mean * (new_dat$pop_size/sum(new_dat$pop_size)) )
+  mean <- round(mean * 100, 2)
 
   # out
   ret <- tibble::tibble(Q025 = Q025,
                         Q50 = Q50,
+                        mean = mean,
                         Q975 = Q975)
   return(ret)
 }
@@ -452,7 +486,7 @@ overall_IFR_best_est$bestest <- purrr::pmap(overall_IFR_best_est[, c("new_dat", 
 overall_IFR_best_est %>%
   dplyr::select(c("sero", "georegion", "bestest")) %>%
   tidyr::unnest(cols = "bestest") %>%
-  dplyr::mutate(bestest = paste0(Q50, " (", Q025, ", ", Q975, ")")) %>%
+  dplyr::mutate(bestest = paste0(mean, " (", Q025, ", ", Q975, ")")) %>%
   dplyr::select(c("sero", "georegion", "bestest")) %>%
   tidyr::pivot_wider(., names_from = "sero", values_from = "bestest") %>%
   readr::write_tsv(., path = "tables/final_tables/overall_best_est_for_georegions_IFRs.tsv")
@@ -507,7 +541,7 @@ PanelA <- modIFR_age %>%
   ylab("IFR (95% CrI)") + xlab("Age (years)") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+  theme(plot.margin = unit(c(0.05, 0.25, 0.25, 1),"cm"))
 
 
 
@@ -515,18 +549,29 @@ PanelA <- modIFR_age %>%
 #......................
 # Panel B --  No Seroreversion Log10 Space
 #......................
+ribbondat <- ifrdat$log_predints[ifrdat$sero == "reg"][[1]] %>%
+  dplyr::mutate(Q025 = Q025/log(10), # tranformation
+                Q20 = Q20/log(10),
+                Q80 = Q80/log(10),
+                Q975 = Q975 /log(10))
 
 PanelB <- log_retmapIFR_dat %>%
   dplyr::left_join(., locatkey, by = "study_id") %>%
   dplyr::filter(sero == "reg") %>%
   ggplot() +
+  geom_ribbon(data = ribbondat,
+              aes(x = age, ymin = Q025, ymax = Q975),
+              fill = "#d9d9d9", alpha = 0.8) +
+  geom_ribbon(data = ribbondat,
+              aes(x = age, ymin = Q20, ymax = Q80),
+              fill = "#969696", alpha = 0.8) +
   geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  location),
                   alpha = 0.75, shape = 16, size = 0.9) +
   scale_color_manual("Location", values = mycolors) +
   ylab("Log-10 IFR (95% CrI)") + xlab("Age (years)") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  theme(plot.margin = unit(c(0.05, 0.05, 0.05, 1),"cm"))
+  theme(plot.margin = unit(c(0.05, 0.25, 0.25, 1),"cm"))
 
 #......................
 # Panel C -- Seroreversion Linear Space
@@ -555,22 +600,34 @@ PanelC <- modIFR_age %>%
   ylab("IFR (95% CrI)") + xlab("Age (years)") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  theme(plot.margin = unit(c(1, 0.05, 0.05, 1),"cm"))
+  theme(plot.margin = unit(c(1, 0.25, 0.25, 1),"cm"))
 
 #......................
 # Panel D -- Seroreversion Log10 Space
 #......................
+ribbondat <- ifrdat$log_predints[ifrdat$sero == "serorev"][[1]] %>%
+  dplyr::mutate(Q025 = Q025/log(10), # tranformation
+                Q20 = Q20/log(10),
+                Q80 = Q80/log(10),
+                Q975 = Q975 /log(10))
+
 PanelD <- log_retmapIFR_dat %>%
   dplyr::left_join(., locatkey, by = "study_id") %>%
   dplyr::filter(sero == "serorev") %>%
   ggplot() +
+  geom_ribbon(data = ribbondat,
+              aes(x = age, ymin = Q025, ymax = Q975),
+              fill = "#d9d9d9", alpha = 0.8) +
+  geom_ribbon(data = ribbondat,
+              aes(x = age, ymin = Q20, ymax = Q80),
+              fill = "#969696", alpha = 0.8) +
   geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  location),
                   alpha = 0.75, shape = 16, size = 0.9) +
   scale_color_manual("Location", values = mycolors) +
   ylab("Log-10 IFR (95% CrI)") + xlab("Age (years)") +
   xyaxis_plot_theme +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  theme(plot.margin = unit(c(1, 0.05, 0.05, 1),"cm"))
+  theme(plot.margin = unit(c(1, 0.25, 0.25, 1),"cm"))
 
 
 
