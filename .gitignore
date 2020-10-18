@@ -22,6 +22,7 @@ results/descriptive_figures
 results/sero_reversion
 results/Rgn_Mod_Stan
 results/OLD
+reports/final_reports
 
 # Data files I'm generating
 sandbox/
