@@ -21,7 +21,7 @@ JHUdf <- readr::read_csv("data/raw/time_series_covid19_deaths_global.csv") %>%
   dplyr::rename(cumdeaths = deaths) %>%
   dplyr::mutate(deaths = cumdeaths - dplyr::lag(cumdeaths),
                 deaths = ifelse(is.na(deaths), 0, deaths),  # take care of first value
-                deaths = ifelse(deaths < 1, 0, deaths)) %>% # take care of cumulative death correction
+                deaths = ifelse(deaths < 0, 0, deaths)) %>% # take care of cumulative death correction
   dplyr::select(c("date", "georegion", "deaths")) %>%
   dplyr::filter(date <= lubridate::mdy("08-17-2020")) %>%
   dplyr::ungroup(.)
@@ -600,6 +600,9 @@ plot(ITA_timeseries$date,ITA_timeseries$deaths,xlab="date",ylab="deaths")
 points(ITAJHU$date,ITAJHU$deaths,col="red")
 legend("topright",c("Govt","JHU"),pch=1,col=c("black","red"))
 
+# liftover the one negative death day in the govt (same as we do for JHU)
+ITA_timeseries <- ITA_timeseries %>%
+  dplyr::mutate(deaths = ifelse(deaths < 0, 0, deaths))
 
 #......................
 # ages
@@ -972,7 +975,7 @@ JHUdf <- readr::read_csv("data/raw/time_series_covid19_deaths_US.csv") %>%
   dplyr::group_by(georegion) %>% # group by region for daily deaths
   dplyr::mutate(deaths = cumdeaths - dplyr::lag(cumdeaths),
                 deaths = ifelse(is.na(deaths), 0, deaths), # take care of first value
-                deaths = ifelse(deaths < 1, 0, deaths)) %>% # take care of cumulative deaths corrections
+                deaths = ifelse(deaths < 0, 0, deaths)) %>% # take care of cumulative deaths corrections
   dplyr::select(c("date", "georegion", "deaths")) %>%
   dplyr::filter(date <= lubridate::mdy("08-17-2020")) %>%
   dplyr::ungroup(.)
