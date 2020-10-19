@@ -46,26 +46,6 @@ CHE1_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
                                                    num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.12, dsc1 = 0, dsc2 = 13.12),
                                                    sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
-#............................................................
-#---- CHE2 #-----
-#...........................................................
-sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
-                                min =   c(0.50,    0.50),
-                                init =  c(0.85,    0.99),
-                                max =   c(1.00,    1.00),
-                                dsc1 =  c(49.5,   5497.5),
-                                dsc2 =  c(5.5,    6.5))
-
-#......................
-# carehomes
-#......................
-rawch <- readRDS("data/derived/carehomes/CHE2_agebands_noCH.RDS")
-CHE2_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
-                                                   groupvar = "ageband",  dat = rawch,
-                                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
-                                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14.24, dsc1 = 0, dsc2 = 14.24),
-                                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
-
 
 #............................................................
 #---- DNK1 #-----
@@ -228,14 +208,12 @@ bvec <- seq(5, 2.5, length.out = 50)
 
 fit_map <- tibble::tibble(
   name = c("CHE1_carehomes",
-           "CHE2_carehomes",
            "DNK1_carehomes",
            "ESP1-2_carehomes",
            "GBR3_carehomes",
            "SWE1_carehomes",
            "NYS1_carehomes"),
   modelobj = list(CHE1_carehomes_mod,
-                  CHE2_carehomes_mod,
                   DNK_carehomes_mod,
                   ESP_carehomes_mod,
                   GBR3_carehomes_mod,
