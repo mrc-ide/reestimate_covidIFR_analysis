@@ -217,7 +217,7 @@ dplyr::left_join(death_col, seroprev_column, by = "study_id") %>%
   dplyr::left_join(., order, by = "study_id") %>%
   dplyr::arrange(order) %>%
   dplyr::select(-c("order")) %>%
-  dplyr::mutate(totdeaths = prettyNum(totdeaths, big.mark=",", scientific=FALSE)) %>%
+  dplyr::mutate(totdeaths = prettyNum(totdeaths, big.mark = ",", scientific = FALSE)) %>%
   readr::write_tsv(., path = "tables/final_tables/overall_ifr_data_attackrate_pop_standardized.tsv")
 
 
