@@ -881,43 +881,31 @@ CHN.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                   get_descriptive_dat = TRUE,
                                   groupingvar = "ageband",
                                   study_ids = "CHN1",
-                                  agebreaks = c(0, 19, 29, 39, 49, 59, 69, 79, 999))
+                                  agebreaks = c(0, 9, 19,
+                                                29, 39, 49,
+                                                59, 69, 79,
+                                                999))
 
 
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-# NOTE, don't have serology in 0-9, so bands start at 19
-# assumption 1: 16-19 can stand in for 0-19
-# assumption 2: add 5 year age bands to match out 10 year age bands
-# assumption 3: over 60 stands in for "(59,69]"  "(69,79]"  "(79,999]"
-agebands <- unique(CHN.agebands.dat$deaths_propMCMC$ageband)
+# assuming uniform attack rate over time series
+# this is among 4-81 years old
+chnagebands <- unique(CHN.agebands.dat$deaths_propMCMC$ageband)
 chn_adj_seroprev <- tibble::tibble(
-  ObsDaymin = unique(CHN.agebands.dat$seroprevMCMC$ObsDaymin),
-  ObsDaymax = unique(CHN.agebands.dat$seroprevMCMC$ObsDaymax),
-  ageband = agebands,
-  n_positive = NA,
-  n_tested = NA,
-  SeroPrev = NA)
+  ObsDaymin = CHN.agebands.dat$seroprevMCMC$ObsDaymin,
+  ObsDaymax = CHN.agebands.dat$seroprevMCMC$ObsDaymax,
+  n_positive = CHN.agebands.dat$seroprevMCMC$n_positive,
+  n_tested = CHN.agebands.dat$seroprevMCMC$n_tested)
 
-# assumption 1
-chn_adj_seroprev$n_positive[1] <- CHN.agebands.dat$seroprev_group$n_positive[1]
-chn_adj_seroprev$n_tested[1] <- CHN.agebands.dat$seroprev_group$n_tested[1]
-# assumption 2
-chn_adj_seroprev$n_positive[2] <- sum(CHN.agebands.dat$seroprev_group$n_positive[2:3])
-chn_adj_seroprev$n_tested[2] <- sum(CHN.agebands.dat$seroprev_group$n_tested[2:3])
-chn_adj_seroprev$n_positive[3] <- sum(CHN.agebands.dat$seroprev_group$n_positive[4:5])
-chn_adj_seroprev$n_tested[3] <- sum(CHN.agebands.dat$seroprev_group$n_tested[4:5])
-chn_adj_seroprev$n_positive[4] <- sum(CHN.agebands.dat$seroprev_group$n_positive[6:7])
-chn_adj_seroprev$n_tested[4] <- sum(CHN.agebands.dat$seroprev_group$n_tested[6:7])
-chn_adj_seroprev$n_positive[5] <- sum(CHN.agebands.dat$seroprev_group$n_positive[8:9])
-chn_adj_seroprev$n_tested[5] <- sum(CHN.agebands.dat$seroprev_group$n_tested[8:9])
-# assumption 3
-chn_adj_seroprev$n_positive[6:8] <- CHN.agebands.dat$seroprev_group$n_positive[10]
-chn_adj_seroprev$n_tested[6:8] <- CHN.agebands.dat$seroprev_group$n_tested[10]
-
-# add in seroprevalences
-chn_adj_seroprev <- chn_adj_seroprev %>%
+chn_adj_seroprev <- lapply(chnagebands, function(x){
+  chn_adj_seroprev %>%
+    dplyr::mutate(ageband = x)}) %>%
+  dplyr::bind_rows() %>%
+  dplyr::mutate(age_high = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
+  dplyr::arrange(., ObsDaymin, ObsDaymax, age_high) %>%
+  dplyr::select(-c("age_high")) %>%
   dplyr::mutate(SeroPrev = n_positive/n_tested)
 
 # out
