@@ -2,11 +2,11 @@ study_id	test_name	country	n_samples_true_neg	n_test_neg_out_of_true_neg	n_sampl
 BRA1	Wondfo SARS-CoV-2 antibody test	Brazil	520	515	527	447	https://www.nature.com/articles/s41591-020-0992-3#Sec14
 CHE1	anti-SARS-CoV-2-IgG ELISA	Switzerland	176	176	181	165	https://www.medrxiv.org/content/10.1101/2020.05.02.20080879v1.full.pdf
 CHE2	TRABI	Switzerland	5503	5497	54	49	https://www.medrxiv.org/content/10.1101/2020.05.31.20118554v2.full.pdf
-CHN1		China	26	26	105	91	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v1.full.pdf
+CHN1	IgM/IgG Authors	China	202	200	105	94	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v1.full.pdf
 DNK1	IgM/IgG Antibody to SARS-CoV-2, lateral flow test	Denmark	651	647	155	128	https://www.medrxiv.org/content/10.1101/2020.04.24.20075291v1.full.pdf
 ESP1-2	Orient Gene IgM/IgG	Spain	156	156	153	123	https://www.mscbs.gob.es/ciudadanos/ene-covid/home.htm, accessed 11/09/2020 and Pollan et al http://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31483-5/fulltext
 GBR3	LFIA	United Kingdom	500	493	48	38	https://thorax.bmj.com/content/early/2020/08/11/thoraxjnl-2020-215732
 ITA1	Abbott	Italy	1013	1011	43	41	https://www.medrxiv.org/content/10.1101/2020.05.19.20107482v2.full.pdf	serovalidation numbers not available from Italian study, so using comparable San Fran study
 NLD1	SARS-CoV-2 total antibody ELISA	Netherlands	282	281	174	171	https://www.researchsquare.com/article/rs-25862/v1
 NYS1	SARS-CoV-2 IgG microsphere immunoassay	USA	288	287	234	204	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1.full.pdf
-SWE1		Sweden	270	267	157	156	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/	
+SWE1		Sweden	270	267	157	156	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
