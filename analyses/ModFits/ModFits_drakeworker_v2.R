@@ -282,10 +282,10 @@ NLD_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 6, maxMa = "ma6",
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
-                                init =  c(0.85,    0.97),
+                                init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(91.5,    26.5),
-                                dsc2 =  c(14.5,    0.5))
+                                dsc1 =  c(94.5,    200.5),
+                                dsc2 =  c(11.5,    2.5))
 
 #......................
 # agebands
