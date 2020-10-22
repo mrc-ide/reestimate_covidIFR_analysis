@@ -67,8 +67,11 @@ drjacoby::plot_mc_acceptance(param_map$fit[[1]]$mcmcout)
 drjacoby::plot_mc_acceptance(param_map$fit[[2]]$mcmcout)
 quick_sero_diagnostics(param_map$fit[[1]])
 quick_sero_diagnostics(param_map$fit[[2]])
+COVIDCurve::get_cred_intervals(param_map$fit[[1]], what = "IFRparams", by_chain = F)
+COVIDCurve::get_cred_intervals(param_map$fit[[2]], what = "IFRparams", by_chain = F)
 COVIDCurve::get_gelman_rubin_diagnostic(param_map$fit[[1]])
 COVIDCurve::get_gelman_rubin_diagnostic(param_map$fit[[2]])
+
 #...........................................................
 # get IFR over time
 #...........................................................
