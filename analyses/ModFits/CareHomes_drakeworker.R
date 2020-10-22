@@ -162,7 +162,7 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawch <- readRDS("data/derived/carehomes/SWE1_agebands_noCH.RDS")
 SWE_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
                                                   groupvar = "ageband",  dat = rawch,
-                                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
+                                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
                                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.15, dsc1 = 0, dsc2 = 16.15),
                                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
