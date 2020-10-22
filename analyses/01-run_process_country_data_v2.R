@@ -1129,7 +1129,7 @@ saveRDS(NYS.age.dat, "data/derived/USA/NYS1_agebands.RDS")
 
 
 ################################
-# New York City
+# NYC1 New York City
 ################################
 
 NYC_timeseries<-NYSJHU %>%
@@ -1139,19 +1139,50 @@ NYC_timeseries<-NYSJHU %>%
   dplyr::summarise(deaths=sum(deaths)) %>%
   dplyr::select(date,georegion,deaths)
 
+## Kings=Brooklyn. New-York = Manhattan
+NYC_pop<-populationdf %>%
+  dplyr::filter(region %in% c("New York_Queens","New York_Richmond",
+                                    "New York_Bronx",
+                                    "New York_New-York","New York_Kings"))%>%
+  dplyr::mutate(ageband=cut(age_high,breaks=c(0,44,64,74,999),include.lowest = T)) %>%
+  dplyr::group_by(ageband) %>%
+  dplyr::summarise(population=sum(population)) %>%
+  dplyr::mutate(country="USA", region="New York City","age_breakdown"=1,
+                for_regional_analysis=1,
+                study_id="NYC1",gender="both",age_low=NA,age_high=NA)
+### split 0-44 acc to data that 20.9% of NYC residents are <18
+NYC_totpop<-sum(NYC_pop$population)
+NYC_pop<-rbind(NYC_pop[1,],NYC_pop)
+NYC_pop<- NYC_pop %>%
+  dplyr::mutate(ageband=as.character(ageband))
+NYC_pop$ageband[1]<-"(0,17]"
+NYC_pop$ageband[2]<-"(18,44]"
+NYC_pop$age_low<-c(0,17,44,64,74)
+NYC_pop$age_high<-c(17,44,64,74,999)
+NYC_pop$population[1]<-NYC_totpop*0.209
+NYC_pop$population[2]<-NYC_pop$population[2]-NYC_pop$population[1]
+NYC_pop<-NYC_pop %>%
+  dplyr::select(country,age_low,age_high,region,gender,population,age_breakdown,
+                for_regional_analysis,study_id)
+
+nyc_sero_valdf<-sero_valdf
+nyc_sero_valdf$study_id[which(nyc_sero_valdf$study_id=="NYS1")]<-"NYC1"
+
 NYC1.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
-                                   time_series_totdeaths_df = CHE2TimeSeries,
-                                   time_series_totdeaths_geocode = "Zurich",
-                                   population = populationdf,
-                                   sero_val = sero_valdf,
+                                   time_series_totdeaths_df = NYC_timeseries,
+                                   time_series_totdeaths_geocode = "New York City",
+                                   population = NYC_pop,
+                                   sero_val = nyc_sero_valdf,
                                    seroprev = sero_prevdf,
                                    get_descriptive_dat = TRUE,
                                    groupingvar = "ageband",
-                                   study_ids = "CHE2",
-                                   agebreaks = c(0, 9, 19, 29,
-                                                 39, 49, 59, 69,
-                                                 79, 999)) # for pop splits
+                                   study_ids = "NYC1",
+                                   agebreaks = c(0,17,44,64,74,999)) # for pop splits
 
+#......................
+# save out
+#......................
+saveRDS(NYC1.agebands.dat, "data/derived/USA/NYC1_agebands.RDS")
 
 
 # compare timing of epidemic with New York State.

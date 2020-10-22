@@ -218,8 +218,8 @@ USA	NYS1	18	34	all	both	3151	410	0.13			0.13	2020-04-19	2020-04-28	1	0	https://w
 USA	NYS1	35	44	all	both	2628	360	0.137			0.137	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
 USA	NYS1	45	54	all	both	3345	478	0.143			0.143	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
 USA	NYS1	55	999	all	both	5977	651	0.109			0.109	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
-USA	NYC1	18	999	New York City	both	5946	1183	0.199				2020-04-19	2020-04-28	0	1	https://www.6sqft.com/new-york-covid-antibody-test-preliminary-results/
-USA	NYC1	18	999	New York City	both	4725	1021	0.216				2020-06-01	2020-06-13	0	1	https://www.6sqft.com/new-york-covid-antibody-test-preliminary-results/
+USA	NYC1	18	999	New York City	both	5946	1183	0.199				2020-04-19	2020-04-28	1	0	https://www.6sqft.com/new-york-covid-antibody-test-preliminary-results/
+USA	NYC1	18	999	New York City	both	4725	1021	0.216				2020-06-01	2020-06-13	1	0	https://www.6sqft.com/new-york-covid-antibody-test-preliminary-results/
 Sweden	SWE1	0	999	all	both			0.005	0	0.026		2020-04-20	2020-04-26	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
 Sweden	SWE1	0	999	all	both			0.025	0.009	0.049		2020-04-27	2020-05-03	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
 Sweden	SWE1	0	999	all	both			0.028	0.011	0.051		2020-05-04	2020-05-10	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
