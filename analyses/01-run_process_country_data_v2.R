@@ -1132,12 +1132,25 @@ saveRDS(NYS.age.dat, "data/derived/USA/NYS1_agebands.RDS")
 # New York City
 ################################
 
-NYC<-NYSJHU %>%
+NYC_timeseries<-NYSJHU %>%
   dplyr::filter(georegion=="New York City") %>%
-  dplyr::mutate(deaths=ifelse(deaths>3000,0,deaths)) %>%
+  dplyr::mutate(deaths=ifelse(deaths>3000,0,deaths)) %>%  ## drop the probable deaths.
   dplyr::group_by(georegion,date) %>%
-  dplyr::summarise(deaths=sum(deaths))
+  dplyr::summarise(deaths=sum(deaths)) %>%
+  dplyr::select(date,georegion,deaths)
 
+NYC1.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
+                                   time_series_totdeaths_df = CHE2TimeSeries,
+                                   time_series_totdeaths_geocode = "Zurich",
+                                   population = populationdf,
+                                   sero_val = sero_valdf,
+                                   seroprev = sero_prevdf,
+                                   get_descriptive_dat = TRUE,
+                                   groupingvar = "ageband",
+                                   study_ids = "CHE2",
+                                   agebreaks = c(0, 9, 19, 29,
+                                                 39, 49, 59, 69,
+                                                 79, 999)) # for pop splits
 
 
 
