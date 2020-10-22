@@ -31,7 +31,7 @@ data/param_map/
 .drake
 # shared data
 data/raw/shared
-
+meta_comparison/
 
 # knitr and R markdown default cache directories
 /*_cache/
