@@ -1,235 +1,237 @@
-study_id	age_low	age_high	region	gender	n_tested	n_positive	seroprevalence_unadjusted	range_sero_low	range_sero_high	seroprevalence_weighted	date_start_survey	date_end_survey	age_breakdown	for_regional_analysis	ref
-BRA1	0	4	all	both	430		0.014	0.005	0.03		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	5	9	all	both	682		0.012	0.005	0.023		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	10	19	all	both	2287		0.014	0.009	0.019		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	20	29	all	both	3866		0.014	0.011	0.018		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	30	39	all	both	3834		0.015	0.012	0.02		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	40	49	all	both	3975		0.016	0.012	0.02		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	50	59	all	both	4015		0.017	0.013	0.021		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	60	69	all	both	3381		0.01	0.007	0.014		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	70	79	all	both	1797		0.012	0.008	0.018		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	80	999	all	both	728		0.005	0.001	0.014		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	0	999	Central-West	both	2477	0	0				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	0	999	North	both	4710	269	0.05711252654				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	0	999	Northeast	both	6023	38	0.006309148265				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	0	999	South	both	5309	9	0.001695234507				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-BRA1	0	999	Southeast	both	5682	21	0.003695881732				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-CHE1	5	9	Geneva	both	16	0	0				2020-04-06	2020-04-13	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	5	9	Geneva	both	15	0	0				2020-04-13	2020-04-20	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	5	9	Geneva	both	21	1	0.04761904762				2020-04-20	2020-04-27	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	5	9	Geneva	both	26	0	0				2020-04-27	2020-05-03	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	5	9	Geneva	both	37	0	0				2020-05-03	2020-05-10	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	10	19	Geneva	both	43	0	0				2020-04-06	2020-04-13	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	10	19	Geneva	both	54	4	0.07407407407				2020-04-13	2020-04-20	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	10	19	Geneva	both	68	10	0.1470588235				2020-04-20	2020-04-27	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	10	19	Geneva	both	74	5	0.06756756757				2020-04-27	2020-05-03	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	10	19	Geneva	both	88	13	0.1477272727				2020-05-03	2020-05-10	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	20	49	Geneva	both	146	7	0.04794520548				2020-04-06	2020-04-13	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	20	49	Geneva	both	191	16	0.08376963351				2020-04-13	2020-04-20	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	20	49	Geneva	both	222	32	0.1441441441				2020-04-20	2020-04-27	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	20	49	Geneva	both	221	19	0.08597285068				2020-04-27	2020-05-03	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	20	49	Geneva	both	298	34	0.1140939597				2020-05-03	2020-05-10	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	50	64	Geneva	both	97	5	0.05154639175				2020-04-06	2020-04-13	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	50	64	Geneva	both	137	6	0.04379562044				2020-04-13	2020-04-20	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	50	64	Geneva	both	179	14	0.0782122905				2020-04-20	2020-04-27	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	50	64	Geneva	both	187	11	0.05882352941				2020-04-27	2020-05-03	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	50	64	Geneva	both	235	27	0.114893617				2020-05-03	2020-05-10	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	65	999	Geneva	both	32	0	0				2020-04-06	2020-04-13	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	65	999	Geneva	both	66	2	0.0303030303				2020-04-13	2020-04-20	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	65	999	Geneva	both	71	4	0.05633802817				2020-04-20	2020-04-27	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	65	999	Geneva	both	85	1	0.01176470588				2020-04-27	2020-05-03	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-CHE1	65	999	Geneva	both	109	8	0.07339449541				2020-05-03	2020-05-10	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
-ESP1-2	0	0	all	 both	240		0.011	0.003000	0.035		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	1	4	all	 both	1681		0.021000	0.013	0.034		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	5	9	all	 both	2846		0.031000	0.022	0.042		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	10	14	all	 both	3428		0.040000	0.031	0.05		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	15	19	all	 both	3227		0.037000	0.029	0.048		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	20	24	all	 both	2813		0.045000	0.035	0.057		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	25	29	all	 both	2618		0.047000	0.036	0.062		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	30	34	all	 both	3038		0.040000	0.031	0.052		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	35	39	all	 both	4012		0.047000	0.038	0.058		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	40	44	all	 both	5145		0.052000	0.044	0.061		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	45	49	all	 both	5375		0.058000	0.049	0.068		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	50	54	all	 both	5279		0.058000	0.049	0.069		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	55	59	all	 both	5215		0.059000	0.05	0.069		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	60	64	all	 both	4600		0.058000	0.048	0.069		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	65	69	all	 both	3592		0.061000	0.05	0.074		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	70	74	all	 both	2951		0.066000	0.054	0.081		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	75	79	all	 both	2175		0.057000	0.045	0.074		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	80	84	all	 both	1431		0.053000	0.038	0.073		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	85	89	all	 both	973		0.060000	0.042	0.087		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	90	999	all	 both	436		0.054	0.030000	0.095		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	all	male	29255		0.05	0.046	0.054		2020-04-27	2020-05-11	0	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	all	female	31642		0.051	0.047	0.055		2020-04-27	2020-05-11	0	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Andalucía	both	9773		0.026	0.022	0.031000		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Aragón	both	2752		0.047	0.036000	0.06		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Asturias, Principado de	both	1550		0.019	0.013000	0.028		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Balears, Illes	both	1372		0.023	0.016000	0.035		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Canarias	both	2368		0.023	0.013000	0.039		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Cantabria	both	1504		0.036	0.023000	0.057		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Castilla y León	both	6979		0.069	0.060000	0.08		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Castilla La Mancha	both	5065		0.104000	0.086	0.124		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Cataluña	both	6323		0.058	0.048000	0.069		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Comunitat Valenciana	both	4288		0.024	0.019000	0.031		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Extremadura	both	2784		0.028	0.020000	0.038		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Galicia	both	4070		0.021	0.017000	0.027		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Madrid, Comunidad de	both	3186		0.113	0.098000	0.13		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Murcia, Región de	both	1391		0.014	0.008000	0.024		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Navarra, Comunidad Foral de	both	1744		0.057	0.043000	0.075		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	País Vasco	both	2838		0.04	0.031000	0.052		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Rioja, La	both	1323		0.034	0.025000	0.047		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Ceuta	both	838		0.012	0.006000	0.023		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Melilla	both	927		0.018	0.012000	0.028		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	0	all	both	216		0.021	0.005	0.081		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	1	4	all	both	1668		0.024	0.015	0.037		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	5	9	all	both	2872		0.03	0.022	0.04		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	10	14	all	both	3543		0.038	0.03	0.047		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	15	19	all	both	3342		0.037	0.029	0.046		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	20	24	all	both	2942		0.044	0.034	0.057		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	25	29	all	both	2694		0.047	0.037	0.061		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	30	34	all	both	3155		0.045	0.035	0.057		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	35	39	all	both	4159		0.047	0.039	0.058		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	40	44	all	both	5357		0.054	0.046	0.063		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	45	49	all	both	5673		0.059	0.05	0.068		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	50	54	all	both	5524		0.061	0.053	0.07		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	55	59	all	both	5423		0.058	0.05	0.068		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	60	64	all	both	4862		0.062	0.053	0.073		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	65	69	all	both	3783		0.066	0.056	0.079		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	70	74	all	both	3158		0.072	0.06	0.086		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	75	79	all	both	2296		0.063	0.05	0.08		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	80	84	all	both	1508		0.052	0.039	0.071		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	85	89	all	both	1013		0.064	0.045	0.091		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	90	999	all	both	478		0.076	0.047	0.119		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	0	all	both	201		0.037	0.013	0.099		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	1	4	all	both	1568		0.033	0.021	0.05		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	5	9	all	both	2766		0.029	0.021	0.039		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	10	14	all	both	3450		0.041	0.033	0.052		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	15	19	all	both	3187		0.035	0.027	0.044		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	20	24	all	both	2768		0.044	0.035	0.055		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	25	29	all	both	2534		0.051	0.039	0.065		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	30	34	all	both	2994		0.043	0.033	0.055		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	35	39	all	both	4060		0.047	0.038	0.058		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	40	44	all	both	5227		0.054	0.046	0.063		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	45	49	all	both	5545		0.058	0.049	0.068		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	50	54	all	both	5412		0.058	0.05	0.067		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	55	59	all	both	5369		0.061	0.053	0.071		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	60	64	all	both	4867		0.063	0.054	0.074		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	65	69	all	both	3783		0.061	0.051	0.073		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	70	74	all	both	3179		0.064	0.052	0.077		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	75	79	all	both	2285		0.067	0.054	0.085		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	80	84	all	both	1496		0.051	0.037	0.069		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	85	89	all	both	1009		0.063	0.045	0.089		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	90	999	all	both	467		0.077	0.049	0.121		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Andalucía	both	9823		0.029	0.025	0.034		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Aragón	both	2677		0.049	0.039	0.063		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Asturias, Principado de	both	1712		0.016	0.011	0.023		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Balears, Illes	both	1344		0.015	0.009	0.025		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Canarias	both	2705		0.027	0.017	0.041		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Cantabria	both	1661		0.032	0.021	0.047		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Castilla y León	both	7344		0.075	0.065	0.086		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Castilla La Mancha	both	5173		0.103	0.087	0.122		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Cataluña	both	6607		0.061	0.052	0.072		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Comunitat Valenciana	both	4543		0.028	0.022	0.034		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Extremadura	both	2790		0.033	0.024	0.044		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Galicia	both	3999		0.022	0.017	0.027		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Madrid, Comunidad de	both	3704		0.114	0.099	0.13		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Murcia, Región de	both	1602		0.016	0.01	0.025		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Navarra, Comunidad Foral de	both	1756		0.063	0.048	0.082		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	País Vasco	both	2994		0.037	0.028	0.049		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Rioja, La	both	1402		0.038	0.027	0.052		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Ceuta	both	904		0.005	0.001	0.017		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Melilla	both	926		0.032	0.022	0.046		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Andalucía	both	9386		0.03	0.026	0.036		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Aragón	both	2614		0.048	0.037	0.062		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Asturias, Principado de	both	1703		0.019	0.013	0.026		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Balears, Illes	both	1280		0.014	0.008	0.024		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Canarias	both	2593		0.023	0.015	0.035		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Cantabria	both	1670		0.037	0.025	0.054		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Castilla y León	both	7270		0.078	0.068	0.09		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Castilla La Mancha	both	4944		0.096	0.078	0.116		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Cataluña	both	6490		0.059	0.05	0.071		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Comunitat Valenciana	both	4389		0.024	0.019	0.031		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Extremadura	both	2740		0.031	0.022	0.043		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Galicia	both	3872		0.019	0.015	0.024		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Madrid, Comunidad de	both	3732		0.117	0.103	0.133		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Murcia, Región de	both	1504		0.016	0.01	0.027		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Navarra, Comunidad Foral de	both	1697		0.066	0.051	0.085		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	País Vasco	both	3114		0.036	0.029	0.047		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Rioja, La	both	1356		0.037	0.028	0.049		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Ceuta	both	906		0.007	0.003	0.018		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-ESP1-2	0	999	Melilla	both	907		0.034	0.023	0.051		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
-NLD1	18	30	all	both	1251	52	0.041566747				2020-04-01	2020-04-15	1	0	https://www.researchsquare.com/article/rs-25862/v1
-NLD1	31	40	all	both	882	22	0.024943311				2020-04-01	2020-04-15	1	0	https://www.researchsquare.com/article/rs-25862/v1
-NLD1	41	50	all	both	1354	31	0.022895126				2020-04-01	2020-04-15	1	0	https://www.researchsquare.com/article/rs-25862/v1
-NLD1	51	60	all	both	2132	48	0.022514071				2020-04-01	2020-04-15	1	0	https://www.researchsquare.com/article/rs-25862/v1
-NLD1	60	72	all	both	1742	47	0.026980482				2020-04-01	2020-04-15	1	0	https://www.researchsquare.com/article/rs-25862/v1
-NLD1	18	72	all	both	7000	385	0.055				2020-05-10	2020-05-20	1	0	https://uk.reuters.com/article/uk-health-coronavirus-netherlands-study/study-shows-coronavirus-antibodies-in-5-5-of-dutch-blood-donors-idUKKBN23A0OT
-CHE2	18	75	Zurich	both	1469	16	0.011				2020-04-01	2020-04-30	1	1	https://www.medrxiv.org/content/10.1101/2020.05.31.20118554v2.full.pdf
-CHE2	18	75	Zurich	both	1640	26	0.016				2020-05-01	2020-05-31	1	1	https://www.medrxiv.org/content/10.1101/2020.05.31.20118554v2.full.pdf
-ITA1	0	17	all	both			0.022	0.017	0.028		2020-05-25	2020-07-15	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	18	34	all	both			0.021	0.017	0.024		2020-05-25	2020-07-15	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	35	49	all	both			0.024	0.021	0.028		2020-05-25	2020-07-15	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	50	59	all	both			0.031	0.027	0.035		2020-05-25	2020-07-15	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	60	69	all	both			0.026	0.021	0.029		2020-05-25	2020-07-15	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	70	999	all	both			0.025	0.021	0.029		2020-05-25	2020-07-15	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Piemonte	both			0.030051936	0.022	0.038		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Valle D'Aosta	both			0.040183284	0.032	0.049		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Liguria	both			0.031047951	0.023	0.039		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Lombardia	both			0.075297609	0.068	0.083		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Bolzano	both			0.032742223	0.018	0.047		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Trento	both			0.031484006	0.022	0.041		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Veneto	both			0.019169246	0.014	0.025		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Friuli-Venenzia Giulia	both			0.010407628	0.006	0.015		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Emilia-Romagna	both			0.028113503	0.022	0.035		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Toscana	both			0.0102572	0.006	0.015		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Umbria	both			0.008561149	0.004	0.013		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Marche	both			0.027420883	0.021	0.034		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Lazio	both			0.009599673	0.006	0.013		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Abruzzo	both			0.015265645	0.009	0.021		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Molise	both			0.006992453	0.003	0.011		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Campania	both			0.007365246	0.003	0.011		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Puglia	both			0.008890286	0.006	0.012		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Basilicata	both			0.007591805	0.004	0.011		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Clabria	both			0.005821159	0.002	0.01		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Sicilia	both			0.00334543	0.001	0.006		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-ITA1	0	999	Sardegna	both			0.003310658	0.001	0.005		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-CHN1	4	81	Wuhan	both	18712	657	0.03511115861				2020-03-26	2020-04-28	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
-GBR3	18	24	all	both	6499	490	0.07543566667			0.079	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	25	34	all	both	13366	998	0.074658			0.078	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	35	44	all	both	17052	1048	0.06143766667			0.061	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	45	54	all	both	20634	1316	0.06377066667			0.064	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	55	64	all	both	20404	1222	0.05988233333			0.059	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	65	74	all	both	15543	604	0.03888533333			0.032	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	75	999	all	both	6410	254	0.039663			0.033	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	18	999	North East	both	3574	189	0.05288333333			0.05	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	18	999	North West	both	11996	784	0.065326			0.066	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	18	999	Yorkshire	both	6519	289	0.044329			0.039	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	18	999	East Midlands	both	12684	592	0.046662			0.042	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	18	999	West Midlands	both	9620	569	0.05910466667			0.058	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	18	999	East of England	both	14433	774	0.053661			0.051	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	18	999	London	both	9547	1099	0.1150966667			0.13	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	18	999	South East	both	21979	974	0.044329			0.039	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-GBR3	18	999	South West	both	9556	342	0.03577466667			0.028	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-NYS1	18	999	Westchester and Rockland	both	980	141	0.144			0.144	2020-04-19	2020-04-28	0	1	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
-NYS1	18	999	Long Island	both	2074	247	0.119			0.119	2020-04-19	2020-04-28	0	1	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
-NYS1	18	999	Upstate New York	both	6101	207	0.034			0.034	2020-04-19	2020-04-28	0	1	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
-NYS1	18	999	New York City	both	5946	1201	0.202			0.034	2020-04-19	2020-04-28	0	1	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
-NYS1	18	34	all	both	3151	410	0.13			0.13	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
-NYS1	35	44	all	both	2628	360	0.137			0.137	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
-NYS1	45	54	all	both	3345	478	0.143			0.143	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
-NYS1	55	999	all	both	5977	651	0.109			0.109	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
-SWE1	0	999	all	both			0.005	0	0.026		2020-04-20	2020-04-26	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-SWE1	0	999	all	both			0.025	0.009	0.049		2020-04-27	2020-05-03	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-SWE1	0	999	all	both			0.028	0.011	0.051		2020-05-04	2020-05-10	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-SWE1	0	999	all	both			0.051	0.031	0.077		2020-05-11	2020-05-17	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-SWE1	0	999	all	both			0.05	0.026	0.082		2020-05-18	2020-05-24	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-SWE1	0	999	all	both			0.04	0.021	0.066		2020-05-25	2020-05-31	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-SWE1	0	999	all	both			0.052	0.03	0.08		2020-06-01	2020-06-07	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-SWE1	0	999	all	both			0.071	0.047	0.102		2020-06-08	2020-06-12	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-DNK1	17	69	all	both			0.015	0.007	0.023		2020-04-06	2020-04-08	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661
-DNK1	17	69	all	both			0.019	0.012	0.027		2020-04-14	2020-04-19	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661
-DNK1	17	69	all	both			0.016	0.008	0.023		2020-04-20	2020-04-26	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661
-DNK1	17	69	all	both			0.024	0.015	0.032		2020-04-27	2020-05-03	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661
-DNK1	17	69	Capital	both	6528	203	0.03109681373				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
-DNK1	17	69	South DK & Zealand	both	7886	130	0.01648490997				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
-DNK1	17	69	Central DK & North DK	both	6226	79	0.0126887247				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
+country	study_id	age_low	age_high	region	gender	n_tested	n_positive	seroprevalence_unadjusted	range_sero_low	range_sero_high	seroprevalence_weighted	date_start_survey	date_end_survey	age_breakdown	for_regional_analysis	ref
+Brazil	BRA1	0	4	all	both	430		0.014	0.005	0.03		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	5	9	all	both	682		0.012	0.005	0.023		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	10	19	all	both	2287		0.014	0.009	0.019		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	20	29	all	both	3866		0.014	0.011	0.018		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	30	39	all	both	3834		0.015	0.012	0.02		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	40	49	all	both	3975		0.016	0.012	0.02		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	50	59	all	both	4015		0.017	0.013	0.021		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	60	69	all	both	3381		0.01	0.007	0.014		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	70	79	all	both	1797		0.012	0.008	0.018		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	80	999	all	both	728		0.005	0.001	0.014		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	0	999	Central-West	both	2477	0	0				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	0	999	North	both	4710	269	0.05711252654				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	0	999	Northeast	both	6023	38	0.006309148265				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	0	999	South	both	5309	9	0.001695234507				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	0	999	Southeast	both	5682	21	0.003695881732				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Switzerland	CHE1	5	9	Geneva	both	16	0	0				2020-04-06	2020-04-13	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	5	9	Geneva	both	15	0	0				2020-04-13	2020-04-20	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	5	9	Geneva	both	21	1	0.04761904762				2020-04-20	2020-04-27	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	5	9	Geneva	both	26	0	0				2020-04-27	2020-05-03	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	5	9	Geneva	both	37	0	0				2020-05-03	2020-05-10	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	10	19	Geneva	both	43	0	0				2020-04-06	2020-04-13	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	10	19	Geneva	both	54	4	0.07407407407				2020-04-13	2020-04-20	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	10	19	Geneva	both	68	10	0.1470588235				2020-04-20	2020-04-27	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	10	19	Geneva	both	74	5	0.06756756757				2020-04-27	2020-05-03	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	10	19	Geneva	both	88	13	0.1477272727				2020-05-03	2020-05-10	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	20	49	Geneva	both	146	7	0.04794520548				2020-04-06	2020-04-13	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	20	49	Geneva	both	191	16	0.08376963351				2020-04-13	2020-04-20	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	20	49	Geneva	both	222	32	0.1441441441				2020-04-20	2020-04-27	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	20	49	Geneva	both	221	19	0.08597285068				2020-04-27	2020-05-03	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	20	49	Geneva	both	298	34	0.1140939597				2020-05-03	2020-05-10	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	50	64	Geneva	both	97	5	0.05154639175				2020-04-06	2020-04-13	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	50	64	Geneva	both	137	6	0.04379562044				2020-04-13	2020-04-20	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	50	64	Geneva	both	179	14	0.0782122905				2020-04-20	2020-04-27	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	50	64	Geneva	both	187	11	0.05882352941				2020-04-27	2020-05-03	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	50	64	Geneva	both	235	27	0.114893617				2020-05-03	2020-05-10	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	65	999	Geneva	both	32	0	0				2020-04-06	2020-04-13	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	65	999	Geneva	both	66	2	0.0303030303				2020-04-13	2020-04-20	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	65	999	Geneva	both	71	4	0.05633802817				2020-04-20	2020-04-27	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	65	999	Geneva	both	85	1	0.01176470588				2020-04-27	2020-05-03	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Switzerland	CHE1	65	999	Geneva	both	109	8	0.07339449541				2020-05-03	2020-05-10	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
+Spain	ESP1-2	0	0	all	 both	240		0.011	0.003000	0.035		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	1	4	all	 both	1681		0.021000	0.013	0.034		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	5	9	all	 both	2846		0.031000	0.022	0.042		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	10	14	all	 both	3428		0.040000	0.031	0.05		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	15	19	all	 both	3227		0.037000	0.029	0.048		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	20	24	all	 both	2813		0.045000	0.035	0.057		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	25	29	all	 both	2618		0.047000	0.036	0.062		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	30	34	all	 both	3038		0.040000	0.031	0.052		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	35	39	all	 both	4012		0.047000	0.038	0.058		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	40	44	all	 both	5145		0.052000	0.044	0.061		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	45	49	all	 both	5375		0.058000	0.049	0.068		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	50	54	all	 both	5279		0.058000	0.049	0.069		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	55	59	all	 both	5215		0.059000	0.05	0.069		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	60	64	all	 both	4600		0.058000	0.048	0.069		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	65	69	all	 both	3592		0.061000	0.05	0.074		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	70	74	all	 both	2951		0.066000	0.054	0.081		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	75	79	all	 both	2175		0.057000	0.045	0.074		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	80	84	all	 both	1431		0.053000	0.038	0.073		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	85	89	all	 both	973		0.060000	0.042	0.087		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	90	999	all	 both	436		0.054	0.030000	0.095		2020-04-27	2020-05-11	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	all	male	29255		0.05	0.046	0.054		2020-04-27	2020-05-11	0	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	all	female	31642		0.051	0.047	0.055		2020-04-27	2020-05-11	0	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Andalucía	both	9773		0.026	0.022	0.031000		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Aragón	both	2752		0.047	0.036000	0.06		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Asturias, Principado de	both	1550		0.019	0.013000	0.028		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Balears, Illes	both	1372		0.023	0.016000	0.035		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Canarias	both	2368		0.023	0.013000	0.039		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Cantabria	both	1504		0.036	0.023000	0.057		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Castilla y León	both	6979		0.069	0.060000	0.08		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Castilla La Mancha	both	5065		0.104000	0.086	0.124		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Cataluña	both	6323		0.058	0.048000	0.069		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Comunitat Valenciana	both	4288		0.024	0.019000	0.031		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Extremadura	both	2784		0.028	0.020000	0.038		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Galicia	both	4070		0.021	0.017000	0.027		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Madrid, Comunidad de	both	3186		0.113	0.098000	0.13		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Murcia, Región de	both	1391		0.014	0.008000	0.024		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Navarra, Comunidad Foral de	both	1744		0.057	0.043000	0.075		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	País Vasco	both	2838		0.04	0.031000	0.052		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Rioja, La	both	1323		0.034	0.025000	0.047		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Ceuta	both	838		0.012	0.006000	0.023		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Melilla	both	927		0.018	0.012000	0.028		2020-04-27	2020-05-11	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	0	all	both	216		0.021	0.005	0.081		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	1	4	all	both	1668		0.024	0.015	0.037		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	5	9	all	both	2872		0.03	0.022	0.04		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	10	14	all	both	3543		0.038	0.03	0.047		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	15	19	all	both	3342		0.037	0.029	0.046		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	20	24	all	both	2942		0.044	0.034	0.057		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	25	29	all	both	2694		0.047	0.037	0.061		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	30	34	all	both	3155		0.045	0.035	0.057		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	35	39	all	both	4159		0.047	0.039	0.058		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	40	44	all	both	5357		0.054	0.046	0.063		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	45	49	all	both	5673		0.059	0.05	0.068		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	50	54	all	both	5524		0.061	0.053	0.07		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	55	59	all	both	5423		0.058	0.05	0.068		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	60	64	all	both	4862		0.062	0.053	0.073		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	65	69	all	both	3783		0.066	0.056	0.079		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	70	74	all	both	3158		0.072	0.06	0.086		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	75	79	all	both	2296		0.063	0.05	0.08		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	80	84	all	both	1508		0.052	0.039	0.071		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	85	89	all	both	1013		0.064	0.045	0.091		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	90	999	all	both	478		0.076	0.047	0.119		2020-05-18	2020-06-01	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	0	all	both	201		0.037	0.013	0.099		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	1	4	all	both	1568		0.033	0.021	0.05		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	5	9	all	both	2766		0.029	0.021	0.039		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	10	14	all	both	3450		0.041	0.033	0.052		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	15	19	all	both	3187		0.035	0.027	0.044		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	20	24	all	both	2768		0.044	0.035	0.055		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	25	29	all	both	2534		0.051	0.039	0.065		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	30	34	all	both	2994		0.043	0.033	0.055		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	35	39	all	both	4060		0.047	0.038	0.058		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	40	44	all	both	5227		0.054	0.046	0.063		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	45	49	all	both	5545		0.058	0.049	0.068		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	50	54	all	both	5412		0.058	0.05	0.067		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	55	59	all	both	5369		0.061	0.053	0.071		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	60	64	all	both	4867		0.063	0.054	0.074		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	65	69	all	both	3783		0.061	0.051	0.073		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	70	74	all	both	3179		0.064	0.052	0.077		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	75	79	all	both	2285		0.067	0.054	0.085		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	80	84	all	both	1496		0.051	0.037	0.069		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	85	89	all	both	1009		0.063	0.045	0.089		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	90	999	all	both	467		0.077	0.049	0.121		2020-06-08	2020-06-22	1	0	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Andalucía	both	9823		0.029	0.025	0.034		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Aragón	both	2677		0.049	0.039	0.063		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Asturias, Principado de	both	1712		0.016	0.011	0.023		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Balears, Illes	both	1344		0.015	0.009	0.025		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Canarias	both	2705		0.027	0.017	0.041		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Cantabria	both	1661		0.032	0.021	0.047		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Castilla y León	both	7344		0.075	0.065	0.086		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Castilla La Mancha	both	5173		0.103	0.087	0.122		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Cataluña	both	6607		0.061	0.052	0.072		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Comunitat Valenciana	both	4543		0.028	0.022	0.034		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Extremadura	both	2790		0.033	0.024	0.044		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Galicia	both	3999		0.022	0.017	0.027		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Madrid, Comunidad de	both	3704		0.114	0.099	0.13		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Murcia, Región de	both	1602		0.016	0.01	0.025		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Navarra, Comunidad Foral de	both	1756		0.063	0.048	0.082		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	País Vasco	both	2994		0.037	0.028	0.049		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Rioja, La	both	1402		0.038	0.027	0.052		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Ceuta	both	904		0.005	0.001	0.017		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Melilla	both	926		0.032	0.022	0.046		2020-05-18	2020-06-01	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Andalucía	both	9386		0.03	0.026	0.036		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Aragón	both	2614		0.048	0.037	0.062		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Asturias, Principado de	both	1703		0.019	0.013	0.026		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Balears, Illes	both	1280		0.014	0.008	0.024		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Canarias	both	2593		0.023	0.015	0.035		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Cantabria	both	1670		0.037	0.025	0.054		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Castilla y León	both	7270		0.078	0.068	0.09		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Castilla La Mancha	both	4944		0.096	0.078	0.116		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Cataluña	both	6490		0.059	0.05	0.071		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Comunitat Valenciana	both	4389		0.024	0.019	0.031		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Extremadura	both	2740		0.031	0.022	0.043		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Galicia	both	3872		0.019	0.015	0.024		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Madrid, Comunidad de	both	3732		0.117	0.103	0.133		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Murcia, Región de	both	1504		0.016	0.01	0.027		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Navarra, Comunidad Foral de	both	1697		0.066	0.051	0.085		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	País Vasco	both	3114		0.036	0.029	0.047		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Rioja, La	both	1356		0.037	0.028	0.049		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Ceuta	both	906		0.007	0.003	0.018		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Spain	ESP1-2	0	999	Melilla	both	907		0.034	0.023	0.051		2020-06-08	2020-06-22	0	1	https://www.mscbs.gob.es/ciudadanos/ene-covid, accessed Sep 11, 2020
+Netherlands	NLD1	18	30	all	both	1251	52	0.041566747				2020-04-01	2020-04-15	1	0	https://www.researchsquare.com/article/rs-25862/v1
+Netherlands	NLD1	31	40	all	both	882	22	0.024943311				2020-04-01	2020-04-15	1	0	https://www.researchsquare.com/article/rs-25862/v1
+Netherlands	NLD1	41	50	all	both	1354	31	0.022895126				2020-04-01	2020-04-15	1	0	https://www.researchsquare.com/article/rs-25862/v1
+Netherlands	NLD1	51	60	all	both	2132	48	0.022514071				2020-04-01	2020-04-15	1	0	https://www.researchsquare.com/article/rs-25862/v1
+Netherlands	NLD1	60	72	all	both	1742	47	0.026980482				2020-04-01	2020-04-15	1	0	https://www.researchsquare.com/article/rs-25862/v1
+Netherlands	NLD1	18	72	all	both	7000	385	0.055				2020-05-10	2020-05-20	1	0	https://uk.reuters.com/article/uk-health-coronavirus-netherlands-study/study-shows-coronavirus-antibodies-in-5-5-of-dutch-blood-donors-idUKKBN23A0OT
+Switzerland	CHE2	18	75	Zurich	both	1469	16	0.011				2020-04-01	2020-04-30	1	1	https://www.medrxiv.org/content/10.1101/2020.05.31.20118554v2.full.pdf
+Switzerland	CHE2	18	75	Zurich	both	1640	26	0.016				2020-05-01	2020-05-31	1	1	https://www.medrxiv.org/content/10.1101/2020.05.31.20118554v2.full.pdf
+Italy	ITA1	0	17	all	both			0.022	0.017	0.028		2020-05-25	2020-07-15	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	18	34	all	both			0.021	0.017	0.024		2020-05-25	2020-07-15	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	35	49	all	both			0.024	0.021	0.028		2020-05-25	2020-07-15	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	50	59	all	both			0.031	0.027	0.035		2020-05-25	2020-07-15	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	60	69	all	both			0.026	0.021	0.029		2020-05-25	2020-07-15	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	70	999	all	both			0.025	0.021	0.029		2020-05-25	2020-07-15	1	0	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Piemonte	both			0.030051936	0.022	0.038		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Valle D'Aosta	both			0.040183284	0.032	0.049		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Liguria	both			0.031047951	0.023	0.039		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Lombardia	both			0.075297609	0.068	0.083		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Bolzano	both			0.032742223	0.018	0.047		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Trento	both			0.031484006	0.022	0.041		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Veneto	both			0.019169246	0.014	0.025		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Friuli-Venenzia Giulia	both			0.010407628	0.006	0.015		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Emilia-Romagna	both			0.028113503	0.022	0.035		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Toscana	both			0.0102572	0.006	0.015		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Umbria	both			0.008561149	0.004	0.013		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Marche	both			0.027420883	0.021	0.034		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Lazio	both			0.009599673	0.006	0.013		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Abruzzo	both			0.015265645	0.009	0.021		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Molise	both			0.006992453	0.003	0.011		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Campania	both			0.007365246	0.003	0.011		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Puglia	both			0.008890286	0.006	0.012		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Basilicata	both			0.007591805	0.004	0.011		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Clabria	both			0.005821159	0.002	0.01		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Sicilia	both			0.00334543	0.001	0.006		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+Italy	ITA1	0	999	Sardegna	both			0.003310658	0.001	0.005		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
+China	CHN1	4	81	Wuhan	both	18712	657	0.03511115861				2020-03-26	2020-04-28	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
+England	GBR3	18	24	all	both	6499	490	0.07543566667			0.079	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	25	34	all	both	13366	998	0.074658			0.078	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	35	44	all	both	17052	1048	0.06143766667			0.061	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	45	54	all	both	20634	1316	0.06377066667			0.064	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	55	64	all	both	20404	1222	0.05988233333			0.059	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	65	74	all	both	15543	604	0.03888533333			0.032	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	75	999	all	both	6410	254	0.039663			0.033	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	North East	both	3574	189	0.05288333333			0.05	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	North West	both	11996	784	0.065326			0.066	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	Yorkshire	both	6519	289	0.044329			0.039	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	East Midlands	both	12684	592	0.046662			0.042	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	West Midlands	both	9620	569	0.05910466667			0.058	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	East of England	both	14433	774	0.053661			0.051	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	London	both	9547	1099	0.1150966667			0.13	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	South East	both	21979	974	0.044329			0.039	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	South West	both	9556	342	0.03577466667			0.028	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+USA	NYS1	18	999	Westchester and Rockland	both	980	141	0.144			0.144	2020-04-19	2020-04-28	0	1	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
+USA	NYS1	18	999	Long Island	both	2074	247	0.119			0.119	2020-04-19	2020-04-28	0	1	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
+USA	NYS1	18	999	Upstate New York	both	6101	207	0.034			0.034	2020-04-19	2020-04-28	0	1	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
+USA	NYS1	18	999	New York City	both	5946	1201	0.202				2020-04-19	2020-04-28	0	1	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
+USA	NYS1	18	34	all	both	3151	410	0.13			0.13	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
+USA	NYS1	35	44	all	both	2628	360	0.137			0.137	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
+USA	NYS1	45	54	all	both	3345	478	0.143			0.143	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
+USA	NYS1	55	999	all	both	5977	651	0.109			0.109	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
+USA	NYC1	18	999	New York City	both	5946	1183	0.199				2020-04-19	2020-04-28	0	1	https://www.6sqft.com/new-york-covid-antibody-test-preliminary-results/
+USA	NYC1	18	999	New York City	both	4725	1021	0.216				2020-06-01	2020-06-13	0	1	https://www.6sqft.com/new-york-covid-antibody-test-preliminary-results/
+Sweden	SWE1	0	999	all	both			0.005	0	0.026		2020-04-20	2020-04-26	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.025	0.009	0.049		2020-04-27	2020-05-03	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.028	0.011	0.051		2020-05-04	2020-05-10	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.051	0.031	0.077		2020-05-11	2020-05-17	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.05	0.026	0.082		2020-05-18	2020-05-24	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.04	0.021	0.066		2020-05-25	2020-05-31	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.052	0.03	0.08		2020-06-01	2020-06-07	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Sweden	SWE1	0	999	all	both			0.071	0.047	0.102		2020-06-08	2020-06-12	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
+Denmark	DNK1	17	69	all	both			0.015	0.007	0.023		2020-04-06	2020-04-08	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661                        
+Denmark	DNK1	17	69	all	both			0.019	0.012	0.027		2020-04-14	2020-04-19	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661                        
+Denmark	DNK1	17	69	all	both			0.016	0.008	0.023		2020-04-20	2020-04-26	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661                        
+Denmark	DNK1	17	69	all	both			0.024	0.015	0.032		2020-04-27	2020-05-03	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661                        
+Denmark	DNK1	17	69	Capital	both	6528	203	0.03109681373				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
+Denmark	DNK1	17	69	South DK & Zealand	both	7886	130	0.01648490997				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
+Denmark	DNK1	17	69	Central DK & North DK	both	6226	79	0.0126887247				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
