@@ -21,7 +21,7 @@ JHUdf <- readr::read_csv("data/raw/time_series_covid19_deaths_global.csv") %>%
   dplyr::rename(cumdeaths = deaths) %>%
   dplyr::mutate(deaths = cumdeaths - dplyr::lag(cumdeaths),
                 deaths = ifelse(is.na(deaths), 0, deaths),  # take care of first value
-                deaths = ifelse(deaths < 1, 0, deaths)) %>% # take care of cumulative death correction
+                deaths = ifelse(deaths < 0, 0, deaths)) %>% # take care of cumulative death correction
   dplyr::select(c("date", "georegion", "deaths")) %>%
   dplyr::filter(date <= lubridate::mdy("08-17-2020")) %>%
   dplyr::ungroup(.)
@@ -52,13 +52,19 @@ populationdf <- readr::read_tsv("data/raw/non_usa_non_bra_population.tsv") %>%
 #............................................................
 #---- BRA1 #----
 #...........................................................
-#......................
-# pre-process Brazil
-#......................
-bra_cumdeaths <- readRDS("data/raw/Brazil_state_age_sex_deaths.rds") %>%
+# process Brazil time series
+bra_time_series <- readRDS("data/raw/2020-10-12_Brazil_state_age_sex_deaths.rds") %>%
+  dplyr::filter(date <= lubridate::mdy("08-17-2020")) %>%
+  dplyr::group_by(date) %>%
+  dplyr::summarise(deaths = sum(count)) %>%
+  dplyr::mutate(georegion = "BRA") %>%
+  dplyr::select(c("date", "georegion", "deaths"))
+
+# process Brazil cum deaths
+bra_cumdeaths <- readRDS("data/raw/2020-10-12_Brazil_state_age_sex_deaths.rds") %>%
+  dplyr::filter(date <= lubridate::mdy("08-17-2020")) %>%
   magrittr::set_colnames(tolower(colnames(.))) %>%
   dplyr::rename(gender = sex) %>%
-  dplyr::mutate(age = ifelse(age >= 100, 100, age)) %>%
   dplyr::group_by(region, age, gender, .drop = FALSE) %>%
   dplyr::summarise( deaths = sum(count) ) %>%
   dplyr::ungroup(.) %>%
@@ -77,7 +83,7 @@ bra_cumdeaths <- readRDS("data/raw/Brazil_state_age_sex_deaths.rds") %>%
   dplyr::mutate(
     age_high = ifelse(age_high == 0 & age_low == 0, 0.99, age_high))
 
-
+# process Brazil population
 bra_populationdf <- readr::read_csv("data/raw/Brazil_2020_Population_Data.csv") %>%
   magrittr::set_colnames(tolower(colnames(.))) %>%
   dplyr::mutate(
@@ -105,7 +111,7 @@ bra_populationdf <- bra_populationdf %>%
 # regions
 #......................
 BRA.regions.dat <- process_data4(cum_tp_deaths = bra_cumdeaths,
-                                 time_series_totdeaths_df = JHUdf,
+                                 time_series_totdeaths_df = bra_time_series,
                                  time_series_totdeaths_geocode = "BRA",
                                  population = bra_populationdf,
                                  sero_val = sero_valdf,
@@ -120,7 +126,7 @@ BRA.regions.dat <- process_data4(cum_tp_deaths = bra_cumdeaths,
 # ages
 #......................
 BRA.agebands.dat <- process_data4(cum_tp_deaths = bra_cumdeaths,
-                                  time_series_totdeaths_df = JHUdf,
+                                  time_series_totdeaths_df = bra_time_series,
                                   time_series_totdeaths_geocode = "BRA",
                                   population = bra_populationdf,
                                   sero_val = sero_valdf,
@@ -469,22 +475,11 @@ ESP_timeseries<-read.csv("data/raw/ESP_timeseries.csv") %>%
 ESP_timeseries$deaths[2:nrow(ESP_timeseries)]<-ESP_timeseries$deaths[2:nrow(ESP_timeseries)] -
   ESP_timeseries$deaths[1:(nrow(ESP_timeseries)-1)]
 
-### quick comparison of JHU vs SWE govt date of deaths
+### quick comparison of JHU vs ESP govt date of deaths
 ESPJHU<-filter(JHUdf,georegion=="ESP")
-esp_post<-readRDS("data/derived/esp_post_deaths.rds") %>%
-  dplyr::select(sim,deaths_ma1:deaths_ma10) %>%
-  dplyr::mutate(deaths=deaths_ma1+deaths_ma2+deaths_ma3+deaths_ma4+deaths_ma5+
-                  deaths_ma6+deaths_ma7+deaths_ma8+deaths_ma9+deaths_ma10)
-dates<-lubridate::ymd("2020-01-01"):(lubridate::ymd("2020-01-01")+229)
-esp_post$date<-rep(dates,100)
-plot(esp_post$date,esp_post$deaths,col="lightblue",xlab="date",ylab="deaths")
-points(ESP_timeseries$date,ESP_timeseries$deaths)
-#points(ESPJHU$date,ESPJHU$deaths,col="red")
-legend("topright",c("data","model fit"),pch=c(1,NA),lty=c(NA,1),lwd=c(NA,3),col=c("black","lightblue"))
-
-# plot(ESP_timeseries$date,ESP_timeseries$deaths,xlab="date",ylab="deaths")
-# points(ESPJHU$date,ESPJHU$deaths,col="red")
-# legend("topright",c("Govt","JHU"),pch=1,col=c("black","red"))
+plot(ESP_timeseries$date,ESP_timeseries$deaths,xlab="date",ylab="deaths")
+points(ESPJHU$date,ESPJHU$deaths,col="red")
+legend("topright",c("Govt","JHU"),pch=1,col=c("black","red"))
 
 #......................
 # regions
@@ -599,17 +594,21 @@ ITA_timeseries<-read.csv("data/raw/ITA_timeseries.csv") %>%
 ITA_timeseries$deaths[2:nrow(ITA_timeseries)]<-ITA_timeseries$deaths[2:nrow(ITA_timeseries)] -
   ITA_timeseries$deaths[1:(nrow(ITA_timeseries)-1)]
 
-### quick comparison of JHU vs SWE govt date of deaths
+### quick comparison of JHU vs ITA govt date of deaths
 ITAJHU<-filter(JHUdf,georegion=="ITA")
 plot(ITA_timeseries$date,ITA_timeseries$deaths,xlab="date",ylab="deaths")
 points(ITAJHU$date,ITAJHU$deaths,col="red")
-legend("topright",c("data","model fit"),pch=c(1,NA),lty=c(NA,1),lwd=c(NA,3),col=c("black","lightblue"))
+legend("topright",c("Govt","JHU"),pch=1,col=c("black","red"))
+
+# liftover the one negative death day in the govt (same as we do for JHU)
+ITA_timeseries <- ITA_timeseries %>%
+  dplyr::mutate(deaths = ifelse(deaths < 0, 0, deaths))
 
 #......................
 # ages
 #......................
 ITA.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
-                                  time_series_totdeaths_df = JHUdf,
+                                  time_series_totdeaths_df = ITA_timeseries,
                                   time_series_totdeaths_geocode = "ITA",
                                   population = populationdf,
                                   sero_val = sero_valdf,
@@ -626,7 +625,7 @@ ITA.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
 #......................
 # regional population data for ITA available
 ITA.regions.dat <- process_data4(cum_tp_deaths = deathsdf,
-                                 time_series_totdeaths_df = JHUdf,
+                                 time_series_totdeaths_df = ITA_timeseries,
                                  time_series_totdeaths_geocode = "ITA",
                                  population = populationdf,
                                  sero_val = sero_valdf,
@@ -711,17 +710,10 @@ NLD_timeseries<-read.csv("data/raw/NLD_timeseries.csv") %>%
 NLD_timeseries$deaths[2:nrow(NLD_timeseries)]<-NLD_timeseries$deaths[2:nrow(NLD_timeseries)] -
   NLD_timeseries$deaths[1:(nrow(NLD_timeseries)-1)]
 
-### quick comparison of JHU vs govt date of deaths vs posterior model
+### quick comparison of JHU vs govt date of deaths
 NLDJHU<-filter(JHUdf,georegion=="NLD")
-nld_post<-readRDS("data/derived/nld_post_deaths.rds") %>%
-  dplyr::select(sim,deaths_ma1:deaths_ma5) %>%
-  dplyr::mutate(deaths=deaths_ma1+deaths_ma2+deaths_ma3+deaths_ma4+deaths_ma5)
-dates<-lubridate::ymd("2020-01-01"):(lubridate::ymd("2020-01-01")+229)
-nld_post$date<-rep(dates,100)
-plot(nld_post$date,nld_post$deaths,col="lightblue",xlab="date",ylab="deaths")
-points(NLD_timeseries$date,NLD_timeseries$deaths)
-#points(NLDJHU$date,NLDJHU$deaths,col="red")
-legend("topright",c("data","model fit"),pch=c(1,NA),lty=c(NA,1),lwd=c(NA,3),col=c("black","lightblue"))
+plot(NLD_timeseries$date,NLD_timeseries$deaths)
+points(NLDJHU$date,NLDJHU$deaths,col="red")
 
 #......................
 # ages
@@ -810,10 +802,10 @@ SWE1_timeseries<-read.csv("data/raw/SWE_timeseries.csv") %>%
   dplyr::select(date,georegion,deaths)
 
 ### quick comparison of JHU vs SWE govt date of deaths
-# SWEJHU<-filter(JHUdf,georegion=="SWE")
-# plot(SWE1_timeseries$date,SWE1_timeseries$deaths,xlab="date",ylab="deaths")
-# points(SWEJHU$date,SWEJHU$deaths,col="red")
-# legend("topright",c("Swedish govt","JHU"),pch=1,col=c("black","blue"))
+SWEJHU<-filter(JHUdf,georegion=="SWE")
+plot(SWE1_timeseries$date,SWE1_timeseries$deaths,xlab="date",ylab="deaths")
+points(SWEJHU$date,SWEJHU$deaths,col="red")
+legend("topright",c("Swedish govt","JHU"),pch=1,col=c("black","red"))
 
 SWE.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                   time_series_totdeaths_df = SWE1_timeseries,
@@ -889,43 +881,31 @@ CHN.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                   get_descriptive_dat = TRUE,
                                   groupingvar = "ageband",
                                   study_ids = "CHN1",
-                                  agebreaks = c(0, 19, 29, 39, 49, 59, 69, 79, 999))
+                                  agebreaks = c(0, 9, 19,
+                                                29, 39, 49,
+                                                59, 69, 79,
+                                                999))
 
 
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-# NOTE, don't have serology in 0-9, so bands start at 19
-# assumption 1: 16-19 can stand in for 0-19
-# assumption 2: add 5 year age bands to match out 10 year age bands
-# assumption 3: over 60 stands in for "(59,69]"  "(69,79]"  "(79,999]"
-agebands <- unique(CHN.agebands.dat$deaths_propMCMC$ageband)
+# assuming uniform attack rate over time series
+# this is among 4-81 years old
+chnagebands <- unique(CHN.agebands.dat$deaths_propMCMC$ageband)
 chn_adj_seroprev <- tibble::tibble(
-  ObsDaymin = unique(CHN.agebands.dat$seroprevMCMC$ObsDaymin),
-  ObsDaymax = unique(CHN.agebands.dat$seroprevMCMC$ObsDaymax),
-  ageband = agebands,
-  n_positive = NA,
-  n_tested = NA,
-  SeroPrev = NA)
+  ObsDaymin = CHN.agebands.dat$seroprevMCMC$ObsDaymin,
+  ObsDaymax = CHN.agebands.dat$seroprevMCMC$ObsDaymax,
+  n_positive = CHN.agebands.dat$seroprevMCMC$n_positive,
+  n_tested = CHN.agebands.dat$seroprevMCMC$n_tested)
 
-# assumption 1
-chn_adj_seroprev$n_positive[1] <- CHN.agebands.dat$seroprev_group$n_positive[1]
-chn_adj_seroprev$n_tested[1] <- CHN.agebands.dat$seroprev_group$n_tested[1]
-# assumption 2
-chn_adj_seroprev$n_positive[2] <- sum(CHN.agebands.dat$seroprev_group$n_positive[2:3])
-chn_adj_seroprev$n_tested[2] <- sum(CHN.agebands.dat$seroprev_group$n_tested[2:3])
-chn_adj_seroprev$n_positive[3] <- sum(CHN.agebands.dat$seroprev_group$n_positive[4:5])
-chn_adj_seroprev$n_tested[3] <- sum(CHN.agebands.dat$seroprev_group$n_tested[4:5])
-chn_adj_seroprev$n_positive[4] <- sum(CHN.agebands.dat$seroprev_group$n_positive[6:7])
-chn_adj_seroprev$n_tested[4] <- sum(CHN.agebands.dat$seroprev_group$n_tested[6:7])
-chn_adj_seroprev$n_positive[5] <- sum(CHN.agebands.dat$seroprev_group$n_positive[8:9])
-chn_adj_seroprev$n_tested[5] <- sum(CHN.agebands.dat$seroprev_group$n_tested[8:9])
-# assumption 3
-chn_adj_seroprev$n_positive[6:8] <- CHN.agebands.dat$seroprev_group$n_positive[10]
-chn_adj_seroprev$n_tested[6:8] <- CHN.agebands.dat$seroprev_group$n_tested[10]
-
-# add in seroprevalences
-chn_adj_seroprev <- chn_adj_seroprev %>%
+chn_adj_seroprev <- lapply(chnagebands, function(x){
+  chn_adj_seroprev %>%
+    dplyr::mutate(ageband = x)}) %>%
+  dplyr::bind_rows() %>%
+  dplyr::mutate(age_high = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
+  dplyr::arrange(., ObsDaymin, ObsDaymax, age_high) %>%
+  dplyr::select(-c("age_high")) %>%
   dplyr::mutate(SeroPrev = n_positive/n_tested)
 
 # out
@@ -983,7 +963,7 @@ JHUdf <- readr::read_csv("data/raw/time_series_covid19_deaths_US.csv") %>%
   dplyr::group_by(georegion) %>% # group by region for daily deaths
   dplyr::mutate(deaths = cumdeaths - dplyr::lag(cumdeaths),
                 deaths = ifelse(is.na(deaths), 0, deaths), # take care of first value
-                deaths = ifelse(deaths < 1, 0, deaths)) %>% # take care of cumulative deaths corrections
+                deaths = ifelse(deaths < 0, 0, deaths)) %>% # take care of cumulative deaths corrections
   dplyr::select(c("date", "georegion", "deaths")) %>%
   dplyr::filter(date <= lubridate::mdy("08-17-2020")) %>%
   dplyr::ungroup(.)
@@ -1192,6 +1172,13 @@ GBR3.agebands_noCH.dat <- remove_ch_deaths(ageband_dat = GBR3.agebands.dat,
                                            carehomesdf = deaths_ch,
                                            studyid = "GBR3")
 saveRDS(GBR3.agebands_noCH.dat, "data/derived/carehomes/GBR3_agebands_noCH.RDS")
+
+### SWE1
+SWE1.agebands_noCH.dat <- remove_ch_deaths(ageband_dat = SWE.agebands.dat,
+                                           carehomesdf = deaths_ch,
+                                           studyid = "SWE1")
+saveRDS(SWE1.agebands_noCH.dat, "data/derived/carehomes/SWE1_agebands_noCH.RDS")
+
 
 ### NYS1
 NYS1.agebands_noCH.dat <- remove_ch_deaths(ageband_dat = NYS.age.dat,

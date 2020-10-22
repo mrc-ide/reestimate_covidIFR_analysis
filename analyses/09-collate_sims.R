@@ -78,6 +78,7 @@ collated_infxn_curve_NOserorev_plotObj <- datmap %>%
   geom_line(aes(x = time, y = totinfxns, group = sim), color = "#9ecae1", alpha = 0.8, size = 0.8) +
   geom_line(aes(x = time, y = truecurve), color = "#969696", size = 1) +
   facet_grid(simtype ~ serotestchar, scales = "free") +
+  scale_y_continuous(labels = scales::comma) +
   xlab("Time") + ylab("Num. Infxns") +
   xyaxis_plot_theme +
   theme(legend.position = "bottom",
@@ -94,11 +95,14 @@ collated_Noserorev_plotObj <-  datmap %>%
   tidyr::unnest(cols = "ifrests") %>%
   dplyr::select(c("simtype", "sens", "spec", "median", "LCI", "UCI")) %>%
   dplyr::mutate(serotestchar = paste0("Sens: ", sens, " ; Spec: ", spec),
-                param = "Oldest Age Group") %>%
+                param = "Oldest Age Group",
+                median = round(median * 100, 2),
+                LCI = round(LCI * 100, 2),
+                UCI = round(UCI * 100, 2)) %>%
   ggplot() +
   geom_pointrange(aes(x = param, y = median, ymin = LCI, ymax = UCI),
                   color = "#3182bd", size = 1.25) +
-  geom_hline(yintercept = 0.2, color = "#969696", size = 1.5, linetype = "dashed") +
+  geom_hline(yintercept = 20.0, color = "#969696", size = 1.5, linetype = "dashed") +
   facet_grid(simtype ~ serotestchar, scales = "free") +
   ylab("IFR (95% CrI)") +
   xyaxis_plot_theme +
@@ -135,6 +139,7 @@ collated_infxn_curve_serorev_plotObj <- datmap %>%
   geom_line(aes(x = time, y = totinfxns, group = sim), color = "#9ecae1", alpha = 0.8, size = 0.8) +
   geom_line(aes(x = time, y = truecurve), color = "#969696", size = 1) +
   facet_grid(simtype ~ serotestchar, scales = "free") +
+  scale_y_continuous(labels = scales::comma) +
   xlab("Time") + ylab("Num. Infxns") +
   xyaxis_plot_theme +
   theme(legend.position = "bottom",
@@ -151,11 +156,14 @@ collated_serorev_plotObj <-  datmap %>%
   tidyr::unnest(cols = "ifrests") %>%
   dplyr::select(c("simtype", "sens", "spec", "median", "LCI", "UCI")) %>%
   dplyr::mutate(serotestchar = paste0("Sens: ", sens, " ; Spec: ", spec),
-                param = "Oldest Age Group") %>%
+                param = "Oldest Age Group",
+                median = round(median * 100, 2),
+                LCI = round(LCI * 100, 2),
+                UCI = round(UCI * 100, 2)) %>%
   ggplot() +
   geom_pointrange(aes(x = param, y = median, ymin = LCI, ymax = UCI),
                   color = "#3182bd", size = 1.25) +
-  geom_hline(yintercept = 0.2, color = "#969696", size = 1.5, linetype = "dashed") +
+  geom_hline(yintercept = 20.0, color = "#969696", size = 1.5, linetype = "dashed") +
   facet_grid(simtype ~ serotestchar, scales = "free") +
   ylab("IFR (95% CrI)") +
   xyaxis_plot_theme +

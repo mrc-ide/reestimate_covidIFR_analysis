@@ -308,17 +308,17 @@ NLD_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 6, maxMa = "ma6",
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
-                                init =  c(0.85,    0.97),
+                                init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(91.5,    198.5),
-                                dsc2 =  c(14.5,    4.5))
+                                dsc1 =  c(94.5,    200.5),
+                                dsc2 =  c(11.5,    2.5))
 sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 
 #......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/CHN1/CHN1_agebands.RDS")
-CHN_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
+CHN_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                           groupvar = "ageband",  dat = rawage,
                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
                                           num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.20, dsc1 = 0, dsc2 = 16.20),
@@ -393,8 +393,14 @@ fit_map <- tibble::tibble(
   rungs = 50,
   GTI_pow = list(bvec),
   burnin = 1e4,
-  samples = 2e4,
+  samples = 1e4,
   thinning = 10)
+
+#......................
+# adjust coupling swap rates
+#......................
+moreswap <- seq(5, 3.5, length.out = 50)
+fit_map$GTI_pow[fit_map$name %in% c("CHN1_age", "ESP1-2_age", "GBR3_age")] <- list(moreswap)
 
 #......................
 # fitmap out

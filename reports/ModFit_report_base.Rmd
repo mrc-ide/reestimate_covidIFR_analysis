@@ -129,7 +129,8 @@ crudeplotdat <- crudedat %>%
                 crudeIFR = ifelse(crudeIFR > 1, NA, crudeIFR)) %>%  # protect against small denom
   dplyr::select(c("strata", "crudeIFR")) %>%
   dplyr::group_by(strata) %>%
-  dplyr::mutate(serodayfct = factor(1:dplyr::n())) %>%
+  dplyr::mutate(serodayfct = factor(1:dplyr::n()),
+                strata = factor(strata, levels = dictkey$strata)) %>% # add factors in for plot order
   dplyr::ungroup(.)
 
 

@@ -12,7 +12,7 @@ get_mid_age <- function(ageband) {
     lwr <- as.numeric(stringr::str_extract(ageband, "[0-9]+(?=\\,)")) + 1 # treat (1, as 1-based, so this is a two year old (since they are >1)
     upr <- as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])")) + 1
     # fix upper
-    upr[upr == 999] <- 100
+    upr[upr == (999+1)] <- 100
     midages <- purrr::map2_dbl(lwr, upr, function(x, y) mean(c(x,y)))
     return(midages)})
   # out
@@ -161,10 +161,10 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
                                          num_xs, max_xveclist,
                                          num_ys, max_yveclist,
                                          sens_spec_tbl, tod_paramsdf,
-                                         serodayparams) {
+                                         serodayparams, upperMa = 0.4) {
 
 
-  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.4)
+  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = upperMa)
 
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
@@ -287,10 +287,10 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
                                        num_xs, max_xveclist,
                                        num_ys, max_yveclist,
                                        sens_spec_tbl, tod_paramsdf,
-                                       serodayparams) {
+                                       serodayparams, upperMa = 0.4) {
 
 
-  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.4)
+  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = upperMa)
 
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
