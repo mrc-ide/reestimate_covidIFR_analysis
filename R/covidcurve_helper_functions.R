@@ -9,8 +9,8 @@ get_mid_age <- function(ageband) {
   ageband <- as.character(ageband)
   # extract and get mean
   age_mid <- purrr::map_dbl(ageband, function(x){
-    lwr <- as.numeric(stringr::str_extract(ageband, "[0-9]+(?=\\,)")) + 1 # treat (1, as 1-based, so this is a two year old (since they are >1)
-    upr <- as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])")) + 1
+    lwr <- as.numeric(stringr::str_extract(ageband, "[0-9]+(?=\\,)")) + 1 # treat as one-based
+    upr <- as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])")) + 1 # treat as one-based
     # fix upper
     upr[upr == (999+1)] <- 100
     midages <- purrr::map2_dbl(lwr, upr, function(x, y) mean(c(x,y)))
