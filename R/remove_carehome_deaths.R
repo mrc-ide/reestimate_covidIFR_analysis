@@ -52,7 +52,7 @@ remove_ch_deaths <-  function(ageband_dat, carehomesdf, studyid) {
   # know deaths are aligned and no missing days in middle of time-series (resolved on first pass)
   for (i in 1:ncol(recast_deaths)) {
     # need to round to nearest person
-    recast_deaths[,i] <- ceiling(ageband_dat$deaths_TSMCMC$deaths[i] * deaths_propMCMC_adj$death_prop)
+    recast_deaths[,i] <- round(ageband_dat$deaths_TSMCMC$deaths[i] * deaths_propMCMC_adj$death_prop)
   }
   # drop carehomes deaths from time series
   agenames <- deaths_propMCMC_adj$ageband[1:(length(deaths_propMCMC_adj$ageband)-1)]
