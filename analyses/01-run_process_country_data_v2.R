@@ -1128,13 +1128,13 @@ saveRDS(NYS.region.dat, "data/derived/USA/NYS1_regions.RDS")
 saveRDS(NYS.age.dat, "data/derived/USA/NYS1_agebands.RDS")
 
 
-################################
-# NYC1 New York City
-################################
+
+#............................................................
+#---- NYC1 New York City #-----
+#...........................................................
 
 NYC_timeseries<-NYSJHU %>%
   dplyr::filter(georegion=="New York City") %>%
-  dplyr::mutate(deaths=ifelse(deaths>3000,0,deaths)) %>%  ## drop the probable deaths.
   dplyr::group_by(georegion,date) %>%
   dplyr::summarise(deaths=sum(deaths)) %>%
   dplyr::select(date,georegion,deaths)
@@ -1165,6 +1165,10 @@ NYC_pop<-NYC_pop %>%
   dplyr::select(country,age_low,age_high,region,gender,population,age_breakdown,
                 for_regional_analysis,study_id)
 
+# convert population to inteer
+NYC_pop$population<- round(NYC_pop$population, 0)
+
+
 nyc_sero_valdf<-sero_valdf
 nyc_sero_valdf$study_id[which(nyc_sero_valdf$study_id=="NYS1")]<-"NYC1"
 
@@ -1178,6 +1182,35 @@ NYC1.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                    groupingvar = "ageband",
                                    study_ids = "NYC1",
                                    agebreaks = c(0,17,44,64,74,999)) # for pop splits
+
+
+#......................
+# MANUAL ADJUSTMENTS
+#......................
+# asssume constant attack rate
+nycagebands <- unique(NYC1.agebands.dat$deaths_propMCMC$ageband)
+nyc1_adj_seroprev <- tibble::tibble(
+  ObsDaymin = unique(NYC1.agebands.dat$seroprevMCMC$ObsDaymin),
+  ObsDaymax = unique(NYC1.agebands.dat$seroprevMCMC$ObsDaymax),
+  n_positive = unique(NYC1.agebands.dat$seroprevMCMC$n_positive),
+  n_tested = unique(NYC1.agebands.dat$seroprevMCMC$n_tested))
+
+
+nyc1_adj_seroprev <- lapply(nycagebands, function(x){
+  nyc1_adj_seroprev %>%
+    dplyr::mutate(ageband = x)}) %>%
+  dplyr::bind_rows() %>%
+  dplyr::arrange(., ObsDaymin, ObsDaymax, ageband) %>%
+  dplyr::mutate(SeroPrev = n_positive/n_tested)
+
+
+
+# overwrite
+NYC1.agebands.dat$seroprevMCMC <- nyc1_adj_seroprev
+
+# removing the May 18 date where 4000 deaths from NYC were added on a single day
+# likely due to probable deaths being retrospectively added back in
+NYC1.agebands.dat$deaths_TSMCMC$deaths[139] <- -1
 
 #......................
 # save out
