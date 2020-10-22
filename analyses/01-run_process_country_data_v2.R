@@ -1128,6 +1128,42 @@ saveRDS(NYS.region.dat, "data/derived/USA/NYS1_regions.RDS")
 saveRDS(NYS.age.dat, "data/derived/USA/NYS1_agebands.RDS")
 
 
+################################
+# New York City
+################################
+
+NYC<-NYSJHU %>%
+  dplyr::filter(georegion=="New York City") %>%
+  dplyr::mutate(deaths=ifelse(deaths>3000,0,deaths)) %>%
+  dplyr::group_by(georegion,date) %>%
+  dplyr::summarise(deaths=sum(deaths))
+
+
+
+
+# compare timing of epidemic with New York State.
+NYSJHU2<-NYSJHU %>%
+  dplyr::mutate(georegion=ifelse(georegion!="New York City","rest of state",georegion),
+                deaths=ifelse(deaths>3000,0,deaths)) %>%
+  dplyr::group_by(georegion, date) %>%
+  dplyr::summarise(deaths=sum(deaths)) %>%
+  dplyr::mutate(cumu_deaths=cumsum(deaths))
+
+inds<-which(NYSJHU2$georegion=="New York City")
+plot(NYSJHU2$date[inds],NYSJHU2$deaths[inds],ylim=c(0,1000),xlab="date",ylab="deaths")
+inds<-which(NYSJHU2$georegion=="rest of state")
+points(NYSJHU2$date[inds],NYSJHU2$deaths[inds],col="red")
+legend("topright",c("NYC","rest of NY state"),col=c("black","red"),bty='n',pch=1)
+
+
+inds<-which(NYSJHU$deaths<4000)
+plot(NYSJHU$date[inds],cumsum(NYSJHU$deaths[inds]),xlab="date",ylab="deaths",type="l")
+inds<-which(NYSJHU2$georegion=="New York City")
+lines(NYSJHU2$date[inds],NYSJHU2$cumu_deaths[inds],col="blue")
+inds<-which(NYSJHU2$georegion=="rest of state")
+lines(NYSJHU2$date[inds],NYSJHU2$cumu_deaths[inds],col="red")
+
+legend("topright",c("NYC","rest of NY state"),col=c("black","red"),bty='n',pch=1)
 
 #..................................................................................
 #---- Care Home Data Processing  #-----
