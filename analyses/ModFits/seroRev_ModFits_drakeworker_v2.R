@@ -399,8 +399,8 @@ fit_map <- tibble::tibble(
 #......................
 # adjust coupling swap rates
 #......................
-moreswap <- seq(5, 2.5, length.out = 50)
-fit_map$GTI_pow[fit_map$name %in% c("CHN1_age", "ESP1-2_age", "GBR3_age", "SWE1_age")] <- list(moreswap)
+moreswap <- seq(5, 3.5, length.out = 50)
+fit_map$GTI_pow[fit_map$name %in% c("CHN1_age", "ESP1-2_age", "GBR3_age")] <- list(moreswap)
 
 #......................
 # fitmap out
