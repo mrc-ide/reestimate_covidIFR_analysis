@@ -72,6 +72,8 @@ if (n_cores < n_chains) {
   mkcores <- n_chains
 }
 
+cl <- parallel::makeCluster(mkcores)
+
 fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = NYC_age_mod,
                                     reparamIFR = TRUE,
                                     reparamInfxn = TRUE,
