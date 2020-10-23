@@ -63,12 +63,21 @@ NYC_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 5, maxMa = "ma5",
 #...........................................................
 bvec <- seq(5, 2.5, length.out = 50)
 
+n_chains <- 10
+n_cores <- parallel::detectCores()
+
+if (n_cores < n_chains) {
+  mkcores <- n_cores - 1
+} else {
+  mkcores <- n_chains
+}
+
 fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = NYC_age_mod,
                                     reparamIFR = TRUE,
                                     reparamInfxn = TRUE,
                                     reparamKnots = TRUE,
                                     binomial_likelihood = TRUE,
-                                    chains = 10,
+                                    chains = n_chains,
                                     burnin = 1e4,
                                     samples = 1e4,
                                     rungs = 50,
