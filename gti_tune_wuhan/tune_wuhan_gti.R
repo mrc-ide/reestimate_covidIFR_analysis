@@ -26,43 +26,43 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
 
 
 #............................................................
-#---- CHN1 reg spec, reg Ma #----
+#---- time series CHN1 reg spec, reg Ma #----
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(94.5,    26.5),
-                                dsc2 =  c(11.5,    0.5))
+                                dsc1 =  c(91.5,    26.5),
+                                dsc2 =  c(14.5,    0.5))
 
 #......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/CHN1/CHN1_agebands.RDS")
-CHN_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
+timeseriesiggCHN_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                             groupvar = "ageband",  dat = rawage,
-                                            num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
+                                            num_xs = 4, max_xveclist = list("name" = "x4", min = 247, init = 254, max = 261, dsc1 = 247, dsc2 = 261),
                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.20, dsc1 = 0, dsc2 = 16.20),
                                             sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
 #............................................................
-#---- CHN1 reg spec, higher Ma #----
+#---- time series CHN1 reg spec, higher Ma #----
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(94.5,    26.5),
-                                dsc2 =  c(11.5,    0.5))
+                                dsc1 =  c(91.5,    26.5),
+                                dsc2 =  c(14.5,    0.5))
 
 #......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/CHN1/CHN1_agebands.RDS")
-CHN_age_mod_higherma <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
+timeseriesiggCHN_age_mod_higherma <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                                      groupvar = "ageband",  dat = rawage,
-                                                     num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
+                                                     num_xs = 4, max_xveclist = list("name" = "x4", min = 247, init = 254, max = 261, dsc1 = 247, dsc2 = 261),
                                                      num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.20, dsc1 = 0, dsc2 = 16.20),
                                                      sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
                                                      upperMa = 0.6)
@@ -70,24 +70,90 @@ CHN_age_mod_higherma <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
 
 
 #............................................................
-#---- CHN1 higher spec, reg Ma #----
+#---- time series CHN1 higher spec, reg Ma #----
 #...........................................................
 sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(94.5,    260.5),
+                                dsc1 =  c(91.5,    260.5),
+                                dsc2 =  c(14.5,    0.5))
+
+#......................
+# agebands
+#......................
+rawage <- readRDS("data/derived/CHN1/CHN1_agebands.RDS")
+timeseriesiggCHN_age_mod_higherspec <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
+                                            groupvar = "ageband",  dat = rawage,
+                                            num_xs = 4, max_xveclist = list("name" = "x4", min = 247, init = 254, max = 261, dsc1 = 247, dsc2 = 261),
+                                            num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.20, dsc1 = 0, dsc2 = 16.20),
+                                            sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+
+
+#............................................................
+#---- igm/igg CHN1 reg spec, reg Ma #----
+#...........................................................
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.85,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(94.5,    200.5),
+                                dsc2 =  c(11.5,    2.5))
+
+#......................
+# agebands
+#......................
+rawage <- readRDS("gti_tune_wuhan/igm_igg_CHN1_agebands.RDS")
+igmiggCHN_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
+                                                  groupvar = "ageband",  dat = rawage,
+                                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 247, init = 254, max = 261, dsc1 = 247, dsc2 = 261),
+                                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.20, dsc1 = 0, dsc2 = 16.20),
+                                                  sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+
+
+#............................................................
+#---- igm/igg CHN1 reg spec, higher Ma #----
+#...........................................................
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.85,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(94.5,    26.5),
                                 dsc2 =  c(11.5,    0.5))
 
 #......................
 # agebands
 #......................
 rawage <- readRDS("data/derived/CHN1/CHN1_agebands.RDS")
-CHN_age_mod_higherspec <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
-                                            groupvar = "ageband",  dat = rawage,
-                                            num_xs = 4, max_xveclist = list("name" = "x4", min = 214, init = 223, max = 230, dsc1 = 214, dsc2 = 230),
-                                            num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.20, dsc1 = 0, dsc2 = 16.20),
-                                            sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+igmiggCHN_age_mod_higherma <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
+                                                           groupvar = "ageband",  dat = rawage,
+                                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 247, init = 254, max = 261, dsc1 = 247, dsc2 = 261),
+                                                           num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.20, dsc1 = 0, dsc2 = 16.20),
+                                                           sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf,
+                                                           upperMa = 0.6)
+
+
+
+#............................................................
+#---- igg, igm CHN1 higher spec, reg Ma #----
+#...........................................................
+sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
+                                min =   c(0.50,    0.50),
+                                init =  c(0.85,    0.99),
+                                max =   c(1.00,    1.00),
+                                dsc1 =  c(94.5,    400.5),
+                                dsc2 =  c(11.5,    4.5))
+
+#......................
+# agebands
+#......................
+rawage <- readRDS("gti_tune_wuhan/igm_igg_CHN1_agebands.RDS")
+igmiggCHN_age_mod_higherspec <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
+                                                             groupvar = "ageband",  dat = rawage,
+                                                             num_xs = 4, max_xveclist = list("name" = "x4", min = 247, init = 254, max = 261, dsc1 = 247, dsc2 = 261),
+                                                             num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.20, dsc1 = 0, dsc2 = 16.20),
+                                                             sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
+
 
 
 
@@ -100,33 +166,60 @@ bvec3 <- seq(5, 4, length.out = 50)
 bvec4 <- seq(5, 4.5, length.out = 50)
 bveclist <- list(bvec1, bvec2, bvec3, bvec4,
                  bvec1, bvec2, bvec3, bvec4,
+                 bvec1, bvec2, bvec3, bvec4,
+                 bvec1, bvec2, bvec3, bvec4,
+                 bvec1, bvec2, bvec3, bvec4,
                  bvec1, bvec2, bvec3, bvec4)
 
 fit_map <- tibble::tibble(
-  name = c("CHN1_reg_bvec1",
-           "CHN1_reg_bvec2",
-           "CHN1_reg_bvec3",
-           "CHN1_reg_bvec4",
-           "CHN1_higherma_bvec1",
-           "CHN1_higherma_bvec2",
-           "CHN1_higherma_bvec3",
-           "CHN1_higherma_bvec4",
-           "CHN1_higherspec_bvec1",
-           "CHN1_higherspec_bvec2",
-           "CHN1_higherspec_bvec3",
-           "CHN1_higherspec_bvec4"),
-  modelobj = list(CHN_age_mod,
-                  CHN_age_mod,
-                  CHN_age_mod,
-                  CHN_age_mod,
-                  CHN_age_mod_higherma,
-                  CHN_age_mod_higherma,
-                  CHN_age_mod_higherma,
-                  CHN_age_mod_higherma,
-                  CHN_age_mod_higherspec,
-                  CHN_age_mod_higherspec,
-                  CHN_age_mod_higherspec,
-                  CHN_age_mod_higherspec),
+  name = c("timeseriesiggCHN1_reg_bvec1",
+           "timeseriesiggCHN1_reg_bvec2",
+           "timeseriesiggCHN1_reg_bvec3",
+           "timeseriesiggCHN1_reg_bvec4",
+           "timeseriesiggCHN1_higherma_bvec1",
+           "timeseriesiggCHN1_higherma_bvec2",
+           "timeseriesiggCHN1_higherma_bvec3",
+           "timeseriesiggCHN1_higherma_bvec4",
+           "timeseriesiggCHN1_higherspec_bvec1",
+           "timeseriesiggCHN1_higherspec_bvec2",
+           "timeseriesiggCHN1_higherspec_bvec3",
+           "timeseriesiggCHN1_higherspec_bvec4",
+           "igmiggCHN1_reg_bvec1",
+           "igmiggCHN1_reg_bvec2",
+           "igmiggCHN1_reg_bvec3",
+           "igmiggCHN1_reg_bvec4",
+           "igmiggCHN1_higherma_bvec1",
+           "igmiggCHN1_higherma_bvec2",
+           "igmiggCHN1_higherma_bvec3",
+           "igmiggCHN1_higherma_bvec4",
+           "igmiggCHN1_higherspec_bvec1",
+           "igmiggCHN1_higherspec_bvec2",
+           "igmiggCHN1_higherspec_bvec3",
+           "igmiggCHN1_higherspec_bvec4"),
+  modelobj = list(timeseriesiggCHN_age_mod,
+                  timeseriesiggCHN_age_mod,
+                  timeseriesiggCHN_age_mod,
+                  timeseriesiggCHN_age_mod,
+                  timeseriesiggCHN_age_mod_higherma,
+                  timeseriesiggCHN_age_mod_higherma,
+                  timeseriesiggCHN_age_mod_higherma,
+                  timeseriesiggCHN_age_mod_higherma,
+                  timeseriesiggCHN_age_mod_higherspec,
+                  timeseriesiggCHN_age_mod_higherspec,
+                  timeseriesiggCHN_age_mod_higherspec,
+                  timeseriesiggCHN_age_mod_higherspec,
+                  igmiggCHN_age_mod,
+                  igmiggCHN_age_mod,
+                  igmiggCHN_age_mod,
+                  igmiggCHN_age_mod,
+                  igmiggCHN_age_mod_higherma,
+                  igmiggCHN_age_mod_higherma,
+                  igmiggCHN_age_mod_higherma,
+                  igmiggCHN_age_mod_higherma,
+                  igmiggCHN_age_mod_higherspec,
+                  igmiggCHN_age_mod_higherspec,
+                  igmiggCHN_age_mod_higherspec,
+                  igmiggCHN_age_mod_higherspec),
   rungs = 50,
   GTI_pow = bveclist,
   burnin = 1e4,
