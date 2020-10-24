@@ -282,7 +282,7 @@ noserorev_ppc_DeathPlotObj <- ggplot() +
   theme_bw() +
   xlab("Time") + ylab("Deaths") +
   ggtitle("Deaths in Oldest Age-Group Modelled without Seroreversion") +
-  theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
+  theme(plot.title = element_text(hjust = 0.5, vjust = 0.5, face = "bold"),
         plot.subtitle = element_text(hjust = 0.5, vjust = 0.5))
 
 # out
@@ -322,7 +322,7 @@ serorev_ppc_DeathPlotObj <- ggplot() +
   theme_bw() +
   xlab("Time") + ylab("Deaths") +
   ggtitle("Deaths in Oldest Age-Group Modelled with Seroreversion") +
-  theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
+  theme(plot.title = element_text(hjust = 0.5, vjust = 0.5, face = "bold"),
         plot.subtitle = element_text(hjust = 0.5, vjust = 0.5))
 
 # out

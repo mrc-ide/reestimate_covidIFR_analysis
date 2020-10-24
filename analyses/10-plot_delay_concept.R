@@ -213,9 +213,7 @@ pwi <- popN/sum(param_map$modelobj[[1]]$demog$popN)
 cuminxns <-  tibble::tibble(time = 1:length(param_map$infxns[[1]]),
                             infxns = param_map$infxns[[1]]) %>%
   dplyr::mutate(infxns = infxns * pwi, # rho infections were split evenly across
-                cumincidence = cumsum(infxns)/popN) %>%
-  dplyr::select(-c("infxns"))
-
+                cumincidence = cumsum(infxns)/popN)
 
 cumdeaths <- param_map$simdat[[1]]$StrataAgg_TimeSeries_Death %>%
   dplyr::filter(Strata == "ma3") %>%
@@ -270,7 +268,7 @@ arrows <- tibble::tibble(
 labels <- tibble::tibble(
   lvl =    c("mod",       "serocon",    "sens",    "spec",  "serorev"),
   label =  c("O-D Delay", "O-S Delay",  "Sens.",   "Spec.",  "O-R Delay"),
-  x =      c(172,          102,          225,       12,       262),
+  x =      c(172,          107,          225,       12,       257),
   y =      c(0.02,          0.4,         0.65,    0.09,      0.50),
 )
 
@@ -307,8 +305,31 @@ delay_plotObj <- plotdatdf %>%
         panel.border = element_blank(),
         axis.line = element_line(color = "#000000", size = 1))
 
-delay_plotObj
 
+
+#..........................
+# Inset of Infxn Curve
+#..........................
+infxninset_plotObj <- ggplot() +
+  geom_line(data = datdf, aes(x = time, y = infxns), color = "#252525", size = 1.1) +
+  xlab("Time (days)") + ylab("Daily Infections") +
+  theme(axis.title = element_text(family = "Helvetica", hjust = 0.5, size = 7.5),
+        axis.text = element_text(family = "Helvetica", hjust = 0.5, size = 6),
+        legend.position = "right",
+        legend.title = element_blank(),
+        panel.background = element_rect(fill = "transparent"),
+        plot.background = element_rect(fill = "transparent", color = "#000000", size = 0.25),
+        panel.grid = element_blank(),
+        panel.border = element_blank(),
+        axis.line = element_line(color = "#000000", size = 1))
+
+
+#......................
+# put inset in
+#......................
+(toprow <- cowplot::ggdraw() +
+    cowplot::draw_plot(delay_plotObj, x = 0, y = 0, width = 1, height = 1, scale = 1) +
+    cowplot::draw_plot(infxninset_plotObj, x = 0.1, y= 0.65, width = 0.2, height = 0.3))
 
 
 #......................
@@ -326,7 +347,7 @@ bottomrow <- cowplot::plot_grid(no_serorev_infIFR_plotObj, serorev_infIFR_plotOb
 #......................
 # bring together
 #......................
-(mainfig <- cowplot::plot_grid(delay_plotObj, bottomrow, labels = c("(A)", ""),
+(mainfig <- cowplot::plot_grid(toprow, bottomrow, labels = c("(A)", ""),
                                nrow = 2, rel_heights = c(0.8, 1)))
 
 dir.create("figures/final_figures/", recursive = TRUE)
