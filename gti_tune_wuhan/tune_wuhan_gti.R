@@ -32,8 +32,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(94.5,    200.5),
-                                dsc2 =  c(11.5,    2.5))
+                                dsc1 =  c(94.5,    26.5),
+                                dsc2 =  c(11.5,    0.5))
 
 #......................
 # agebands
@@ -53,8 +53,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(94.5,    200.5),
-                                dsc2 =  c(11.5,    2.5))
+                                dsc1 =  c(94.5,    26.5),
+                                dsc2 =  c(11.5,    0.5))
 
 #......................
 # agebands
@@ -76,8 +76,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
                                 min =   c(0.50,    0.50),
                                 init =  c(0.85,    0.99),
                                 max =   c(1.00,    1.00),
-                                dsc1 =  c(94.5,    400.5),
-                                dsc2 =  c(11.5,    4.5))
+                                dsc1 =  c(94.5,    260.5),
+                                dsc2 =  c(11.5,    0.5))
 
 #......................
 # agebands

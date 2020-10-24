@@ -193,7 +193,13 @@ Italy	ITA1	0	999	Basilicata	both			0.007591805	0.004	0.011		2020-05-25	2020-07-1
 Italy	ITA1	0	999	Clabria	both			0.005821159	0.002	0.01		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
 Italy	ITA1	0	999	Sicilia	both			0.00334543	0.001	0.006		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
 Italy	ITA1	0	999	Sardegna	both			0.003310658	0.001	0.005		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-China	CHN1	4	81	Wuhan	both	18712	657	0.03511115861				2020-03-26	2020-04-28	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
+China	CHN1	4	81	Wuhan	both	523		0.0382				2020-03-26	2020-03-30	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
+China	CHN1	4	81	Wuhan	both	1694		0.0514				2020-03-31	2020-04-04	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
+China	CHN1	4	81	Wuhan	both	1222		0.0843				2020-04-05	2020-04-09	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
+China	CHN1	4	81	Wuhan	both	4046		0.0358				2020-04-10	2020-04-14	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
+China	CHN1	4	81	Wuhan	both	6695		0.0279				2020-04-15	2020-04-19	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
+China	CHN1	4	81	Wuhan	both	2534		0.0221				2020-04-20	2020-04-24	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
+China	CHN1	4	81	Wuhan	both	1998		0.0145				2020-04-25	2020-04-29	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
 England	GBR3	18	24	all	both	6499	490	0.07543566667			0.079	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
 England	GBR3	25	34	all	both	13366	998	0.074658			0.078	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
 England	GBR3	35	44	all	both	17052	1048	0.06143766667			0.061	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
@@ -228,10 +234,10 @@ Sweden	SWE1	0	999	all	both			0.05	0.026	0.082		2020-05-18	2020-05-24	1	1	https:/
 Sweden	SWE1	0	999	all	both			0.04	0.021	0.066		2020-05-25	2020-05-31	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
 Sweden	SWE1	0	999	all	both			0.052	0.03	0.08		2020-06-01	2020-06-07	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
 Sweden	SWE1	0	999	all	both			0.071	0.047	0.102		2020-06-08	2020-06-12	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
-Denmark	DNK1	17	69	all	both			0.015	0.007	0.023		2020-04-06	2020-04-08	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661                        
-Denmark	DNK1	17	69	all	both			0.019	0.012	0.027		2020-04-14	2020-04-19	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661                        
-Denmark	DNK1	17	69	all	both			0.016	0.008	0.023		2020-04-20	2020-04-26	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661                        
-Denmark	DNK1	17	69	all	both			0.024	0.015	0.032		2020-04-27	2020-05-03	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661                        
+Denmark	DNK1	17	69	all	both			0.015	0.007	0.023		2020-04-06	2020-04-08	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661
+Denmark	DNK1	17	69	all	both			0.019	0.012	0.027		2020-04-14	2020-04-19	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661
+Denmark	DNK1	17	69	all	both			0.016	0.008	0.023		2020-04-20	2020-04-26	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661
+Denmark	DNK1	17	69	all	both			0.024	0.015	0.032		2020-04-27	2020-05-03	1	1	https://bloddonor.dk/coronavirus/ ; https://academic.oup.com/cid/article/doi/10.1093/cid/ciaa849/5862661
 Denmark	DNK1	17	69	Capital	both	6528	203	0.03109681373				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
 Denmark	DNK1	17	69	South DK & Zealand	both	7886	130	0.01648490997				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661
 Denmark	DNK1	17	69	Central DK & North DK	both	6226	79	0.0126887247				2020-04-06	2020-05-03	0	1	https://academic.oup.com/cid/advance-article/doi/10.1093/cid/ciaa849/5862661

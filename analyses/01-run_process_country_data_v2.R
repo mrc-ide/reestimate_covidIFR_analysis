@@ -890,6 +890,25 @@ CHN.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
 #......................
 # MANUAL ADJUSTMENTS
 #......................
+# # assuming uniform attack rate over time series
+# # this is among 4-81 years old
+# chnagebands <- unique(CHN.agebands.dat$deaths_propMCMC$ageband)
+# chn_adj_seroprev <- tibble::tibble(
+#   ObsDaymin = CHN.agebands.dat$seroprevMCMC$ObsDaymin,
+#   ObsDaymax = CHN.agebands.dat$seroprevMCMC$ObsDaymax,
+#   n_positive = CHN.agebands.dat$seroprevMCMC$n_positive,
+#   n_tested = CHN.agebands.dat$seroprevMCMC$n_tested)
+#
+# chn_adj_seroprev <- lapply(chnagebands, function(x){
+#   chn_adj_seroprev %>%
+#     dplyr::mutate(ageband = x)}) %>%
+#   dplyr::bind_rows() %>%
+#   dplyr::mutate(age_high = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
+#   dplyr::arrange(., ObsDaymin, ObsDaymax, age_high) %>%
+#   dplyr::select(-c("age_high")) %>%
+#   dplyr::mutate(SeroPrev = n_positive/n_tested)
+
+
 # assuming uniform attack rate over time series
 # this is among 4-81 years old
 chnagebands <- unique(CHN.agebands.dat$deaths_propMCMC$ageband)
