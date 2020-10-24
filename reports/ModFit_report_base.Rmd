@@ -307,16 +307,6 @@ deathrecast <- lapply(proplist,
   dplyr::ungroup(.)
 
 
-death_midday <-  deathrecast %>%
-  dplyr::filter(Deaths != -1) %>% 
-  dplyr::left_join(., modout$inputs$IFRmodel$IFRdictkey, by = "Strata") %>% 
-  dplyr::group_by(Strata) %>% 
-  dplyr::mutate(cumdeaths = cumsum(Deaths)) %>% 
-  dplyr::ungroup(.) %>% 
-  dplyr::filter(ObsDay %in% ceiling(unique(SeroPrevObs$obsmidday))) %>% 
-  dplyr::rename(param = Strata)
-
-
 #...................... 
 # get posterior draws
 #......................
