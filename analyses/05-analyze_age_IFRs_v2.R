@@ -430,7 +430,7 @@ wpp <- wpp %>%
     ageband = ifelse(ageband == "100+", "95-99", ageband),
     age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n=2)[,2]),
     ageband = cut(age_high,
-                  breaks = c(0, seq(9, 89, by = 10), 100)),
+                  breaks = c(0, seq(9, 89, by = 10), 999)),
     ageband = as.character(ageband)) %>%
   dplyr::group_by(georegion, ageband) %>%
   dplyr::summarise(pop_size = sum(popN)) %>%
