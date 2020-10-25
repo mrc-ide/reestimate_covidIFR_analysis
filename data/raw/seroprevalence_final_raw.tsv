@@ -1,19 +1,34 @@
 country	study_id	age_low	age_high	region	gender	n_tested	n_positive	seroprevalence_unadjusted	range_sero_low	range_sero_high	seroprevalence_weighted	date_start_survey	date_end_survey	age_breakdown	for_regional_analysis	ref
-Brazil	BRA1	0	4	all	both	430		0.014	0.005	0.03		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	5	9	all	both	682		0.012	0.005	0.023		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	10	19	all	both	2287		0.014	0.009	0.019		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	20	29	all	both	3866		0.014	0.011	0.018		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	30	39	all	both	3834		0.015	0.012	0.02		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	40	49	all	both	3975		0.016	0.012	0.02		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	50	59	all	both	4015		0.017	0.013	0.021		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	60	69	all	both	3381		0.01	0.007	0.014		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	70	79	all	both	1797		0.012	0.008	0.018		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	80	999	all	both	728		0.005	0.001	0.014		2020-05-15	2020-05-22	1	0	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	0	999	Central-West	both	2477	0	0				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	0	999	North	both	4710	269	0.05711252654				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	0	999	Northeast	both	6023	38	0.006309148265				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	0	999	South	both	5309	9	0.001695234507				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
-Brazil	BRA1	0	999	Southeast	both	5682	21	0.003695881732				2020-05-15	2020-05-22	0	1	https://www.medrxiv.org/content/10.1101/2020.05.30.20117531v1.full.pdf
+Brazil	BRA1	0	4	all	both	432	6					2020-05-14	2020-05-21	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	5	9	all	both	681	8					2020-05-14	2020-05-21	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	10	19	all	both	2287	31					2020-05-14	2020-05-21	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	20	29	all	both	3866	55					2020-05-14	2020-05-21	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	30	39	all	both	3834	58					2020-05-14	2020-05-21	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	40	49	all	both	3972	63					2020-05-14	2020-05-21	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	50	59	all	both	4016	67					2020-05-14	2020-05-21	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	60	69	all	both	3382	33					2020-05-14	2020-05-21	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	70	79	all	both	1797	22					2020-05-14	2020-05-21	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	80	999	all	both	728	4					2020-05-14	2020-05-21	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	0	4	all	both	573	11					2020-06-04	2020-06-07	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	5	9	all	both	983	16					2020-06-04	2020-06-07	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	10	19	all	both	2856	52					2020-06-04	2020-06-07	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	20	29	all	both	4761	118					2020-06-04	2020-06-07	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	30	39	all	both	4668	122					2020-06-04	2020-06-07	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	40	49	all	both	4885	155					2020-06-04	2020-06-07	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	50	59	all	both	5019	133					2020-06-04	2020-06-07	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	60	69	all	both	4264	79					2020-06-04	2020-06-07	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	70	79	all	both	2262	49					2020-06-04	2020-06-07	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	80	999	all	both	891	18					2020-06-04	2020-06-07	1	0	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	0	999	Central-West	both	6552	46					2020-05-15	2020-05-22	0	1	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	0	999	North	both	5064	272					2020-05-15	2020-05-22	0	1	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	0	999	Northeast	both	2477	0					2020-05-15	2020-05-22	0	1	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	0	999	South	both	5833	22					2020-05-15	2020-05-22	0	1	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	0	999	Southeast	both	5069	7					2020-05-15	2020-05-22	0	1	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	0	999	Central-West	both	9801	273					2020-06-04	2020-06-07	0	1	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	0	999	North	both	5449	419					2020-06-04	2020-06-07	0	1	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	0	999	Northeast	both	3565	13					2020-06-04	2020-06-07	0	1	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	0	999	South	both	7778	45					2020-06-04	2020-06-07	0	1	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
+Brazil	BRA1	0	999	Southeast	both	4569	3					2020-06-04	2020-06-07	0	1	https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30387-9/fulltext
 Switzerland	CHE1	5	9	Geneva	both	16	0	0				2020-04-06	2020-04-13	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
 Switzerland	CHE1	5	9	Geneva	both	15	0	0				2020-04-13	2020-04-20	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
 Switzerland	CHE1	5	9	Geneva	both	21	1	0.04761904762				2020-04-20	2020-04-27	1	0	https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)31304-0/fulltext
@@ -224,8 +239,6 @@ USA	NYS1	18	34	all	both	3151	410	0.13			0.13	2020-04-19	2020-04-28	1	0	https://w
 USA	NYS1	35	44	all	both	2628	360	0.137			0.137	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
 USA	NYS1	45	54	all	both	3345	478	0.143			0.143	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
 USA	NYS1	55	999	all	both	5977	651	0.109			0.109	2020-04-19	2020-04-28	1	0	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
-USA	NYC1	18	999	New York City	both	5946	1183	0.199				2020-04-19	2020-04-28	1	0	https://www.6sqft.com/new-york-covid-antibody-test-preliminary-results/
-USA	NYC1	18	999	New York City	both	4725	1021	0.216				2020-06-01	2020-06-13	1	0	https://www.6sqft.com/new-york-covid-antibody-test-preliminary-results/
 Sweden	SWE1	0	999	all	both			0.005	0	0.026		2020-04-20	2020-04-26	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
 Sweden	SWE1	0	999	all	both			0.025	0.009	0.049		2020-04-27	2020-05-03	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/
 Sweden	SWE1	0	999	all	both			0.028	0.011	0.051		2020-05-04	2020-05-10	1	1	https://www.folkhalsomyndigheten.se/publicerat-material/publikationsarkiv/p/pavisning-av-antikroppar-efter-genomgangen-covid-19-i-blodprov-fran-oppenvarden-delrapport-1/

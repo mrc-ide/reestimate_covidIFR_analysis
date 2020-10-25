@@ -881,7 +881,6 @@ CHN.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
                                   get_descriptive_dat = TRUE,
                                   groupingvar = "ageband",
                                   study_ids = "CHN1",
-                                  origin = lubridate::ymd("2019-12-01"),
                                   agebreaks = c(0, 9, 19,
                                                 29, 39, 49,
                                                 59, 69, 79,
@@ -891,25 +890,6 @@ CHN.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
 #......................
 # MANUAL ADJUSTMENTS
 #......................
-# # assuming uniform attack rate over time series
-# # this is among 4-81 years old
-# chnagebands <- unique(CHN.agebands.dat$deaths_propMCMC$ageband)
-# chn_adj_seroprev <- tibble::tibble(
-#   ObsDaymin = CHN.agebands.dat$seroprevMCMC$ObsDaymin,
-#   ObsDaymax = CHN.agebands.dat$seroprevMCMC$ObsDaymax,
-#   n_positive = CHN.agebands.dat$seroprevMCMC$n_positive,
-#   n_tested = CHN.agebands.dat$seroprevMCMC$n_tested)
-#
-# chn_adj_seroprev <- lapply(chnagebands, function(x){
-#   chn_adj_seroprev %>%
-#     dplyr::mutate(ageband = x)}) %>%
-#   dplyr::bind_rows() %>%
-#   dplyr::mutate(age_high = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
-#   dplyr::arrange(., ObsDaymin, ObsDaymax, age_high) %>%
-#   dplyr::select(-c("age_high")) %>%
-#   dplyr::mutate(SeroPrev = n_positive/n_tested)
-
-
 # assuming uniform attack rate over time series
 # this is among 4-81 years old
 chnagebands <- unique(CHN.agebands.dat$deaths_propMCMC$ageband)
@@ -1147,120 +1127,6 @@ NYS.age.dat$deaths_TSMCMC$deaths[139] <- -1
 saveRDS(NYS.region.dat, "data/derived/USA/NYS1_regions.RDS")
 saveRDS(NYS.age.dat, "data/derived/USA/NYS1_agebands.RDS")
 
-
-
-#............................................................
-#---- NYC1 New York City #-----
-#...........................................................
-
-NYC_timeseries<-NYSJHU %>%
-  dplyr::filter(georegion=="New York City") %>%
-  dplyr::group_by(georegion,date) %>%
-  dplyr::summarise(deaths=sum(deaths)) %>%
-  dplyr::select(date,georegion,deaths)
-
-## Kings=Brooklyn. New-York = Manhattan
-NYC_pop<-populationdf %>%
-  dplyr::filter(region %in% c("New York_Queens","New York_Richmond",
-                                    "New York_Bronx",
-                                    "New York_New-York","New York_Kings"))%>%
-  dplyr::mutate(ageband=cut(age_high,breaks=c(0,44,64,74,999),include.lowest = T)) %>%
-  dplyr::group_by(ageband) %>%
-  dplyr::summarise(population=sum(population)) %>%
-  dplyr::mutate(country="USA", region="New York City","age_breakdown"=1,
-                for_regional_analysis=1,
-                study_id="NYC1",gender="both",age_low=NA,age_high=NA)
-### split 0-44 acc to data that 20.9% of NYC residents are <18
-NYC_totpop<-sum(NYC_pop$population)
-NYC_pop<-rbind(NYC_pop[1,],NYC_pop)
-NYC_pop<- NYC_pop %>%
-  dplyr::mutate(ageband=as.character(ageband))
-NYC_pop$ageband[1]<-"(0,17]"
-NYC_pop$ageband[2]<-"(18,44]"
-NYC_pop$age_low<-c(0,17,44,64,74)
-NYC_pop$age_high<-c(17,44,64,74,999)
-NYC_pop$population[1]<-NYC_totpop*0.209
-NYC_pop$population[2]<-NYC_pop$population[2]-NYC_pop$population[1]
-NYC_pop<-NYC_pop %>%
-  dplyr::select(country,age_low,age_high,region,gender,population,age_breakdown,
-                for_regional_analysis,study_id)
-
-# convert population to inteer
-NYC_pop$population<- round(NYC_pop$population, 0)
-
-
-nyc_sero_valdf<-sero_valdf
-nyc_sero_valdf$study_id[which(nyc_sero_valdf$study_id=="NYS1")]<-"NYC1"
-
-NYC1.agebands.dat <- process_data4(cum_tp_deaths = deathsdf,
-                                   time_series_totdeaths_df = NYC_timeseries,
-                                   time_series_totdeaths_geocode = "New York City",
-                                   population = NYC_pop,
-                                   sero_val = nyc_sero_valdf,
-                                   seroprev = sero_prevdf,
-                                   get_descriptive_dat = TRUE,
-                                   groupingvar = "ageband",
-                                   study_ids = "NYC1",
-                                   agebreaks = c(0,17,44,64,74,999)) # for pop splits
-
-
-#......................
-# MANUAL ADJUSTMENTS
-#......................
-# asssume constant attack rate
-nycagebands <- unique(NYC1.agebands.dat$deaths_propMCMC$ageband)
-nyc1_adj_seroprev <- tibble::tibble(
-  ObsDaymin = unique(NYC1.agebands.dat$seroprevMCMC$ObsDaymin),
-  ObsDaymax = unique(NYC1.agebands.dat$seroprevMCMC$ObsDaymax),
-  n_positive = unique(NYC1.agebands.dat$seroprevMCMC$n_positive),
-  n_tested = unique(NYC1.agebands.dat$seroprevMCMC$n_tested))
-
-
-nyc1_adj_seroprev <- lapply(nycagebands, function(x){
-  nyc1_adj_seroprev %>%
-    dplyr::mutate(ageband = x)}) %>%
-  dplyr::bind_rows() %>%
-  dplyr::arrange(., ObsDaymin, ObsDaymax, ageband) %>%
-  dplyr::mutate(SeroPrev = n_positive/n_tested)
-
-
-
-# overwrite
-NYC1.agebands.dat$seroprevMCMC <- nyc1_adj_seroprev
-
-# removing the May 18 date where 4000 deaths from NYC were added on a single day
-# likely due to probable deaths being retrospectively added back in
-NYC1.agebands.dat$deaths_TSMCMC$deaths[139] <- -1
-
-#......................
-# save out
-#......................
-saveRDS(NYC1.agebands.dat, "data/derived/USA/NYC1_agebands.RDS")
-
-
-# compare timing of epidemic with New York State.
-NYSJHU2<-NYSJHU %>%
-  dplyr::mutate(georegion=ifelse(georegion!="New York City","rest of state",georegion),
-                deaths=ifelse(deaths>3000,0,deaths)) %>%
-  dplyr::group_by(georegion, date) %>%
-  dplyr::summarise(deaths=sum(deaths)) %>%
-  dplyr::mutate(cumu_deaths=cumsum(deaths))
-
-inds<-which(NYSJHU2$georegion=="New York City")
-plot(NYSJHU2$date[inds],NYSJHU2$deaths[inds],ylim=c(0,1000),xlab="date",ylab="deaths")
-inds<-which(NYSJHU2$georegion=="rest of state")
-points(NYSJHU2$date[inds],NYSJHU2$deaths[inds],col="red")
-legend("topright",c("NYC","rest of NY state"),col=c("black","red"),bty='n',pch=1)
-
-
-inds<-which(NYSJHU$deaths<4000)
-plot(NYSJHU$date[inds],cumsum(NYSJHU$deaths[inds]),xlab="date",ylab="deaths",type="l")
-inds<-which(NYSJHU2$georegion=="New York City")
-lines(NYSJHU2$date[inds],NYSJHU2$cumu_deaths[inds],col="blue")
-inds<-which(NYSJHU2$georegion=="rest of state")
-lines(NYSJHU2$date[inds],NYSJHU2$cumu_deaths[inds],col="red")
-
-legend("topright",c("NYC","rest of NY state"),col=c("black","red"),bty='n',pch=1)
 
 #..................................................................................
 #---- Care Home Data Processing  #-----
