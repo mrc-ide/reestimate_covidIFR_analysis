@@ -24,7 +24,7 @@ process_data4 <- function(cum_tp_deaths = NULL, population = NULL, sero_val = NU
                           groupingvar, study_ids, time_series_totdeaths_geocode,
                           filtRegions = NULL, filtGender = NULL, filtAgeBand = NULL,
                           agebreaks = NULL,
-                          origin = lubridate::ymd("2019-12-01")) {
+                          origin = lubridate::ymd("2020-01-01")) {
   #......................
   # assertions and checks
   #......................
