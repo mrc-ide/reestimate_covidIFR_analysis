@@ -208,13 +208,6 @@ Italy	ITA1	0	999	Basilicata	both			0.007591805	0.004	0.011		2020-05-25	2020-07-1
 Italy	ITA1	0	999	Clabria	both			0.005821159	0.002	0.01		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
 Italy	ITA1	0	999	Sicilia	both			0.00334543	0.001	0.006		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
 Italy	ITA1	0	999	Sardegna	both			0.003310658	0.001	0.005		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-China	CHN1	4	81	Wuhan	both	523		0.0382				2020-03-26	2020-03-30	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
-China	CHN1	4	81	Wuhan	both	1694		0.0514				2020-03-31	2020-04-04	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
-China	CHN1	4	81	Wuhan	both	1222		0.0843				2020-04-05	2020-04-09	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
-China	CHN1	4	81	Wuhan	both	4046		0.0358				2020-04-10	2020-04-14	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
-China	CHN1	4	81	Wuhan	both	6695		0.0279				2020-04-15	2020-04-19	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
-China	CHN1	4	81	Wuhan	both	2534		0.0221				2020-04-20	2020-04-24	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
-China	CHN1	4	81	Wuhan	both	1998		0.0145				2020-04-25	2020-04-29	1	1	https://www.medrxiv.org/content/10.1101/2020.06.16.20132423v3
 England	GBR3	18	24	all	both	6499	490	0.07543566667			0.079	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
 England	GBR3	25	34	all	both	13366	998	0.074658			0.078	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
 England	GBR3	35	44	all	both	17052	1048	0.06143766667			0.061	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf

@@ -128,15 +128,6 @@ Italy	ITA1	0	999	Basilicata	both	30	2020-01-01	2020-07-22	0	1	https://www.istat.
 Italy	ITA1	0	999	Clabria	both	97	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
 Italy	ITA1	0	999	Sicilia	both	304	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
 Italy	ITA1	0	999	Sardegna	both	134	2020-01-01	2020-07-22	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-China	CHN1	0	9	Wuhan	both	0	2020-01-01	2020-04-17	1	0	WHO. Report of the WHO-China Joint Mission on coronavirus
-China	CHN1	10	19	Wuhan	both	4	2020-01-01	2020-04-17	1	0	WHO. Report of the WHO-China Joint Mission on coronavirus
-China	CHN1	20	29	Wuhan	both	26	2020-01-01	2020-04-17	1	0	WHO. Report of the WHO-China Joint Mission on coronavirus
-China	CHN1	30	39	Wuhan	both	68	2020-01-01	2020-04-17	1	0	WHO. Report of the WHO-China Joint Mission on coronavirus
-China	CHN1	40	49	Wuhan	both	144	2020-01-01	2020-04-17	1	0	WHO. Report of the WHO-China Joint Mission on coronavirus
-China	CHN1	50	59	Wuhan	both	492	2020-01-01	2020-04-17	1	0	WHO. Report of the WHO-China Joint Mission on coronavirus
-China	CHN1	60	69	Wuhan	both	1169	2020-01-01	2020-04-17	1	0	WHO. Report of the WHO-China Joint Mission on coronavirus
-China	CHN1	70	79	Wuhan	both	1180	2020-01-01	2020-04-17	1	0	WHO. Report of the WHO-China Joint Mission on coronavirus
-China	CHN1	80	999	Wuhan	both	787	2020-01-01	2020-04-17	1	0	WHO. Report of the WHO-China Joint Mission on coronavirus
 England	GBR3	0	44	all	both	530	2020-01-01	2020-07-17	1	0	https://fingertips.phe.org.uk/static-reports/mortality-surveillance/excess-mortality-in-england-week-ending-17-Jul-2020.html
 England	GBR3	45	64	all	both	4657	2020-01-01	2020-07-17	1	0	https://fingertips.phe.org.uk/static-reports/mortality-surveillance/excess-mortality-in-england-week-ending-17-Jul-2020.html
 England	GBR3	65	74	all	both	7105	2020-01-01	2020-07-17	1	0	https://fingertips.phe.org.uk/static-reports/mortality-surveillance/excess-mortality-in-england-week-ending-17-Jul-2020.html
@@ -160,8 +151,3 @@ USA	NYS1	60	69	all	both	4930	2020-02-29	2020-09-12	1	0	https://covid19tracker.he
 USA	NYS1	70	79	all	both	6580	2020-02-29	2020-09-12	1	0	https://covid19tracker.health.ny.gov/views/NYS-COVID19-Tracker/NYSDOHCOVID-19Tracker-Fatalities?%3Aembed=yes&%3Atoolbar=no&%3Atabs=n#/views/NYS%2dCOVID19%2dTracker/NYSDOHCOVID%2d19Tracker%2dFatalities
 USA	NYS1	80	89	all	both	6540	2020-02-29	2020-09-12	1	0	https://covid19tracker.health.ny.gov/views/NYS-COVID19-Tracker/NYSDOHCOVID-19Tracker-Fatalities?%3Aembed=yes&%3Atoolbar=no&%3Atabs=n#/views/NYS%2dCOVID19%2dTracker/NYSDOHCOVID%2d19Tracker%2dFatalities
 USA	NYS1	90	999	all	both	3592	2020-02-29	2020-09-12	1	0	https://covid19tracker.health.ny.gov/views/NYS-COVID19-Tracker/NYSDOHCOVID-19Tracker-Fatalities?%3Aembed=yes&%3Atoolbar=no&%3Atabs=n#/views/NYS%2dCOVID19%2dTracker/NYSDOHCOVID%2d19Tracker%2dFatalities
-USA	NYC1	0	17	all	both	12	2020-02-29	2020-08-31	1	0	https://www1.nyc.gov/site/doh/covid/covid-19-data-deaths.page
-USA	NYC1	18	44	all	both	734	2020-02-29	2020-08-31	1	0	https://www1.nyc.gov/site/doh/covid/covid-19-data-deaths.page
-USA	NYC1	45	64	all	both	4273	2020-02-29	2020-08-31	1	0	https://www1.nyc.gov/site/doh/covid/covid-19-data-deaths.page
-USA	NYC1	65	74	all	both	4723	2020-02-29	2020-08-31	1	0	https://www1.nyc.gov/site/doh/covid/covid-19-data-deaths.page
-USA	NYC1	75	999	all	both	9320	2020-02-29	2020-08-31	1	0	https://www1.nyc.gov/site/doh/covid/covid-19-data-deaths.page
