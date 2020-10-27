@@ -329,9 +329,6 @@ modelled_IFRs <- retmap %>%
   dplyr::mutate(median = median * 100,
                 LCI = LCI * 100,
                 UCI = UCI * 100,
-                upperbound_inf = ifelse(UCI >= 2.5 & sero == "reg", 2.5, NA),
-                upperbound_rev = ifelse(UCI >= 2.5 & sero == "serorev", 2.5, NA),
-                UCI = ifelse(UCI >= 2.5, 2.5, UCI),
                 sero = factor(sero, levels = c("reg", "serorev"),
                               labels = c("Without Serorev.", "With Serorev.")))
 
@@ -344,14 +341,6 @@ death_type_plot <- ggplot() +
   geom_pointrange(data = modelled_IFRs,
                   aes(x = location, ymin = LCI, y = median, ymax = UCI, group = sero, color = sero),
                   size = 0.75, alpha = 0.5, position = position_dodge(width = 0.5)) +
-  geom_point(data = modelled_IFRs,
-             aes(x = location, y = upperbound_inf),
-             color = "#4285F4", size = 3, alpha = 0.9, shape = 3,
-             position = position_nudge(x = -0.125)) +
-  geom_point(data = modelled_IFRs,
-             aes(x = location, y = upperbound_rev),
-             color = "#EA4335", size = 3, alpha = 0.9, shape = 3,
-             position = position_nudge(x = 0.125)) +
   scale_color_manual("", values = c("#4285F4", "#EA4335")) +
   scale_shape_manual("", values = c(23, 22, 24, 25)) +
   scale_fill_manual("", values = c(wesanderson::wes_palette("IsleofDogs2", type = "discrete"))) +
