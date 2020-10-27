@@ -267,7 +267,7 @@ arrows <- tibble::tibble(
 
 labels <- tibble::tibble(
   lvl =    c("mod",       "serocon",    "sens",    "spec",  "serorev"),
-  label =  c("O-D Delay", "O-S Delay",  "Sens.",   "Spec.",  "O-R Delay"),
+  label =  c("I-D Delay", "I-S Delay",  "Sens.",   "Spec.",  "I-R Delay"),
   x =      c(172,          107,          225,       12,       257),
   y =      c(0.02,          0.4,         0.65,    0.09,      0.50),
 )

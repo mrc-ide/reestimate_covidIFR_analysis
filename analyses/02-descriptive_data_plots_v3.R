@@ -642,7 +642,7 @@ SeroPrevPlotObj <- SeroPrevPlotDat %>%
   theme(legend.position = "bottom")
 
 jpeg("figures/final_figures/Figure_age_seroprev.jpg",
-     width = 11, height = 8, units = "in", res = 500)
+     width = 8, height = 6, units = "in", res = 500)
 plot(SeroPrevPlotObj)
 graphics.off()
 
@@ -811,43 +811,43 @@ graphics.off()
 
 
 
-#............................................................
-#---- Figure of Regional Serofit Summaries #----
-#...........................................................
-library(rstan)
-# Death rate vs seroprevalence
-std_deaths_seroplotdat<-read.csv("results/Rgn_Mod_Rets/region_summ_IFR.csv")
-col_vec<-study_cols$cols
-names(col_vec) <- study_cols$names
-std_deaths_seroplot <- std_deaths_seroplotdat %>%
-  dplyr::select(c("names", "region", "std_cum_deaths", "popn", "seroprev")) %>%
-  dplyr::mutate(seroprev = seroprev * 100) %>%
-  ggplot() + theme_bw() +
-  geom_point(aes(x = seroprev, y = std_cum_deaths, fill = names), shape = 21, size = 2.5, stroke = 0.2) +
-  scale_fill_manual(values = mycolors, name = "Study ID") +
-  xlab("Seroprevalence (%)") + ylab("Cumulative Deaths per Million") +
-  #  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
-  xyaxis_plot_theme
-
-
-spainFit<-readRDS("results/Rgn_Mod_Rets/fit_spain_reg_age_full_new.rds")
-params<-extract(spainFit)
-spainDat<-std_deaths_seroplotdat %>%
-  filter(study_id=="ESP1-2")
-stanFit<-ggplot() + theme_bw() +
-  geom_point(aes(x = 100*spainDat$seroprev, y = spainDat$std_cum_deaths,color="Spain data"), shape = 19, size = 1.5,stroke=1.5) +
-  geom_point(aes(x = 100*colMeans(params$prev_sero_truer), y = 1000000*colMeans(params$expdr)/spainDat$popn,
-                 color="fitted"),
-             shape = 19, size = 2.5) +
-  expand_limits(x = 0) +
-  expand_limits(y = 1700) +
-  scale_color_manual(name="",values=c("Spain data"="black","fitted"="dodgerblue"), labels=c("fitted","Spain data")) +
-  xlab("Seroprevalence (%)") + ylab("Cumulative Deaths per Million") +
-  xyaxis_plot_theme
-
-
-
-rgnPlots <- cowplot::plot_grid(std_deaths_seroplot, stanFit,
-                               ncol = 2, nrow = 1, align = "h",
-                               labels = c("(A)", "(B)"), rel_widths = c(1.2,1))
-if(write2file) ggsave(filename = "results/descriptive_figures/rgnPlots.tiff", plot = rgnPlots, width = 13, height = 5)
+# #............................................................
+# #---- Figure of Regional Serofit Summaries #----
+# #...........................................................
+# library(rstan)
+# # Death rate vs seroprevalence
+# std_deaths_seroplotdat<-read.csv("results/Rgn_Mod_Rets/region_summ_IFR.csv")
+# col_vec<-study_cols$cols
+# names(col_vec) <- study_cols$names
+# std_deaths_seroplot <- std_deaths_seroplotdat %>%
+#   dplyr::select(c("names", "region", "std_cum_deaths", "popn", "seroprev")) %>%
+#   dplyr::mutate(seroprev = seroprev * 100) %>%
+#   ggplot() + theme_bw() +
+#   geom_point(aes(x = seroprev, y = std_cum_deaths, fill = names), shape = 21, size = 2.5, stroke = 0.2) +
+#   scale_fill_manual(values = mycolors, name = "Study ID") +
+#   xlab("Seroprevalence (%)") + ylab("Cumulative Deaths per Million") +
+#   #  labs(caption = "Cumulative deaths per million at midpoint of seroprevalence study") +
+#   xyaxis_plot_theme
+#
+#
+# spainFit<-readRDS("results/Rgn_Mod_Rets/fit_spain_reg_age_full_new.rds")
+# params<-extract(spainFit)
+# spainDat<-std_deaths_seroplotdat %>%
+#   filter(study_id=="ESP1-2")
+# stanFit<-ggplot() + theme_bw() +
+#   geom_point(aes(x = 100*spainDat$seroprev, y = spainDat$std_cum_deaths,color="Spain data"), shape = 19, size = 1.5,stroke=1.5) +
+#   geom_point(aes(x = 100*colMeans(params$prev_sero_truer), y = 1000000*colMeans(params$expdr)/spainDat$popn,
+#                  color="fitted"),
+#              shape = 19, size = 2.5) +
+#   expand_limits(x = 0) +
+#   expand_limits(y = 1700) +
+#   scale_color_manual(name="",values=c("Spain data"="black","fitted"="dodgerblue"), labels=c("fitted","Spain data")) +
+#   xlab("Seroprevalence (%)") + ylab("Cumulative Deaths per Million") +
+#   xyaxis_plot_theme
+#
+#
+#
+# rgnPlots <- cowplot::plot_grid(std_deaths_seroplot, stanFit,
+#                                ncol = 2, nrow = 1, align = "h",
+#                                labels = c("(A)", "(B)"), rel_widths = c(1.2,1))
+# if(write2file) ggsave(filename = "results/descriptive_figures/rgnPlots.tiff", plot = rgnPlots, width = 13, height = 5)

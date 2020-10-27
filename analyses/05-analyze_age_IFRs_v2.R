@@ -500,160 +500,87 @@ overall_IFR_best_est %>%
 #............................................................
 #---- Figure of Age Specific Results #----
 #...........................................................
+#............................................................
+# tidy and combine plot dat
+#...........................................................
 #......................
-# tidy modelled and plot
+# get inferred values
 #......................
-modIFR_age <- modIFR_age %>%
-  dplyr::mutate(age_mid = purrr::map_dbl(ageband, get_mid_age))
+linplotdat_obs <- modIFR_age %>%
+  dplyr::mutate(age_mid = purrr::map_dbl(ageband, get_mid_age)) %>%
+  dplyr::mutate(lvl = "Linear")
 
 #......................
 # get log transformed variables
 #......................
-log_retmapIFR <- dplyr::bind_rows(regretmap, serorevretmap) %>%
-  dplyr::mutate(strataIFRret_log = purrr::map(path, get_log10_transformed_IFR_cred_intervals, by_chain = F))
-
-log_retmapIFR_dat <- log_retmapIFR %>%
+logplotdat_obs <- dplyr::bind_rows(regretmap, serorevretmap) %>%
+  dplyr::mutate(strataIFRret_log = purrr::map(path, get_log10_transformed_IFR_cred_intervals, by_chain = F)) %>%
   tidyr::unnest(cols = "strataIFRret_log") %>%
   dplyr::rename(Strata = param) %>%
   dplyr::left_join(., datdict) %>%
-  dplyr::mutate(age_mid = purrr::map_dbl(ageband, get_mid_age))
+  dplyr::mutate(age_mid = purrr::map_dbl(ageband, get_mid_age)) %>%
+  dplyr::mutate(lvl = "Log-10") %>%
+  dplyr::select(c("study_id", "ageband", "median", "LCI", "UCI", "sero", "age_mid", "lvl"))
+
+
+plotdat_obs <- dplyr::bind_rows(linplotdat_obs, logplotdat_obs)
 
 #......................
-# Panel A -- No Seroreversion Linear Space
+# get prediction intervals
 #......................
-ribbondat <- ifrdat$linear_predints[ifrdat$sero == "reg"][[1]] %>%
-  dplyr::mutate(Q025 = Q025 *100,
-                Q20 = Q20 * 100,
-                Q80 = Q80 * 100,
-                Q975 = Q975 * 100)
+plotdat_linpreds <- ifrdat %>%
+  dplyr::select(c("sero", "linear_predints")) %>%
+  tidyr::unnest(cols = "linear_predints") %>%
+  dplyr::ungroup(.) %>%
+  dplyr::mutate(lvl = "Linear")
 
 
-PanelA <- modIFR_age %>%
-  dplyr::left_join(., locatkey, by = "study_id") %>%
-  dplyr::filter(sero == "reg") %>%
-  ggplot() +
-  geom_ribbon(data = ribbondat,
-              aes(x = age, ymin = Q025, ymax = Q975),
-              fill = "#d9d9d9", alpha = 0.8) +
-  geom_ribbon(data = ribbondat,
-              aes(x = age, ymin = Q20, ymax = Q80),
-              fill = "#969696", alpha = 0.8) +
-  geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI,
-                      color =  location),
-                  alpha = 0.75, shape = 16, size = 0.9) +
-  scale_color_manual("Location", values = mycolors) +
-  ylab("IFR (95% CrI)") + xlab("Age (years)") +
-  xyaxis_plot_theme +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  theme(plot.margin = unit(c(0.05, 0.25, 0.25, 1),"cm"))
+plotdat_logpreds <- ifrdat %>%
+  dplyr::select(c("sero", "log_predints")) %>%
+  tidyr::unnest(cols = "log_predints") %>%
+  dplyr::ungroup(.)  %>%
+  dplyr::mutate(lvl = "Log-10")
+
+plotpred <- dplyr::bind_rows(plotdat_linpreds, plotdat_logpreds)
 
 
-
-
-#......................
-# Panel B --  No Seroreversion Log10 Space
-#......................
-ribbondat <- ifrdat$log_predints[ifrdat$sero == "reg"][[1]] %>%
-  dplyr::mutate(Q025 = Q025/log(10), # tranformation
-                Q20 = Q20/log(10),
-                Q80 = Q80/log(10),
-                Q975 = Q975 /log(10))
-
-PanelB <- log_retmapIFR_dat %>%
-  dplyr::left_join(., locatkey, by = "study_id") %>%
-  dplyr::filter(sero == "reg") %>%
-  ggplot() +
-  geom_ribbon(data = ribbondat,
-              aes(x = age, ymin = Q025, ymax = Q975),
-              fill = "#d9d9d9", alpha = 0.8) +
-  geom_ribbon(data = ribbondat,
-              aes(x = age, ymin = Q20, ymax = Q80),
-              fill = "#969696", alpha = 0.8) +
-  geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  location),
-                  alpha = 0.75, shape = 16, size = 0.9) +
-  scale_color_manual("Location", values = mycolors) +
-  ylab("Log-10 IFR (95% CrI)") + xlab("Age (years)") +
-  xyaxis_plot_theme +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  theme(plot.margin = unit(c(0.05, 0.25, 0.25, 1),"cm"))
-
-#......................
-# Panel C -- Seroreversion Linear Space
-#......................
-ribbondat <- ifrdat$linear_predints[ifrdat$sero == "serorev"][[1]] %>%
-  dplyr::mutate(Q025 = Q025 *100,
-                Q20 = Q20 * 100,
-                Q80 = Q80 * 100,
-                Q975 = Q975 * 100)
-
-
-PanelC <- modIFR_age %>%
-  dplyr::left_join(., locatkey, by = "study_id") %>%
-  dplyr::filter(sero == "serorev") %>%
-  ggplot() +
-  geom_ribbon(data = ribbondat,
-              aes(x = age, ymin = Q025, ymax = Q975),
-              fill = "#d9d9d9", alpha = 0.8) +
-  geom_ribbon(data = ribbondat,
-              aes(x = age, ymin = Q20, ymax = Q80),
-              fill = "#969696", alpha = 0.8) +
-  geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI,
-                      color =  location),
-                  alpha = 0.75, shape = 16, size = 0.9) +
-  scale_color_manual("Location", values = mycolors) +
-  ylab("IFR (95% CrI)") + xlab("Age (years)") +
-  xyaxis_plot_theme +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  theme(plot.margin = unit(c(1, 0.25, 0.25, 1),"cm"))
-
-#......................
-# Panel D -- Seroreversion Log10 Space
-#......................
-ribbondat <- ifrdat$log_predints[ifrdat$sero == "serorev"][[1]] %>%
-  dplyr::mutate(Q025 = Q025/log(10), # tranformation
-                Q20 = Q20/log(10),
-                Q80 = Q80/log(10),
-                Q975 = Q975 /log(10))
-
-PanelD <- log_retmapIFR_dat %>%
-  dplyr::left_join(., locatkey, by = "study_id") %>%
-  dplyr::filter(sero == "serorev") %>%
-  ggplot() +
-  geom_ribbon(data = ribbondat,
-              aes(x = age, ymin = Q025, ymax = Q975),
-              fill = "#d9d9d9", alpha = 0.8) +
-  geom_ribbon(data = ribbondat,
-              aes(x = age, ymin = Q20, ymax = Q80),
-              fill = "#969696", alpha = 0.8) +
-  geom_pointrange(aes(x = age_mid, y = median, ymin = LCI, ymax = UCI, color =  location),
-                  alpha = 0.75, shape = 16, size = 0.9) +
-  scale_color_manual("Location", values = mycolors) +
-  ylab("Log-10 IFR (95% CrI)") + xlab("Age (years)") +
-  xyaxis_plot_theme +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  theme(plot.margin = unit(c(1, 0.25, 0.25, 1),"cm"))
-
-
-
-#......................
 # bring together
+plotdat <- dplyr::left_join(plotdat_obs, plotpred, by = c( "ageband", "sero", "lvl")) %>%
+  dplyr::mutate(sero = factor(sero, levels = c("reg", "serorev"),
+                              labels = c("Without Serorev.", "With Serorev.")),
+                Q025 = ifelse(lvl == "Linear", Q025 *100, Q025/log(10)), # transformation into appropriate space
+                Q20 = ifelse(lvl == "Linear", Q20 *100, Q20/log(10)),
+                Q80 = ifelse(lvl == "Linear", Q80 *100, Q80/log(10)),
+                Q975 = ifelse(lvl == "Linear", Q975 *100, Q975/log(10))) %>%
+  dplyr::left_join(., locatkey, by = "study_id")
+
 #......................
-PanelAnl <- PanelA + theme(legend.position = "none")
-PanelBnl <- PanelB + theme(legend.position = "none")
-PanelCnl <- PanelC + theme(legend.position = "none")
-PanelDnl <- PanelD + theme(legend.position = "none")
-mainFig <- cowplot::plot_grid(PanelAnl, PanelBnl, PanelCnl, PanelDnl,
-                              align = "h", ncol = 2, nrow = 2,
-                              labels = c("(A)", "", "(B)", ""))
-legend <- cowplot::get_legend(PanelA +
-                                guides(color = guide_legend(nrow = 3)) +
-                                theme(legend.position = "bottom"))
-mainFig <- cowplot::plot_grid(mainFig, legend,
-                              nrow = 2, ncol = 1, rel_heights = c(0.9, 0.15))
+# plot out
+#......................
+age_specific_plotObj <- plotdat %>%
+  ggplot() +
+  geom_ribbon(aes(x = age, ymin = Q025, ymax = Q975),
+              fill = "#d9d9d9", alpha = 0.8) +
+  geom_ribbon(aes(x = age, ymin = Q20, ymax = Q80),
+              fill = "#969696", alpha = 0.8) +
+  geom_pointrange(aes(x = age_mid, y = median,
+                      ymin = LCI, ymax = UCI,
+                      color =  location),
+                  alpha = 0.75, shape = 16, size = 0.9) +
+  scale_color_manual("Location", values = mycolors) +
+  facet_grid(lvl ~ sero, scales = "free") +
+  ylab("IFR (95% CrI)") + xlab("Age (years)") +
+  xyaxis_plot_theme +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        strip.text = element_text(vjust = 0.5, hjust = 0.5, face = "bold", size = 11),
+        panel.border =  element_rect(colour = "#000000", size = 1, fill = "transparent"),
+        panel.grid.major = element_line(colour = "#252525", size = 0.15),
+        panel.grid.minor = element_line(colour = "#252525", size = 0.05),
+        plot.margin = unit(c(0.1, 0.1, 0.1, 0.1),"cm"))
 
 jpeg("figures/final_figures/IFR_age_spec_logplot.jpg",
-     width = 11, height = 8, units = "in", res = 600)
-plot(mainFig)
+     width = 8, height = 8, units = "in", res = 600)
+plot(age_specific_plotObj)
 graphics.off()
 
 

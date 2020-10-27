@@ -127,7 +127,7 @@ arrows <- tibble::tibble(
 
 labels <- tibble::tibble(
   lvl =    c("mod",       "serocon",    "sens",    "spec",  "serorev"),
-  label =  c("O-D Delay", "O-S Delay",  "Sens.",   "Spec.",  "O-R Delay"),
+  label =  c("I-D Delay", "I-S Delay",  "Sens.",   "Spec.",  "I-R Delay"),
   x =      c(172,          102,          225,       12,       262),
   y =      c(0.02,          0.4,         0.65,    0.09,      0.50),
 )
@@ -192,7 +192,7 @@ infxninset_plotObj <- ggplot() +
 #......................
 delay_plotObj_nolegend <- delay_plotObj +
   theme(legend.position = "none")
-legend <- get_legend(delay_plotObj)
+legend <- cowplot::get_legend(delay_plotObj)
 (panelB <- cowplot::ggdraw() +
     cowplot::draw_plot(delay_plotObj_nolegend, x = 0, y = 0, width = 1, height = 1, scale = 1) +
     cowplot::draw_plot(infxninset_plotObj, x = 0.2, y= 0.65, width = 0.3, height = 0.3))

@@ -211,7 +211,7 @@ sero_rev_comb <- sero_rev_comb %>%
 # NO interval censoring
 #......................
 survobj_rcens <- survival::Surv(time = sero_rev_comb$time_obs_fail,
-                          event = sero_rev_comb$status)
+                                event = sero_rev_comb$status)
 
 # kaplan meier fit
 KM1_mod <- survival::survfit(survobj_rcens ~ 1, data = sero_rev_comb)
@@ -219,17 +219,20 @@ summary(KM1_mod)
 
 # fit weibull
 WBmod1 <- survival::survreg(survobj_rcens ~ 1,
-                           dist="weibull",
-                           data = sero_rev_comb)
+                            dist="weibull",
+                            data = sero_rev_comb)
 summary(WBmod1)
-
+# survreg's scale = 1/(rweibull shape)
+# survreg's intercept = log(rweibull scale)
+1/exp(WBmod1$icoef[2])
+exp(WBmod1$icoef[1])
 
 #......................
 # WITH interval censoring
 #......................
 survobj_intcens <- survival::Surv(time = sero_rev_comb$time_to_event,
-                          time2 = sero_rev_comb$time_to_event2,
-                          type = "interval2" )
+                                  time2 = sero_rev_comb$time_to_event2,
+                                  type = "interval2" )
 
 # fit KM
 KM2_mod <- survival::survfit(survobj_intcens ~ 1,
@@ -240,8 +243,8 @@ summary(KM2_mod)
 
 # fit weibull
 WBmod2 <- survival::survreg(survobj_intcens ~ 1,
-                           dist="weibull",
-                           data = sero_rev_comb)
+                            dist="weibull",
+                            data = sero_rev_comb)
 summary(WBmod2)
 
 
