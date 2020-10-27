@@ -24,11 +24,15 @@ results/Rgn_Mod_Stan
 reports/final_reports
 OLD/
 
-# Data files I'm generating
+# internal
 sandbox/
 figures/
+tables/
+
+# Data files I'm generating
 data/param_map/
 .drake
+
 # shared data
 data/raw/shared
 meta_comparison/
