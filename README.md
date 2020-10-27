@@ -47,5 +47,9 @@ An overview of the compendium is below:
 ```
 
 ### Running the Code
-Users will first need to perform model fitting for each of the included studies and/or the simulation runs with code provided in the `ModFits/` and `SimWork` directories, respectively. Individual "worker" scripts for models without and with seroconversion are available. From experience on a Linux-based cluster, these fits tooks approximately 24-32 hours. 
+Users will first need to perform model fitting for each of the included studies and/or the simulation runs with code provided in the `analyses/ModFits/` and `analyse/SimWork/` directories, respectively. Individual "worker" scripts for models without and with seroconversion are available (you can send these out on a slurm cluster with the `run_nightly_workers.sh` scritp). From experience on a Linux-based cluster, these fits tooks approximately 24-32 hours. 
+  
+  
+After you have produced the model fits, you can run the rest of the analyses in sequential order 01-11 (script `00-convalescent_seroAbs_v2.R` contains data that is available upon request. The needed parameter results are provided in the `results/prior_inputs` directory). 
+
 
