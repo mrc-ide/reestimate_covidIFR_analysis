@@ -30,6 +30,8 @@ carehome_column <- chretmap %>%
                 LCI = round(LCI * 100, 2),
                 UCI = round(UCI * 100, 2)) %>%
   dplyr::mutate(mod_carehome_ifr_col = paste0(median, " (", LCI, ", ", UCI, ")")) %>%
+  dplyr::left_join(., order, by = "study_id") %>%
+  dplyr::arrange(order) %>%
   dplyr::select(c("study_id", "mod_carehome_ifr_col"))
 
 
