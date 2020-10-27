@@ -7,6 +7,18 @@ An overview of the compendium is below:
 ├── R                                 # "Helper" R functions specific to this research project 
 ├── README.md
 ├── analyses                            # Scripts for data wrangling, fitting, figures, and tables
+│   ├── ModFits
+│   │   ├── CareHomes_drakeworker.R
+│   │   ├── ModFits_drakeworker_v2.R
+│   │   ├── seroRev_ModFits_drakeworker_v2.R
+│   ├── Rgn_Mod_Stan
+│   │   ├── run_regional_model.R
+│   ├── SimWork
+│   │   ├── SeroRev_SimCurves_drakeworker_v2.R
+│   │   ├── SimCurves_drakeworker_v2.R
+│   │   ├── fit_conceptual_figure_delayeffects.R
+│   │   ├── fit_seroday_concept.R
+|
 │   ├── 00-convalescent_seroAbs_v2.R
 │   ├── 01-run_process_country_data_v2.R
 │   ├── 02-descriptive_data_plots_v3.R
@@ -19,17 +31,7 @@ An overview of the compendium is below:
 │   ├── 09-collate_sims.R
 │   ├── 10-plot_delay_concept.R
 │   ├── 11-plot_seroday_concept.R
-│   ├── ModFits
-│   │   ├── CareHomes_drakeworker.R
-│   │   ├── ModFits_drakeworker_v2.R
-│   │   ├── seroRev_ModFits_drakeworker_v2.R
-│   ├── Rgn_Mod_Stan
-│   │   ├── run_regional_model.R
-│   ├── SimWork
-│   │   ├── SeroRev_SimCurves_drakeworker_v2.R
-│   │   ├── SimCurves_drakeworker_v2.R
-│   │   ├── fit_conceptual_figure_delayeffects.R
-│   │   ├── fit_seroday_concept.R
+|
 ├── data                                 # DO NOT EDIT ANY FILES IN THIS DIRECTORY BY HAND
 │   ├── raw/
 │   ├── derived
