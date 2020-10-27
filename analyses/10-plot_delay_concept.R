@@ -90,7 +90,8 @@ get_data_IFR_longit <- function(simdat, modelobj, fit, sens, spec, dwnsmpl = 1e2
       RGIFR = cumdeaths/(popN * rogan_gladen(obs_prev = ObsPrev, sens = sens, spec = spec)),
       CrudeIFR = cumdeaths/(popN * ObsPrev)
     ) %>%
-    dplyr::mutate(RGIFR = ifelse(is.nan(RGIFR), 0, RGIFR)) # if denom is 0, just set to 0
+    dplyr::mutate(RGIFR = ifelse(is.nan(RGIFR), 0, RGIFR)) %>%  # if denom is 0, just set to 0
+    dplyr::ungroup(.)
 
   #......................
   # get posterior IFRs

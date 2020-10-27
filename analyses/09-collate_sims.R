@@ -28,7 +28,7 @@ get_sim_IFR_est <- function(modout) {
   COVIDCurve::get_cred_intervals(IFRmodel_inf = modout,
                                  by_chain = FALSE,
                                  what = "IFRparams") %>%
-    # subset to oldest age group
+    # subset to oldest age group for space
     dplyr::filter(param == "ma5")
 }
 
