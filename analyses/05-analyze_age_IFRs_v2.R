@@ -339,6 +339,11 @@ ifrdat <- inputdat %>%
 ifrdat$logmod[[1]]
 ifrdat$logmod[[2]]
 
+# save out
+dir.create("results/lognormalmods/", recursive = TRUE)
+saveRDS(ifrdat$logmod[[1]], "results/lognormalmods/pooled_ifr_mod_noserorev.RDS")
+saveRDS(ifrdat$logmod[[2]], "results/lognormalmods/pooled_ifr_mod_seroREV.RDS")
+
 
 #......................
 # internal checks
