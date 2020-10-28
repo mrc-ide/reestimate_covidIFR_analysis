@@ -757,12 +757,13 @@ rgns_crudeIFRs_CI <- dplyr::bind_rows(rgns_binom, rgns_logit)
 upperbounds <- rgns_crudeIFRs_CI %>%
   dplyr::left_join(., locatkey, by = "study_id") %>%
   dplyr::filter(upper_ci > 0.05) %>%
-  dplyr::mutate(upbound = 5) # we multiple by 100 below
+  dplyr::mutate(seroprev = seroprev * 100,
+                upbound = 5) # we multiple by 100 below
 
 
 PanelA <- rgns_crudeIFRs_CI %>%
   dplyr::left_join(., locatkey, by = "study_id") %>%
-  dplyr::filter(seroprev != 0) %>%
+  dplyr::mutate(seroprev = seroprev * 100) %>%
   ggplot() +
   geom_point(aes(x = seroprev, y = std_cum_deaths, color = location),
              size = 3, alpha = 0.7) +
@@ -775,8 +776,8 @@ PanelA <- rgns_crudeIFRs_CI %>%
 
 PanelB <- rgns_crudeIFRs_CI %>%
   dplyr::left_join(., locatkey, by = "study_id") %>%
-  dplyr::filter(seroprev != 0) %>%
-  dplyr::mutate(upper_ci = ifelse(upper_ci > 0.05, 0.05, upper_ci),
+  dplyr::mutate(seroprev = seroprev * 100,
+                upper_ci = ifelse(upper_ci > 0.05, 0.05, upper_ci),
                 crudeIFR = crudeIFR * 100,
                 lower_ci = lower_ci * 100,
                 upper_ci = upper_ci * 100) %>%
