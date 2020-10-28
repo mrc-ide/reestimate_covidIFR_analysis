@@ -7,7 +7,6 @@ library(tidyverse)
 library(COVIDCurve)
 source("R/my_themes.R")
 source("R/covidcurve_helper_functions.R")
-source("R/delta_method.R")
 # colors now based on location
 locatkey <- readr::read_csv("data/plot_aesthetics/color_studyid_map.csv")
 mycolors <- locatkey$cols
@@ -20,13 +19,13 @@ order <- readr::read_csv("data/plot_aesthetics/study_id_order.csv")
 #...........................................................
 # no serorev
 mod_NOserorev_paths <- list.files("results/Modfits_noserorev/", full.names = T)
-mod_NOserorev_retmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(mod_NOserorev_paths), "_age|_carehomes", simplify = T)[,1]),
+mod_NOserorev_retmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(mod_NOserorev_paths), "_age", simplify = T)[,1]),
                                        lvl = "NoSeroRev",
                                        paths = mod_NOserorev_paths)
 
 # yes serorev
 mod_serorev_paths <- list.files("results/Modfits_serorev/", full.names = T)
-mod_serorev_retmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(mod_serorev_paths), "_age|_carehomes", simplify = T)[,1]),
+mod_serorev_retmap <- tibble::tibble(study_id = toupper(stringr::str_split(basename(mod_serorev_paths), "_age", simplify = T)[,1]),
                                      lvl = "SeroRev",
                                      paths = mod_serorev_paths)
 
@@ -306,7 +305,7 @@ ObsDeathDat <- death_datmap %>%
   tidyr::unnest(cols = "datclean") %>%
   dplyr::left_join(., locatkey)
 
-serorev_InfDeathDat <- serorev_death_datmap %>%
+serorev_DeathDat <- serorev_death_datmap %>%
   dplyr::mutate(postdat_long = purrr::map(plotdat, "postdat_long")) %>%
   dplyr::select(c("study_id", "postdat_long")) %>%
   tidyr::unnest(cols = "postdat_long") %>%
@@ -314,7 +313,7 @@ serorev_InfDeathDat <- serorev_death_datmap %>%
 
 
 serorev_ppc_DeathPlotObj <- ggplot() +
-  geom_line(data = serorev_InfDeathDat, aes(x= time, y = inf_deaths, group = sim),
+  geom_line(data = serorev_DeathDat, aes(x= time, y = inf_deaths, group = sim),
             size = 1.2, color = "#bdbdbd") +
   geom_line(data = ObsDeathDat, aes(x = ObsDay, y = obs_deaths),
             color = "#3182bd") +
