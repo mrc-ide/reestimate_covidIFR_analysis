@@ -1,10 +1,10 @@
 ####################################################################################
-## Purpose: Plot for Figure 1 Showing Delays and Inference Framework
+## Purpose: Plot for Figure Showing Delays and Inference Framework
 ##
 ## Notes:
 ####################################################################################
 setwd("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/")
-set.seed(48)
+set.seed(1234)
 library(COVIDCurve)
 library(tidyverse)
 library(drake)
@@ -22,9 +22,9 @@ interveneflat <- c(interveneflat, round(seq(from = interveneflat[200],
                                             to = 10, length.out = 100)))
 
 
-# read in fitted weibull seroreversion parameters
-weibull_params <- readRDS("results/prior_inputs/weibull_params.RDS")
-
+# read in fitted rate of seroreversion parameter
+weibullparams <- readRDS("results/prior_inputs/weibull_params.RDS")
+weibullparams$wscale <- weibullparams$wscale - 13.3 # account for delay in onset of symptoms to seroconversion
 
 #............................................................
 # setup fatality data
@@ -40,8 +40,8 @@ demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3"),
 dat <- COVIDCurve::Agesim_infxn_2_death(
   fatalitydata = fatalitydata,
   demog = demog,
-  m_od = 19.66,
-  s_od = 0.90,
+  m_od = 19.8,
+  s_od = 0.85,
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = FALSE,
@@ -54,13 +54,13 @@ dat <- COVIDCurve::Agesim_infxn_2_death(
 serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
   fatalitydata = fatalitydata,
   demog = demog,
-  m_od = 19.66,
-  s_od = 0.90,
+  m_od = 19.8,
+  s_od = 0.85,
   curr_day = 300,
   infections = interveneflat,
   simulate_seroreversion = TRUE,
-  sero_rev_shape = weibull_params$wshape,
-  sero_rev_scale = weibull_params$wscale + 5,
+  sero_rev_shape = weibullparams$wshape,
+  sero_rev_scale = weibullparams$wscale,
   smplfrac = 1e-3,
   sens = 0.85,
   spec = 0.95,
@@ -77,18 +77,23 @@ serorev_dat <- COVIDCurve::Agesim_infxn_2_death(
 #......................
 # liftover obs serology
 sero_days <- c(150, 200)
+sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
 obs_serology <- dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
-  dplyr::filter(ObsDay %in% sero_days) %>%
+  dplyr::filter(ObsDay %in% unlist(sero_days)) %>%
+  dplyr::mutate(serodaynum = sort(rep(1:length(sero_days), 11))) %>%
   dplyr::mutate(
-    SeroPos = round(ObsPrev * testedN),
-    SeroN = testedN,
-    SeroLCI = NA,
-    SeroUCI = NA) %>%
-  dplyr::rename(
-    SeroPrev = ObsPrev) %>%
-  dplyr::mutate(SeroStartSurvey = sero_days - 5,
-                SeroEndSurvey = sero_days + 5) %>%
+    SeroPos = ObsPrev * testedN,
+    SeroN = testedN ) %>%
+  dplyr::group_by(Strata, serodaynum) %>%
+  dplyr::summarise(SeroPos = mean(SeroPos),
+                   SeroN = mean(SeroN)) %>% # seroN doesn't change
+  dplyr::mutate(SeroStartSurvey = sapply(sero_days, median) - 5,
+                SeroEndSurvey = sapply(sero_days, median) + 5,
+                SeroPos = round(SeroPos),
+                SeroPrev = SeroPos/SeroN,
+                SeroLCI = NA,
+                SeroUCI = NA) %>%
   dplyr::select(c("SeroStartSurvey", "SeroEndSurvey", "Strata", "SeroPos", "SeroN", "SeroPrev", "SeroLCI", "SeroUCI")) %>%
   dplyr::ungroup(.) %>%
   dplyr::arrange(SeroStartSurvey, Strata)
@@ -113,7 +118,7 @@ reginputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
 # sero tidy up
 sero_days <- c(150, 200)
 sero_days <- lapply(sero_days, function(x){seq(from = (x-5), to = (x+5), by = 1)})
-obs_serology <- dat$StrataAgg_Seroprev %>%
+obs_serology <- serorev_dat$StrataAgg_Seroprev %>%
   dplyr::group_by(Strata) %>%
   dplyr::filter(ObsDay %in% unlist(sero_days)) %>%
   dplyr::mutate(serodaynum = sort(rep(1:length(sero_days), 11))) %>%
@@ -163,17 +168,17 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens",  "spec"),
 # delay priors
 tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                min  = c(18,     0,     16),
-                               init = c(19,     0.90,  18),
+                               init = c(19,     0.85,  18),
                                max =  c(20,     1,     21),
-                               dsc1 = c(19.66,  2700,  18.3),
-                               dsc2 = c(0.1,    300,   0.1))
+                               dsc1 = c(19.8,   2550,  18.3),
+                               dsc2 = c(0.1,    450,   0.1))
 
-serorev <- tibble::tibble(name = c("sero_rev_shape",        "sero_rev_scale"),
-                          min  = c(2,                        138),
-                          init = c(3.5,                      143),
-                          max =  c(5,                        158),
-                          dsc1 = c(weibull_params$wshape,    weibull_params$wscale + 5),
-                          dsc2 = c(1,                        3))
+serorev <- tibble::tibble(name = c("sero_rev_shape",     "sero_rev_scale"),
+                         min  = c(2,                     127),
+                         init = c(3.5,                   130.4),
+                         max =  c(5,                     133),
+                         dsc1 = c(weibullparams$wshape,  weibullparams$wscale),
+                         dsc2 = c(0.5,                   0.1))
 
 # combine
 tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
@@ -188,8 +193,8 @@ infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0,
                                          num_ys = 5)
 noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 3, min = 0.5, init = 1, max = 1.5)
 # bring together
-df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, noise_paramsdf, sens_spec_tbl, tod_paramsdf)
-df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, knot_paramsdf, noise_paramsdf, sens_spec_tbl, tod_paramsdf_serorev)
+df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, noise_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf)
+df_params_serorev <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, noise_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf_serorev)
 
 
 #......................
@@ -223,7 +228,7 @@ mod1_serorev$set_Infxnparams(paste0("y", 1:5))
 mod1_serorev$set_relInfxn("y3")
 mod1_serorev$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
-mod1_serorev$set_data(reginputdata)
+mod1_serorev$set_data(serorev_inputdata)
 mod1_serorev$set_demog(demog)
 mod1_serorev$set_paramdf(df_params_serorev)
 mod1_serorev$set_rcensor_day(.Machine$integer.max)
@@ -286,7 +291,7 @@ run_MCMC <- function(path) {
                                       rungs = mod$rungs,
                                       GTI_pow = mod$GTI_pow[[1]],
                                       cluster = cl,
-                                      thinning = 10)
+                                      thinning = mod$thinning)
   parallel::stopCluster(cl)
   gc()
 

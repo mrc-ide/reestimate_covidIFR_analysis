@@ -63,7 +63,7 @@ process_data4 <- function(cum_tp_deaths = NULL, population = NULL, sero_val = NU
   assert_in(c("study_id", "n_samples_true_neg", "n_test_neg_out_of_true_neg", "n_samples_true_pos", "n_test_pos_out_of_true_pos"),
             colnames(sero_val))
   # check columns for seroprev df and dates
-  assert_in(c("country", "study_id", "age_low", "age_high", "region", "gender", "seroprevalence_unadjusted",
+  assert_in(c("study_id", "age_low", "age_high", "region", "gender", "seroprevalence_unadjusted",
               "seroprevalence_weighted", "n_tested", "n_positive", "date_start_survey", "date_end_survey",
               "age_breakdown", "for_regional_analysis"),
             colnames(seroprev))
@@ -176,11 +176,8 @@ process_seroprev_data <- function(seroprev, origin, study_ids, sero_agebreaks, g
     seroprev <- seroprev %>%
       dplyr::mutate(
         ageband = cut(age_high,
-                      breaks = agebrks_sero,
-                      labels = c(paste0(agebrks_sero[1:(length(agebrks_sero)-1)], "-", lead(agebrks_sero)[1:(length(agebrks_sero)-1)])),
-                      ageband = as.character(ageband))
-
-      ) %>%
+                      breaks = agebrks_sero),
+        ageband = as.character(ageband)) %>%
       dplyr::arrange(age_low)
   }
 
@@ -227,8 +224,8 @@ process_seroprev_data <- function(seroprev, origin, study_ids, sero_agebreaks, g
   # make sure age order perserved which can be overwritten in the group_by_at, so for safety
   if (groupingvar == "ageband") {
     seroprevMCMC <- seroprevMCMC %>%
-      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
-      dplyr::arrange(age_low) %>%
+      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
+      dplyr::arrange(ObsDaymin, ObsDaymax, age_low) %>%
       dplyr::select(-c("age_low"))
   }
 
@@ -274,8 +271,7 @@ process_population_data <- function(population, cum_tp_deaths, death_agebreaks, 
   population <- population %>%
     dplyr::mutate(
       ageband = cut(age_high,
-                    breaks = agebrks,
-                    labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
+                    breaks = agebrks),
       ageband = as.character(ageband))
 
   # do any neccesary age filtering
@@ -346,7 +342,7 @@ process_population_data <- function(population, cum_tp_deaths, death_agebreaks, 
   # make sure  order perserved which can be overwritten in the group_by_at, so for safety
   if (groupingvar == "ageband") {
     pop_prop.summ <- pop_prop.summ %>%
-      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
+      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
       dplyr::arrange(age_low) %>%
       dplyr::select(-c("age_low"))
   }
@@ -412,10 +408,8 @@ process_death_data <- function(cum_tp_deaths, time_series_totdeaths_df, time_ser
   cum_tp_deaths <- cum_tp_deaths %>%
     dplyr::mutate(
       ageband = cut(age_high,
-                    breaks = agebrks,
-                    labels = c(paste0(agebrks[1:(length(agebrks)-1)], "-", lead(agebrks)[1:(length(agebrks)-1)]))),
-      ageband = as.character(ageband)
-    )
+                    breaks = agebrks),
+      ageband = as.character(ageband))
 
   # do any neccesary age filtering
   if (groupingvar == "ageband") {
@@ -469,7 +463,7 @@ process_death_data <- function(cum_tp_deaths, time_series_totdeaths_df, time_ser
   # make sure age order perserved which can be overwritten in the group_by_at, so for safety
   if (groupingvar == "ageband") {
     cum_tp_deaths.prop <- cum_tp_deaths.prop %>%
-      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
+      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])"))) %>%
       dplyr::arrange(age_low) %>%
       dplyr::select(-c("age_low"))
   }
@@ -516,89 +510,3 @@ process_death_data <- function(cum_tp_deaths, time_series_totdeaths_df, time_ser
   return(ret)
 }
 
-
-#' @title  Remove care home deaths from older age groups, any containing >65
-#' @param agebands.dat object made from process_data4
-#' @param study_id character
-
-remove_ch_deaths <- function(agebands.dat, study_id) {
-  # get new propMCMC or deaths
-  deaths_propMCMC_adj <- agebands.dat$deaths_propMCMC %>%
-    dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)")),
-                  age_high = as.numeric(gsub( "(.*)-(.*)", "\\2",  ageband)))
-  # find individuals over 65
-  inds <- which(deaths_propMCMC_adj$age_high > 65)
-  lower_age_old <- min(deaths_propMCMC_adj$age_low[inds])
-  deaths_propMCMC_adj$ageband2 <- deaths_propMCMC_adj$ageband
-  deaths_propMCMC_adj$ageband2[inds] <- paste0(lower_age_old,"-999")
-  new_age <- deaths_propMCMC_adj %>%
-    select(ageband, ageband2)  %>%
-    dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,1])) %>% # need ages in correct order
-    dplyr::arrange(age_low) %>%
-    dplyr::select(-c("age_low"))
-
-  ## save new agebands and adjust
-  inds <- which(deaths_ch$study_id==study_id)
-  deaths_propMCMC_adj <- deaths_propMCMC_adj %>%
-    dplyr::group_by(ageband2) %>%
-    dplyr::summarise(death_num = sum(death_num),
-                     death_denom = mean(death_denom)) %>%
-    dplyr::mutate(ch_deaths = round(death_denom*deaths_ch$percent_deaths[inds]/100),
-                  death_prop=NA,
-                  prop_chd_oldest=ifelse(ageband2 == new_age$ageband2[nrow(new_age)],ch_deaths/death_num,0),
-                  death_num=ifelse(ageband2 == new_age$ageband2[nrow(new_age)],death_num-ch_deaths,death_num),
-                  death_denom_noch=death_denom - ch_deaths,
-                  death_prop=death_num/death_denom_noch) %>%
-    dplyr::rename(ageband=ageband2)  %>%
-    dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,1])) %>% # need ages in correct order
-    dplyr::arrange(age_low) %>%
-    dplyr::select(-c("age_low"))
-
-  # overwrite w/ new age groups
-  agebands_noCH.dat <- agebands.dat
-  agebands_noCH.dat$deaths_propMCMC <- deaths_propMCMC_adj
-
-  # adjust group object for desc data now as well
-  deaths_group_adj <- full_join(agebands.dat$deaths_group, new_age, by="ageband")
-  high_ageband<-new_age$ageband2[nrow(new_age)]
-  deaths_group_adj <- deaths_group_adj %>%
-    dplyr::group_by(ageband2,ObsDay) %>%
-    dplyr::summarise(Deaths=sum(Deaths)) %>%
-    dplyr::mutate(Deaths=ifelse(ageband2 == high_ageband,
-                                Deaths * (1-deaths_propMCMC_adj$prop_chd_oldest[nrow(deaths_propMCMC_adj)]),
-                                Deaths)) %>%
-    dplyr::rename(ageband=ageband2) %>%
-    dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,1])) %>% # need ages in correct order
-    dplyr::arrange(age_low) %>%
-    dplyr::select(-c("age_low"))
-  agebands_noCH.dat$deaths_group <- deaths_group_adj
-
-  # adjust population
-  pop_adj <- full_join(agebands.dat$prop_pop, new_age,by="ageband")
-  pop_adj <- pop_adj %>%
-    dplyr::group_by(ageband2) %>%
-    dplyr::summarise(popN = sum(popN),
-                     pop_prop = sum(pop_prop)) %>%
-    dplyr::rename(ageband = ageband2) %>%
-    dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,1])) %>% # need ages in correct order
-    dplyr::arrange(age_low) %>%
-    dplyr::select(-c("age_low"))
-  agebands_noCH.dat$prop_pop<-pop_adj
-
-  # seroprevalence adjustment
-  seroprevMCMC_adj <- full_join(agebands.dat$seroprevMCMC, new_age, by="ageband")
-  seroprevMCMC_adj <- seroprevMCMC_adj %>%
-    dplyr::filter(!duplicated(cbind(ObsDaymin, ObsDaymax, SeroPrev, ageband2)))  %>%
-    dplyr::group_by(ObsDaymin, ObsDaymax, ageband2) %>%
-    dplyr::summarise(n_positive = sum(n_positive),
-                     n_tested = sum(n_tested)) %>%
-    dplyr::mutate(SeroPrev = n_positive/n_tested) %>%
-    dplyr::rename(ageband = ageband2) %>%
-    dplyr::mutate(age_low = as.numeric(stringr::str_split_fixed(ageband, "-", n = 2)[,1])) %>% # need ages in correct order
-    dplyr::arrange(ObsDaymin, ObsDaymax, age_low) %>%
-    dplyr::select(-c("age_low"))
-  agebands_noCH.dat$seroprevMCMC <- seroprevMCMC_adj
-
-  # out
-  return(agebands_noCH.dat)
-}

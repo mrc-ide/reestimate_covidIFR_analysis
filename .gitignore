@@ -11,23 +11,32 @@
 results/Modfits_carehomes
 results/Modfits_noserorev
 results/Modfits_serorev
+results/Modfits_carehomes
+results/Modfits_ConfirmedDeaths
 results/Fig_ConceptualFits
 results/SeroDays_Concept
 results/SimCurves_noserorev
 results/SimCurves_serorev
 results/descriptive_results
+results/descriptive_figures
 results/sero_reversion
 results/Rgn_Mod_Stan
-results/OLD
+reports/final_reports
+results/lognormalmods/
+OLD/
 
-# Data files I'm generating
+# internal
 sandbox/
 figures/
+tables/
+
+# Data files I'm generating
 data/param_map/
 .drake
+
 # shared data
 data/raw/shared
-
+meta_comparison/
 
 # knitr and R markdown default cache directories
 /*_cache/

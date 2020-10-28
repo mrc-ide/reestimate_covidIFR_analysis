@@ -2,12 +2,30 @@ source("R/assertions_v5.R")
 library(tidyverse)
 library(stringr)
 
+
+#' @title get mid age from agebands (factorized from cut)
+get_mid_age <- function(ageband) {
+  # character from factor
+  ageband <- as.character(ageband)
+  # extract and get mean
+  age_mid <- purrr::map_dbl(ageband, function(x){
+    lwr <- as.numeric(stringr::str_extract(ageband, "[0-9]+(?=\\,)"))
+    lwr <- ifelse(lwr == 0, 0, lwr + 1) # treat as one-based
+    upr <- as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])")) + 1 # treat as one-based
+    # fix upper
+    upr[upr == (999+1)] <- 100
+    midages <- purrr::map2_dbl(lwr, upr, function(x, y) mean(c(x,y)))
+    return(midages)})
+  # out
+  return(age_mid)
+}
+
 #' @title Log Transform IFR params
 #' @details goal here is to be memory light
 #' @importFrom magrittr %>%
 #' @export
 
-get_log_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
+get_log10_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
   # read in
   IFRmodel_inf <- readRDS(path)
   # checks
@@ -30,7 +48,7 @@ get_log_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
     dplyr::select_at(params) %>%
     tidyr::pivot_longer(., cols = params[!grepl("chain", params)], # if chain isn't included in vector, grepl won't do anything
                         names_to = "param", values_to = "est") %>%
-    dplyr::mutate(est = log(est)) %>%
+    dplyr::mutate(est = log10(est)) %>%
     dplyr::group_by_at(groupingvar) %>%
     dplyr::summarise(
       min = min(est),
@@ -38,8 +56,7 @@ get_log_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
       median = median(est),
       mean = mean(est),
       UCI = quantile(est, 0.975),
-      max = max(est),
-      precision = 1/var(est)
+      max = max(est)
     )
 }
 
@@ -84,16 +101,46 @@ get_strata_IFRs <- function(path) {
                   strata = forcats::fct_reorder(strata, as.numeric(param)))
 }
 
-#' @title Calculate overall IFR from a path
+#' @title Calculate overall IFR weighted for demography from a path
 #' @details goal here is to be memory light
-get_overall_IFRs <- function(path) {
+get_overall_IFRs <- function(path, whichstandard) {
   modout <- readRDS(path)
-  out <- COVIDCurve::get_globalIFR_cred_intervals(IFRmodel_inf = modout,
-                                                  whichrung = "rung1",
-                                                  by_chain = FALSE)
+  out <- COVIDCurve::get_overall_IFR_cred_intervals(IFRmodel_inf = modout,
+                                                    whichrung = "rung1",
+                                                    whichstandard = whichstandard,
+                                                    by_chain = FALSE)
   return(out)
 }
 
+
+#' @title Calculate stratified IFR precision from a path
+#' @details goal here is to be memory light
+get_strata_IFR_variance <- function(path, by_chain) {
+  # read in
+  IFRmodel_inf <- readRDS(path)
+  # checks
+  assert_custom_class(IFRmodel_inf$inputs$IFRmodel, "IFRmodel")
+  assert_custom_class(IFRmodel_inf$mcmcout, "drjacoby_output")
+  assert_custom_class(IFRmodel_inf, "IFRmodel_inf")
+  assert_logical(by_chain)
+
+  # grouping vars
+  if (by_chain) {
+    groupingvar <- c("chain", "param")
+    params <- c("chain", IFRmodel_inf$inputs$IFRmodel$IFRparams)
+  } else {
+    groupingvar <- "param"
+    params <- IFRmodel_inf$inputs$IFRmodel$IFRparams
+  }
+
+  IFRmodel_inf$mcmcout$output %>%
+    dplyr::filter(stage == "sampling" & rung == "rung1") %>%
+    dplyr::select_at(params) %>%
+    tidyr::pivot_longer(., cols = params[!grepl("chain", params)], # if chain isn't included in vector, grepl won't do anything
+                        names_to = "param", values_to = "est") %>%
+    dplyr::group_by_at(groupingvar) %>%
+    dplyr::summarise(var = var(est))
+}
 
 #' @title Calculate overall IFR from a path
 #' @details goal here is to be memory light
@@ -115,10 +162,10 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
                                          num_xs, max_xveclist,
                                          num_ys, max_yveclist,
                                          sens_spec_tbl, tod_paramsdf,
-                                         serodayparams) {
+                                         serodayparams, upperMa = 0.4) {
 
 
-  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.4)
+  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = upperMa)
 
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
@@ -136,7 +183,8 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
   #......................
   # format data
   #......................
-  dictkey <- tibble::tibble(groupvar = as.character(unlist(unique(dat$seroprevMCMC[, groupvar]))), "Strata" = paste0("ma", 1:num_mas))
+  dictkey <- tibble::tibble(groupvar = as.character(unlist(unique(dat$seroprevMCMC[, groupvar]))),
+                            "Strata" = paste0("ma", 1:num_mas))
   colnames(dictkey) <- c(paste(groupvar), "Strata")
 
   # time series deaths
@@ -185,8 +233,6 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
   demog <- dat$prop_pop %>%
     dplyr::left_join(., dictkey) %>%
     dplyr::select(c("Strata", "popN")) %>%
-    dplyr::group_by(Strata) %>%
-    dplyr::summarise(popN = round(sum(popN))) %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
     dplyr::arrange(Strata) %>%
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
@@ -216,8 +262,7 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1 <- make_IFRmodel_age$new()
     mod1$set_MeanTODparam("mod")
     mod1$set_CoefVarOnsetTODparam("sod")
-    mod1$set_IFRparams(paste0("ma", 1:num_mas))
-    mod1$set_maxMa(maxMa)
+    mod1$set_IFRparams("ma1")
     mod1$set_Knotparams(paste0("x", 1:num_xs))
     mod1$set_relKnot(max_xveclist[["name"]])
     mod1$set_Infxnparams(paste0("y", 1:num_ys))
@@ -243,10 +288,10 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
                                        num_xs, max_xveclist,
                                        num_ys, max_yveclist,
                                        sens_spec_tbl, tod_paramsdf,
-                                       serodayparams) {
+                                       serodayparams, upperMa = 0.4) {
 
 
-  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = 0.4)
+  ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = upperMa)
 
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
@@ -313,8 +358,6 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
   demog <- dat$prop_pop %>%
     dplyr::left_join(., dictkey) %>%
     dplyr::select(c("Strata", "popN")) %>%
-    dplyr::group_by(Strata) %>%
-    dplyr::summarise(popN = round(sum(popN))) %>%
     dplyr::mutate(Strata = factor(Strata, levels = paste0("ma", 1:num_mas))) %>%
     dplyr::arrange(Strata) %>%
     dplyr::mutate(Strata = as.character(Strata)) # coerce back to char for backward compat
@@ -344,7 +387,7 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1 <- make_IFRmodel_age$new()
     mod1$set_MeanTODparam("mod")
     mod1$set_CoefVarOnsetTODparam("sod")
-    mod1$set_IFRparams(paste0("ma", 1:num_mas))
+    mod1$set_IFRparams("ma1")
     mod1$set_maxMa(maxMa)
     mod1$set_Knotparams(paste0("x", 1:num_xs))
     mod1$set_relKnot(max_xveclist[["name"]])
@@ -363,14 +406,6 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
 }
 
 
-#' @title Make Simple Data Dictionary Key for IFR age-bands, regions, etc. to simple
-#' @param strata string vector; Names of stata to simplify
-
-make_ma_dict_key <- function(strata_names) {
-  assert_string(strata_names)
-  tibble::tibble(strata_name = strata_names,
-                 param_name  = paste0("ma", 1:length(strata_name)))
-}
 
 
 #' @title Make IFR Uniform Distributed Reparameterized Param Df
@@ -447,13 +482,7 @@ make_splinex_reparamdf <- function(max_xvec = list("name" = "x4", min = 180, ini
 
 #' @title Make Noise Effect Reparameterized Param Df
 #' @param num_Ne positive interger; Number of Noise effect parameters to create
-#' @details By default, the first noise effect parameter is used as scalar for the other
-#'          noise effect parameters in a reparameterization framework. See \link{COVIDCurve}
-#'          for further details.
-make_noiseeff_reparamdf <- function(num_Nes = 4,
-                                    min = 0,
-                                    init = 5,
-                                    max = 10) {
+make_noiseeff_reparamdf <- function(num_Nes = 4,  min = 0, init = 5, max = 10) {
   assert_pos_int(num_Nes)
   assert_numeric(min)
   assert_numeric(init)

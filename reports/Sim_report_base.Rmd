@@ -60,20 +60,22 @@ quick_sim_sero_diagnostics <- function(modout, spec, sens) {
                                                       legend.title = element_blank()))
   
   if (modout$inputs$account_seroreversion) {
-    revshapechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_shape", display = FALSE)
-    revscalechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_scale", display = FALSE)
-    revshapechain <- revshapechain[[1]][["trace"]] +
+    # weibull shape
+    rev_shapechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_shape", display = FALSE)
+    rev_shapechain <- rev_shapechain[[1]][["trace"]] +
       labs(caption = paste0("Prior was Norm+(",  paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sero_rev_shape", c("dsc1", "dsc2")], collapse = ","),
                             ")")) +
       theme(legend.position = "none")
-    
-    revscalechain <- revscalechain[[1]][["trace"]] +
-      labs(caption = paste0("Prior was Norm+(", paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sero_rev_scale", c("dsc1", "dsc2")], collapse = ","),
+    # weibull scale
+    rev_scalechain <- drjacoby::plot_par(modout$mcmcout, "sero_rev_scale", display = FALSE)
+    rev_scalechain <- rev_scalechain[[1]][["trace"]] +
+      labs(caption = paste0("Prior was Norm+(",  paste(modout$inputs$IFRmodel$paramdf[modout$inputs$IFRmodel$paramdf$name == "sero_rev_scale", c("dsc1", "dsc2")], collapse = ","),
                             ")")) +
       theme(legend.position = "none")
     
+    
     topp <- cowplot::plot_grid(spechain, senschain, modchain, sodchain, maxmachain, seroratechain,
-                               revshapechain, revscalechain,
+                               rev_shapechain, rev_scalechain,
                                ncol = 2, nrow = 4)
   } else {
     # out
@@ -164,10 +166,10 @@ tibble::tibble(gelman_mpsrf = gdiag$mpsrf) %>%
   dplyr::mutate(
     gelman_mpsrf = round(gelman_mpsrf, 2),
     gelman_mpsrf = kableExtra::cell_spec(gelman_mpsrf, "latex", 
-                                         color = ifelse(gelman_mpsrf > 1.1, "red", "green"),
+                                         color = ifelse(gelman_mpsrf >= 1.1, "red", "green"),
                                          bold = T,
                                          font_size = 16)) %>% 
-  knitr::kable(.)
+  knitr::kable(., format = "simple")
 
 ```
 
@@ -243,24 +245,35 @@ serocurvedat <- seropnts %>%
                   dplyr::starts_with("crude_pd_"))) %>% 
   tidyr::pivot_longer(., cols = -c("sim", "ObsDay"),
                       names_to = "seroprev_strata_lvl", values_to = "seroprev") %>% 
-  dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RG Corr.", "Crude"),
+  dplyr::mutate(seroprevlvl = ifelse(stringr::str_detect(seroprev_strata_lvl, "RG_"), "RGCorr", "Crude"),
                 param = stringr::str_extract(seroprev_strata_lvl, "ma[0-9]+")) %>% 
-  dplyr::filter(seroprevlvl == "Crude")
+  dplyr::select(-c("seroprev_strata_lvl")) %>% 
+  tidyr::pivot_wider(., names_from = "seroprevlvl", values_from = "seroprev")
 
 # plot
+labcaption <- paste(strwrap("Grey boxes indicate model inputs (serosuvery dates and seroprevalences). N.B. If seroreversion is considered, the true prevalence (green) will also be greater than the observed/inferred prevalences.", width = 180), collapse = "\n") 
+
 pB <- serocurvedat %>% 
   dplyr::left_join(., trueseroprev) %>% 
   ggplot() +
-  geom_line(aes(x = ObsDay, y = seroprev), alpha = 0.5, color = "#9ecae1") +
-  geom_line(aes(x = ObsDay, y = TruePrev), color = "#000000") +
+  geom_line(aes(x = ObsDay, y = Crude, color = "Crude"), alpha = 0.5) + # yellow
+  geom_line(aes(x = ObsDay, y = RGCorr, color = "RGCorr"), alpha = 0.5) + # blue
+  geom_line(aes(x = ObsDay, y = TruePrev, color = "TruePrev")) + # green
+  geom_line(aes(x = ObsDay, y = ObsPrev, color = "ObsPrev")) +
   geom_rect(aes(xmin = 135, xmax = 145, ymin = 0, ymax = Inf), 
             alpha = 0.05, color = "#bdbdbd", fill = "#bdbdbd") + 
   geom_rect(aes(xmin = 155, xmax = 165, ymin = 0, ymax = Inf), 
             alpha = 0.05, color = "#bdbdbd", fill = "#bdbdbd") + 
+  scale_color_manual("", 
+                     values = c("Crude" = "#FFD301", "RGCorr" = "#246BCF",
+                                "TruePrev" = "#34A853", "ObsPrev" = "#EA4335"),
+                     labels = c("Inferred 'Truth'", 
+                                "Inferred 'Observed' - \n Rogan-Gladen Corrected",
+                                "Simulated True Prev.", "Simulated Obs. Prev.")) +
   facet_wrap(~Strata) + 
   xyaxis_plot_theme + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold")) +
-  labs(caption = "Blue is inferred, Black Line is Simulated Seroprevalence while grey boxes indicate model inputs (serosuvery dates and prevalences)") +
+  labs(caption = labcaption) +
   ylab("Seroprevalence") + xlab("Time")
 
 #...................... 

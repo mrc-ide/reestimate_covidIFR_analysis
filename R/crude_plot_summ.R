@@ -1,9 +1,30 @@
 source("R/assertions_v5.R")
 
-#' @title Rogan-Gladen Estimator for Correct Prevalence Obersvations
+
+
+#' @title get mid age from agebands (factorized from cut)
+#' @details function is copied over from covidcurve helper just for convenience
+get_mid_age <- function(ageband) {
+  # character from factor
+  ageband <- as.character(ageband)
+  # extract and get mean
+  age_mid <- purrr::map_dbl(ageband, function(x){
+    lwr <- as.numeric(stringr::str_extract(ageband, "[0-9]+(?=\\,)"))
+    lwr <- ifelse(lwr == 0, 0, lwr + 1) # treat as one-based
+    upr <- as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=])")) + 1 # treat as one-based
+    # fix upper
+    upr[upr == (999+1)] <- 100
+    midages <- purrr::map2_dbl(lwr, upr, function(x, y) mean(c(x,y)))
+    return(midages)})
+  # out
+  return(age_mid)
+}
+
+#' @title Rogan-Gladen Estimator for Correct Prevalence Observations
+#' @return Rogan-Gladen Correct Sens/Spec
 rogan_gladen <- function(obs_prev, sens, spec){
   ret <- (obs_prev + spec - 1)/(spec + sens - 1)
-  ret <- ifelse(ret <= 0, NA, ret) # occurs when obs_prev and spec are less than 1
+  ret <- ifelse(ret <= 0, NA, ret) # occurs when obs_prev + spec are less than 1
   return(ret)
 }
 
@@ -57,19 +78,15 @@ standardize_deathdat <- function(deathdat_long, popdat, groupingvar, Nstandardiz
   # for plot
   if (groupingvar == "ageband") {
     ret <- ret %>%
-      dplyr::mutate(age_mid = purrr::map_dbl(ageband, function(x){
-        nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
-        nums[nums == 999] <- 100
-        return(mean(nums))})
-      )
+      dplyr::mutate(age_mid = purrr::map_dbl(ageband, get_mid_age))
   } else {
     ret$age_mid = NA
   }
 
-  # make sure factor order perserved which can be overwritten in the group_by_at, so for safety
+  # make sure factor order preserved which can be overwritten in the group_by_at, so for safety
   if (groupingvar == "ageband") {
     ret <- ret %>%
-      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
+      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+(?=\\,)"))) %>%
       dplyr::arrange(age_low) %>%
       dplyr::mutate(ageband = forcats::fct_reorder(.f = ageband, .x = age_low)) %>%
       dplyr::select(-c("age_low"))
@@ -78,81 +95,5 @@ standardize_deathdat <- function(deathdat_long, popdat, groupingvar, Nstandardiz
   # out
   return(ret)
 }
-
-#' @title
-#' @import rogan_gladen
-#' @note Function uses rogan gladen adjustment above
-get_crude_summarydf <- function(IFRmodinput, groupingvar) {
-  #......................
-  # setup new df
-  #......................
-  if (length(IFRmodinput$seroprev_group_adj) != 0) {
-    # out
-    ret <- dplyr::left_join(IFRmodinput$seroprev_group_adj,
-                            IFRmodinput$prop_pop, by = groupingvar) %>%
-      dplyr::left_join(., IFRmodinput$deaths_group, by = groupingvar) %>%
-      dplyr::mutate(
-        age_mid = purrr::map_dbl(ageband, function(x){
-          nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
-          nums[nums == 999] <- 100
-          return(mean(nums))
-        }),
-        inf_pop_crude = seroprevalence_adj * popN,
-        ifr_age_crude = deaths_at_sero/inf_pop_crude,
-        deaths_per_pop = deaths_at_sero/popN,
-        tot_deaths_per_pop = sum(deaths_per_pop),
-        prop_deaths_per_pop = deaths_per_pop / tot_deaths_per_pop,
-        deaths_per_million = (1e6*deaths_at_sero)/popN
-      ) %>%
-      dplyr::rename(seroprev = seroprevalence_adj) %>%
-      dplyr::select(c("age_mid", "seroprev", "inf_pop_crude", "ifr_age_crude",
-                      "deaths_per_pop", "prop_deaths_per_pop", "deaths_per_million"))
-    if (length(IFRmodinput$sero_spec$specificity) > 0 & length(IFRmodinput$sero_sens$sensitivity) > 0) {
-      ret <- ret %>%
-        dplyr::mutate(seroprev_adj_ss = purrr::map_dbl(seroprev, rogan_gladen,
-                                                       spec = IFRmodinput$sero_spec$specificity,
-                                                       sens = IFRmodinput$sero_sens$sensitivity))
-    }
-
-  } else {
-    ret <- dplyr::left_join(IFRmodinput$seroprev_group,
-                            IFRmodinput$prop_pop, by = groupingvar) %>%
-      dplyr::left_join(., IFRmodinput$deaths_group, by = groupingvar) %>%
-      dplyr::mutate(
-        age_mid = purrr::map_dbl(ageband, function(x){
-          nums <- as.numeric(stringr::str_split_fixed(x, "-", n = 2))
-          nums[nums == 999] <- 100
-          return(mean(nums))
-        }),
-        inf_pop_crude = seroprevalence * popN,
-        ifr_age_crude = deaths_at_sero/inf_pop_crude,
-        deaths_per_pop = deaths_at_sero/popN,
-        tot_deaths_per_pop = sum(deaths_per_pop),
-        prop_deaths_per_pop = deaths_per_pop / tot_deaths_per_pop,
-        deaths_per_million = (1e6*deaths_at_sero)/popN
-      ) %>%
-      dplyr::rename(seroprev = seroprevalence) %>%
-      dplyr::select(c("age_mid", "seroprev", "inf_pop_crude", "ifr_age_crude",
-                      "deaths_per_pop", "prop_deaths_per_pop", "deaths_per_million"))
-
-    if (length(IFRmodinput$sero_spec$specificity) > 0 & length(IFRmodinput$sero_sens$sensitivity) > 0) {
-      ret <- ret %>%
-        dplyr::mutate(seroprev_adj_ss = purrr::map_dbl(seroprev, rogan_gladen,
-                                                       spec = IFRmodinput$sero_spec$specificity,
-                                                       sens = IFRmodinput$sero_sens$sensitivity))
-    }
-  }
-
-  # make sure factor order perserved which can be overwritten in the group_by_at, so for safety
-  if (groupingvar == "ageband") {
-    ret <- ret %>%
-      dplyr::mutate(age_low = as.numeric(stringr::str_extract(ageband, "[0-9]+?(?=-)"))) %>%
-      dplyr::arrange(age_low) %>%
-      dplyr::mutate(ageband = forcats::fct_reorder(.f = ageband, .x = age_low)) %>%
-      dplyr::select(-c("age_low"))
-  }
-  return(ret)
-}
-
 
 
