@@ -266,35 +266,51 @@ logvardat <- retmapIFR %>%
 
 #..........................................
 # Fitting models to mu and residuals
-# for no seroreversion
+# note, this function is not generalizable
 #..........................................
 fit_pred_intervals_log_linear_mod <- function(ifrdata, vardata) {
   # join age-specific ifrs across studies w/ variance for each age group
   moddat <- dplyr::left_join(ifrdata, vardata, by = c("study_id", "ageband"))
+
+  #.............
   # fit a weighted log-linear model
+  #.............
   logmod <- lm(log(mu) ~ age, data = moddat, weights = 1/param_logvar)
 
-  # get residual variance in 10-year age groups
+  # look at residual variance (in 10-year age groups)
   moddat$residuals <- logmod$residuals
   logmodcoeffs <- logmod$coefficients
-
   # internal check for leverage
   # plot(moddat$age, moddat$residuals)
+
+  #.............
+  # model variance
+  #.............
   moddat$cut <- cut(moddat$age, breaks = c(0, seq(9, 89, 10), 999))
-  new_dat <- data.frame(ageband = levels(moddat$cut))
-  new_dat$var <- mapply(var, split(moddat$residuals, f = moddat$cut))
+  modvar_dat <- data.frame(ageband = levels(moddat$cut))
+  modvar_dat$var <- mapply(var, split(moddat$residuals, f = moddat$cut))
 
   # get first- and second-order age terms
-  new_dat$age <- purrr::map_dbl(new_dat$ageband, get_mid_age)
-  new_dat$age_squared <- new_dat$age^2
+  modvar_dat$age <- purrr::map_dbl(modvar_dat$ageband, get_mid_age)
+  modvar_dat$age_squared <- modvar_dat$age^2
 
   # fit quadratic model to log of residual variance
-  mod2 <- lm(log(var) ~ age + age_squared, data = new_dat)
+  mod2 <- lm(log(var) ~ age + age_squared, data = modvar_dat)
+
+  #.............
+  # new predictions df
+  #.............
+  # get corresponding predictions in five year age bands
+  new_dat <- data.frame(age = c(seq(2.5, 87.5, by = 5), 95)) # assume 90+ age-group capped at 100
+  new_dat$age_squared <- new_dat$age^2
+  new_dat$ageband = cut(new_dat$age,
+                        breaks = c(0, seq(4, 89, by = 5), 999))
+  new_dat$fit <- logmodcoeffs[2] * new_dat$age + logmodcoeffs[1]
   new_dat$var_fit <- exp(predict(mod2, newdata = new_dat))
 
-  # get corresponding prediction from optim fit
-  new_dat$fit <- logmodcoeffs[2] * new_dat$age + logmodcoeffs[1]
-
+  #......................
+  # prediction intervals
+  #......................
   # get prediction intervals in linear space
   new_dat_log <- new_dat
   new_dat_log$Q025 <- qnorm(0.025, mean = new_dat$fit, sd = sqrt(new_dat$var_fit))
@@ -314,7 +330,7 @@ fit_pred_intervals_log_linear_mod <- function(ifrdata, vardata) {
 
   # out
   out <- list(residuals = moddat[, c("age", "residuals")],
-              newvar = new_dat[, c("age", "var")],
+              modeledvar = modvar_dat[, c("age", "var")],
               linear_new_dat = new_dat_linear,
               log_new_data = new_dat_log,
               logmod = logmod,
@@ -332,7 +348,7 @@ ifrdat <- inputdat %>%
                 logmod = purrr::map(bestestmod, "logmod"),
                 varmod = purrr::map(bestestmod, "varmod"),
                 residuals = purrr::map(bestestmod, "residuals"),
-                logvar = purrr::map(bestestmod, "newvar"),
+                modeledlogvar = purrr::map(bestestmod, "modeledvar"),
                 linear_predints = purrr::map(bestestmod, "linear_new_dat"),
                 log_predints = purrr::map(bestestmod, "log_new_data"))
 
@@ -382,8 +398,8 @@ graphics.off()
 #......................
 # send out variance of new dat for supp
 #......................
-t1 <- ifrdat$logvar[[1]]
-t2 <- ifrdat$logvar[[2]]
+t1 <- ifrdat$modeledlogvar[[1]]
+t2 <- ifrdat$modeledlogvar[[2]]
 dplyr::left_join(t1, t2, by = "age") %>%
   magrittr::set_colnames(c("age", "noserorev_var", "serorev_var")) %>%
   dplyr::mutate_if(is.numeric, round, 4) %>%
@@ -417,9 +433,13 @@ ifrdat %>%
 wpp <- readxl::read_excel("data/raw/wpp_un_agepopulations.xlsx")
 wpp <- wpp[wpp$`Reference date (as of 1 July)` == 2020,]
 wpp <- wpp %>%
-  dplyr::select(c("Region, subregion, country or area *", "0-4", "5-9", "10-14", "15-19", "20-24",
-                  "25-29", "30-34", "35-39", "40-44", "50-54", "55-59", "60-64", "65-69", "70-74",
-                  "75-79", "80-84", "85-89", "90-94", "95-99", "100+"))
+  dplyr::select(c("Region, subregion, country or area *",
+                  "0-4", "5-9",
+                  "10-14", "15-19", "20-24", "25-29",
+                  "30-34", "35-39", "40-44", "45-49",
+                  "50-54", "55-59", "60-64", "65-69",
+                  "70-74", "75-79", "80-84", "85-89",
+                  "90-94", "95-99", "100+"))
 colnames(wpp)[1] <- "georegion"
 
 wpp <- wpp %>%
@@ -435,7 +455,7 @@ wpp <- wpp %>%
     ageband = ifelse(ageband == "100+", "95-99", ageband),
     age_high = as.numeric(stringr::str_split_fixed(ageband, "-", n=2)[,2]),
     ageband = cut(age_high,
-                  breaks = c(0, seq(9, 89, by = 10), 999)),
+                  breaks = c(0, seq(4, 89, by = 5), 999)),
     ageband = as.character(ageband)) %>%
   dplyr::group_by(georegion, ageband) %>%
   dplyr::summarise(pop_size = sum(popN)) %>%
@@ -495,6 +515,9 @@ overall_IFR_best_est %>%
   dplyr::mutate(bestest = paste0(Q50, " (", Q025, ", ", Q975, ")")) %>%
   dplyr::select(c("sero", "georegion", "bestest")) %>%
   tidyr::pivot_wider(., names_from = "sero", values_from = "bestest") %>%
+  dplyr::mutate(georegion = factor(georegion, levels = c("Madagascar", "Nicaragua",
+                                                         "Grenada", "Malta"))) %>%
+  dplyr::arrange(georegion) %>%
   readr::write_tsv(., path = "tables/final_tables/overall_best_est_for_georegions_IFRs.tsv")
 
 # look at mean for reference
