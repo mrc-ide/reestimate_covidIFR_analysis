@@ -501,6 +501,7 @@ calc_monte_carlo_overall_IFRs <- function(new_dat, popN, reps = 1e5) {
 }
 
 # tidy up pieces
+set.seed(48)
 overall_IFR_best_est <- tidyr::expand_grid(ifrdat, wpp) %>%
   dplyr::select(c("sero", "linear_predints", "georegion", "popN")) %>%
   dplyr::rename(new_dat = linear_predints)
@@ -573,25 +574,32 @@ plotpred <- dplyr::bind_rows(plotdat_linpreds, plotdat_logpreds)
 
 
 # bring together
-plotdat <- dplyr::left_join(plotdat_obs, plotpred, by = c( "ageband", "sero", "lvl")) %>%
+plotdat_obs <- plotdat_obs %>%
+  dplyr::mutate(sero = factor(sero, levels = c("reg", "serorev"),
+                              labels = c("Without Serorev.", "With Serorev."))) %>%
+  dplyr::left_join(., locatkey, by = "study_id")
+
+plotpred <- plotpred %>%
   dplyr::mutate(sero = factor(sero, levels = c("reg", "serorev"),
                               labels = c("Without Serorev.", "With Serorev.")),
                 Q025 = ifelse(lvl == "Linear", Q025 *100, Q025/log(10)), # transformation into appropriate space
                 Q20 = ifelse(lvl == "Linear", Q20 *100, Q20/log(10)),
                 Q80 = ifelse(lvl == "Linear", Q80 *100, Q80/log(10)),
-                Q975 = ifelse(lvl == "Linear", Q975 *100, Q975/log(10))) %>%
-  dplyr::left_join(., locatkey, by = "study_id")
+                Q975 = ifelse(lvl == "Linear", Q975 *100, Q975/log(10)))
 
 #......................
 # plot out
 #......................
 age_specific_plotObj <- plotdat %>%
   ggplot() +
-  geom_ribbon(aes(x = age, ymin = Q025, ymax = Q975),
+  geom_ribbon(data = plotpred,
+              aes(x = age, ymin = Q025, ymax = Q975),
               fill = "#d9d9d9", alpha = 0.8) +
-  geom_ribbon(aes(x = age, ymin = Q20, ymax = Q80),
+  geom_ribbon(data = plotpred,
+              aes(x = age, ymin = Q20, ymax = Q80),
               fill = "#969696", alpha = 0.8) +
-  geom_pointrange(aes(x = age_mid, y = median,
+  geom_pointrange(data = plotdat_obs,
+                  aes(x = age_mid, y = median,
                       ymin = LCI, ymax = UCI,
                       color =  location),
                   alpha = 0.75, shape = 16, size = 0.9) +
