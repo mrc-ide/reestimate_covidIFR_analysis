@@ -236,7 +236,7 @@ mod1_serorev$set_rcensor_day(.Machine$integer.max)
 #............................................................
 #---- Come Together #----
 #...........................................................
-bvec <- seq(5, 2.5, length.out = 50)
+bvec <- seq(0, 1, length.out = 50) ^ seq(5, 2.5, length.out = 50)
 
 fit_map <- tibble::tibble(
   name = c("reg_mod", "serorev_mod"),
@@ -244,7 +244,7 @@ fit_map <- tibble::tibble(
   simdat = list(dat, serorev_dat),
   modelobj = list(mod1_reg, mod1_serorev),
   rungs = 50,
-  GTI_pow = list(bvec),
+  bvec = list(bvec),
   burnin = 1e4,
   samples = 1e4,
   thinning = 10)
@@ -289,7 +289,8 @@ run_MCMC <- function(path) {
                                       burnin = mod$burnin,
                                       samples = mod$samples,
                                       rungs = mod$rungs,
-                                      GTI_pow = mod$GTI_pow[[1]],
+                                      GTI_pow = 1.0,
+                                      beta_manual = mod$bvec[[1]],
                                       cluster = cl,
                                       thinning = mod$thinning)
   parallel::stopCluster(cl)

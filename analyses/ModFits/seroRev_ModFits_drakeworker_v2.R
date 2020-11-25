@@ -342,7 +342,7 @@ NYS_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
 #............................................................
 #---- Come Together #----
 #...........................................................
-bvec <- seq(5, 2.5, length.out = 50)
+bvec <- seq(0, 1, length.out = 50) ^ seq(5, 2.5, length.out = 50)
 
 fit_map <- tibble::tibble(
   name = c("BRA1_age",
@@ -366,16 +366,10 @@ fit_map <- tibble::tibble(
                   SWE_age_mod,
                   NYS_age_mod),
   rungs = 50,
-  GTI_pow = list(bvec),
+  bvec = list(bvec),
   burnin = 1e4,
   samples = 1e4,
   thinning = 10)
-
-#......................
-# adjust coupling swap rates
-#......................
-moreswap <- seq(5, 3.5, length.out = 50)
-fit_map$GTI_pow[fit_map$name %in% c("ESP1-2_age", "GBR3_age")] <- list(moreswap)
 
 #......................
 # fitmap out
@@ -419,7 +413,8 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = mod$GTI_pow[[1]],
+                                        GTI_pow = 1.0,
+                                        beta_manual = mod$bvec[[1]],
                                         cluster = cl,
                                         thinning = mod$thinning)
 
@@ -434,7 +429,8 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = mod$GTI_pow[[1]],
+                                        GTI_pow = 1.0,
+                                        beta_manual = mod$bvec[[1]],
                                         cluster = cl,
                                         thinning = mod$thinning)
   }

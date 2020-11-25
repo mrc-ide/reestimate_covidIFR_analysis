@@ -197,7 +197,7 @@ mod1_twodays$set_rcensor_day(.Machine$integer.max)
 #............................................................
 #---- Come Together #----
 #...........................................................
-bvec <- seq(5, 2.5, length.out = 50)
+bvec <- seq(0, 1, length.out = 50) ^ seq(5, 2.5, length.out = 50)
 
 fit_map <- tibble::tibble(
   name = c("OneDay_mod", "TwoDays_mod"),
@@ -205,7 +205,7 @@ fit_map <- tibble::tibble(
   simdat = list(dat, NULL),
   modelobj = list(mod1_oneday, mod1_twodays),
   rungs = 50,
-  GTI_pow = list(bvec),
+  bvec = list(bvec),
   burnin = 1e4,
   samples = 1e4,
   thinning = 10)
@@ -250,7 +250,8 @@ run_MCMC <- function(path) {
                                       burnin = mod$burnin,
                                       samples = mod$samples,
                                       rungs = mod$rungs,
-                                      GTI_pow = mod$GTI_pow[[1]],
+                                      GTI_pow = 1.0,
+                                      beta_manual = mod$bvec[[1]],
                                       cluster = cl,
                                       thinning = mod$thinning)
   parallel::stopCluster(cl)
