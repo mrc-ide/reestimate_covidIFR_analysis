@@ -250,7 +250,7 @@ run_MCMC <- function(path) {
                                       burnin = mod$burnin,
                                       samples = mod$samples,
                                       rungs = mod$rungs,
-                                      GTI_pow = 1.0,
+                                      GTI_pow = 4.5,
                                       beta_manual = mod$bvec[[1]],
                                       cluster = cl,
                                       thinning = mod$thinning)

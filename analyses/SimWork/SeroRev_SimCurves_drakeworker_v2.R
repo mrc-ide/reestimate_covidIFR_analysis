@@ -224,7 +224,7 @@ run_MCMC <- function(path) {
                                       burnin = 1e4,
                                       samples = 1e4,
                                       rungs = 50,
-                                      GTI_pow = 1.0,
+                                      GTI_pow = 4.5,
                                       beta_manual = seq(0, 1, length.out = 50) ^ seq(5, 2.5, length.out = 50),
                                       thinning = 10,
                                       cluster = cl)
