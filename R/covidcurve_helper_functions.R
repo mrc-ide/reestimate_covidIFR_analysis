@@ -44,7 +44,7 @@ get_log10_transformed_IFR_cred_intervals <- function(path, by_chain = FALSE) {
   }
 
   IFRmodel_inf$mcmcout$output %>%
-    dplyr::filter(stage == "sampling" & rung == "rung1") %>%
+    dplyr::filter(stage == "sampling" & rung == "rung50") %>%
     dplyr::select_at(params) %>%
     tidyr::pivot_longer(., cols = params[!grepl("chain", params)], # if chain isn't included in vector, grepl won't do anything
                         names_to = "param", values_to = "est") %>%
@@ -75,7 +75,7 @@ get_data_dict <- function(path) {
 get_strata_seroprevs <- function(path, dwnsmpl = 1e2) {
   modout <- readRDS(path)
   seroprevs <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
-                                                      whichrung = "rung1",
+                                                      whichrung = "rung50",
                                                       dwnsmpl = dwnsmpl,
                                                       by_chain = FALSE)
   return(seroprevs)
@@ -106,7 +106,7 @@ get_strata_IFRs <- function(path) {
 get_overall_IFRs <- function(path, whichstandard) {
   modout <- readRDS(path)
   out <- COVIDCurve::get_overall_IFR_cred_intervals(IFRmodel_inf = modout,
-                                                    whichrung = "rung1",
+                                                    whichrung = "rung50",
                                                     whichstandard = whichstandard,
                                                     by_chain = FALSE)
   return(out)
@@ -134,7 +134,7 @@ get_strata_IFR_variance <- function(path, by_chain) {
   }
 
   IFRmodel_inf$mcmcout$output %>%
-    dplyr::filter(stage == "sampling" & rung == "rung1") %>%
+    dplyr::filter(stage == "sampling" & rung == "rung50") %>%
     dplyr::select_at(params) %>%
     tidyr::pivot_longer(., cols = params[!grepl("chain", params)], # if chain isn't included in vector, grepl won't do anything
                         names_to = "param", values_to = "est") %>%
@@ -148,7 +148,7 @@ get_sens_spec <- function(path) {
   modout <- readRDS(path)
   out <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout,
                                         what = "Serotestparams",
-                                        whichrung = "rung1",
+                                        whichrung = "rung50",
                                         by_chain = FALSE) %>%
     dplyr::filter(param %in% c("sens", "spec"))
   return(out)
