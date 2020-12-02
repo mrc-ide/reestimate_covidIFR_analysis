@@ -390,7 +390,7 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = 4.5,
+                                        GTI_pow = 3.0,
                                         beta_manual = mod$bvec[[1]],
                                         cluster = cl,
                                         thinning = mod$thinning)
@@ -406,7 +406,7 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = 4.5,
+                                        GTI_pow = 3.0,
                                         beta_manual = mod$bvec[[1]],
                                         cluster = cl,
                                         thinning = mod$thinning)
