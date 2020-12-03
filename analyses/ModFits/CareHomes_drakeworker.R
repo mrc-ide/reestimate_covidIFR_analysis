@@ -200,12 +200,19 @@ NYS_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
                                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.77, dsc1 = 0, dsc2 = 16.77),
                                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
+#............................................................
+#---- Rung Vector #----
+#...........................................................
+#......................
+# concentrate the rungs close to the hottest rung/prior
+# Raising here by GTI_pow so we set GTI_pow = 1.0 downstream
+#......................
+bvec <- seq(0, 1, length.out = 50) ^ seq(5, 2.5, length.out = 50)
+bvec <- bvec ^ 3
 
 #............................................................
 #---- Come Together #----
 #...........................................................
-bvec <- seq(0, 1, length.out = 50) ^ seq(5, 2.5, length.out = 50)
-
 fit_map <- tibble::tibble(
   name = c("CHE1_carehomes",
            "DNK1_carehomes",
@@ -267,7 +274,7 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = 3.0,
+                                        GTI_pow = 1.0,
                                         beta_manual = mod$bvec[[1]],
                                         cluster = cl,
                                         thinning = mod$thinning)
@@ -283,7 +290,7 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = 3.0,
+                                        GTI_pow = 1.0,
                                         beta_manual = mod$bvec[[1]],
                                         cluster = cl,
                                         thinning = mod$thinning)

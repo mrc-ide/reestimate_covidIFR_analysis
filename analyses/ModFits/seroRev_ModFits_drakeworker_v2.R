@@ -338,12 +338,19 @@ NYS_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
 
 
 
+#............................................................
+#---- Rung Vector #----
+#...........................................................
+#......................
+# concentrate the rungs close to the hottest rung/prior
+# Raising here by GTI_pow so we set GTI_pow = 1.0 downstream
+#......................
+bvec <- seq(0, 1, length.out = 50) ^ seq(5, 2.5, length.out = 50)
+bvec <- bvec ^ 3
 
 #............................................................
 #---- Come Together #----
 #...........................................................
-bvec <- seq(0, 1, length.out = 50) ^ seq(5, 2.5, length.out = 50)
-
 fit_map <- tibble::tibble(
   name = c("BRA1_age",
            "CHE1_age",
@@ -413,7 +420,7 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = 3.0,
+                                        GTI_pow = 1.0,
                                         beta_manual = mod$bvec[[1]],
                                         cluster = cl,
                                         thinning = mod$thinning)
@@ -429,7 +436,7 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = 3.0,
+                                        GTI_pow = 1.0,
                                         beta_manual = mod$bvec[[1]],
                                         cluster = cl,
                                         thinning = mod$thinning)
