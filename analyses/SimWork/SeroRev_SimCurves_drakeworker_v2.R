@@ -201,7 +201,16 @@ lapply(split(fit_map_modelobj, 1:nrow(fit_map_modelobj)), function(x){
 # MCMC Object
 #...........................................................
 run_MCMC <- function(path) {
+  # read in
   mod <- readRDS(path)
+
+  #......................
+  # concentrate the rungs close to the hottest rung/prior
+  # Raising here by GTI_pow so we set GTI_pow = 1.0 downstream
+  #......................
+  bvec <- seq(0, 1, length.out = 50) ^ seq(5, 2.5, length.out = 50)
+  bvec <- bvec ^ 3
+
   #......................
   # make cluster object to parallelize chains
   #......................
@@ -224,8 +233,8 @@ run_MCMC <- function(path) {
                                       burnin = 1e4,
                                       samples = 1e4,
                                       rungs = 50,
-                                      GTI_pow = 3.0,
-                                      beta_manual = seq(0, 1, length.out = 50) ^ seq(5, 2.5, length.out = 50),
+                                      GTI_pow = 1.0,
+                                      beta_manual = bvec,
                                       thinning = 10,
                                       cluster = cl)
   parallel::stopCluster(cl)
