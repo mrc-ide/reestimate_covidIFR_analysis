@@ -208,6 +208,7 @@ NYS_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
 # Raising here by GTI_pow so we set GTI_pow = 1.0 downstream
 #......................
 bvec <- seq(0, 1, length.out = 50) ^ seq(5, 2.5, length.out = 50)
+bvec <- bvec^3
 
 #............................................................
 #---- Come Together #----
