@@ -3,7 +3,6 @@
 ##
 ## Notes: Assumes SLURM cluster
 ####################################################################################
-setwd("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis")
 library(drake)
 library(tidyverse)
 library(COVIDCurve)
@@ -197,12 +196,6 @@ run_MCMC <- function(path) {
   # read in
   mod <- readRDS(path)
 
-  #......................
-  # concentrate the rungs close to the hottest rung/prior
-  # Raising here by GTI_pow so we set GTI_pow = 1.0 downstream
-  #......................
-  bvec <- seq(0, 1, length.out = 50) ^ seq(5, 2.5, length.out = 50)
-  bvec <- bvec^3
 
   #......................
   # make cluster object to parallelize chains
@@ -226,16 +219,15 @@ run_MCMC <- function(path) {
                                       burnin = 1e4,
                                       samples = 1e4,
                                       rungs = 50,
-                                      GTI_pow = 1.0,
-                                      beta_manual = bvec,
+                                      GTI_pow = 3.0,
                                       thinning = 10,
                                       cluster = cl)
   parallel::stopCluster(cl)
   gc()
 
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_noserorev/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SimCurves_noserorev/",
+  dir.create("results/SimCurves_noserorev/", recursive = TRUE)
+  outpath = paste0("results/SimCurves_noserorev/",
                    mod$sim, "_NoSeroRev.RDS")
   saveRDS(fit, file = outpath)
 
