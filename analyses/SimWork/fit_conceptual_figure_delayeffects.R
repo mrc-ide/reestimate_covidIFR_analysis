@@ -3,7 +3,6 @@
 ##
 ## Notes:
 ####################################################################################
-setwd("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/")
 set.seed(1234)
 library(COVIDCurve)
 library(tidyverse)
@@ -234,16 +233,6 @@ mod1_serorev$set_paramdf(df_params_serorev)
 mod1_serorev$set_rcensor_day(.Machine$integer.max)
 
 #............................................................
-#---- Rung Vector #----
-#...........................................................
-#......................
-# concentrate the rungs close to the hottest rung/prior
-# Raising here by GTI_pow so we set GTI_pow = 1.0 downstream
-#......................
-bvec <- seq(0, 1, length.out = 50) ^ seq(5, 2.5, length.out = 50)
-bvec <- bvec^3
-
-#............................................................
 #---- Come Together #----
 #...........................................................
 fit_map <- tibble::tibble(
@@ -252,7 +241,6 @@ fit_map <- tibble::tibble(
   simdat = list(dat, serorev_dat),
   modelobj = list(mod1_reg, mod1_serorev),
   rungs = 50,
-  bvec = list(bvec),
   burnin = 1e4,
   samples = 1e4,
   thinning = 10)
@@ -297,16 +285,15 @@ run_MCMC <- function(path) {
                                       burnin = mod$burnin,
                                       samples = mod$samples,
                                       rungs = mod$rungs,
-                                      GTI_pow = 1.0,
-                                      beta_manual = mod$bvec[[1]],
+                                      GTI_pow = 3.0,
                                       cluster = cl,
                                       thinning = mod$thinning)
   parallel::stopCluster(cl)
   gc()
 
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Fig_ConceptualFits/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Fig_ConceptualFits/",
+  dir.create("results/Fig_ConceptualFits/", recursive = TRUE)
+  outpath = paste0("results/Fig_ConceptualFits/",
                    mod$name, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, ".RDS")
   saveRDS(fit, file = outpath)
   return(0)

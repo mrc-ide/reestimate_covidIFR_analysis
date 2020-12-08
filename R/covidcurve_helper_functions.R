@@ -93,7 +93,7 @@ get_strata_IFRs <- function(path) {
     dplyr::rename(param = Strata)
   colnames(dictkey)[colnames(dictkey) == stratachar] <- "strata"
   # get ifrs
-  ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
+  ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = "rung50",
                                          what = "IFRparams", by_chain = FALSE)
   # out
   dplyr::left_join(dictkey, ifrs) %>%
