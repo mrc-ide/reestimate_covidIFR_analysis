@@ -140,7 +140,7 @@ spec <- sim_param_map$spec
 # like and mc accept
 #......................
 likeplot <- modout$mcmcout$output %>%
-  dplyr::filter(rung == "rung1") %>%
+  dplyr::filter(rung == "rung50") %>%
   dplyr::filter(stage == "sampling") %>%
   dplyr::select(c("chain", "iteration", "loglikelihood", "logprior")) %>%
   tidyr::gather(., key = "like", value = "val", 3:4) %>%
@@ -194,7 +194,8 @@ fatalitydata <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
 #...................... 
 # get ifrs 
 #......................
-ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, whichrung = paste0("rung", 1),
+ifrs <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, 
+                                       whichrung = "rung50",
                                        what = "IFRparams", by_chain = FALSE) %>% 
   dplyr::left_join(., fatalitydata, by = "param")
 
@@ -221,6 +222,7 @@ ifrs %>%
 # infection curve and serology
 #.......................
 infxncurve <- COVIDCurve::draw_posterior_infxn_cubic_splines(IFRmodel_inf = modout,
+                                                             whichrung = "rung50",
                                                              dwnsmpl = 1e2,
                                                              by_chain = TRUE,
                                                              by_strata = FALSE)$curvedata
@@ -237,7 +239,8 @@ pA <- infxncurve %>%
 #...................... 
 # seroprev plot
 #......................
-seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
+seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout, 
+                                                   whichrung = "rung50",
                                                    dwnsmpl = 1e2,
                                                    by_chain = F)
 serocurvedat <- seropnts %>% 

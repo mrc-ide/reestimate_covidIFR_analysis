@@ -3,7 +3,6 @@
 ##
 ## Notes:
 ####################################################################################
-setwd("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/")
 set.seed(48)
 library(COVIDCurve)
 library(tidyverse)
@@ -194,18 +193,17 @@ mod1_twodays$set_demog(demog)
 mod1_twodays$set_paramdf(df_params)
 mod1_twodays$set_rcensor_day(.Machine$integer.max)
 
+
+
 #............................................................
 #---- Come Together #----
 #...........................................................
-bvec <- seq(5, 2.5, length.out = 50)
-
 fit_map <- tibble::tibble(
   name = c("OneDay_mod", "TwoDays_mod"),
   infxns = list(intrvnshape, NULL), # Null since same infections
   simdat = list(dat, NULL),
   modelobj = list(mod1_oneday, mod1_twodays),
   rungs = 50,
-  GTI_pow = list(bvec),
   burnin = 1e4,
   samples = 1e4,
   thinning = 10)
@@ -250,15 +248,15 @@ run_MCMC <- function(path) {
                                       burnin = mod$burnin,
                                       samples = mod$samples,
                                       rungs = mod$rungs,
-                                      GTI_pow = mod$GTI_pow[[1]],
+                                      GTI_pow = 3.0,
                                       cluster = cl,
                                       thinning = mod$thinning)
   parallel::stopCluster(cl)
   gc()
 
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SeroDays_Concept/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/SeroDays_Concept/",
+  dir.create("results/SeroDays_Concept/", recursive = TRUE)
+  outpath = paste0("results/SeroDays_Concept/",
                    mod$name, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, ".RDS")
   saveRDS(fit, file = outpath)
   return(0)

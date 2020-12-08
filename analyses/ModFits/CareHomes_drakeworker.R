@@ -3,7 +3,6 @@
 ##
 ## Notes:
 #........................................................................................
-setwd("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis")
 library(drake)
 library(parallel)
 library(COVIDCurve)
@@ -200,12 +199,9 @@ NYS_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
                                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.77, dsc1 = 0, dsc2 = 16.77),
                                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
-
 #............................................................
 #---- Come Together #----
 #...........................................................
-bvec <- seq(5, 2.5, length.out = 50)
-
 fit_map <- tibble::tibble(
   name = c("CHE1_carehomes",
            "DNK1_carehomes",
@@ -220,7 +216,6 @@ fit_map <- tibble::tibble(
                   SWE_carehomes_mod,
                   NYS_carehomes_mod),
   rungs = 50,
-  GTI_pow = list(bvec),
   burnin = 1e4,
   samples = 1e4,
   thinning = 10)
@@ -267,7 +262,7 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = mod$GTI_pow[[1]],
+                                        GTI_pow = 3.0,
                                         cluster = cl,
                                         thinning = mod$thinning)
 
@@ -282,7 +277,7 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = mod$GTI_pow[[1]],
+                                        GTI_pow = 3.0,
                                         cluster = cl,
                                         thinning = mod$thinning)
   }
@@ -290,8 +285,8 @@ run_MCMC <- function(path) {
   gc()
 
   # out
-  dir.create("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits_carehomes/", recursive = TRUE)
-  outpath = paste0("/proj/ideel/meshnick/users/NickB/Projects/reestimate_covidIFR_analysis/results/Modfits_carehomes/",
+  dir.create("results/Modfits_carehomes/", recursive = TRUE)
+  outpath = paste0("results/Modfits_carehomes/",
                    mod$name, "_rung", mod$rungs, "_burn", mod$burnin, "_smpl", mod$samples, "_carehomes.RDS")
   saveRDS(fit, file = outpath)
   return(0)
