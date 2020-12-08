@@ -33,7 +33,7 @@ param_map <- dplyr::left_join(dat_map, fits, by = "lvl")
 # check that simulations worked and converged
 #...........................................................
 param_map$fit[[1]]$mcmcout$output %>%
-  dplyr::filter(rung == "rung1") %>%
+  dplyr::filter(rung == "rung50") %>%
   dplyr::filter(stage == "sampling") %>%
   dplyr::select(c("chain", "iteration", "loglikelihood", "logprior")) %>%
   tidyr::gather(., key = "like", value = "val", 3:4) %>%
@@ -48,7 +48,7 @@ param_map$fit[[1]]$mcmcout$output %>%
         legend.title = element_blank())
 
 param_map$fit[[2]]$mcmcout$output %>%
-  dplyr::filter(rung == "rung1") %>%
+  dplyr::filter(rung == "rung50") %>%
   dplyr::filter(stage == "sampling") %>%
   dplyr::select(c("chain", "iteration", "loglikelihood", "logprior")) %>%
   tidyr::gather(., key = "like", value = "val", 3:4) %>%
@@ -67,8 +67,8 @@ drjacoby::plot_mc_acceptance(param_map$fit[[1]]$mcmcout)
 drjacoby::plot_mc_acceptance(param_map$fit[[2]]$mcmcout)
 quick_sero_diagnostics(param_map$fit[[1]])
 quick_sero_diagnostics(param_map$fit[[2]])
-COVIDCurve::get_cred_intervals(param_map$fit[[1]], what = "IFRparams", by_chain = F)
-COVIDCurve::get_cred_intervals(param_map$fit[[2]], what = "IFRparams", by_chain = F)
+COVIDCurve::get_cred_intervals(param_map$fit[[1]], whichrung = "rung50", what = "IFRparams", by_chain = F)
+COVIDCurve::get_cred_intervals(param_map$fit[[2]], whichrung = "rung50", what = "IFRparams", by_chain = F)
 COVIDCurve::get_gelman_rubin_diagnostic(param_map$fit[[1]])
 COVIDCurve::get_gelman_rubin_diagnostic(param_map$fit[[2]])
 
@@ -338,9 +338,9 @@ infxninset_plotObj <- ggplot() +
 #......................
 no_serorev_infIFR_plotObj <- no_serorev_infIFR_plotObj +
   theme(legend.position = "none",
-        plot.margin = unit(c(0, 0, 0, 1),"cm"))
+        plot.margin = unit(c(0, 0, 0.1, 1),"cm"))
 serorev_infIFR_plotObj <- serorev_infIFR_plotObj +
-  theme(plot.margin = unit(c(0, 0, 0, 1),"cm"))
+  theme(plot.margin = unit(c(0, 0, 0.1, 1),"cm"))
 
 bottomrow <- cowplot::plot_grid(no_serorev_infIFR_plotObj, serorev_infIFR_plotObj,
                                 align = "h", labels = c("(B)", "(C)"), nrow = 1, ncol = 2,

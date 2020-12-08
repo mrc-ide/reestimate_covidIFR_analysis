@@ -241,7 +241,7 @@ get_age_log_variance <- function(path) {
   IFRmodel_inf <- readRDS(path)
   # get variance
   var <- IFRmodel_inf$mcmcout$output %>%
-    dplyr::filter(stage == "sampling" & rung == "rung1") %>%
+    dplyr::filter(stage == "sampling" & rung == "rung50") %>%
     dplyr::select(c("iteration", dplyr::starts_with("ma"))) %>%
     tidyr::pivot_longer(., cols = -c("iteration"), names_to = "param", values_to = "est") %>%
     dplyr::group_by(param) %>%
@@ -590,8 +590,7 @@ plotpred <- plotpred %>%
 #......................
 # plot out
 #......................
-age_specific_plotObj <- plotdat %>%
-  ggplot() +
+age_specific_plotObj <- ggplot() +
   geom_ribbon(data = plotpred,
               aes(x = age, ymin = Q025, ymax = Q975),
               fill = "#d9d9d9", alpha = 0.8) +

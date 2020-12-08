@@ -16,6 +16,7 @@ get_sim_IFR_curve <- function(curve, modout) {
                               truecurve = curve)
   # pull out inferred infection curve
   infxncurve <- COVIDCurve::draw_posterior_infxn_cubic_splines(IFRmodel_inf = modout,
+                                                               whichrung = "rung50",
                                                                dwnsmpl = 1e2,
                                                                by_chain = TRUE,
                                                                by_strata = FALSE)$curvedata %>%
@@ -27,6 +28,7 @@ get_sim_IFR_curve <- function(curve, modout) {
 get_sim_IFR_est <- function(modout) {
   COVIDCurve::get_cred_intervals(IFRmodel_inf = modout,
                                  by_chain = FALSE,
+                                 whichrung = "rung50",
                                  what = "IFRparams") %>%
     # subset to oldest age group for space
     dplyr::filter(param == "ma5")

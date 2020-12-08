@@ -42,7 +42,7 @@ datmap <- datmap %>%
 # sens/spec
 get_study_seros_posts <- function(modout) {
   COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, what = "Serotestparams",
-                                 whichrung = "rung1", by_chain = F) %>%
+                                 whichrung = "rung50", by_chain = F) %>%
     dplyr::mutate_if(is.numeric, round, 2) %>%
     dplyr::mutate(outcol = paste0(median, " (", LCI, ", ", UCI, ")" )) %>%
     dplyr::filter(param %in% c("sens", "spec")) %>%
@@ -54,10 +54,10 @@ get_study_seros_posts <- function(modout) {
 # delays
 get_study_delays_posts <- function(modout) {
   sero_delays <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, what = "Serotestparams",
-                                                whichrung = "rung1", by_chain = F) %>%
+                                                whichrung = "rung50", by_chain = F) %>%
     dplyr::filter(!param %in% c("sens", "spec"))
   death_delays <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, what = "DeathDelayparams",
-                                                 whichrung = "rung1", by_chain = F)
+                                                 whichrung = "rung50", by_chain = F)
 
   dplyr::bind_rows(sero_delays, death_delays) %>%
     dplyr::mutate_if(is.numeric, round, 2) %>%
