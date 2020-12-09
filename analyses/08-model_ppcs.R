@@ -51,6 +51,7 @@ get_seroprev_ppcs <- function(modout) {
   # seroprev points
   seropnts <- COVIDCurve::draw_posterior_sero_curves(IFRmodel_inf = modout,
                                                      dwnsmpl = 1e2,
+                                                     whichrung = "rung50",
                                                      by_chain = F)
   # serocurve data
   serocurvedat <- seropnts %>%
@@ -78,6 +79,7 @@ get_death_ppcs <- function(modout) {
   # get deaths posterior pred check
   #......................
   postdat <- COVIDCurve::posterior_check_infxns_to_death(IFRmodel_inf = modout,
+                                                         whichrung = "rung50",
                                                          dwnsmpl = 1e2,
                                                          by_chain = FALSE)
   postdat_long <- postdat %>%
