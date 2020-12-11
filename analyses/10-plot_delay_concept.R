@@ -69,8 +69,62 @@ quick_sero_diagnostics(param_map$fit[[1]])
 quick_sero_diagnostics(param_map$fit[[2]])
 COVIDCurve::get_cred_intervals(param_map$fit[[1]], whichrung = "rung50", what = "IFRparams", by_chain = F)
 COVIDCurve::get_cred_intervals(param_map$fit[[2]], whichrung = "rung50", what = "IFRparams", by_chain = F)
+#......................
+# quick plot
+#......................
+fatalitydata <- tibble::tibble(param = c("ma1", "ma2", "ma3"),
+                               IFR = c(1e-3, 0.05, 0.1))
+
+#......................
+# get ifrs quick plot to confirm
+#......................
+ifrs_reg <- COVIDCurve::get_cred_intervals(IFRmodel_inf = param_map$fit[[1]],
+                                       whichrung = "rung50",
+                                       what = "IFRparams", by_chain = FALSE) %>%
+  dplyr::left_join(., fatalitydata, by = "param")
+
+ifrs_reg %>%
+  ggplot() +
+  geom_pointrange(aes(x = param, ymin = LCI, ymax = UCI, y = median),
+                  color = "#969696", size = 1.2) +
+  geom_hline(aes(yintercept = IFR),
+             color = "#3182bd", size = 3, alpha = 0.75, show.legend = F) +
+  facet_wrap(~param, scales = "free") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "right") +
+  xlab("") + ylab("Median (95% CrIs)")
+
+
+ifrs_serorev <- COVIDCurve::get_cred_intervals(IFRmodel_inf = param_map$fit[[2]],
+                                           whichrung = "rung50",
+                                           what = "IFRparams", by_chain = FALSE) %>%
+  dplyr::left_join(., fatalitydata, by = "param")
+
+ifrs_serorev %>%
+  ggplot() +
+  geom_pointrange(aes(x = param, ymin = LCI, ymax = UCI, y = median),
+                  color = "#969696", size = 1.2) +
+  geom_hline(aes(yintercept = IFR),
+             color = "#3182bd", size = 3, alpha = 0.75, show.legend = F) +
+  facet_wrap(~param, scales = "free") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "right") +
+  xlab("") + ylab("Median (95% CrIs)")
+
+#......................
+# gelman
+#......................
+
 COVIDCurve::get_gelman_rubin_diagnostic(param_map$fit[[1]])
 COVIDCurve::get_gelman_rubin_diagnostic(param_map$fit[[2]])
+
+
+
+
 
 #...........................................................
 # get IFR over time
