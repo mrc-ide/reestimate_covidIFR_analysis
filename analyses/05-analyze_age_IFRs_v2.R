@@ -359,6 +359,8 @@ ifrdat$logmod[[2]]
 dir.create("results/lognormalmods/", recursive = TRUE)
 saveRDS(ifrdat$logmod[[1]], "results/lognormalmods/pooled_ifr_mod_noserorev.RDS")
 saveRDS(ifrdat$logmod[[2]], "results/lognormalmods/pooled_ifr_mod_seroREV.RDS")
+saveRDS(ifrdat$varmod[[1]], "results/lognormalmods/pooled_ifr_variance_noserorev.RDS")
+saveRDS(ifrdat$varmod[[2]], "results/lognormalmods/pooled_ifr_variance_seroREV.RDS")
 
 
 #......................
