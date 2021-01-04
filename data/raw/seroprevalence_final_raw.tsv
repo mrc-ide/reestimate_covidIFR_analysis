@@ -208,22 +208,22 @@ Italy	ITA1	0	999	Basilicata	both			0.007591805	0.004	0.011		2020-05-25	2020-07-1
 Italy	ITA1	0	999	Clabria	both			0.005821159	0.002	0.01		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
 Italy	ITA1	0	999	Sicilia	both			0.00334543	0.001	0.006		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
 Italy	ITA1	0	999	Sardegna	both			0.003310658	0.001	0.005		2020-05-25	2020-07-15	0	1	https://www.istat.it/it/files//2020/08/ReportPrimiRisultatiIndagineSiero.pdf
-England	GBR3	18	24	all	both	6499	490	0.07543566667			0.079	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	25	34	all	both	13366	998	0.074658			0.078	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	35	44	all	both	17052	1048	0.06143766667			0.061	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	45	54	all	both	20634	1316	0.06377066667			0.064	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	55	64	all	both	20404	1222	0.05988233333			0.059	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	65	74	all	both	15543	604	0.03888533333			0.032	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	75	999	all	both	6410	254	0.039663			0.033	2020-06-20	2020-07-03	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	18	999	North East	both	3574	189	0.05288333333			0.05	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	18	999	North West	both	11996	784	0.065326			0.066	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	18	999	Yorkshire	both	6519	289	0.044329			0.039	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	18	999	East Midlands	both	12684	592	0.046662			0.042	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	18	999	West Midlands	both	9620	569	0.05910466667			0.058	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	18	999	East of England	both	14433	774	0.053661			0.051	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	18	999	London	both	9547	1099	0.1150966667			0.13	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	18	999	South East	both	21979	974	0.044329			0.039	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
-England	GBR3	18	999	South West	both	9556	342	0.03577466667			0.028	2020-06-20	2020-07-03	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	24	all	both	6499	490	0.07543566667			0.079	2020-06-20	2020-07-13	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	25	34	all	both	13366	998	0.074658			0.078	2020-06-20	2020-07-13	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	35	44	all	both	17052	1048	0.06143766667			0.061	2020-06-20	2020-07-13	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	45	54	all	both	20634	1316	0.06377066667			0.064	2020-06-20	2020-07-13	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	55	64	all	both	20404	1222	0.05988233333			0.059	2020-06-20	2020-07-13	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	65	74	all	both	15543	604	0.03888533333			0.032	2020-06-20	2020-07-13	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	75	999	all	both	6410	254	0.039663			0.033	2020-06-20	2020-07-13	1	0	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	North East	both	3574	189	0.05288333333			0.05	2020-06-20	2020-07-13	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	North West	both	11996	784	0.065326			0.066	2020-06-20	2020-07-13	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	Yorkshire	both	6519	289	0.044329			0.039	2020-06-20	2020-07-13	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	East Midlands	both	12684	592	0.046662			0.042	2020-06-20	2020-07-13	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	West Midlands	both	9620	569	0.05910466667			0.058	2020-06-20	2020-07-13	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	East of England	both	14433	774	0.053661			0.051	2020-06-20	2020-07-13	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	London	both	9547	1099	0.1150966667			0.13	2020-06-20	2020-07-13	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	South East	both	21979	974	0.044329			0.039	2020-06-20	2020-07-13	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
+England	GBR3	18	999	South West	both	9556	342	0.03577466667			0.028	2020-06-20	2020-07-13	0	1	https://www.medrxiv.org/content/10.1101/2020.08.12.20173690v1.full.pdf
 USA	NYS1	18	999	Westchester and Rockland	both	980	141	0.144			0.144	2020-04-19	2020-04-28	0	1	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
 USA	NYS1	18	999	Long Island	both	2074	247	0.119			0.119	2020-04-19	2020-04-28	0	1	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1
 USA	NYS1	18	999	Upstate New York	both	6101	207	0.034			0.034	2020-04-19	2020-04-28	0	1	https://www.medrxiv.org/content/10.1101/2020.05.25.20113050v1

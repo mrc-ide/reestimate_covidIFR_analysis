@@ -482,7 +482,7 @@ make_splinex_reparamdf <- function(max_xvec = list("name" = "x4", min = 180, ini
 
 #' @title Make Noise Effect Reparameterized Param Df
 #' @param num_Ne positive interger; Number of Noise effect parameters to create
-make_noiseeff_reparamdf <- function(num_Nes = 4,  min = 0, init = 5, max = 10) {
+make_noiseeff_reparamdf <- function(num_Nes = 4,  min = 0.5, init = 1, max = 1.5) {
   assert_pos_int(num_Nes)
   assert_numeric(min)
   assert_numeric(init)
