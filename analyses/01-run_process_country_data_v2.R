@@ -1051,9 +1051,9 @@ nys_adj_seroprev <- nys_adj_seroprev %>%
 # overwrite
 NYS.age.dat$seroprevMCMC <- nys_adj_seroprev
 
-# removing the May 18 date where 4000 deaths from NYC were added on a single day
-# likely due to probable deaths being retrospectively added back in
-NYS.age.dat$deaths_TSMCMC$deaths[139] <- -1
+# # removing the May 18 date where 4000 deaths from NYC were added on a single day
+# # likely due to probable deaths being retrospectively added back in
+# NYS.age.dat$deaths_TSMCMC$deaths[139] <- -1
 
 
 #......................
