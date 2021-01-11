@@ -248,7 +248,7 @@ run_MCMC <- function(path) {
                                       burnin = mod$burnin,
                                       samples = mod$samples,
                                       rungs = mod$rungs,
-                                      GTI_pow = 3.0,
+                                      GTI_pow = 5.0,
                                       cluster = cl,
                                       thinning = mod$thinning)
   parallel::stopCluster(cl)
