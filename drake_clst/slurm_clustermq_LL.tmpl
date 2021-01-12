@@ -1,8 +1,9 @@
 #!/bin/sh
 #SBATCH --job-name={{ job_name }}           # job name
 #SBATCH --output={{ log_file | /dev/null }} # you can add .%a for array index
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
 #SBATCH --error={{ log_file | /dev/null }}  # log file
-#SBATCH --ntasks=11                   # for parallelization
 #SBATCH --array=1-{{ n_jobs }}              # job array
 #SBATCH --time=72:00:00                     # time
 #SBATCH --mail-type=all
