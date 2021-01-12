@@ -3,7 +3,7 @@
 #SBATCH --output={{ log_file | /dev/null }} # you can add .%a for array index
 #SBATCH --error={{ log_file | /dev/null }}  # log file
 #SBATCH --mem-per-cpu={{ memory | 16384 }}  # memory
-#SBATCH --cpus-per-task 4                   # for parallelization
+#SBATCH --cpus-per-task 11                   # for parallelization
 #SBATCH --array=1-{{ n_jobs }}              # job array
 #SBATCH --time 72:00:00                     # time
 ulimit -v $(( 1024 * {{ memory | 32768 }} ))
