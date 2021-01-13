@@ -372,7 +372,15 @@ run_MCMC <- function(path) {
     mkcores <- n_chains
   }
 
+  # make cores
   cl <- parallel::makeCluster(mkcores)
+
+  # set GTI
+  if (grepl("GBR|BRA|NYS", basename(path))) {
+    gti <- 3
+  } else {
+    gti <- 2
+  }
 
   if (grepl("ITA|DNK|SWE", basename(path))) {
     # logit cases
@@ -385,7 +393,7 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = 2.0,
+                                        GTI_pow = gti,
                                         cluster = cl,
                                         thinning = mod$thinning)
 
@@ -400,7 +408,7 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = 2.0,
+                                        GTI_pow = gti,
                                         cluster = cl,
                                         thinning = mod$thinning)
   }
