@@ -254,14 +254,14 @@ run_MCMC <- function(path) {
 
   # set GTI
   # set GTI
-  if (grepl("GBR|BRA|NYS|ESP|ITA", basename(path))) {
+  if (grepl("GBR|BRA|NYS|SWE|ITA", basename(path))) {
     gti <- 3
   } else {
     gti <- 2
   }
 
   if (grepl("DNK|SWE", basename(path))) {
-    # logit case for DNK with multiple age groups
+    # logit case
     fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
                                         reparamInfxn = TRUE,
