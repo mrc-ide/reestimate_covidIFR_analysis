@@ -210,6 +210,13 @@ run_MCMC <- function(path) {
     mkcores <- n_chains
   }
 
+  # set GTI
+  if (grepl("sim1|sim4", basename(path))) { # exponential
+    gti <- 3.5
+  } else {
+    gti <- 3
+  }
+
   cl <- parallel::makeCluster(mkcores)
   fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = TRUE,
@@ -219,7 +226,7 @@ run_MCMC <- function(path) {
                                       burnin = 1e4,
                                       samples = 1e4,
                                       rungs = 50,
-                                      GTI_pow = 3.0,
+                                      GTI_pow = gti,
                                       thinning = 10,
                                       cluster = cl)
   parallel::stopCluster(cl)

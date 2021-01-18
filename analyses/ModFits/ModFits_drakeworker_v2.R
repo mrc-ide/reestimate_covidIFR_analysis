@@ -376,7 +376,6 @@ run_MCMC <- function(path) {
   cl <- parallel::makeCluster(mkcores)
 
   # set GTI
-  # set GTI
   if (grepl("GBR|BRA|NYS|ESP|ITA", basename(path))) {
     gti <- 3
   } else {
