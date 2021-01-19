@@ -209,11 +209,11 @@ run_MCMC <- function(path) {
     mkcores <- n_chains
   }
 
-  # set GTI
+  # set iterations longe for exponential
   if (grepl("sim1|sim4", basename(path))) { # exponential
-    gti <- 3.5
+    iters <- 2e4
   } else {
-    gti <- 3
+    iters <- 1e4
   }
 
   cl <- parallel::makeCluster(mkcores)
@@ -222,10 +222,10 @@ run_MCMC <- function(path) {
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
                                       chains = n_chains,
-                                      burnin = 1e4,
-                                      samples = 1e4,
+                                      burnin = iters,
+                                      samples = iters,
                                       rungs = 50,
-                                      GTI_pow = gti,
+                                      GTI_pow = 3.0,
                                       thinning = 10,
                                       cluster = cl)
   parallel::stopCluster(cl)
