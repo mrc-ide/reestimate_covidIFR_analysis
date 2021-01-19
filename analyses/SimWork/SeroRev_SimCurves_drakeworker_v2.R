@@ -206,7 +206,6 @@ run_MCMC <- function(path) {
   #......................
   # make cluster object to parallelize chains
   #......................
-  start <- Sys.time()
   n_chains <- 10
   n_cores <- parallel::detectCores()
 
