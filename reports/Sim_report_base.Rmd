@@ -270,9 +270,9 @@ pB <- serocurvedat %>%
   scale_color_manual("", 
                      values = c("Crude" = "#FFD301", "RGCorr" = "#246BCF",
                                 "TruePrev" = "#34A853", "ObsPrev" = "#EA4335"),
-                     labels = c("Inferred 'Truth'", 
+                      labels = c("Inferred 'Truth'", "Simulated Obs. Prev.",
                                 "Inferred 'Observed' - \n Rogan-Gladen Corrected",
-                                "Simulated True Prev.", "Simulated Obs. Prev.")) +
+                                "Simulated True Prev.")) + # labels follow alphabetical
   facet_wrap(~Strata) + 
   xyaxis_plot_theme + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.90, hjust= 1, face = "bold")) +
