@@ -162,7 +162,7 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
                                          num_xs, max_xveclist,
                                          num_ys, max_yveclist,
                                          sens_spec_tbl, tod_paramsdf,
-                                         serodayparams, upperMa = 0.4) {
+                                         upperMa = 0.4) {
 
 
   ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = upperMa)
@@ -288,7 +288,7 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
                                        num_xs, max_xveclist,
                                        num_ys, max_yveclist,
                                        sens_spec_tbl, tod_paramsdf,
-                                       serodayparams, upperMa = 0.4) {
+                                       upperMa = 0.4) {
 
 
   ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = upperMa)
@@ -482,7 +482,7 @@ make_splinex_reparamdf <- function(max_xvec = list("name" = "x4", min = 180, ini
 
 #' @title Make Noise Effect Reparameterized Param Df
 #' @param num_Ne positive interger; Number of Noise effect parameters to create
-make_noiseeff_reparamdf <- function(num_Nes = 4,  min = 0, init = 5, max = 10) {
+make_noiseeff_reparamdf <- function(num_Nes = 4,  min = 0.5, init = 1, max = 1.5) {
   assert_pos_int(num_Nes)
   assert_numeric(min)
   assert_numeric(init)

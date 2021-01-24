@@ -1,4 +1,5 @@
 #!/bin/sh
+#SBATCH --partition==general_big
 #SBATCH --job-name={{ job_name }}           # job name
 #SBATCH --output={{ log_file | /dev/null }} # you can add .%a for array index
 #SBATCH --error={{ log_file | /dev/null }}  # log file
@@ -6,5 +7,8 @@
 #SBATCH --cpus-per-task 4                   # for parallelization
 #SBATCH --array=1-{{ n_jobs }}              # job array
 #SBATCH --time 72:00:00                     # time
+#SBATCH --mail-user=nbrazeau@med.unc.edu
+#SBATCH --mail-type=all
+
 ulimit -v $(( 1024 * {{ memory | 32768 }} ))
 CMQ_AUTH={{ auth }} R --no-save --no-restore -e 'clustermq:::worker("{{ master }}")'

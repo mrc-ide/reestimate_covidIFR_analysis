@@ -206,7 +206,6 @@ run_MCMC <- function(path) {
   #......................
   # make cluster object to parallelize chains
   #......................
-  start <- Sys.time()
   n_chains <- 10
   n_cores <- parallel::detectCores()
 
@@ -216,17 +215,27 @@ run_MCMC <- function(path) {
     mkcores <- n_chains
   }
 
+  # set iterations longe for exponential
+  if (grepl("sim1|sim4", basename(path))) { # exponential
+    iters <- 5e4
+    thin <- 50
+  } else {
+    iters <- 1e4
+    thin <- 10
+  }
+
+
   cl <- parallel::makeCluster(mkcores)
   fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
                                       chains = n_chains,
-                                      burnin = 1e4,
-                                      samples = 1e4,
+                                      burnin = iters,
+                                      samples = iters,
                                       rungs = 50,
                                       GTI_pow = 3.0,
-                                      thinning = 10,
+                                      thinning = thin,
                                       cluster = cl)
   parallel::stopCluster(cl)
   gc()

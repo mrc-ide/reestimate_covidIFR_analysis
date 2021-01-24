@@ -32,11 +32,11 @@ weibullparams$wscale <- weibullparams$wscale - 13.3 # account for delay in onset
 
 
 abbott <- tibble::tibble(name = c("sero_rev_shape",     "sero_rev_scale"),
-                          min  = c(2,                     127),
-                          init = c(3.5,                   130.4),
-                          max =  c(5,                     133),
-                          dsc1 = c(weibullparams$wshape,  weibullparams$wscale),
-                          dsc2 = c(0.5,                   0.1))
+                         min  = c(2,                     127),
+                         init = c(3.5,                   130.4),
+                         max =  c(5,                     133),
+                         dsc1 = c(weibullparams$wshape,  weibullparams$wscale),
+                         dsc2 = c(0.5,                   0.1))
 
 
 #............................................................
@@ -71,7 +71,7 @@ sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shap
 rawage <- readRDS("data/derived/BRA1/BRA1_agebands.RDS")
 BRA1_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                            groupvar = "ageband",  dat = rawage,
-                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
+                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
                                            num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 19.17, dsc1 = 0, dsc2 = 19.17),
                                            sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
@@ -93,7 +93,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 rawage <- readRDS("data/derived/CHE1/CHE1_agebands.RDS")
 CHE1_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                            groupvar = "ageband",  dat = rawage,
-                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
+                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
                                            num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.12, dsc1 = 0, dsc2 = 13.12),
                                            sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
@@ -115,7 +115,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 rawage <- readRDS("data/derived/CHE2/CHE2_agebands.RDS")
 CHE2_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                            groupvar = "ageband",  dat = rawage,
-                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
+                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
                                            num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 14.24, dsc1 = 0, dsc2 = 14.24),
                                            sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
@@ -150,7 +150,7 @@ sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shap
 rawage <- readRDS("data/derived/DNK1/DNK1_agebands.RDS")
 DNK_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
                                           groupvar = "ageband",  dat = rawage,
-                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
+                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
                                           num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
                                           sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
@@ -184,7 +184,7 @@ sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shap
 rawage <- readRDS("data/derived/ESP1-2/ESP1-2_agebands.RDS")
 ESP_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                           groupvar = "ageband",  dat = rawage,
-                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
+                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
                                           num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 17.66),
                                           sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
@@ -219,7 +219,7 @@ sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shap
 rawage <- readRDS("data/derived/GBR3/GBR3_agebands.RDS")
 GBR3_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
                                            groupvar = "ageband",  dat = rawage,
-                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
+                                           num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
                                            num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
                                            sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
@@ -252,7 +252,7 @@ sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shap
 rawage <- readRDS("data/derived/ITA1/ITA1_agebands.RDS")
 ITA_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                           groupvar = "ageband",  dat = rawage,
-                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
+                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
                                           num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.91, dsc1 = 0, dsc2 = 17.91),
                                           sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
@@ -274,7 +274,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 rawage <- readRDS("data/derived/SWE1/SWE1_agebands.RDS")
 SWE_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                           groupvar = "ageband",  dat = rawage,
-                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
+                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
                                           num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.15, dsc1 = 0, dsc2 = 16.15),
                                           sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
@@ -296,7 +296,7 @@ sens_spec_tbl_serorev <- rbind(sens_spec_tbl, abbott)
 rawage <- readRDS("data/derived/NLD1/NLD1_agebands.RDS")
 NLD_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 6, maxMa = "ma6",
                                           groupvar = "ageband",  dat = rawage,
-                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
+                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
                                           num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.67, dsc1 = 0, dsc2 = 16.67),
                                           sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
@@ -331,7 +331,7 @@ sens_spec_tbl_serorev$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shap
 rawage <- readRDS("data/derived/USA/NYS1_agebands.RDS")
 NYS_age_mod <- make_SeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                           groupvar = "ageband",  dat = rawage,
-                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 216, init = 223, max = 230, dsc1 = 216, dsc2 = 230),
+                                          num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
                                           num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.94, dsc1 = 0, dsc2 = 15.94),
                                           sens_spec_tbl = sens_spec_tbl_serorev, tod_paramsdf = tod_paramsdf)
 
@@ -395,7 +395,15 @@ run_MCMC <- function(path) {
     mkcores <- n_chains
   }
 
+  # make cores
   cl <- parallel::makeCluster(mkcores)
+
+  # set GTI
+  if (grepl("GBR|BRA|NYS|ESP|ITA", basename(path))) {
+    gti <- 3
+  } else {
+    gti <- 2
+  }
 
   if (grepl("ITA|DNK|SWE", basename(path))) {
     # logit cases
@@ -408,7 +416,7 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = 3.0,
+                                        GTI_pow = gti,
                                         cluster = cl,
                                         thinning = mod$thinning)
 
@@ -423,7 +431,7 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = 3.0,
+                                        GTI_pow = gti,
                                         cluster = cl,
                                         thinning = mod$thinning)
   }

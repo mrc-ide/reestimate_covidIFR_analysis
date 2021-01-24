@@ -203,7 +203,7 @@ noserorev_ppc_seroPlotObj <- datmap %>% # NB with these functions have already s
 
 # out
 jpeg("figures/final_figures/ppc_seroprev_NOSeroRev.jpg",
-     width = 11, height = 8, units = "in", res = 600)
+     width = 11, height = 8, units = "in", res = 500)
 plot(noserorev_ppc_seroPlotObj)
 graphics.off()
 
@@ -245,7 +245,7 @@ serorev_ppc_seroPlotObj <- datmap %>% # NB with these functions have already sub
 
 # out
 jpeg("figures/final_figures/ppc_seroprev_SeroRev.jpg",
-     width = 11, height = 8, units = "in", res = 600)
+     width = 11, height = 8, units = "in", res = 500)
 plot(serorev_ppc_seroPlotObj)
 graphics.off()
 
@@ -288,7 +288,7 @@ noserorev_ppc_DeathPlotObj <- ggplot() +
 
 # out
 jpeg("figures/final_figures/ppc_Deaths_NOSeroRev.jpg",
-     width = 8, height = 11, units = "in", res = 600)
+     width = 8, height = 11, units = "in", res = 500)
 plot(noserorev_ppc_DeathPlotObj)
 graphics.off()
 
@@ -328,6 +328,6 @@ serorev_ppc_DeathPlotObj <- ggplot() +
 
 # out
 jpeg("figures/final_figures/ppc_Deaths_SeroRev.jpg",
-     width = 8, height = 11, units = "in", res = 600)
+     width = 8, height = 11, units = "in", res = 500)
 plot(serorev_ppc_DeathPlotObj)
 graphics.off()

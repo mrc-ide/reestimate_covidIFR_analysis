@@ -23,7 +23,7 @@ JHUdf <- readr::read_csv("data/raw/time_series_covid19_deaths_global.csv") %>%
                 deaths = ifelse(is.na(deaths), 0, deaths),  # take care of first value
                 deaths = ifelse(deaths < 0, 0, deaths)) %>% # take care of cumulative death correction
   dplyr::select(c("date", "georegion", "deaths")) %>%
-  dplyr::filter(date <= lubridate::mdy("08-17-2020")) %>%
+  dplyr::filter(date <= lubridate::mdy("07-17-2020")) %>%
   dplyr::ungroup(.)
 
 # serovalidation
@@ -54,7 +54,7 @@ populationdf <- readr::read_tsv("data/raw/non_usa_non_bra_population.tsv") %>%
 #...........................................................
 # process Brazil time series
 bra_time_series <- readRDS("data/raw/2020-10-12_Brazil_state_age_sex_deaths.rds") %>%
-  dplyr::filter(date <= lubridate::mdy("08-17-2020")) %>%
+  dplyr::filter(date <= lubridate::mdy("07-17-2020")) %>%
   dplyr::group_by(date) %>%
   dplyr::summarise(deaths = sum(count)) %>%
   dplyr::mutate(georegion = "BRA") %>%
@@ -62,7 +62,7 @@ bra_time_series <- readRDS("data/raw/2020-10-12_Brazil_state_age_sex_deaths.rds"
 
 # process Brazil cum deaths
 bra_cumdeaths <- readRDS("data/raw/2020-10-12_Brazil_state_age_sex_deaths.rds") %>%
-  dplyr::filter(date <= lubridate::mdy("08-17-2020")) %>%
+  dplyr::filter(date <= lubridate::mdy("07-17-2020")) %>%
   magrittr::set_colnames(tolower(colnames(.))) %>%
   dplyr::rename(gender = sex) %>%
   dplyr::group_by(region, age, gender, .drop = FALSE) %>%
@@ -187,8 +187,8 @@ CHE1TimeSeries <- CHE1TimeSeries %>%
                 deaths = n_deaths,
                 georegion = region) %>%
   dplyr::select(c("date", "georegion", "deaths")) %>%
-  dplyr::mutate(date = lubridate::dmy(date)) # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-
+  dplyr::mutate(date = lubridate::dmy(date)) %>%  # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+  dplyr::filter(date <= lubridate::mdy("07-17-2020"))
 
 
 #......................
@@ -306,8 +306,8 @@ CHE2TimeSeries <- CHE2TimeSeries %>%
                 deaths = n_deaths,
                 georegion = region) %>%
   dplyr::select(c("date", "georegion", "deaths")) %>%
-  dplyr::mutate(date = lubridate::dmy(date)) # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-
+  dplyr::mutate(date = lubridate::dmy(date)) %>%  # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
+  dplyr::filter(date <= lubridate::mdy("07-17-2020"))
 
 #......................
 # ages
@@ -359,7 +359,7 @@ saveRDS(CHE2.agebands.dat, "data/derived/CHE2/CHE2_agebands.RDS")
 #...........................................................
 DNK_timeseries<-read.csv("data/raw/DNK_timeseries.csv") %>%
   dplyr::mutate(date = lubridate::dmy(date)) %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-  dplyr::filter(date<="2020-08-17") %>%
+  dplyr::filter(date<=lubridate::mdy("07-17-2020")) %>%
   dplyr::arrange(date) %>%
   dplyr::select(date,georegion,deaths)
 DNK_timeseries$deaths[2:nrow(DNK_timeseries)]<-DNK_timeseries$deaths[2:nrow(DNK_timeseries)] -
@@ -469,7 +469,7 @@ saveRDS(DNK.agebands_age_sero.dat, "data/derived/DNK1/DNK1_agebands_age_sero.dat
 
 ESP_timeseries<-read.csv("data/raw/ESP_timeseries.csv") %>%
   dplyr::mutate(date = lubridate::dmy(date)) %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-  dplyr::filter(date<="2020-08-17") %>%
+  dplyr::filter(date<=lubridate::mdy("07-17-2020")) %>%
   dplyr::arrange(date) %>%
   dplyr::select(date,georegion,deaths)
 ESP_timeseries$deaths[2:nrow(ESP_timeseries)]<-ESP_timeseries$deaths[2:nrow(ESP_timeseries)] -
@@ -533,7 +533,8 @@ GBR3TimeSeries <- readr::read_tsv("data/raw/deaths_time_series_subnat.tsv") %>%
                 deaths = n_deaths) %>%
   dplyr::mutate(date = lubridate::dmy(date), # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
                 georegion = "ENG") %>%
-  dplyr::select(c("date", "georegion", "deaths"))
+  dplyr::select(c("date", "georegion", "deaths")) %>%
+  dplyr::filter(date <= lubridate::mdy("07-17-2020"))
 #......................
 # ages
 #......................
@@ -588,7 +589,7 @@ saveRDS(GBR3.regions.dat, "data/derived/GBR3/GBR3_regions.RDS")
 #...........................................................
 ITA_timeseries<-read.csv("data/raw/ITA_timeseries.csv") %>%
   dplyr::mutate(date = lubridate::dmy(date)) %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-  dplyr::filter(date<="2020-08-17") %>%
+  dplyr::filter(date<=lubridate::mdy("07-17-2020")) %>%
   dplyr::arrange(date) %>%
   dplyr::select(date,georegion,deaths)
 ITA_timeseries$deaths[2:nrow(ITA_timeseries)]<-ITA_timeseries$deaths[2:nrow(ITA_timeseries)] -
@@ -704,7 +705,7 @@ saveRDS(ITA.regions.dat, "data/derived/ITA1/ITA1_regions.RDS")
 #...........................................................
 NLD_timeseries<-read.csv("data/raw/NLD_timeseries.csv") %>%
   dplyr::mutate(date = lubridate::dmy(date)) %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-  dplyr::filter(date<="2020-08-17") %>%
+  dplyr::filter(date<=lubridate::mdy("07-17-2020")) %>%
   dplyr::arrange(date) %>%
   dplyr::select(date,georegion,deaths)
 NLD_timeseries$deaths[2:nrow(NLD_timeseries)]<-NLD_timeseries$deaths[2:nrow(NLD_timeseries)] -
@@ -798,7 +799,7 @@ SWE1_timeseries<-read.csv("data/raw/SWE_timeseries.csv") %>%
                 deaths=Antal_avlidna) %>%
   dplyr::mutate(date = lubridate::dmy(date),
                 georegion="SWE") %>% # NB, we just convert this to a lubridate format and later within the process data function, dates are converted to international format
-  dplyr::filter(date<="2020-08-17") %>%
+  dplyr::filter(date<=lubridate::mdy("07-17-2020")) %>%
   dplyr::select(date,georegion,deaths)
 
 ### quick comparison of JHU vs SWE govt date of deaths
@@ -899,7 +900,7 @@ JHUdf <- readr::read_csv("data/raw/time_series_covid19_deaths_US.csv") %>%
                 deaths = ifelse(is.na(deaths), 0, deaths), # take care of first value
                 deaths = ifelse(deaths < 0, 0, deaths)) %>% # take care of cumulative deaths corrections
   dplyr::select(c("date", "georegion", "deaths")) %>%
-  dplyr::filter(date <= lubridate::mdy("08-17-2020")) %>%
+  dplyr::filter(date <= lubridate::mdy("07-17-2020")) %>%
   dplyr::ungroup(.)
 
 
@@ -1050,7 +1051,7 @@ nys_adj_seroprev <- nys_adj_seroprev %>%
 # overwrite
 NYS.age.dat$seroprevMCMC <- nys_adj_seroprev
 
-# removing the May 18 date where 4000 deaths from NYC were added on a single day
+# # removing the May 18 date where 4000 deaths from NYC were added on a single day
 # likely due to probable deaths being retrospectively added back in
 NYS.age.dat$deaths_TSMCMC$deaths[139] <- -1
 
