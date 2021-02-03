@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --partition==general_big
+#SBATCH --partition=general_big
 #SBATCH --job-name={{ job_name }}           # job name
 #SBATCH --output={{ log_file | /dev/null }} # you can add .%a for array index
 #SBATCH --error={{ log_file | /dev/null }}  # log file
