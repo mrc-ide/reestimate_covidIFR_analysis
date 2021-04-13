@@ -7,27 +7,25 @@
 library(tidyverse)
 library(survival)
 library(survminer)
-source("R/my_themes.R")
-source("R/extra_plotting_functions.R")
-set.seed(48)
+library(tableone)
 
 #......................
 # read data
 #......................
-serotime <- readxl::read_excel("data/raw/shared/2020_09_11_97_for_JID.xlsx", sheet = 2) %>%
+serotime <- readxl::read_excel("data/raw/shared/serial SR1407 results.xlsx", sheet = 1) %>%
   magrittr::set_colnames(tolower(colnames(.))) %>%
   magrittr::set_colnames(gsub(" ", "_", colnames(.))) %>%
   magrittr::set_colnames(gsub("/", "_", colnames(.))) %>%
   magrittr::set_colnames(gsub("≥1", "gt1", colnames(.))) %>%
   dplyr::rename(sex = gender,
-                donor_id = sr1407,
+                donor_id = sr1407__id,
                 days_post_symptoms = post_sx_days) %>%
   dplyr::mutate(sex = factor(sex, levels = c("F", "M")),
-                donor_id = factor(donor_id))    # re-center days to months
+                hospitalised = factor(hospitalised, levels = c("N", "Y")),
+                donor_id = factor(donor_id))
 
 # take to long format
 serotime <- serotime %>%
-  dplyr::select(-c("siemens")) %>%
   tidyr::pivot_longer(., cols = c("abbott_s_c", "diasorin_au_ml", "siemens_no.", "roche_gt1"),
                       names_to = "assay", values_to = "titres") %>%
   dplyr::mutate(assay = stringr::str_split_fixed(assay, "_", n = 2)[,1],
@@ -50,7 +48,7 @@ serotime %>%
   geom_hline(aes(yintercept = threshold), linetype = "dashed") +
   scale_color_manual(values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
   facet_wrap(~assay, scales = "free_y") +
-  xyaxis_plot_theme
+  theme_classic()
 
 # look at post sx instead of pcr
 serotime %>%
@@ -59,7 +57,7 @@ serotime %>%
   scale_color_manual(values = c("#3182bd", "#31a354", "#de2d26", "#756bb1")) +
   facet_wrap(~assay, scales = "free_y") +
   ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") +
-  xyaxis_plot_theme
+  theme_classic()
 
 
 #............................................................
@@ -114,7 +112,7 @@ serotime %>%
   geom_hline(yintercept = 1.4, linetype = "dashed") +
   facet_wrap(~assay, scales = "free_y") +
   ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") + ggtitle("Final Included") +
-  xyaxis_plot_theme
+  theme_classic()
 
 # drop those individuals negative at baseline
 serotime <- serotime %>%
@@ -122,7 +120,57 @@ serotime <- serotime %>%
   dplyr::filter(is.na(drop)) %>%
   dplyr::select(-c("drop"))
 
+#......................
+# subset to individuals with three observations
+#......................
+serocount <- serotime %>%
+  dplyr::group_by(donor_id) %>%
+  dplyr::summarise(cnt = dplyr::n()) %>%
+  dplyr::filter(cnt >= 3)
+
+# look at individuals w/ 3 observations vs less for f/up confounding
+serotime <- serotime %>%
+  dplyr::mutate(threepeat = ifelse(donor_id %in% serocount$donor_id,
+                                   "Y", "N"))
+serotime %>%
+  ggplot() +
+  geom_line(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay),
+            color = "#3182bd") +
+  geom_point(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay),
+             color = "#3182bd") +
+  geom_hline(yintercept = 1.4, linetype = "dashed") +
+  facet_wrap(~threepeat, scales = "free_y") +
+  ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") + ggtitle("Final Included") +
+  theme_classic()
+
+#......................
+# Screen for Negative SC that Later go Positive?
+#......................
+# find first time for each individual that they serorevert
+id_frst_serorev <- serotime %>%
+  dplyr::filter(titres <= 1.4) %>%
+  dplyr::group_by(donor_id) %>%
+  dplyr::summarise(
+    frstdate = min(days_post_symptoms, na.rm = T))
+
+# now viz
+serotime %>%
+  dplyr::left_join(., id_frst_serorev, by = "donor_id") %>%
+  dplyr::group_by(donor_id) %>%
+  dplyr::filter( days_post_symptoms >= frstdate) %>%
+  ggplot() +
+  geom_line(aes(x = days_post_symptoms, y = titres, group = donor_id), color = "#4292c6") +
+  geom_point(aes(x = days_post_symptoms, y = titres, group = donor_id), color = "#bdbdbd") +
+  geom_hline(yintercept = 1.4, linetype = "dashed", color = "#cb181d") +
+  xlab("time post sx") +
+  theme_classic() +
+  theme(axis.text.x = element_blank())
+# looks ok -- those that revert stay reverted
+
+
+#......................
 # quick look at finals
+#......................
 serotime %>%
   dplyr::left_join(., thresholds, by = "assay") %>%
   dplyr::filter(assay == "Abbott") %>%
@@ -134,17 +182,37 @@ serotime %>%
   geom_hline(aes(yintercept = threshold), linetype = "dashed") +
   facet_wrap(~assay, scales = "free_y") +
   ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") + ggtitle("Final Included") +
-  xyaxis_plot_theme
+  theme_classic()
+
+
 
 
 #............................................................
 # quick look at characteristics
 #...........................................................
 serotime_char <- serotime %>%
-  dplyr::select(c("age", "sex", "donor_id")) %>%
+  dplyr::select(c("age", "sex", "hospitalised", "donor_id")) %>%
   dplyr::filter(!duplicated(.))
 table(serotime_char$sex)
+table(serotime_char$hospitalised)
 summary(serotime_char$age)
+
+#......................
+# are hospitalized different from non-hospitalized
+#   among the 5 hospitalized, none have serorevereted...
+#......................
+serotime %>%
+  dplyr::left_join(., thresholds, by = "assay") %>%
+  dplyr::filter(assay == "Abbott") %>%
+  ggplot() +
+  geom_line(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay),
+            color = "#3182bd") +
+  geom_point(aes(x = days_post_symptoms, y = titres, group = donor_id, color = assay),
+             color = "#3182bd") +
+  geom_hline(aes(yintercept = threshold), linetype = "dashed") +
+  facet_wrap(~hospitalised, scales = "free_y") +
+  ylab("Ab. Titres") + xlab("Days Post-Symptom Onset") + ggtitle("Final Included") +
+  theme_classic()
 
 #............................................................
 #---- Survival Analysis #----
@@ -260,6 +328,7 @@ weibull_params <- list(wshape = 1/exp(WBmod2$icoef[2]),
 dir.create(path = "results/prior_inputs/", recursive = TRUE)
 saveRDS(weibull_params, "results/prior_inputs/weibull_params.RDS")
 
+
 #............................................................
 #---- Figure of Seroreversion #----
 #...........................................................
@@ -303,14 +372,16 @@ WeibullSurvPlotObj <- ggplot() +
   xlab("Time (Days)") +
   xyaxis_plot_theme
 
-
+#......................
+# figure save/plot
+#......................
 dir.create("figures/final_figures/", recursive = TRUE)
 jpeg("figures/final_figures/weibull_survplot.jpg",
      width = 11, height = 8, units = "in", res = 500)
 plot(WeibullSurvPlotObj)
 graphics.off()
-
-
-# save out
+# save plot obj
 saveRDS(WeibullSurvPlotObj, "figures/final_figures/weibull_survplot.RDS")
+
+
 
