@@ -8,6 +8,7 @@ library(tidyverse)
 library(survival)
 library(survminer)
 library(tableone)
+source("R/my_themes.R")
 
 #......................
 # read data
