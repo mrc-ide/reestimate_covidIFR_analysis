@@ -441,8 +441,8 @@ make_splinex_reparamdf <- function(max_xval = 200,
                                    num_xs = 4) {
   assert_pos_int(num_xs)
   assert_pos_int(max_xval)
-  day_dur <- max_xval/num_xs
-  x_start <- c(1, cumsum(rep(day_dur, times = num_xs-1)))
+  day_dur <- round(max_xval/num_xs)
+  x_start <- c(2, cumsum(rep(day_dur, times = num_xs-1))) # day 2 because we put a point at 1 in the model so that time is always consistent starting
   x_end <- c(x_start[-1]-1, max_xval) # not the first value, and then -1 for day so contiguous nonoverlap
 
   out <- tibble::tibble(name = paste0("x", 1:num_xs),
