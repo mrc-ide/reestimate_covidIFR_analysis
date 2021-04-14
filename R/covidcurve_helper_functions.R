@@ -443,29 +443,18 @@ make_spliney_reparamdf <- function(max_yval,
 
 #' @title Make Spline X (Knots) Position Reparameterized Param Df
 #' @param num_xs positive interger; Number of Spline X positions to infer
-#' @param max_xvec vector; Describes the xmax position. Rest will be uniform 0,1 for reparameterized positions
-
-make_splinex_reparamdf <- function(max_xvec = list("name" = "x4", min = 180, init = 190, max = 200, dsc1 = 180, dsc2 = 200),
+#' @param max_xval vector; Describes the maximum observed time -- the xmax position.
+#' @description Will break up "X-knots" into "n" non-overlapping, contiguous discrete groups as specified by the user
+make_splinex_reparamdf <- function(max_xval = 200,
                                    num_xs = 4) {
   assert_pos_int(num_xs)
-  assert_in(names(max_xvec), c("name", "min", "init", "max", "dsc1", "dsc2"))
-  assert_in(c("name", "min", "init", "max", "dsc1", "dsc2"), names(max_xvec))
-  assert_string(max_xvec[["name"]])
-  assert_numeric(max_xvec[["min"]])
-  assert_numeric(max_xvec[["init"]])
-  assert_numeric(max_xvec[["max"]])
-  assert_numeric(max_xvec[["dsc1"]])
-  assert_numeric(max_xvec[["dsc2"]])
+  assert_pos_int(max_xval)
+  day_dur <- max_xval/num_xs
+  x_start <- c(1, cumsum(rep(day_dur, times = num_xs-1)))
+  x_end <- c(x_start[-1]-1, max_xval) # not the first value, and then -1 for day so contiguous nonoverlap
 
-  out <- tibble::tibble(name = paste0("x", 1:num_xs),
-                        min  = rep(0, num_xs),
-                        init = seq(1e-3, 0.9, length.out = num_xs),
-                        max =  rep(1, num_xs),
-                        dsc1 = rep(0, num_xs),
-                        dsc2 = rep(1, num_xs))
+
   out %>%
-    dplyr::filter(name != max_xvec["name"]) %>%
-    dplyr::bind_rows(., max_xvec) %>%
     dplyr::arrange(name)
 }
 
