@@ -424,29 +424,20 @@ make_ma_reparamdf <- function(num_mas = 10, upperMa) {
 
 #' @title Make Spline Y Position Reparameterized Param Df
 #' @param num_ys positive interger; Number of Spline Y positions to infer
-#' @param max_yvec vector; Describes the ymax position. Rest will be uniform 0,1 for reparameterized positions
+#' @param max_yval integer; Describes the maximum number of people that can be infected in the population -- the ymax position.
 
-make_spliney_reparamdf <- function(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+make_spliney_reparamdf <- function(max_yval,
                                    num_ys = 5) {
   assert_pos_int(num_ys)
-  assert_in(names(max_yvec), c("name", "min", "init", "max", "dsc1", "dsc2"))
-  assert_in(c("name", "min", "init", "max", "dsc1", "dsc2"), names(max_yvec))
-  assert_string(max_yvec[["name"]])
-  assert_numeric(max_yvec[["min"]])
-  assert_numeric(max_yvec[["init"]])
-  assert_numeric(max_yvec[["max"]])
-  assert_numeric(max_yvec[["dsc1"]])
-  assert_numeric(max_yvec[["dsc2"]])
+  assert_pos_int(max_yval)
 
   out <- tibble::tibble(name = paste0("y", 1:num_ys),
                         min  = rep(0, size = num_ys),
                         init = rep(0.1, size = num_ys),
-                        max = rep(1, size = num_ys),
+                        max = rep(max_yval, size = num_ys),
                         dsc1 = rep(0, size = num_ys),
-                        dsc2 = rep(1, size = num_ys))
+                        dsc2 = rep(max_yval, size = num_ys))
   out %>%
-    dplyr::filter(name != max_yvec["name"]) %>%
-    dplyr::bind_rows(., max_yvec) %>%
     dplyr::arrange(name)
 }
 
