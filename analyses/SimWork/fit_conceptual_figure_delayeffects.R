@@ -173,11 +173,11 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                dsc2 = c(0.1,    450,   0.1))
 
 serorev <- tibble::tibble(name = c("sero_rev_shape",     "sero_rev_scale"),
-                         min  = c(2,                     127),
-                         init = c(3.5,                   130.4),
-                         max =  c(5,                     133),
+                         min  = c(1,                     175),
+                         init = c(2,                     200),
+                         max =  c(5,                     232),
                          dsc1 = c(weibullparams$wshape,  weibullparams$wscale),
-                         dsc2 = c(0.5,                   0.1))
+                         dsc2 = c(1,                     2))
 
 # combine
 tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
@@ -186,10 +186,10 @@ tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
 
 # make param dfs
 ifr_paramsdf <- make_ma_reparamdf(num_mas = 3, upperMa = 0.4)
-knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 286, init = 290, max = 300, dsc1 = 286, dsc2 = 300),
-                                        num_xs = 4)
-infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14.91, dsc1 = 0, dsc2 = 14.91),
-                                         num_ys = 5)
+knot_paramsdf <- make_splinex_reparamdf(max_xval = 300,
+                                        num_xs = 9)
+infxn_paramsdf <- make_spliney_reparamdf(max_yval = 14.91,
+                                         num_ys = 10)
 noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 3, min = 0.5, init = 1, max = 1.5)
 # bring together
 df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, noise_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf)
@@ -205,10 +205,8 @@ mod1_reg$set_MeanTODparam("mod")
 mod1_reg$set_CoefVarOnsetTODparam("sod")
 mod1_reg$set_IFRparams(paste0("ma", 1:3))
 mod1_reg$set_maxMa("ma3")
-mod1_reg$set_Knotparams(paste0("x", 1:4))
-mod1_reg$set_relKnot("x4")
-mod1_reg$set_Infxnparams(paste0("y", 1:5))
-mod1_reg$set_relInfxn("y3")
+mod1_reg$set_Knotparams(paste0("x", 1:9))
+mod1_reg$set_Infxnparams(paste0("y", 1:10))
 mod1_reg$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_reg$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_reg$set_data(reginputdata)
@@ -221,10 +219,8 @@ mod1_serorev$set_MeanTODparam("mod")
 mod1_serorev$set_CoefVarOnsetTODparam("sod")
 mod1_serorev$set_IFRparams(paste0("ma", 1:3))
 mod1_serorev$set_maxMa("ma3")
-mod1_serorev$set_Knotparams(paste0("x", 1:4))
-mod1_serorev$set_relKnot("x4")
-mod1_serorev$set_Infxnparams(paste0("y", 1:5))
-mod1_serorev$set_relInfxn("y3")
+mod1_serorev$set_Knotparams(paste0("x", 1:9))
+mod1_serorev$set_Infxnparams(paste0("y", 1:10))
 mod1_serorev$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
 mod1_serorev$set_data(serorev_inputdata)
