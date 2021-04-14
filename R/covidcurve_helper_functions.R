@@ -167,7 +167,7 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
 
   ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = upperMa)
 
-  knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xval,
+  knot_paramsdf <- make_splinex_reparamdf(max_xval = max_xval,
                                           num_xs = num_xs)
 
   infxn_paramsdf <- make_spliney_reparamdf(max_yval = max_yval,
@@ -289,10 +289,10 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
 
   ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = upperMa)
 
-  knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xval,
+  knot_paramsdf <- make_splinex_reparamdf(max_xval = max_xval,
                                           num_xs = num_xs)
 
-  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yval,
+  infxn_paramsdf <- make_spliney_reparamdf(max_yval = max_yval,
                                            num_ys = num_ys)
 
   if (num_mas > 1) {
