@@ -131,7 +131,7 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   knot_paramsdf <- make_splinex_reparamdf(max_xval = 200,
                                           num_xs = 9)
   infxn_paramsdf <- make_spliney_reparamdf(max_yval = 15.42,
-                                           num_ys = 5)
+                                           num_ys = 10)
   noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 0.5, init = 1, max = 1.5)
 
   # bring together

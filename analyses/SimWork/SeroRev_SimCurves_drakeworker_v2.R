@@ -135,7 +135,7 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
 # everything else for region
 wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   ifr_paramsdf <- make_ma_reparamdf(num_mas = 5, upperMa = 0.4)
-  knot_paramsdf <- make_splinex_reparamdf(max_yval = 200,
+  knot_paramsdf <- make_splinex_reparamdf(max_xval = 200,
                                           num_xs = 9)
   infxn_paramsdf <- make_spliney_reparamdf(max_yval = 15.42,
                                            num_ys = 10)
