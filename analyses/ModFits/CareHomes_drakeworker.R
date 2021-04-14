@@ -41,8 +41,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawch <- readRDS("data/derived/carehomes/CHE1_agebands_noCH.RDS")
 CHE1_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
                                                    groupvar = "ageband",  dat = rawch,
-                                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
-                                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 13.12, dsc1 = 0, dsc2 = 13.12),
+                                                   num_xs = 9, max_xval = 199,
+                                                   num_ys = 10, max_yval = 13.12,
                                                    sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
@@ -74,8 +74,8 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 rawch <- readRDS("data/derived/carehomes/DNK1_agebands_noCH.RDS")
 DNK_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 3, maxMa = "ma3",
                                                   groupvar = "ageband",  dat = rawch,
-                                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
-                                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 15.57, dsc1 = 0, dsc2 = 15.57),
+                                                  num_xs = 9, max_xval = 199,
+                                                  num_ys = 10, max_yval = 15.57,
                                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 #............................................................
@@ -106,8 +106,8 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 rawch <- readRDS("data/derived/carehomes/ESP1-2_agebands_noCH.RDS")
 ESP_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
                                                   groupvar = "ageband",  dat = rawch,
-                                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
-                                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.66, dsc1 = 0, dsc2 = 17.66),
+                                                  num_xs = 9, max_xval = 199,
+                                                  num_ys = 10, max_yval = 17.66,
                                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
@@ -141,8 +141,8 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 rawch <- readRDS("data/derived/carehomes/GBR3_agebands_noCH.RDS")
 GBR3_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 3, maxMa = "ma3",
                                                    groupvar = "ageband",  dat = rawch,
-                                                   num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
-                                                   num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 17.857, dsc1 = 0, dsc2 = 17.857),
+                                                   num_xs = 9, max_xval = 199,
+                                                   num_ys = 10, max_yval = 17.857,
                                                    sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
@@ -161,8 +161,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawch <- readRDS("data/derived/carehomes/SWE1_agebands_noCH.RDS")
 SWE_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
                                                   groupvar = "ageband",  dat = rawch,
-                                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
-                                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.15, dsc1 = 0, dsc2 = 16.15),
+                                                  num_xs = 9, max_xval = 199,
+                                                  num_ys = 10, max_yval = 16.15,
                                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
@@ -195,8 +195,8 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 rawch <- readRDS("data/derived/carehomes/NYS1_agebands_noCH.RDS")
 NYS_carehomes_mod <- make_noSeroRev_IFR_model_fit(num_mas = 8, maxMa = "ma8",
                                                   groupvar = "ageband",  dat = rawch,
-                                                  num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
-                                                  num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.77, dsc1 = 0, dsc2 = 16.77),
+                                                  num_xs = 9, max_xval = 199,
+                                                  num_ys = 10, max_yval = 16.77,
                                                   sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 #............................................................
