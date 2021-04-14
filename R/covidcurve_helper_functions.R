@@ -421,7 +421,7 @@ make_ma_reparamdf <- function(num_mas = 10, upperMa) {
 make_spliney_reparamdf <- function(max_yval,
                                    num_ys = 5) {
   assert_pos_int(num_ys)
-  assert_pos_int(max_yval)
+  assert_single_numeric(max_yval)
 
   out <- tibble::tibble(name = paste0("y", 1:num_ys),
                         min  = rep(0, size = num_ys),
