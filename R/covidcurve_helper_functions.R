@@ -159,18 +159,18 @@ get_sens_spec <- function(path) {
 #' @title Make IFR Model for MCMC Fitting
 make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
                                          groupvar, dat,
-                                         num_xs, max_xveclist,
-                                         num_ys, max_yveclist,
+                                         num_xs, max_xval,
+                                         num_ys, max_yval,
                                          sens_spec_tbl, tod_paramsdf,
                                          upperMa = 0.4) {
 
 
   ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = upperMa)
 
-  knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
+  knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xval,
                                           num_xs = num_xs)
 
-  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
+  infxn_paramsdf <- make_spliney_reparamdf(max_yval = max_yval,
                                            num_ys = num_ys)
 
   if (num_mas > 1) {
@@ -246,9 +246,7 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1$set_IFRparams(paste0("ma", 1:num_mas))
     mod1$set_maxMa(maxMa)
     mod1$set_Knotparams(paste0("x", 1:num_xs))
-    mod1$set_relKnot(max_xveclist[["name"]])
     mod1$set_Infxnparams(paste0("y", 1:num_ys))
-    mod1$set_relInfxn(max_yveclist[["name"]])
     mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
     mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
     mod1$set_data(inputdata)
@@ -264,9 +262,7 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1$set_CoefVarOnsetTODparam("sod")
     mod1$set_IFRparams("ma1")
     mod1$set_Knotparams(paste0("x", 1:num_xs))
-    mod1$set_relKnot(max_xveclist[["name"]])
     mod1$set_Infxnparams(paste0("y", 1:num_ys))
-    mod1$set_relInfxn(max_yveclist[["name"]])
     mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
     mod1$set_data(inputdata)
     mod1$set_demog(demog)
@@ -285,18 +281,18 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
 #' @title Make IFR Model for MCMC Fitting
 make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
                                        groupvar, dat,
-                                       num_xs, max_xveclist,
-                                       num_ys, max_yveclist,
+                                       num_xs, max_xval,
+                                       num_ys, max_yval,
                                        sens_spec_tbl, tod_paramsdf,
                                        upperMa = 0.4) {
 
 
   ifr_paramsdf <- make_ma_reparamdf(num_mas = num_mas, upperMa = upperMa)
 
-  knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
+  knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xval,
                                           num_xs = num_xs)
 
-  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
+  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yval,
                                            num_ys = num_ys)
 
   if (num_mas > 1) {
@@ -371,9 +367,7 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1$set_IFRparams(paste0("ma", 1:num_mas))
     mod1$set_maxMa(maxMa)
     mod1$set_Knotparams(paste0("x", 1:num_xs))
-    mod1$set_relKnot(max_xveclist[["name"]])
     mod1$set_Infxnparams(paste0("y", 1:num_ys))
-    mod1$set_relInfxn(max_yveclist[["name"]])
     mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
     mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
     mod1$set_data(inputdata)
@@ -390,9 +384,7 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1$set_IFRparams("ma1")
     mod1$set_maxMa(maxMa)
     mod1$set_Knotparams(paste0("x", 1:num_xs))
-    mod1$set_relKnot(max_xveclist[["name"]])
     mod1$set_Infxnparams(paste0("y", 1:num_ys))
-    mod1$set_relInfxn(max_yveclist[["name"]])
     mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
     mod1$set_data(inputdata)
     mod1$set_demog(demog)
