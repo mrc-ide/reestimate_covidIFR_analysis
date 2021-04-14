@@ -453,7 +453,12 @@ make_splinex_reparamdf <- function(max_xval = 200,
   x_start <- c(1, cumsum(rep(day_dur, times = num_xs-1)))
   x_end <- c(x_start[-1]-1, max_xval) # not the first value, and then -1 for day so contiguous nonoverlap
 
-
+  out <- tibble::tibble(name = paste0("x", 1:num_xs),
+                        min  = x_start,
+                        init = x_start + (day_dur/2),
+                        max = x_end,
+                        dsc1 = x_start,
+                        dsc2 = x_end)
   out %>%
     dplyr::arrange(name)
 }
