@@ -213,8 +213,8 @@ run_MCMC <- function(path) {
   cl <- parallel::makeCluster(mkcores)
   fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = TRUE,
-                                      reparamInfxn = TRUE,
-                                      reparamKnots = TRUE,
+                                      reparamInfxn = FALSE,
+                                      reparamKnots = FALSE,
                                       chains = n_chains,
                                       burnin = iters,
                                       samples = iters,

@@ -249,8 +249,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawage <- readRDS("data/derived/SWE1/SWE1_agebands.RDS")
 SWE_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                               groupvar = "ageband",  dat = rawage,
-                                              num_xs = 4, max_xveclist = list("name" = "x4", min = 185, init = 192, max = 199, dsc1 = 185, dsc2 = 199),
-                                              num_ys = 5, max_yveclist = list("name" = "y3", min = 0, init = 9, max = 16.15, dsc1 = 0, dsc2 = 16.15),
+                                              num_xs = 9, max_xval = 199,
+                                              num_ys = 10, max_yval = 16.15,
                                               sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
@@ -386,8 +386,8 @@ run_MCMC <- function(path) {
     # logit cases
     fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
-                                        reparamInfxn = TRUE,
-                                        reparamKnots = TRUE,
+                                        reparamInfxn = FALSE,
+                                        reparamKnots = FALSE,
                                         binomial_likelihood = FALSE,
                                         chains = n_chains,
                                         burnin = mod$burnin,
@@ -401,8 +401,8 @@ run_MCMC <- function(path) {
     # normal binomial case
     fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
-                                        reparamInfxn = TRUE,
-                                        reparamKnots = TRUE,
+                                        reparamInfxn = FALSE,
+                                        reparamKnots = FALSE,
                                         binomial_likelihood = TRUE,
                                         chains = n_chains,
                                         burnin = mod$burnin,

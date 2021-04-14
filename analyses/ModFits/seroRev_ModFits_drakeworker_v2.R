@@ -409,8 +409,8 @@ run_MCMC <- function(path) {
     # logit cases
     fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
-                                        reparamInfxn = TRUE,
-                                        reparamKnots = TRUE,
+                                        reparamInfxn = FALSE,
+                                        reparamKnots = FALSE,
                                         binomial_likelihood = FALSE,
                                         chains = n_chains,
                                         burnin = mod$burnin,
@@ -424,8 +424,8 @@ run_MCMC <- function(path) {
     # normal binomial case
     fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
-                                        reparamInfxn = TRUE,
-                                        reparamKnots = TRUE,
+                                        reparamInfxn = FALSE,
+                                        reparamKnots = FALSE,
                                         binomial_likelihood = TRUE,
                                         chains = n_chains,
                                         burnin = mod$burnin,
