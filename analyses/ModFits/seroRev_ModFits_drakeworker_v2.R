@@ -32,11 +32,11 @@ weibullparams$wscale <- weibullparams$wscale - 13.3 # account for delay in onset
 
 
 abbott <- tibble::tibble(name = c("sero_rev_shape",     "sero_rev_scale"),
-                         min  = c(1,                     175),
+                         min  = c(1,                     199),
                          init = c(2,                     200),
-                         max =  c(5,                     232),
+                         max =  c(3.5,                   205),
                          dsc1 = c(weibullparams$wshape,  weibullparams$wscale),
-                         dsc2 = c(1,                     2))
+                         dsc2 = c(0.1,                   0.1))
 
 
 #............................................................

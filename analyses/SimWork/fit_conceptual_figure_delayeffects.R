@@ -173,11 +173,11 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
                                dsc2 = c(0.1,    450,   0.1))
 
 serorev <- tibble::tibble(name = c("sero_rev_shape",     "sero_rev_scale"),
-                         min  = c(1,                     175),
+                         min  = c(1,                     199),
                          init = c(2,                     200),
-                         max =  c(5,                     232),
+                         max =  c(3.5,                   205),
                          dsc1 = c(weibullparams$wshape,  weibullparams$wscale),
-                         dsc2 = c(1,                     2))
+                         dsc2 = c(0.1,                   0.1))
 
 # combine
 tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
