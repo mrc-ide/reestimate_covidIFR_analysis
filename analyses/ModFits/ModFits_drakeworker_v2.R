@@ -53,8 +53,8 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 rawage <- readRDS("data/derived/BRA1/BRA1_agebands.RDS")
 BRA1_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                              groupvar = "ageband",  dat = rawage,
-                                             num_xs = 9, max_xval = 199,
-                                             num_ys = 10, max_yval = 19.17,
+                                             num_xs = 7, max_xval = 199,
+                                             num_ys = 8, max_yval = 19.17,
                                              sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
@@ -74,8 +74,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawage <- readRDS("data/derived/CHE1/CHE1_agebands.RDS")
 CHE1_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                              groupvar = "ageband",  dat = rawage,
-                                             num_xs = 9, max_xval = 199,
-                                             num_ys = 10, max_yval = 13.12,
+                                             num_xs = 7, max_xval = 199,
+                                             num_ys = 8, max_yval = 13.12,
                                              sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
@@ -95,8 +95,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawage <- readRDS("data/derived/CHE2/CHE2_agebands.RDS")
 CHE2_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                              groupvar = "ageband",  dat = rawage,
-                                             num_xs = 9, max_xval = 199,
-                                             num_ys = 10, max_yval = 14.24,
+                                             num_xs = 7, max_xval = 199,
+                                             num_ys = 8, max_yval = 14.24,
                                              sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
@@ -129,8 +129,8 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 rawage <- readRDS("data/derived/DNK1/DNK1_agebands.RDS")
 DNK_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
                                             groupvar = "ageband",  dat = rawage,
-                                            num_xs = 9, max_xval = 199,
-                                            num_ys = 10, max_yval = 15.57,
+                                            num_xs = 7, max_xval = 199,
+                                            num_ys = 8, max_yval = 15.57,
                                             sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 #............................................................
@@ -162,8 +162,8 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 rawage <- readRDS("data/derived/ESP1-2/ESP1-2_agebands.RDS")
 ESP_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                             groupvar = "ageband",  dat = rawage,
-                                            num_xs = 9, max_xval = 199,
-                                            num_ys = 10, max_yval = 17.66,
+                                            num_xs = 7, max_xval = 199,
+                                            num_ys = 8, max_yval = 17.66,
                                             sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
@@ -197,8 +197,8 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 rawage <- readRDS("data/derived/GBR3/GBR3_agebands.RDS")
 GBR3_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 4, maxMa = "ma4",
                                              groupvar = "ageband",  dat = rawage,
-                                             num_xs = 9, max_xval = 199,
-                                             num_ys = 10, max_yval = 17.857,
+                                             num_xs = 7, max_xval = 199,
+                                             num_ys = 8, max_yval = 17.857,
                                              sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 #............................................................
@@ -229,8 +229,8 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 rawage <- readRDS("data/derived/ITA1/ITA1_agebands.RDS")
 ITA_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                             groupvar = "ageband",  dat = rawage,
-                                            num_xs = 9, max_xval = 199,
-                                            num_ys = 10, max_yval = 17.91,
+                                            num_xs = 7, max_xval = 199,
+                                            num_ys = 8, max_yval = 17.91,
                                             sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
@@ -249,8 +249,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawage <- readRDS("data/derived/SWE1/SWE1_agebands.RDS")
 SWE_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 10, maxMa = "ma10",
                                               groupvar = "ageband",  dat = rawage,
-                                              num_xs = 9, max_xval = 199,
-                                              num_ys = 10, max_yval = 16.15,
+                                              num_xs = 7, max_xval = 199,
+                                              num_ys = 8, max_yval = 16.15,
                                               sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
@@ -270,8 +270,8 @@ sens_spec_tbl <- tibble::tibble(name =  c("sens", "spec"),
 rawage <- readRDS("data/derived/NLD1/NLD1_agebands.RDS")
 NLD_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 6, maxMa = "ma6",
                                             groupvar = "ageband",  dat = rawage,
-                                            num_xs = 9, max_xval = 199,
-                                            num_ys = 10, max_yval = 16.67,
+                                            num_xs = 7, max_xval = 199,
+                                            num_ys = 8, max_yval = 16.67,
                                             sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
@@ -308,8 +308,8 @@ sens_spec_tbl$dsc2[sens_spec_tbl$name == "spec"] <- spec$estimate[["shape2"]]
 rawage <- readRDS("data/derived/USA/NYS1_agebands.RDS")
 NYS_age_mod <- make_noSeroRev_IFR_model_fit(num_mas = 9, maxMa = "ma9",
                                             groupvar = "ageband",  dat = rawage,
-                                            num_xs = 9, max_xval = 199,
-                                            num_ys = 10, max_yval = 15.94,
+                                            num_xs = 7, max_xval = 199,
+                                            num_ys = 8, max_yval = 15.94,
                                             sens_spec_tbl = sens_spec_tbl, tod_paramsdf = tod_paramsdf)
 
 
@@ -375,12 +375,12 @@ run_MCMC <- function(path) {
   # make cores
   cl <- parallel::makeCluster(mkcores)
 
-  # set GTI
-  if (grepl("GBR|BRA|NYS|ESP|ITA", basename(path))) {
-    gti <- 3
-  } else {
-    gti <- 2
-  }
+  # # set GTI
+  # if (grepl("GBR|BRA|NYS|ESP|ITA", basename(path))) {
+  #   gti <- 3
+  # } else {
+  #   gti <- 2
+  # }
 
   if (grepl("ITA|DNK|SWE", basename(path))) {
     # logit cases
@@ -393,7 +393,7 @@ run_MCMC <- function(path) {
                                         burnin = mod$burnin,
                                         samples = mod$samples,
                                         rungs = mod$rungs,
-                                        GTI_pow = gti,
+                                        GTI_pow = 3.0,
                                         cluster = cl,
                                         thinning = mod$thinning)
 
