@@ -3,7 +3,7 @@
 ##
 ## Notes:
 ####################################################################################
-set.seed(1234)
+set.seed(48)
 library(COVIDCurve)
 library(tidyverse)
 library(drake)
@@ -187,9 +187,9 @@ tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
 # make param dfs
 ifr_paramsdf <- make_ma_reparamdf(num_mas = 3, upperMa = 0.4)
 knot_paramsdf <- make_splinex_reparamdf(max_xval = 300,
-                                        num_xs = 9)
+                                        num_xs = 7)
 infxn_paramsdf <- make_spliney_reparamdf(max_yval = 14.91,
-                                         num_ys = 10)
+                                         num_ys = 8)
 noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 3, min = 0.5, init = 1, max = 1.5)
 # bring together
 df_params_reg <- rbind.data.frame(ifr_paramsdf, infxn_paramsdf, noise_paramsdf, knot_paramsdf, sens_spec_tbl, tod_paramsdf)
@@ -205,8 +205,8 @@ mod1_reg$set_MeanTODparam("mod")
 mod1_reg$set_CoefVarOnsetTODparam("sod")
 mod1_reg$set_IFRparams(paste0("ma", 1:3))
 mod1_reg$set_maxMa("ma3")
-mod1_reg$set_Knotparams(paste0("x", 1:9))
-mod1_reg$set_Infxnparams(paste0("y", 1:10))
+mod1_reg$set_Knotparams(paste0("x", 1:7))
+mod1_reg$set_Infxnparams(paste0("y", 1:8))
 mod1_reg$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_reg$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_reg$set_data(reginputdata)
@@ -219,8 +219,8 @@ mod1_serorev$set_MeanTODparam("mod")
 mod1_serorev$set_CoefVarOnsetTODparam("sod")
 mod1_serorev$set_IFRparams(paste0("ma", 1:3))
 mod1_serorev$set_maxMa("ma3")
-mod1_serorev$set_Knotparams(paste0("x", 1:9))
-mod1_serorev$set_Infxnparams(paste0("y", 1:10))
+mod1_serorev$set_Knotparams(paste0("x", 1:7))
+mod1_serorev$set_Infxnparams(paste0("y", 1:8))
 mod1_serorev$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
 mod1_serorev$set_data(serorev_inputdata)

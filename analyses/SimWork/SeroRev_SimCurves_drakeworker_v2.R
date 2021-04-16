@@ -3,11 +3,11 @@
 ##
 ## Notes: Assumes SLURM cluster
 ####################################################################################
+set.seed(48)
 library(drake)
 library(tidyverse)
 library(COVIDCurve)
 source("R/covidcurve_helper_functions.R")
-set.seed(48)
 
 
 #............................................................
@@ -137,9 +137,9 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
 wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   ifr_paramsdf <- make_ma_reparamdf(num_mas = 5, upperMa = 0.4)
   knot_paramsdf <- make_splinex_reparamdf(max_xval = 200,
-                                          num_xs = 9)
+                                          num_xs = 7)
   infxn_paramsdf <- make_spliney_reparamdf(max_yval = 15.42,
-                                           num_ys = 10)
+                                           num_ys = 8)
   noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 0.5, init = 1, max = 1.5)
 
   # bring together
@@ -151,8 +151,8 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_CoefVarOnsetTODparam("sod")
   mod1$set_IFRparams(paste0("ma", 1:5))
   mod1$set_maxMa("ma5")
-  mod1$set_Knotparams(paste0("x", 1:9))
-  mod1$set_Infxnparams(paste0("y", 1:10))
+  mod1$set_Knotparams(paste0("x", 1:7))
+  mod1$set_Infxnparams(paste0("y", 1:8))
   mod1$set_Noiseparams(c(paste0("Ne", 1:5)))
   mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
   mod1$set_data(inputdata)
