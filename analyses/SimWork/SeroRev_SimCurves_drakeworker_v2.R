@@ -115,9 +115,9 @@ map$simdat <- purrr::map(map$simdat, "simdat", sero_days = c(125, 175))
 # sens/spec
 get_sens_spec_tbl <- function(sens, spec) {
   tibble::tibble(name =  c("sens",          "spec",        "sero_rev_shape",     "sero_rev_scale"),
-                 min =   c(0.5,              0.5,           2,                    127),
-                 init =  c(0.8,              0.8,           3.5,                  130.4),
-                 max =   c(1,                1,             5,                    133),
+                 min =   c(0.5,              0.5,           1,                    197),
+                 init =  c(0.8,              0.8,           2.5,                  202),
+                 max =   c(1,                1,             4,                    207),
                  dsc1 =  c(sens*1e3,        spec*1e3,       weibullparams$wshape, weibullparams$wscale),
                  dsc2 =  c((1e3-sens*1e3),  (1e3-spec*1e3), 0.5,                  0.1))
 
