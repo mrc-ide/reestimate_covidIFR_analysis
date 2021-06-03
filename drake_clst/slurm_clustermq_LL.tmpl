@@ -10,5 +10,5 @@
 #SBATCH --mail-user=nbrazeau@med.unc.edu
 #SBATCH --mail-type=all
 
-ulimit -v $(( 1024 * {{ memory | 32768 }} ))
+ulimit -v unlimited
 CMQ_AUTH={{ auth }} R --no-save --no-restore -e 'clustermq:::worker("{{ master }}")'
