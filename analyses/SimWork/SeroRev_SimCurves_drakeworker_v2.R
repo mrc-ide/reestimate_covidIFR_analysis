@@ -217,7 +217,7 @@ run_MCMC <- function(path) {
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
-                                      chains = n_chains,
+                                      chains = 10,
                                       burnin = iters,
                                       samples = iters,
                                       rungs = 50,
