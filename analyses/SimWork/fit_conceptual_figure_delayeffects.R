@@ -3,12 +3,12 @@
 ##
 ## Notes:
 ####################################################################################
-set.seed(1234)
 library(COVIDCurve)
 library(tidyverse)
 library(drake)
 source("R/covidcurve_helper_functions.R")
 source("R/my_themes.R")
+set.seed(48)
 
 #............................................................
 # Read in Various Scenarios for Incidence Curves
@@ -263,20 +263,8 @@ lapply(split(fit_map, 1:nrow(fit_map)), function(x){
 #...........................................................
 run_MCMC <- function(path) {
   mod <- readRDS(path)
-  #......................
-  # make cluster object to parallelize chains
-  #......................
-  n_chains <- 10
-  n_cores <- parallel::detectCores()
 
-  if (n_cores < n_chains) {
-    mkcores <- n_cores - 1
-  } else {
-    mkcores <- n_chains
-  }
-
-  cl <- parallel::makeCluster(mkcores)
-
+  # run
   fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
@@ -286,10 +274,7 @@ run_MCMC <- function(path) {
                                       samples = mod$samples,
                                       rungs = mod$rungs,
                                       GTI_pow = 3.0,
-                                      cluster = cl,
                                       thinning = mod$thinning)
-  parallel::stopCluster(cl)
-  gc()
 
   # out
   dir.create("results/Fig_ConceptualFits/", recursive = TRUE)

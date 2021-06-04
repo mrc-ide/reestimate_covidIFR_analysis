@@ -203,18 +203,6 @@ run_MCMC <- function(path) {
   # read in
   mod <- readRDS(path)
 
-  #......................
-  # make cluster object to parallelize chains
-  #......................
-  n_chains <- 10
-  n_cores <- parallel::detectCores()
-
-  if (n_cores < n_chains) {
-    mkcores <- n_cores - 1
-  } else {
-    mkcores <- n_chains
-  }
-
   # set iterations longe for exponential
   if (grepl("sim1|sim4", basename(path))) { # exponential
     iters <- 25e3
@@ -225,7 +213,6 @@ run_MCMC <- function(path) {
   }
 
 
-  cl <- parallel::makeCluster(mkcores)
   fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
@@ -235,10 +222,7 @@ run_MCMC <- function(path) {
                                       samples = iters,
                                       rungs = 50,
                                       GTI_pow = 3.0,
-                                      thinning = thin,
-                                      cluster = cl)
-  parallel::stopCluster(cl)
-  gc()
+                                      thinning = thin)
 
   # out
   dir.create("results/SimCurves_serorev/", recursive = TRUE)

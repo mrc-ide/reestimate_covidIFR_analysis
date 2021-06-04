@@ -8,7 +8,7 @@ library(parallel)
 library(COVIDCurve)
 library(tidyverse)
 source("R/covidcurve_helper_functions.R")
-
+set.seed(48)
 
 #...................................................................................
 # Make Paramset and write to disk for input into MCMC
@@ -360,20 +360,6 @@ lapply(split(fit_map, 1:nrow(fit_map)), function(x){
 #...........................................................
 run_MCMC <- function(path) {
   mod <- readRDS(path)
-  #......................
-  # make cluster object to parallelize chains
-  #......................
-  n_chains <- 10
-  n_cores <- parallel::detectCores()
-
-  if (n_cores < n_chains) {
-    mkcores <- n_cores - 1
-  } else {
-    mkcores <- n_chains
-  }
-
-  # make cores
-  cl <- parallel::makeCluster(mkcores)
 
   # set GTI
   if (grepl("GBR|BRA|NYS|ESP|ITA", basename(path))) {
@@ -394,7 +380,6 @@ run_MCMC <- function(path) {
                                         samples = mod$samples,
                                         rungs = mod$rungs,
                                         GTI_pow = gti,
-                                        cluster = cl,
                                         thinning = mod$thinning)
 
   } else {
@@ -409,11 +394,8 @@ run_MCMC <- function(path) {
                                         samples = mod$samples,
                                         rungs = mod$rungs,
                                         GTI_pow = gti,
-                                        cluster = cl,
                                         thinning = mod$thinning)
   }
-  parallel::stopCluster(cl)
-  gc()
 
   # out
   dir.create("results/Modfits_noserorev/", recursive = TRUE)
