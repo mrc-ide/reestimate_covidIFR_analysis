@@ -6,7 +6,7 @@
 #SBATCH --mem-per-cpu={{ memory | 16384 }}  # memory
 #SBATCH --cpus-per-task 4                   # for parallelization
 #SBATCH --array=1-{{ n_jobs }}              # job array
-#SBATCH --time 72:00:00                     # time
+#SBATCH --time 96:00:00                     # time
 #SBATCH --mail-user=nbrazeau@med.unc.edu
 #SBATCH --mail-type=all
 
