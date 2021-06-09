@@ -188,7 +188,7 @@ tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
 ifr_paramsdf <- make_ma_reparamdf(num_mas = 3, upperMa = 0.4)
 knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 286, init = 290, max = 300, dsc1 = 286, dsc2 = 300),
                                         num_xs = 4)
-infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14.91, dsc1 = 0, dsc2 = 14.91),
+infxn_paramsdf <- make_spliney_reparamdf(max_y = 14.91,
                                          num_ys = 5)
 noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 3, min = 0.5, init = 1, max = 1.5)
 # bring together
@@ -208,7 +208,6 @@ mod1_reg$set_maxMa("ma3")
 mod1_reg$set_Knotparams(paste0("x", 1:4))
 mod1_reg$set_relKnot("x4")
 mod1_reg$set_Infxnparams(paste0("y", 1:5))
-mod1_reg$set_relInfxn("y3")
 mod1_reg$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_reg$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_reg$set_data(reginputdata)
@@ -224,7 +223,6 @@ mod1_serorev$set_maxMa("ma3")
 mod1_serorev$set_Knotparams(paste0("x", 1:4))
 mod1_serorev$set_relKnot("x4")
 mod1_serorev$set_Infxnparams(paste0("y", 1:5))
-mod1_serorev$set_relInfxn("y3")
 mod1_serorev$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_serorev$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
 mod1_serorev$set_data(serorev_inputdata)
@@ -267,7 +265,7 @@ run_MCMC <- function(path) {
   # run
   fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = TRUE,
-                                      reparamInfxn = TRUE,
+                                      reparamInfxn = FALSE,
                                       reparamKnots = TRUE,
                                       chains = 10,
                                       burnin = mod$burnin,

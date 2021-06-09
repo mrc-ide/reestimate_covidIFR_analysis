@@ -150,7 +150,7 @@ tod_paramsdf <- tibble::tibble(name = c("mod", "sod", "sero_con_rate"),
 ifr_paramsdf <- make_ma_reparamdf(num_mas = 3, upperMa = 0.4)
 knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 186, init = 190, max = 200, dsc1 = 186, dsc2 = 200),
                                         num_xs = 4)
-infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
+infxn_paramsdf <- make_spliney_reparamdf(max_y = 15.42,
                                          num_ys = 5)
 noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 3, min = 0.5, init = 1, max = 1.5)
 # bring together
@@ -169,7 +169,6 @@ mod1_oneday$set_maxMa("ma3")
 mod1_oneday$set_Knotparams(paste0("x", 1:4))
 mod1_oneday$set_relKnot("x4")
 mod1_oneday$set_Infxnparams(paste0("y", 1:5))
-mod1_oneday$set_relInfxn("y3")
 mod1_oneday$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_oneday$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_oneday$set_data(oneday_inputdata)
@@ -185,7 +184,6 @@ mod1_twodays$set_maxMa("ma3")
 mod1_twodays$set_Knotparams(paste0("x", 1:4))
 mod1_twodays$set_relKnot("x4")
 mod1_twodays$set_Infxnparams(paste0("y", 1:5))
-mod1_twodays$set_relInfxn("y3")
 mod1_twodays$set_Noiseparams(c(paste0("Ne", 1:3)))
 mod1_twodays$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
 mod1_twodays$set_data(twodays_inputdata)
@@ -230,7 +228,7 @@ run_MCMC <- function(path) {
   # run
   fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = TRUE,
-                                      reparamInfxn = TRUE,
+                                      reparamInfxn = FALSE,
                                       reparamKnots = TRUE,
                                       chains = 10,
                                       burnin = mod$burnin,

@@ -35,10 +35,10 @@ demog <- tibble::tibble(Strata = c("ma1", "ma2", "ma3", "ma4", "ma5"),
 #...........................................................
 map <- tibble::tibble(nm = c("expgrowth", "intervene", "secondwave",
                              "expgrowth", "intervene", "secondwave"),
-                   curve = list(infxn_shapes$expgrowth, infxn_shapes$intervene, infxn_shapes$secondwave,
-                                infxn_shapes$expgrowth, infxn_shapes$intervene, infxn_shapes$secondwave),
-                   sens = 0.85,
-                   spec = c(rep(0.95, 3), rep(0.99, 3)))
+                      curve = list(infxn_shapes$expgrowth, infxn_shapes$intervene, infxn_shapes$secondwave,
+                                   infxn_shapes$expgrowth, infxn_shapes$intervene, infxn_shapes$secondwave),
+                      sens = 0.85,
+                      spec = c(rep(0.95, 3), rep(0.99, 3)))
 
 
 map <- tibble::as_tibble(map) %>%
@@ -96,8 +96,8 @@ wrap_sim <- function(nm, curve, sens, spec, mod, sero_rate, fatalitydata, demog,
     dplyr::arrange(SeroStartSurvey, Strata)
 
   inputdata <- list(obs_deaths = dat$Agg_TimeSeries_Death,
-                   prop_deaths = prop_strata_obs_deaths,
-                   obs_serology = obs_serology)
+                    prop_deaths = prop_strata_obs_deaths,
+                    obs_serology = obs_serology)
   out <- list(simdat = dat,
               inputdata = inputdata)
   return(out)
@@ -137,14 +137,8 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   ifr_paramsdf <- make_ma_reparamdf(num_mas = 5, upperMa = 0.4)
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 186, init = 190, max = 200, dsc1 = 186, dsc2 = 200),
                                           num_xs = 4)
-
-  if (nm == "expgrowth") {
-    infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y5", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
-                                             num_ys = 5)
-  } else {
-    infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
-                                             num_ys = 5)
-  }
+  infxn_paramsdf <- make_spliney_reparamdf(max_y = 15.42,
+                                           num_ys = 5)
   noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 0.5, init = 1, max = 1.5)
 
   # bring together
@@ -159,7 +153,6 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_Knotparams(paste0("x", 1:4))
   mod1$set_relKnot("x4")
   mod1$set_Infxnparams(paste0("y", 1:5))
-  mod1$set_relInfxn("y3")
   mod1$set_Noiseparams(c(paste0("Ne", 1:5)))
   mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
   mod1$set_data(inputdata)
@@ -203,26 +196,17 @@ run_MCMC <- function(path) {
   # read in
   mod <- readRDS(path)
 
-  # set iterations longe for exponential
-  if (grepl("sim1|sim4", basename(path))) { # exponential
-    iters <- 5e4
-    thin <- 50
-  } else {
-    iters <- 1e4
-    thin <- 10
-  }
-
-
+  # fit
   fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = TRUE,
-                                      reparamInfxn = TRUE,
+                                      reparamInfxn = FALSE,
                                       reparamKnots = TRUE,
                                       chains = 10,
-                                      burnin = iters,
-                                      samples = iters,
+                                      burnin = 1e4,
+                                      samples = 1e4,
                                       rungs = 50,
                                       GTI_pow = 3.0,
-                                      thinning = thin)
+                                      thinning = 10)
 
   # out
   dir.create("results/SimCurves_serorev/", recursive = TRUE)
