@@ -286,3 +286,28 @@ cowplot::plot_grid(pA, pB, ncol = 1)
 
 ```
 
+\pagebreak
+#### Additional Parameters
+```{r}
+# knots ifrs 
+knots <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, 
+                                        whichrung = "rung50",
+                                        what = "Knotparams", by_chain = FALSE)
+
+ypos <- COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, 
+                                       whichrung = "rung50",
+                                       what = "Infxnparams", by_chain = FALSE)
+
+nes <-  COVIDCurve::get_cred_intervals(IFRmodel_inf = modout, 
+                                       whichrung = "rung50",
+                                       what = "Noiseparams", by_chain = FALSE)
+
+addparams <- dplyr::bind_rows(knots, ypos, nes)
+
+```
+```{r, results='asis', fig.width=8, fig.height=6}
+addparams %>% 
+  dplyr::mutate_if(is.numeric, round, 4) %>% 
+  knitr::kable(., format = "simple")
+
+```
