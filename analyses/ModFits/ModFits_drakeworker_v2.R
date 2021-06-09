@@ -386,7 +386,7 @@ run_MCMC <- function(path) {
     # normal binomial case
     fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                         reparamIFR = TRUE,
-                                        reparamInfxn = TRUE,
+                                        reparamInfxn = FALSE,
                                         reparamKnots = TRUE,
                                         binomial_likelihood = TRUE,
                                         chains = 10,
