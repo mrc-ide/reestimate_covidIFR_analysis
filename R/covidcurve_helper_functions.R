@@ -160,7 +160,7 @@ get_sens_spec <- function(path) {
 make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
                                          groupvar, dat,
                                          num_xs, max_xveclist,
-                                         num_ys, max_yveclist,
+                                         num_ys, max_y,
                                          sens_spec_tbl, tod_paramsdf,
                                          upperMa = 0.4) {
 
@@ -170,7 +170,7 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
 
-  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
+  infxn_paramsdf <- make_spliney_reparamdf(max_y = max_y,
                                            num_ys = num_ys)
 
   if (num_mas > 1) {
@@ -248,7 +248,6 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1$set_Knotparams(paste0("x", 1:num_xs))
     mod1$set_relKnot(max_xveclist[["name"]])
     mod1$set_Infxnparams(paste0("y", 1:num_ys))
-    mod1$set_relInfxn(max_yveclist[["name"]])
     mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
     mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
     mod1$set_data(inputdata)
@@ -266,7 +265,6 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1$set_Knotparams(paste0("x", 1:num_xs))
     mod1$set_relKnot(max_xveclist[["name"]])
     mod1$set_Infxnparams(paste0("y", 1:num_ys))
-    mod1$set_relInfxn(max_yveclist[["name"]])
     mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
     mod1$set_data(inputdata)
     mod1$set_demog(demog)
@@ -286,7 +284,7 @@ make_noSeroRev_IFR_model_fit <- function(num_mas, maxMa,
 make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
                                        groupvar, dat,
                                        num_xs, max_xveclist,
-                                       num_ys, max_yveclist,
+                                       num_ys, max_y,
                                        sens_spec_tbl, tod_paramsdf,
                                        upperMa = 0.4) {
 
@@ -296,7 +294,7 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
   knot_paramsdf <- make_splinex_reparamdf(max_xvec = max_xveclist,
                                           num_xs = num_xs)
 
-  infxn_paramsdf <- make_spliney_reparamdf(max_yvec = max_yveclist,
+  infxn_paramsdf <- make_spliney_reparamdf(max_y = max_y,
                                            num_ys = num_ys)
 
   if (num_mas > 1) {
@@ -373,7 +371,6 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1$set_Knotparams(paste0("x", 1:num_xs))
     mod1$set_relKnot(max_xveclist[["name"]])
     mod1$set_Infxnparams(paste0("y", 1:num_ys))
-    mod1$set_relInfxn(max_yveclist[["name"]])
     mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
     mod1$set_Noiseparams(paste0("Ne", 1:num_mas))
     mod1$set_data(inputdata)
@@ -392,7 +389,6 @@ make_SeroRev_IFR_model_fit <- function(num_mas, maxMa,
     mod1$set_Knotparams(paste0("x", 1:num_xs))
     mod1$set_relKnot(max_xveclist[["name"]])
     mod1$set_Infxnparams(paste0("y", 1:num_ys))
-    mod1$set_relInfxn(max_yveclist[["name"]])
     mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate", "sero_rev_shape", "sero_rev_scale"))
     mod1$set_data(inputdata)
     mod1$set_demog(demog)
@@ -424,30 +420,19 @@ make_ma_reparamdf <- function(num_mas = 10, upperMa) {
 
 #' @title Make Spline Y Position Reparameterized Param Df
 #' @param num_ys positive interger; Number of Spline Y positions to infer
-#' @param max_yvec vector; Describes the ymax position. Rest will be uniform 0,1 for reparameterized positions
+#' @param max_y numeric; DSet the max Y position
 
-make_spliney_reparamdf <- function(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14, dsc1 = 0, dsc2 = 14),
+make_spliney_reparamdf <- function(max_y = 15,
                                    num_ys = 5) {
   assert_pos_int(num_ys)
-  assert_in(names(max_yvec), c("name", "min", "init", "max", "dsc1", "dsc2"))
-  assert_in(c("name", "min", "init", "max", "dsc1", "dsc2"), names(max_yvec))
-  assert_string(max_yvec[["name"]])
-  assert_numeric(max_yvec[["min"]])
-  assert_numeric(max_yvec[["init"]])
-  assert_numeric(max_yvec[["max"]])
-  assert_numeric(max_yvec[["dsc1"]])
-  assert_numeric(max_yvec[["dsc2"]])
-
+  assert_single_numeric(max_y)
   out <- tibble::tibble(name = paste0("y", 1:num_ys),
                         min  = rep(0, size = num_ys),
-                        init = rep(0.1, size = num_ys),
-                        max = rep(1, size = num_ys),
+                        init = rep(1, size = num_ys),
+                        max = rep(max_y, size = num_ys),
                         dsc1 = rep(0, size = num_ys),
-                        dsc2 = rep(1, size = num_ys))
-  out %>%
-    dplyr::filter(name != max_yvec["name"]) %>%
-    dplyr::bind_rows(., max_yvec) %>%
-    dplyr::arrange(name)
+                        dsc2 = rep(max_y, size = num_ys))
+ return(out)
 }
 
 #' @title Make Spline X (Knots) Position Reparameterized Param Df
