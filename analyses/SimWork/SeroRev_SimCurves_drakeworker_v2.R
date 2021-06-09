@@ -139,10 +139,10 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
                                           num_xs = 4)
 
   if (nm == "expgrowth") {
-    infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y5", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
+    infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y5", min = 0, init = 9, max = 14.92, dsc1 = 0, dsc2 = 14.92),
                                              num_ys = 5)
   } else {
-    infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 15.42, dsc1 = 0, dsc2 = 15.42),
+    infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14.92, dsc1 = 0, dsc2 = 14.92),
                                              num_ys = 5)
   }
   noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 5, min = 0.5, init = 1, max = 1.5)

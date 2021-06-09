@@ -188,7 +188,7 @@ tod_paramsdf_serorev <- rbind(tod_paramsdf, serorev)
 ifr_paramsdf <- make_ma_reparamdf(num_mas = 3, upperMa = 0.4)
 knot_paramsdf <- make_splinex_reparamdf(max_xvec = list("name" = "x4", min = 286, init = 290, max = 300, dsc1 = 286, dsc2 = 300),
                                         num_xs = 4)
-infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14.91, dsc1 = 0, dsc2 = 14.91),
+infxn_paramsdf <- make_spliney_reparamdf(max_yvec = list("name" = "y3", min = 0, init = 9, max = 14.92, dsc1 = 0, dsc2 = 14.92),
                                          num_ys = 5)
 noise_paramsdf <- make_noiseeff_reparamdf(num_Nes = 3, min = 0.5, init = 1, max = 1.5)
 # bring together
