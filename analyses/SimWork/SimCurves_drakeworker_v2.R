@@ -199,8 +199,8 @@ run_MCMC <- function(path) {
 
   # set iterations longe for exponential
   if (grepl("sim1|sim4", basename(path))) { # exponential
-    iters <- 25e3
-    thin <- 25
+    iters <- 5e4
+    thin <- 50
   } else {
     iters <- 1e4
     thin <- 10
