@@ -152,7 +152,11 @@ wrap_make_IFR_model <- function(nm, curve, inputdata, sens_spec_tbl, demog) {
   mod1$set_Knotparams(paste0("x", 1:4))
   mod1$set_relKnot("x4")
   mod1$set_Infxnparams(paste0("y", 1:5))
-  mod1$set_relInfxn("y3")
+  if (nm == "expgrowth") {
+    mod1$set_relInfxn("y5")
+  } else {
+    mod1$set_relInfxn("y3")
+  }
   mod1$set_Noiseparams(c(paste0("Ne", 1:5)))
   mod1$set_Serotestparams(c("sens", "spec", "sero_con_rate"))
   mod1$set_data(inputdata)
@@ -196,26 +200,17 @@ run_MCMC <- function(path) {
   # read in
   mod <- readRDS(path)
 
-
-  # set iterations longe for exponential
-  if (grepl("sim1|sim4", basename(path))) { # exponential
-    iters <- 5e4
-    thin <- 50
-  } else {
-    iters <- 1e4
-    thin <- 10
-  }
-
+  # fit
   fit <- COVIDCurve::run_IFRmodel_age(IFRmodel = mod$modelobj[[1]],
                                       reparamIFR = TRUE,
                                       reparamInfxn = TRUE,
                                       reparamKnots = TRUE,
                                       chains = 10,
-                                      burnin = iters,
-                                      samples = iters,
+                                      burnin = 1e4,
+                                      samples = 1e4,
                                       rungs = 50,
                                       GTI_pow = 3.0,
-                                      thinning = thin)
+                                      thinning = 10)
 
   # out
   dir.create("results/SimCurves_noserorev/", recursive = TRUE)
