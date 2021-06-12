@@ -8,7 +8,7 @@ library(parallel)
 library(COVIDCurve)
 library(tidyverse)
 source("R/covidcurve_helper_functions.R")
-set.seed(1234)
+set.seed(48)
 
 #...................................................................................
 # Make Paramset and write to disk for input into MCMC
