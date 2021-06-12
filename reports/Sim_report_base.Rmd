@@ -287,6 +287,67 @@ cowplot::plot_grid(pA, pB, ncol = 1)
 ```
 
 \pagebreak
+#### Death Posterior Predictive Check
+```{r}
+#......................
+# get deaths posterior pred check
+#......................
+# recast deaths
+proplist <- split(modout$inputs$IFRmodel$data$prop_deaths, 1:nrow(modout$inputs$IFRmodel$data$prop_deaths))
+
+deathrecast <- lapply(proplist,
+                      function(x){
+                        tibble::tibble(
+                          Strata = x$Strata,
+                          Deaths = x$PropDeaths * modout$inputs$IFRmodel$data$obs_deaths$Deaths)}) %>% 
+  dplyr::bind_rows(.) %>% 
+  dplyr::group_by(Strata) %>% 
+  dplyr::mutate(ObsDay = 1:nrow(modout$inputs$IFRmodel$data$obs_deaths)) %>% 
+  dplyr::ungroup(.)
+
+
+#...................... 
+# get posterior draws
+#......................
+postdat <- COVIDCurve::posterior_check_infxns_to_death(IFRmodel_inf = modout,
+                                                       whichrung = "rung50",
+                                                       dwnsmpl = 1e2,
+                                                       by_chain = FALSE)
+postdat_long <- postdat %>%
+  dplyr::select(c("sim", "time", dplyr::starts_with("deaths"))) %>%
+  tidyr::gather(., key = "param", value = "deaths", 3:ncol(.)) %>%
+  dplyr::mutate(param = gsub("deaths_", "", param)) %>% 
+  dplyr::mutate(strata = forcats::fct_reorder(param, as.numeric(stringr::str_extract(param, "[0-9]+"))))
+
+#......................
+# get deaths posterior pred check
+#......................
+datclean <-  deathrecast %>% 
+  dplyr::mutate(strata = forcats::fct_reorder(Strata, as.numeric(stringr::str_extract(Strata, "[0-9]+")))) 
+
+
+#...................... 
+# make plot
+#......................
+ppc_plot <- ggplot() +
+  geom_line(data = postdat_long, aes(x= time, y = deaths, group = sim), 
+            size = 1.2, color = "#bdbdbd") +
+  geom_line(data = datclean, aes(x=ObsDay, y = Deaths), 
+            color = "#3182bd") +
+  facet_wrap(.~strata) +
+  theme_bw() +
+  xlab("Time") + ylab("Deaths") + 
+  theme(plot.title = element_text(hjust = 0.5, vjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5, vjust = 0.5)) 
+
+```
+
+```{r, results='asis', fig.width=7.5, fig.height=9.5}
+plot(ppc_plot)
+```
+
+
+\pagebreak
 #### Additional Parameters
 ```{r}
 # knots ifrs 
