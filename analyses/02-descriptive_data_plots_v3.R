@@ -809,6 +809,11 @@ jpeg("figures/final_figures/Figure_Rgn_crude_IFR.jpg",
 plot(mainfig)
 graphics.off()
 
+mainfig <- cowplot::plot_grid(PanelA_nolegend, legend, ncol = 1, rel_heights = c(1, 0.1))
+jpeg("figures/final_figures/Figure_cum_deaths_seroprev.jpg",
+     width = 11, height = 8, units = "in", res = 500)
+mainfig
+graphics.off()
 
 
 
