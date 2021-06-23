@@ -7,7 +7,7 @@ library(drake)
 library(tidyverse)
 library(COVIDCurve)
 source("R/covidcurve_helper_functions.R")
-set.seed(48)
+set.seed(1234)
 
 
 #............................................................

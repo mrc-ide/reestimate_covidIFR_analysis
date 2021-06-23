@@ -8,7 +8,7 @@ library(tidyverse)
 library(drake)
 source("R/covidcurve_helper_functions.R")
 source("R/my_themes.R")
-set.seed(48)
+set.seed(1234)
 
 #............................................................
 # Read in Various Scenarios for Incidence Curves
