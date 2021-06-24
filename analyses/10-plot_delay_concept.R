@@ -69,6 +69,10 @@ quick_sero_diagnostics(param_map$fit[[1]])
 quick_sero_diagnostics(param_map$fit[[2]])
 COVIDCurve::get_cred_intervals(param_map$fit[[1]], whichrung = "rung50", what = "IFRparams", by_chain = F)
 COVIDCurve::get_cred_intervals(param_map$fit[[2]], whichrung = "rung50", what = "IFRparams", by_chain = F)
+
+COVIDCurve::get_cred_intervals(param_map$fit[[1]], whichrung = "rung50", what = "Serotestparams", by_chain = F)
+COVIDCurve::get_cred_intervals(param_map$fit[[2]], whichrung = "rung50", what = "Serotestparams", by_chain = F)
+
 #......................
 # quick plot
 #......................
@@ -258,17 +262,10 @@ serorev_infIFR_plotObj <- ggplot() +
 popN <- param_map$modelobj[[1]]$demog %>%
   dplyr::filter(Strata == "ma3") %>%
   dplyr::pull("popN")
-# rho was 1 so were spread according to population size
-pwi <- popN/sum(param_map$modelobj[[1]]$demog$popN)
 
 #......................
 # tidy up and combine
 #......................
-cuminxns <-  tibble::tibble(time = 1:length(param_map$infxns[[1]]),
-                            infxns = param_map$infxns[[1]]) %>%
-  dplyr::mutate(infxns = infxns * pwi, # rho infections were split evenly across
-                cumincidence = cumsum(infxns)/popN)
-
 cumdeaths <- param_map$simdat[[1]]$StrataAgg_TimeSeries_Death %>%
   dplyr::filter(Strata == "ma3") %>%
   dplyr::mutate(cumDeaths = cumsum(Deaths)/popN) %>%
@@ -290,8 +287,7 @@ serodf_rev <- param_map$simdat[[2]]$StrataAgg_Seroprev %>%
 
 
 # combine
-datdf <- dplyr::left_join(cumdeaths, cuminxns, by = "time") %>%
-  dplyr::left_join(., serodf_norev, by = "time") %>%
+datdf <- dplyr::left_join(cumdeaths, serodf_norev, by = "time") %>%
   dplyr::left_join(., serodf_rev, by = "time")
 
 # long
@@ -299,11 +295,11 @@ plotdatdf <- datdf %>%
   dplyr::select(-c("Strata", "Deaths")) %>%
   tidyr::pivot_longer(., cols = -c("time"), names_to = "datlevel", values_to = "prop") %>%
   dplyr::mutate(datlevel = factor(datlevel,
-                                  levels = c("cumincidence", "cumDeaths",
-                                             "regTruePrev", "regObsPrev", "revObsPrev"),
+                                  levels = c("regTruePrev", "cumDeaths",
+                                              "regObsPrev", "revObsPrev"),
                                   labels = c("Infected",
                                              "Deaths",
-                                             "True Seroprev.", "Obs. Seroprev.",
+                                             "Obs. Seroprev.",
                                              "Obs. Serorev."
                                   )))
 
@@ -315,7 +311,7 @@ arrows <- tibble::tibble(
   x =    c(87,    139,       250,    10,     290),
   xend = c(136,    160,        250,    10,        290),
   y =    c(0.02,    0.4,       0.715,   0,     0.725),
-  yend = c(0.02,    0.4,       0.615,  0.05,   0.265)
+  yend = c(0.02,    0.4,       0.58,  0.05,   0.445)
 )
 
 
@@ -332,7 +328,6 @@ labels <- tibble::tibble(
 # plot
 #......................
 delay_plotObj <- plotdatdf %>%
-  dplyr::filter(datlevel != "True Seroprev.") %>% # true prev was decided to be excluded from fig
   ggplot() +
   geom_line(aes(x = time, y = prop, color = datlevel), size = 2) +
   geom_segment(data = arrows, aes(x = x, xend = xend, y = y, yend = yend),
@@ -359,6 +354,8 @@ delay_plotObj <- plotdatdf %>%
         panel.border = element_blank(),
         axis.line = element_line(color = "#000000", size = 1))
 
+# view
+delay_plotObj
 
 
 #..........................
