@@ -8,7 +8,7 @@ library(parallel)
 library(COVIDCurve)
 library(tidyverse)
 source("R/covidcurve_helper_functions.R")
-set.seed(48)
+# using drake internal seed
 
 #...................................................................................
 # Make Paramset and write to disk for input into MCMC
