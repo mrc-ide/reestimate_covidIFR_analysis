@@ -308,18 +308,18 @@ plotdatdf <- datdf %>%
 #......................
 arrows <- tibble::tibble(
   lvl =  c("mod", "serocon", "sens", "spec", "serorev"),
-  x =    c(87,    139,       250,    10,     290),
-  xend = c(136,    160,        250,    10,        290),
-  y =    c(0.02,    0.4,       0.715,   0,     0.725),
-  yend = c(0.02,    0.4,       0.58,  0.05,   0.445)
+  x =    c(102,    172,       250,    10,     290),
+  xend = c(136,    187,       250,    10,     290),
+  y =    c(0.02,   0.5,       0.66,  0,      0.675),
+  yend = c(0.02,   0.5,       0.58,   0.05,   0.445)
 )
 
 
 labels <- tibble::tibble(
   lvl =    c("mod",       "serocon",    "sens",    "spec",  "serorev"),
   label =  c("I-D Delay", "I-S Delay",  "Sens.",   "Spec.",  "I-R Delay"),
-  x =      c(172,          107,          225,       12,       257),
-  y =      c(0.02,          0.4,         0.65,    0.09,      0.50),
+  x =      c(168,          149,          227,       12,       257),
+  y =      c(0.02,         0.5,         0.595,    0.09,      0.50),
 )
 
 
@@ -361,8 +361,12 @@ delay_plotObj
 #..........................
 # Inset of Infxn Curve
 #..........................
+# original curve that we simulated from w/ poisson distribution
+infxnsdf <- tibble::tibble(time = 1:length(dat_map$infxns[[1]]),
+                           infxns = dat_map$infxns[[1]])
+
 infxninset_plotObj <- ggplot() +
-  geom_line(data = datdf, aes(x = time, y = infxns), color = "#252525", size = 1.1) +
+  geom_line(data = infxnsdf, aes(x = time, y = infxns), color = "#252525", size = 1.1) +
   xlab("Time (days)") + ylab("Daily Infections") +
   theme(axis.title = element_text(family = "Helvetica", hjust = 0.5, size = 7.5),
         axis.text = element_text(family = "Helvetica", hjust = 0.5, size = 6),
