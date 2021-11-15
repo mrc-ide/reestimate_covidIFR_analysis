@@ -1,4 +1,5 @@
 # Reestimating IFRs with Serology Data Research Compendium 
+[![DOI](https://zenodo.org/badge/267118325.svg)](https://zenodo.org/badge/latestdoi/267118325)
 
 The structure of this research compendium loosely follows the framework of an R-package for reproducing our analysis (for more information on research compendiums, see [ROpenSci Team](https://github.com/ropensci/rrrpkg)).  
 
